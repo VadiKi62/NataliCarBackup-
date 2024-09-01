@@ -1,0 +1,36 @@
+{
+  "menu": {
+    "Menu": "Menu",
+    "call1": "Call the waiter",
+    "call2": "Call the bill",
+    "table": "Table",
+    "run": "The Waiter is running to you!",
+    "About": "About",
+    "close": "close"
+  },
+  "hero": {
+    "wellcome": "Welcome to",
+    "argo": "Αρα...ζω Restaurant",
+    "menu": "Our Menu",
+    "about": "About Us"
+  },
+  "about": {
+    "about": "With exquisite cuisine made from the bounty of the sea and panoramic views of endless blue waters, Ara...zo promises an unforgettable oceanfront dining experience."
+  },
+  "bill": {
+    "payment": "Is the payment with cash?"
+  },
+  "header": {
+    "table": "Your table is",
+    "call": "For calling waiter click the button"
+  },
+  "alert": {
+    "got": "Success! Waiter got it!",
+    "oops": "oooops. Something got wrong. Your message wasn't sent. Please, try again.",
+    "run": " Waiter is already running to you.",
+    "inside": "You need to be inside the restaurant to call the waiter.",
+    "geoError": "GeoLocation Error:",
+    "else": "Do you want to order something more instead of Bill?",
+    "enableLoc": "Please enable location services to be able to call waiter.Our app need to check if you are inside the restaurant, otherwise you won't be able to call the waiter."
+  }
+}
