@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { styled } from "@mui/material/styles";
 import { Paper, Typography, useMediaQuery, useTheme, Stack,Divider, Box } from "@mui/material";
 import Image from "next/image";
@@ -22,8 +23,7 @@ flexDirection: "column",
 
 const Wrapper = styled(Box)(({ theme }) => ({
   display: "flex",
-//   justifyContent: "space-between",
-//   alignItems: "center",
+
     [theme.breakpoints.down("sm")]: {
 flexDirection: "column", 
       alignItems: "center",
@@ -71,31 +71,51 @@ const CarInfo = styled(Typography)(({ theme }) => ({
   color: "gray",
 }));
 
+
 function CarItemComponent({ car }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // Extract unavailable dates from car orders
+  const getUnavailableDates = () => {
+    if (!car.orders || car.orders.length === 0) {
+      return { start: null, end: null };
+    }
+
+    // Sort orders by start date
+    const sortedOrders = [...car.orders].sort((a, b) => 
+      new Date(a.rentalStartDate) - new Date(b.rentalStartDate)
+    );
+
+    // Get the earliest start date and latest end date
+    const start = sortedOrders[0].rentalStartDate;
+    const end = sortedOrders[sortedOrders.length - 1].rentalEndDate;
+console.log(start)
+    return { start, end };
+  };
+
+  const unavailableDates = getUnavailableDates();
+
   return (
-//     <Stack sx={{width:"100%"}}  direction="column"
-//   divider={<Divider orientation="vertical" flexItem />}
-//   spacing={2}>
     <StyledCarItem>
-        <Wrapper>
-      <CarImage src={car.photoUrl} alt={car.model} width={400} height={200}  />
-      <CarDetails>
-        <CarTitle>{car.model}</CarTitle>
-        <CarInfo>Class: {car.class}</CarInfo>
-        <CarInfo>Transmission: {car.transmission}</CarInfo>
-        <CarInfo>Doors: {car.numberOfDoors}</CarInfo>
-        <CarInfo>AC: {car.airConditioning ? "Yes" : "No"}</CarInfo>
-
-        <CarPrice>Price per day: ${car.pricePerDay}</CarPrice>
-
-      </CarDetails>
+      <Wrapper>
+        <Link href={`/car/${car._id}`}>
+          <CarImage src={car.photoUrl} alt={car.model} width={400} height={200} />
+          <CarDetails>
+            <CarTitle>{car.model}</CarTitle>
+            <CarInfo>Class: {car.class}</CarInfo>
+            <CarInfo>Transmission: {car.transmission}</CarInfo>
+            <CarInfo>Doors: {car.numberOfDoors}</CarInfo>
+            <CarInfo>AC: {car.airConditioning ? "Yes" : "No"}</CarInfo>
+            <CarPrice>Price per day: ${car.pricePerDay}</CarPrice>
+          </CarDetails>
+        </Link>
       </Wrapper>
-       
 
-    <ScrollingCalendar />
+      <ScrollingCalendar 
+        onDateSelect={(date) => console.log('Selected date:', date)} 
+        datesNotForBooking={unavailableDates}
+      />
     </StyledCarItem>
   );
 }

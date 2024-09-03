@@ -8,7 +8,7 @@ function notfound() {
       <h3 style={{ marginBottom: 20 }}>oops! sorry, this page wasnot found </h3>
 
       <Image
-        src="/logos/anim.gif"
+        src="/favicon.png"
         alt="bb qr code ki"
         width={200}
         height={200}

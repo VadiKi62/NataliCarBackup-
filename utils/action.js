@@ -3,9 +3,9 @@ export const API_URL =
     ? process.env.NEXT_LOCAL_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const fetchCar= async (carId)=> {
+export const fetchCar = async (id) => {
   try {
-    const response = await fetch(`/api/cars/${carId}`, {
+    const response = await fetch(`${API_URL}/api/car/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -28,6 +28,7 @@ export const fetchCar= async (carId)=> {
     throw error; // Re-throwing the error so the caller can handle it
   }
 }
+
 
 export const fetchAll = async (restId) => {
   try {

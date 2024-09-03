@@ -37,21 +37,14 @@ export default async function Home ()
         </div>
       </div> */}
 
-     <div className={ styles.center }>
+     <div >
       <h1>
         CARS FOR RENT </h1>
-        {/* <Image
-          className={styles.logo}
-          src="/bbqr.png"
-          alt="BBQR group"
-          width={180}
-          height={110}
-          priority
-        />  */}
+
    </div> 
 
       <Suspense fallback={<Loading />}>
-        <Feed  carsData={carsData} />
+        <Feed  carsData={carsData} isMain />
       </Suspense>
     </main>
   );

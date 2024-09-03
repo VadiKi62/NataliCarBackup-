@@ -4,7 +4,8 @@ import { connectToDB } from "@utils/database";
 export const GET = async (request, { params }) => {
   try {
     await connectToDB(); 
-    const car = await Car.findById(params.carId);
+    console.log(params)
+    const car = await Car.findById(params.id);
 
     if (!car) {
       return new Response("Car not found", { status: 404 });

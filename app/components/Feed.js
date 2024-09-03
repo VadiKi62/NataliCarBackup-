@@ -8,6 +8,7 @@ import { Grid, CircularProgress,Container } from "@mui/material";
 // import Footer from "./Footer";
 // import Navbar from "./Navbar";
 import { unstable_noStore } from "next/cache";
+import CarPage from "@app/components/CarPage"
 // import ScrollButton from "./common/ScrollButton";
 
 import theme from "@theme";
@@ -23,37 +24,28 @@ import i from "@locales/i18n";
 
 function Feed({ children, ...props }) {
   unstable_noStore();
-  const { carsData } = props;
+  const { carsData, isMain, car } = props;
 
   // const searchParams = useSearchParams();
   // const dev = searchParams.get("dev") || null;
   // const menuRef = useRef();
   // const headerRef = useRef();
-    if (!carsData) {
-    return <Loading />;
-  }
+  //   if (!carsData || !car) {
+  //   return <Loading />;
+  // }
 
   return (
+        <Container>
     <Suspense fallback={<Loading />}>
       <ThemeProvider theme={theme}>
         <I18nextProvider i18n={i}>
-
-          {/* <Navbar restData={restData} headerRef={headerRef} /> */}
-          {/* <MainContent menuData={menuData} menuRef={menuRef} rest={restData} /> */}
-          {/* <HeroLayout /> */}
-          {/* <Menu
-            menuData={menuData}
-            menuRef={menuRef}
-            headerRef={headerRef}
-          ></Menu> */}
           { children }
-          <CarGrid carsData={ carsData } />
-          {/* <Footer rest={restData} />
-          <ScrollButton /> */}
-  
+        {carsData ? <CarGrid carsData={ carsData } /> : <CarPage car={car}/>}
+
         </I18nextProvider>
       </ThemeProvider>
     </Suspense>
+    </Container>
   );
 }
 

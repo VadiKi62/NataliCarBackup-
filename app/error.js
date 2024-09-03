@@ -4,10 +4,10 @@ import React from "react";
 
 function error() {
   return (
-    <div className="loading-container">
+    <div className="loading-container vibrate-1">
       <h3 style={{ marginBottom: 20 }}>Ooops! error...</h3>{" "}
       <Image
-        src="/logos/anim.gif"
+        src="/favicon.png"
         alt="bb qr code ki"
         width={130}
         height={130}

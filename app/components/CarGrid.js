@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Container, CircularProgress } from "@mui/material";
+
 import CarItemComponent from "./CarItemComponent"; // A new component we'll define for individual car items
 
 function CarGrid({carsData}) {
@@ -19,11 +20,13 @@ function CarGrid({carsData}) {
   return (
 
     <Container>
-      <Grid container spacing={2} direction="column">
+      <Grid container spacing={2} direction="column" width="100%">
         {carsData.map((car) => (
+            
           <Grid item xs={12} sx={{padding:1}} key={car._id} >
             <CarItemComponent car={car} />
           </Grid>
+
         ))}
       </Grid>
     </Container>
