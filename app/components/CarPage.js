@@ -1,14 +1,13 @@
-"use client"
-import React,{useState} from "react";
+"use client";
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Paper, Typography, Box, Button } from "@mui/material";
 import Image from "next/image";
 import ScrollingCalendar from "./ScrollingCalendar";
-import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa"; 
+import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa";
 import BookingModal from "./BookingModal";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 // import BookingModal from "./BookingModal";
-
 
 // Full-screen container for the car page
 const StyledCarPage = styled(Box)(({ theme }) => ({
@@ -16,9 +15,8 @@ const StyledCarPage = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   justifyContent: "flex-start",
-  minHeight: "100vh", // Full viewport height
-  backgroundColor: "#f5f5f5", // Light gray background for a clean look
-  padding: theme.spacing(4),
+  minHeight: "100vh",
+  padding: theme.spacing(0),
   position: "relative",
 }));
 
@@ -89,8 +87,8 @@ const CarInfoText = styled(Typography)(({ theme }) => ({
 const BookButton = styled(Button)(({ theme }) => ({
   position: "sticky", // Sticky positioning
   top: theme.spacing(1), // Sticks 16px from the top of the viewport
-//   left: "50%",
-//   transform: "translateX(-50%)",
+  //   left: "50%",
+  //   transform: "translateX(-50%)",
   width: "calc(100% - 20px)", // Slightly smaller than the full width
   maxWidth: "900px",
   backgroundColor: theme.palette.warning.main,
@@ -106,38 +104,18 @@ const BookButton = styled(Button)(({ theme }) => ({
 }));
 
 const PriceSection = styled(Box)(({ theme }) => ({
-//   width: "100%",
+  //   width: "100%",
   padding: theme.spacing(4),
   backgroundColor: theme.palette.primary.red,
   color: "#fff", // White text for contrast
   textAlign: "center",
   fontWeight: 700,
   fontSize: "1.5rem",
-//   bottom: 0,
+  //   bottom: 0,
 }));
 function CarPageComponent({ car }) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [bookDates, setBookDates] = useState({start: null, end: null});
-
-  // Function to get unavailable dates from car orders
-  const getUnavailableDates = () => {
-    if (!car.orders || car.orders.length === 0) {
-      return { start: null, end: null };
-    }
-
-    // Sort orders by start date
-    const sortedOrders = [...car.orders].sort((a, b) => 
-      new Date(a.rentalStartDate) - new Date(b.rentalStartDate)
-    );
-
-    // Get the earliest start date and latest end date
-    const start = dayjs(sortedOrders[0].rentalStartDate).format('YYYY-MM-DD');
-    const end = dayjs(sortedOrders[sortedOrders.length - 1].rentalEndDate).format('YYYY-MM-DD');
-
-    return { start, end };
-  };
-
-  const unavailableDates = getUnavailableDates();
+  const [bookDates, setBookedDates] = useState({ start: null, end: null });
 
   // Function to handle date selection
   const handleDateSelect = (date) => {
@@ -149,9 +127,15 @@ function CarPageComponent({ car }) {
     }
   };
 
+  const handleBookingComplete = () => {
+    setModalOpen(true);
+  };
+
   return (
     <StyledCarPage>
-      <BookButton variant="contained" onClick={() => setModalOpen(true)}>BOOK NOW</BookButton>
+      <BookButton variant="contained" onClick={() => setModalOpen(true)}>
+        BOOK NOW
+      </BookButton>
 
       <StyledCarCard>
         <CarImage src={car.photoUrl} alt={car.model} width={800} height={400} />
@@ -172,7 +156,9 @@ function CarPageComponent({ car }) {
             </CarInfoBox>
             <CarInfoBox>
               <FaSnowflake size={24} color="#555" />
-              <CarInfoText>AC: {car.airConditioning ? "Yes" : "No"}</CarInfoText>
+              <CarInfoText>
+                AC: {car.airConditioning ? "Yes" : "No"}
+              </CarInfoText>
             </CarInfoBox>
           </CarInfoSection>
         </CarDetails>
@@ -183,12 +169,14 @@ function CarPageComponent({ car }) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}
-        presetDates={{ startDate: bookDates.start, endDate: bookDates.end }} 
+        presetDates={{ startDate: bookDates.start, endDate: bookDates.end }}
       />
 
-      <ScrollingCalendar 
-        onDateSelect={handleDateSelect}
-        datesNotForBooking={unavailableDates}
+      <ScrollingCalendar
+        // onDateSelect={handleDateSelect}
+        onDateSelect={(date) => console.log("Selected date:", date)}
+        setBookedDates={setBookedDates}
+        onBookingComplete={handleBookingComplete}
       />
     </StyledCarPage>
   );

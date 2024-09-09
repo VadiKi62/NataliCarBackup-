@@ -3,9 +3,9 @@ import { connectToDB } from "@utils/database";
 
 export const GET = async (request, { params }) => {
   try {
-    await connectToDB(); 
-    console.log(params)
-    const car = await Car.findById(params.id);
+    await connectToDB();
+
+    const car = await Car.findById(params.id).populate("orders");
 
     if (!car) {
       return new Response("Car not found", { status: 404 });
@@ -13,7 +13,7 @@ export const GET = async (request, { params }) => {
 
     return new Response(JSON.stringify(car), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     return new Response("Failed to fetch car", { status: 500 });

@@ -10,8 +10,8 @@ function loading() {
         src="/favicon.png"
         alt="bb qr code ki"
         className="spinning-icon loop-spinning"
-        width={120}
-        height={120}
+        width={100}
+        height={100}
         priority
       />
       {/* <Image

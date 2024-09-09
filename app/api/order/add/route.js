@@ -1,128 +1,76 @@
-// import { Rest } from "@models/rest";
-// import { Menu } from "@models/menu";
-// // import { generateCategories } from "@utils/functions";
-// import { tomenu } from "@utils/initialMenus";
-// import { connectToDB } from "@utils/database";
+import { Car } from "@models/car";
+import { Order } from "@models/order";
+import { connectToDB } from "@utils/database";
 
-// export const GET = async (request) => {
-//   try {
-//     await connectToDB();
+export async function POST(request) {
+  try {
+    await connectToDB();
 
-//     const getEnglishItemById = (id) => {
-//       const enMenuItem = tomenu.menu.find(
-//         (menuItem) => menuItem.langKey === "en"
-//       );
-//       const item = enMenuItem.items.find((item) => item.menuNumber === id);
-//       return {
-//         price: item.price,
-//         image: item.image,
-//       };
-//     };
+    const {
+      carNumber,
+      customerName,
+      phone,
+      email,
+      rentalStartDate,
+      rentalEndDate,
+      totalPrice,
+    } = await request.json();
 
-//     const menuData = tomenu.menu.map((menuItem) => {
-//       return {
-//         langKey: menuItem.langKey,
-//         items: menuItem.items.map((item) => ({
-//           menuNumber: item.menuNumber,
-//           image: getEnglishItemById(item.menuNumber).image,
-//           weight: item.weight,
-//           per: item.per,
-//           title: item.title,
-//           price: getEnglishItemById(item.menuNumber).price,
-//           category: item.category,
-//           subCategory: item?.subCategory,
-//           ingredients: item.ingredients,
-//           isActive: item?.isActive || true,
-//         })),
-//       };
-//     });
+    // Find the car by its car number
+    const existingCar = await Car.findOne({ carNumber });
 
-//     const data = {
-//       menu: menuData,
-//       restId: tomenu?.restId || "664c6f2346bcd27176505636",
-//     };
+    if (!existingCar) {
+      return new Response(`Car with number ${carNumber} does not exist`, {
+        status: 404,
+      });
+    }
 
-//     const doesRestExist = await Rest.findById(data.restId);
+    // Calculate the number of rental days
+    const startDate = new Date(rentalStartDate);
+    const endDate = new Date(rentalEndDate);
+    const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
 
-//     if (!doesRestExist) {
-//       console.log("this rest doesn't exist");
-//       return new Response("this rest doesn't exist", {
-//         status: 400,
-//       });
-//     }
+    // Calculate the price per day using the car's pricing tiers
+    const pricePerDay = existingCar.calculatePrice(rentalDays);
 
-//     const isMenuForRestexist = await Menu.findOne({ restId: data.restId });
+    // Create a new order document
+    const newOrder = new Order({
+      customerName,
+      phone,
+      email,
+      rentalStartDate: startDate,
+      rentalEndDate: endDate,
+      totalPrice: pricePerDay * rentalDays,
+      car: existingCar._id,
+    });
 
-//     if (isMenuForRestexist) {
-//       return new Response("this menu already exist", {
-//         status: 300,
-//       });
-//     }
-//     const createdMenu = new Menu(data);
+    // Save the new order
+    await newOrder.save();
 
-//     doesRestExist.menu = createdMenu._id;
-//     await doesRestExist.save();
-//     await createdMenu.save();
+    // Add the new order to the car's orders array
+    existingCar.orders.push(newOrder._id);
 
-//     return new Response("SUCCESSSSSS", { status: 200 });
-//   } catch (error) {
-//     return new Response(`Internal Server Error: ${JSON.stringify(error)} `, {
-//       status: 500,
-//     });
-//   }
-// };
+    // Save the updated car document
+    await existingCar.save();
 
-// export const POST = async (request) => {
-//   try {
-//     await connectToDB();
+    // Fetch the updated car with populated orders
+    const updatedCar = await Car.findById(existingCar._id).populate("orders");
 
-//     const menuData = tomenu.menu.map((menuItem) => ({
-//       langKey: menuItem.langKey,
-//       items: menuItem.items.map((item) => ({
-//         menuNumber: item.menuNumber,
-//         image: item.image,
-//         weight: item.weight,
-//         per: item.per,
-//         title: item.title,
-//         price: item.price,
-//         category: item.category,
-//         subCategory: item?.subCategory,
-//         ingredients: item.ingredients,
-//         isActive: item?.isActive || true,
-//       })),
-//     }));
+    return new Response(JSON.stringify(updatedCar), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error adding new order:", error);
+    return new Response(`Failed to add new order: ${error.message}`, {
+      status: 500,
+    });
+  }
+}
 
-//     const data = {
-//       menu: menuData,
-//       restId: tomenu?.restId || "664c6f2346bcd27176505636",
-//     };
-
-//     const doesRestExist = await Rest.findById(data.restId);
-
-//     if (!doesRestExist) {
-//       console.log("this rest doesn't exist");
-//       return new Response("this rest doesn't exist", {
-//         status: 400,
-//       });
-//     }
-
-//     // const isMenuForRestexist = await Menu.findOne({ restId: data.restId });
-
-//     // if (isMenuForRestexist) {
-//     //   return new Response("this menu already exist", {
-//     //     status: 300,
-//     //   });
-//     // }
-//     const createdMenu = new Menu(data);
-
-//     doesRestExist.menu = createdMenu._id;
-//     await doesRestExist.save();
-//     await createdMenu.save();
-
-//     return new Response("SUCCESSSSSS", { status: 200 });
-//   } catch (error) {
-//     return new Response(`Internal Server Error: ${JSON.stringify(error)} `, {
-//       status: 500,
-//     });
-//   }
-// };
+export async function GET(req, res) {
+  return new Response(JSON.stringify({ message: "API is working" }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}

@@ -5,10 +5,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { unstable_noStore } from "next/cache";
 import Loading from "@app/loading";
-import Feed from "@app/components/Feed"
+import Feed from "@app/components/Feed";
 
 export const generateMetadata = async ({ params }) => {
-      console.log(params)
+  console.log(params);
   const { id } = params;
 
   const car = await fetchCar(id);
@@ -23,12 +23,11 @@ export const generateMetadata = async ({ params }) => {
 async function CarPageMain({ params }) {
   unstable_noStore();
 
-  const carData = await await fetchCar(params.id);
+  const carData = await fetchCar(params.id);
 
   return (
-    <Suspense fallback={<Loading  />}>
-
-  <Feed isMain="false" car={carData}/>
+    <Suspense fallback={<Loading />}>
+      <Feed car={carData} />
     </Suspense>
   );
 }

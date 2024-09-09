@@ -4,14 +4,14 @@ import { createTheme } from "@mui/material/styles";
 export default createTheme({
   palette: {
     primary: {
-      main: "#317873",
-      green: "#5f9ea0",
+      main: "#317877",
+      green: "#5f9e40",
       fiolet: "#a0d6b4",
       red: "#733178",
     },
     secondary: {
       main: "#667b68",
-      light: "rgba(160,214,180 0.70)",
+      light: "rgba(160,214,180, 0.70)",
       beige: "#fceee9",
       background: "rgba(163,193,173, 0.70)",
       complement: "#794957",

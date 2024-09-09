@@ -1,69 +1,68 @@
 import { Schema, model, models } from "mongoose";
 
-
-const OrderSchema = new Schema({
-  customerName: {
-    type: String,
-    required: true
-  },
-  rentalStartDate: {
-    type: Date,
-    required: true
-  },
-  rentalEndDate: {
-    type: Date,
-    required: true
-  },
-  totalPrice: {
-    type: Number,
-    required: true
-  }
-});
-
 const CarSchema = new Schema({
   carNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   model: {
     type: String,
-    required: true
+    required: true,
   },
   photoUrl: {
     type: String,
-    required: false
+    required: false,
   },
   class: {
     type: String,
-    enum: ['Economy', 'Premium', 'MiniBus'],
-    required: true
+    enum: ["Economy", "Premium", "MiniBus"],
+    required: true,
   },
   transmission: {
     type: String,
-    enum: ['Automatic', 'Manual'],
-    required: true
+    enum: ["Automatic", "Manual"],
+    required: true,
   },
   numberOfDoors: {
     type: Number,
     min: 2,
     max: 6,
-    required: true
+    required: true,
   },
   airConditioning: {
     type: Boolean,
-    required: true
+    required: true,
   },
   enginePower: {
     type: Number,
-    required: true
+    required: true,
   },
-  pricePerDay: {
-    type: Number,
-    required: true
+  pricingTiers: {
+    type: Object,
+    of: Number,
+    required: true,
   },
-  orders: [OrderSchema]
+  orders: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+    },
+  ],
 });
+
+CarSchema.methods.calculatePrice = function (days) {
+  const tiers = Object.keys(this.pricingTiers)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+  for (let tier of tiers) {
+    if (days <= tier) {
+      return this.pricingTiers[tier];
+    }
+  }
+  return this.pricingTiers[tiers[tiers.length - 1]];
+};
 
 const Car = models.Car || model("Car", CarSchema);
 
