@@ -16,13 +16,24 @@ const CarSchema = new Schema({
   },
   class: {
     type: String,
-    enum: ["Economy", "Premium", "MiniBus"],
+    enum: [
+      "Economy",
+      "Premium",
+      "MiniBus",
+      "Crossover",
+      "Limousine",
+      "Compact",
+      "Convertible",
+    ],
     required: true,
   },
   transmission: {
     type: String,
     enum: ["Automatic", "Manual"],
     required: true,
+  },
+  fueltype: {
+    type: String,
   },
   numberOfDoors: {
     type: Number,

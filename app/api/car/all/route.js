@@ -2,9 +2,12 @@ import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
 
 export const GET = async () => {
+  console.log("fffffffiii");
   try {
     await connectToDB();
-    const cars = await Car.find().populate("orders");
+    console.log("first");
+    const cars = await Car.find();
+    console.log("second");
     return new Response(JSON.stringify(cars), {
       status: 200,
       headers: { "Content-Type": "application/json" },

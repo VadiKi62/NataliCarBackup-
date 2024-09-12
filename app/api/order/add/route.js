@@ -13,11 +13,10 @@ export async function POST(request) {
       email,
       rentalStartDate,
       rentalEndDate,
-      totalPrice,
     } = await request.json();
 
     // Find the car by its car number
-    const existingCar = await Car.findOne({ carNumber });
+    const existingCar = await Car.findOne({ number: carNumber });
 
     if (!existingCar) {
       return new Response(`Car with number ${carNumber} does not exist`, {
@@ -32,16 +31,20 @@ export async function POST(request) {
 
     // Calculate the price per day using the car's pricing tiers
     const pricePerDay = existingCar.calculatePrice(rentalDays);
+    const totalPrice = pricePerDay * rentalDays;
 
-    // Create a new order document
+    // Create a new order document with calculated values
     const newOrder = new Order({
       customerName,
       phone,
       email,
       rentalStartDate: startDate,
       rentalEndDate: endDate,
-      totalPrice: pricePerDay * rentalDays,
       car: existingCar._id,
+      carModel: existingCar.model, // Adding car title
+      carNumber: existingCar.carNumber, // Adding car number
+      numberOfDays: rentalDays, // Adding calculated number of days
+      totalPrice, // Adding calculated total price
     });
 
     // Save the new order
@@ -53,11 +56,8 @@ export async function POST(request) {
     // Save the updated car document
     await existingCar.save();
 
-    // Fetch the updated car with populated orders
-    const updatedCar = await Car.findById(existingCar._id).populate("orders");
-
-    return new Response(JSON.stringify(updatedCar), {
-      status: 201,
+    return new Response(JSON.stringify(newOrder), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {

@@ -5,7 +5,7 @@ export const GET = async (request, { params }) => {
   try {
     await connectToDB();
 
-    const car = await Car.findById(params.id).populate("orders");
+    const car = await Car.findById(params.id).populate("orders").exec();
 
     if (!car) {
       return new Response("Car not found", { status: 404 });

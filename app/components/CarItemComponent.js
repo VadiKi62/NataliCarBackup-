@@ -12,7 +12,9 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import ScrollingCalendar from "./ScrollingCalendar";
+import { fetchCar } from "@utils/action";
 import BookingModal from "./BookingModal";
+import { fetchOrdersByCar } from "@utils/action";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -80,7 +82,15 @@ function CarItemComponent({ car }) {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
+  const [carData, setCarData] = useState(car);
+  const [ordersData, setOrders] = useState(car.orders);
 
+  const fetchCarData = async (carId) => {
+    const updatedCar = await fetchCar(carId);
+    const updatedOrders = await fetchOrdersByCar(carId);
+    setOrders(updatedOrders);
+    setCarData(updatedCar);
+  };
   // Extract unavailable dates from car orders
   // const getUnavailableDates = () => {
   //   if (!car.orders || car.orders.length === 0) {
@@ -105,7 +115,6 @@ function CarItemComponent({ car }) {
     setModalOpen(true);
   };
 
-  console.log(car);
   return (
     <StyledCarItem>
       <Wrapper>
@@ -120,30 +129,32 @@ function CarItemComponent({ car }) {
             <CarTitle>{car.model}</CarTitle>
             <CarInfo>Class: {car.class}</CarInfo>
             <CarInfo>Transmission: {car.transmission}</CarInfo>
-            <CarInfo>Doors: {car.numberOfDoors}</CarInfo>
-            <CarInfo>AC: {car.airConditioning ? "Yes" : "No"}</CarInfo>
-            <>
+            <CarInfo>Doors: {car?.numberOfDoors}</CarInfo>
+            <CarInfo>AC: {car?.airConditioning ? "Yes" : "No"}</CarInfo>
+            <Stack>
               <CarPrice>Price per day: </CarPrice>
-              {Object.entries(car.pricingTiers).map(([days, price]) => (
+              {Object.entries(car?.pricingTiers).map(([days, price]) => (
                 <Typography key={days} variant="body1" component="p">
-                  Up to {days} d : ${price}/day |
+                  {days} days+ : ${price}
                 </Typography>
               ))}
-            </>
+            </Stack>
           </CarDetails>
         </Link>
       </Wrapper>
 
       <ScrollingCalendar
-        onDateSelect={(date) => console.log("Selected date:", date)}
+        car={carData}
+        orders={ordersData}
         setBookedDates={setBookedDates}
         onBookingComplete={handleBookingComplete}
       />
       <BookingModal
+        onSuccessfulBooking={fetchCarData}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}
-        presetDates={{ startDate: bookDates.start, endDate: bookDates.end }}
+        presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
       />
     </StyledCarItem>
   );

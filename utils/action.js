@@ -5,22 +5,21 @@ export const API_URL =
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const fetchCar = async (id) => {
-  console.log("id", id);
   try {
-    const response = await axios.get(`${API_URL}/api/car/${id}`, {
+    const response = await fetch(`${API_URL}/api/car/${id}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    console.log("response", response);
-
     if (response.status === 404) {
       throw new Error("Car not found");
     }
 
-    console.log("Fetched Car:", response.data);
-    return response.data;
+    const data = await response.json();
+    console.log("Fetched Car:", data);
+    return data;
   } catch (error) {
     console.error("Error fetching car:", error.message);
     throw error;
@@ -77,6 +76,21 @@ export const addOrder = async (orderData) => {
   }
 };
 
+export const fetchOrdersByCar = async (carId) => {
+  try {
+    const response = await fetch(`/api/order/${carId}`);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+
+    const orders = await response.json();
+    return orders; // Return the orders data
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error; // Optionally, rethrow the error to handle it in your component
+  }
+};
 // export const updatePrice = async (restId, menuNumber, newPrice) => {
 //   try {
 //     const response = await fetch(`/api/auth/priceUpd`, {

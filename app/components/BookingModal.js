@@ -154,13 +154,20 @@ import {
 import { addOrder } from "@utils/action";
 import SuccessMessage from "./common/SuccessMessage";
 
-const BookingModal = ({ open, onClose, car, presetDates = null }) => {
+const BookingModal = ({
+  open,
+  onClose,
+  car,
+  presetDates = null,
+  onSuccessfulBooking,
+}) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
-  const [isSubmitted, setIsSubmitted] = useState(false); // New state to handle submission status
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedOrder, setSubmittedOrder] = useState(null);
 
   useEffect(() => {
     if (presetDates?.startDate && presetDates?.endDate && car.pricePerDay) {
@@ -177,7 +184,7 @@ const BookingModal = ({ open, onClose, car, presetDates = null }) => {
   };
 
   const validatePhone = (phone) => {
-    const re = /^\+?[1-9]\d{1,14}$/;
+    const re = /^\+?[0-9]\d{1,14}$/;
     return re.test(phone);
   };
 
@@ -198,14 +205,20 @@ const BookingModal = ({ open, onClose, car, presetDates = null }) => {
         customerName: name,
         phone,
         email,
-        rentalStartDate: presetDates.startDate,
-        rentalEndDate: presetDates.endDate,
+        rentalStartDate: presetDates?.startDate,
+        rentalEndDate: presetDates?.endDate,
         totalPrice,
       };
 
       const result = await addOrder(orderData);
+      setSubmittedOrder(result);
       console.log("Order added successfully:", result);
       setIsSubmitted(true); // Mark submission as successful
+
+      // Call the callback function to trigger a re-fetch
+      if (setIsSubmitted) {
+        onSuccessfulBooking(car.id);
+      }
     } catch (error) {
       console.error("Error adding order:", error.message);
       setErrors({ submit: "Failed to submit order. Please try again." });
@@ -214,13 +227,13 @@ const BookingModal = ({ open, onClose, car, presetDates = null }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
+      <DialogTitle textAlign="center" mt="3">
         {isSubmitted ? "Booking Confirmed!" : `Book ${car.model}`}
       </DialogTitle>
       <DialogContent>
         {isSubmitted ? (
           <SuccessMessage
-            car={car}
+            submittedOrder={submittedOrder}
             presetDates={presetDates}
             onClose={onClose}
           />
@@ -243,12 +256,7 @@ const BookingModal = ({ open, onClose, car, presetDates = null }) => {
               </Box>
               .
             </Typography>
-            <Typography
-              variant="h6"
-              sx={{ mt: 2, mb: 2, fontWeight: "bold", color: "primary.red" }}
-            >
-              Total Price: ${totalPrice}
-            </Typography>
+
             <Box component="form" sx={{ "& .MuiTextField-root": { my: 1 } }}>
               <TextField
                 label="Name"

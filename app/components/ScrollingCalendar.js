@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 import { Box, Typography, IconButton, Button, Divider } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
@@ -6,7 +6,6 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 // Wrapping the component in React.memo
 const ScrollingCalendar = React.memo(function ScrollingCalendar({
-  onDateSelect,
   car,
   setBookedDates,
   onBookingComplete,
@@ -14,6 +13,29 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(dayjs());
+
+  // Memoize the unavailable dates
+  const unavailableDates = useMemo(() => {
+    if (!car?.orders || car.orders.length === 0) {
+      return [];
+    }
+
+    const allUnavailableDates = [];
+    car.orders.forEach((order) => {
+      let currentDate = dayjs(order.rentalStartDate);
+      const endDate = dayjs(order.rentalEndDate);
+
+      while (
+        currentDate.isBefore(endDate) ||
+        currentDate.isSame(endDate, "day")
+      ) {
+        allUnavailableDates.push(currentDate.format("YYYY-MM-DD"));
+        currentDate = currentDate.add(1, "day");
+      }
+    });
+
+    return allUnavailableDates;
+  }, [car.orders]);
 
   // Memoize the days in the current month
   const daysInMonth = useMemo(() => {
@@ -28,42 +50,12 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
     return currentMonthDays;
   }, [currentMonth]);
 
-  const getUnavailableDates = () => {
-    if (!car?.orders || car?.orders.length === 0) {
-      return { start: null, end: null };
-    }
-
-    // Sort orders by start date
-    const sortedOrders = [...car.orders].sort(
-      (a, b) => new Date(a.rentalStartDate) - new Date(b.rentalStartDate)
-    );
-
-    // Get the earliest start date and latest end date
-    const start = sortedOrders[0].rentalStartDate;
-    const end = sortedOrders[sortedOrders.length - 1].rentalEndDate;
-    console.log(start);
-    return { start, end };
-  };
-
-  const datesNotForBooking = getUnavailableDates();
-
-  const isDateDisabled = useMemo(
-    () => (date) => {
-      if (datesNotForBooking.start && datesNotForBooking.end) {
-        const currentDate = dayjs(date);
-        const startDate = dayjs(datesNotForBooking.start);
-        const endDate = dayjs(datesNotForBooking.end);
-        return (
-          (currentDate.isAfter(startDate) && currentDate.isBefore(endDate)) ||
-          currentDate.isSame(startDate) ||
-          currentDate.isSame(endDate)
-        );
-      }
-      return false;
+  const isDateDisabled = useCallback(
+    (date) => {
+      return unavailableDates.includes(dayjs(date).format("YYYY-MM-DD"));
     },
-    [datesNotForBooking.start, datesNotForBooking.end]
+    [unavailableDates]
   );
-
   // Memoize isDateInRange function
   const isDateInRange = useMemo(
     () => (date) => {
@@ -86,7 +78,7 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
       // Start a new selection
       setSelectedStartDate(date);
       setSelectedEndDate(null);
-      onDateSelect(date);
+      // onDateSelect(date);
       setBookedDates({ start: date, end: null });
     } else {
       // Complete the selection
@@ -116,10 +108,9 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
   return (
     <Box
       sx={{
-        // overflowX: "auto",
         display: "flex",
         maxWidth: "calc(100vh - 20px)",
-        width: "100%",
+        minWidth: "50vh",
         flexDirection: "column",
         alignItems: "center",
         mt: 3,
@@ -139,7 +130,7 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
         sx={{
           display: "flex",
           alignItems: "center",
-          width: "100%",
+          // width: "100%",
           justifyContent: "space-between",
           px: 2,
           mb: 2,
@@ -162,6 +153,7 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
         sx={{
           display: "flex",
           overflowX: "auto",
+          width: "100%",
           maxWidth: "calc(100vh - 60px)",
           justifyContent: "center",
           px: 2,

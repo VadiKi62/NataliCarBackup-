@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
-import { Paper, Typography, Box, Button } from "@mui/material";
+import { Paper, Typography, Box, Button, Stack, Divider } from "@mui/material";
 import Image from "next/image";
 import ScrollingCalendar from "./ScrollingCalendar";
 import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa";
@@ -83,7 +83,6 @@ const CarInfoText = styled(Typography)(({ theme }) => ({
   marginLeft: theme.spacing(1),
 }));
 
-// Fixed and sticky BOOK button
 const BookButton = styled(Button)(({ theme }) => ({
   position: "sticky", // Sticky positioning
   top: theme.spacing(1), // Sticks 16px from the top of the viewport
@@ -103,15 +102,12 @@ const BookButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const PriceSection = styled(Box)(({ theme }) => ({
-  //   width: "100%",
+const PriceSection = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(4),
   backgroundColor: theme.palette.primary.red,
   color: "#fff", // White text for contrast
-  textAlign: "center",
   fontWeight: 700,
   fontSize: "1.5rem",
-  //   bottom: 0,
 }));
 function CarPageComponent({ car }) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -162,7 +158,19 @@ function CarPageComponent({ car }) {
             </CarInfoBox>
           </CarInfoSection>
         </CarDetails>
-        <PriceSection>Price per day: ${car.pricePerDay}</PriceSection>
+
+        <PriceSection
+          direction="row"
+          divider={<Divider orientation="vertical" flexItem color="white" />}
+          spacing={2}
+        >
+          <Typography textAlign="center"> Price per day:</Typography>
+          {Object.entries(car?.pricingTiers).map(([days, price]) => (
+            <Typography key={days} variant="body1" component="p">
+              {days}d+ €{price}
+            </Typography>
+          ))}
+        </PriceSection>
       </StyledCarCard>
 
       <BookingModal
@@ -170,13 +178,6 @@ function CarPageComponent({ car }) {
         onClose={() => setModalOpen(false)}
         car={car}
         presetDates={{ startDate: bookDates.start, endDate: bookDates.end }}
-      />
-
-      <ScrollingCalendar
-        // onDateSelect={handleDateSelect}
-        onDateSelect={(date) => console.log("Selected date:", date)}
-        setBookedDates={setBookedDates}
-        onBookingComplete={handleBookingComplete}
       />
     </StyledCarPage>
   );
