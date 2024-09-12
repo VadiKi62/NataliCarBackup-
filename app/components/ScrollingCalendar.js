@@ -3,9 +3,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateRangeCalendar } from "@mui/x-date-pickers-pro/DateRangeCalendar";
 import dayjs from "dayjs";
-import { Box, Typography, IconButton, TextField } from "@mui/material";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { Box, Typography } from "@mui/material";
 
 const ScrollingCalendar = React.memo(function ScrollingCalendar({
   car,
@@ -13,9 +11,7 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
   onBookingComplete,
 }) {
   const [selectedRange, setSelectedRange] = useState([null, null]);
-  // const [currentMonth, setCurrentMonth] = useState(dayjs());
 
-  // Memoize the unavailable dates
   const unavailableDates = useMemo(() => {
     if (!car?.orders || car.orders.length === 0) {
       return [];
@@ -48,14 +44,6 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
     }
   };
 
-  // const goToPreviousMonth = () => {
-  //   setCurrentMonth(currentMonth.subtract(1, "month"));
-  // };
-
-  // const goToNextMonth = () => {
-  //   setCurrentMonth(currentMonth.add(1, "month"));
-  // };
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
@@ -87,32 +75,23 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
             px: 2,
             mb: 2,
           }}
-        >
-          {/* <IconButton onClick={goToPreviousMonth} size="small">
-            <ArrowBackIosIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="h6" color="primary.main">
-            {currentMonth.format("MMMM YYYY")}
-          </Typography> */}
-          {/* <IconButton onClick={goToNextMonth} size="small">
-            <ArrowForwardIosIcon fontSize="small" />
-          </IconButton> */}
-        </Box>
+        ></Box>
 
         <DateRangeCalendar
+          calendars={1}
           value={selectedRange}
           onChange={handleDateChange}
           disablePast
           shouldDisableDate={(date) =>
             unavailableDates.includes(dayjs(date).format("YYYY-MM-DD"))
           }
-          renderInput={(startProps, endProps) => (
-            <React.Fragment>
-              <TextField {...startProps} sx={{ m: 1 }} />
-              <Box sx={{ mx: 2 }}> to </Box>
-              <TextField {...endProps} sx={{ m: 1 }} />
-            </React.Fragment>
-          )}
+          // renderInput={(startProps, endProps) => (
+          //   <React.Fragment>
+          //     <TextField {...startProps} sx={{ m: 1 }} />
+          //     <Box sx={{ mx: 2 }}> to </Box>
+          //     <TextField {...endProps} sx={{ m: 1 }} />
+          //   </React.Fragment>
+          // )}
         />
       </Box>
     </LocalizationProvider>

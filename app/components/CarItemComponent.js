@@ -66,9 +66,7 @@ const CarTitle = styled(Typography)(({ theme }) => ({
 }));
 
 const CarPrice = styled(Typography)(({ theme }) => ({
-  fontSize: "1.2rem",
   color: theme.palette.primary.main,
-  marginTop: theme.spacing(1),
 }));
 
 const CarInfo = styled(Typography)(({ theme }) => ({
@@ -131,11 +129,27 @@ function CarItemComponent({ car }) {
             <CarInfo>Transmission: {car.transmission}</CarInfo>
             <CarInfo>Doors: {car?.numberOfDoors}</CarInfo>
             <CarInfo>AC: {car?.airConditioning ? "Yes" : "No"}</CarInfo>
-            <Stack>
-              <CarPrice>Price per day: </CarPrice>
+            <Stack
+              direction="row"
+              divider={
+                <Divider orientation="vertical" flexItem color="primary.main" />
+              }
+              spacing={2}
+              sx={{
+                justifyContent: "center",
+                display: "flex",
+                fontSize: "2rem",
+              }}
+            >
+              <CarPrice>Price: </CarPrice>
               {Object.entries(car?.pricingTiers).map(([days, price]) => (
-                <Typography key={days} variant="body1" component="p">
-                  {days} days+ : ${price}
+                <Typography
+                  key={days}
+                  variant="body1"
+                  component="p"
+                  color="primary.main"
+                >
+                  {days}d+ €{price}
                 </Typography>
               ))}
             </Stack>

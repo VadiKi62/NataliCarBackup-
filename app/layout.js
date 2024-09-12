@@ -1,5 +1,6 @@
-import { Inter } from "next/font/google";
 import "@styles/globals.css";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 export const metadata = {
   title: "Car Rent",
@@ -9,7 +10,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" translate="no">
-      <body style={{ position: "relative", minHeight: "100vh" }}>
+      <body
+        style={{
+          width: "100vw",
+          // height: "100vh",
+          // padding: "2rem",
+          // display: "flex",
+          // alignItems: "flex-start",
+          justifyContent: "center",
+        }}
+      >
         {children}
       </body>
     </html>
