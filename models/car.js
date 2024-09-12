@@ -35,6 +35,9 @@ const CarSchema = new Schema({
   fueltype: {
     type: String,
   },
+  color: {
+    type: String,
+  },
   numberOfDoors: {
     type: Number,
     min: 2,
