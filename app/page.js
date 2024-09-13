@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React, { Suspense } from "react";
 import Feed from "@app/components/Feed";
 
@@ -12,24 +11,12 @@ export default async function Home() {
   const carsData = await fetchAll();
 
   return (
-    <>
+    <Suspense fallback={<Loading />}>
       {" "}
       <CircleBg />
-      <div
-        style={{
-          textAlign: "center",
-          textTransform: "bold",
-          marginBottom: "30px",
-          marginTop: "30px",
-        }}
-      >
-        <h1>CARS FOR RENT </h1>
-      </div>
-      <main>
-        <Suspense fallback={<Loading />}>
-          <Feed carsData={carsData} />
-        </Suspense>
-      </main>
-    </>
+      <Suspense fallback={<Loading />}>
+        <Feed carsData={carsData} />
+      </Suspense>
+    </Suspense>
   );
 }

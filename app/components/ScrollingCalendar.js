@@ -49,12 +49,13 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
       <Box
         sx={{
           display: "flex",
-          maxWidth: "calc(100vh - 20px)",
-          minWidth: "50vh",
+          maxWidth: "calc(100vh - 50px)",
+          minWidth: "35vh",
           flexDirection: "column",
           alignItems: "center",
-          mt: 3,
+          mt: "auto",
           mb: 3,
+          ml: 2,
           bgcolor: "white",
           boxShadow: 1,
           borderRadius: 1,
@@ -62,7 +63,7 @@ const ScrollingCalendar = React.memo(function ScrollingCalendar({
       >
         <Typography
           variant="body2"
-          sx={{ textTransform: "uppercase", py: 2, color: "warning.main" }}
+          sx={{ textTransform: "uppercase", pt: 3, color: "primary.red" }}
         >
           Choose your dates for booking
         </Typography>

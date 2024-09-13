@@ -17,22 +17,24 @@ import theme from "@theme";
 import Loading from "@app/loading";
 import CarGrid from "./CarGrid";
 import i from "@locales/i18n";
+import Navbar from "@app/components/Navbar";
+import Footer from "@app/components/Footer";
 
 function Feed({ children, ...props }) {
   unstable_noStore();
   const { carsData, car } = props;
 
   return (
-    <Container sx={{ color: "transparent", width: "100%" }}>
-      <Suspense fallback={<Loading />}>
-        <ThemeProvider theme={theme}>
-          <I18nextProvider i18n={i}>
-            {children}
-            {carsData ? <CarGrid carsData={carsData} /> : <CarPage car={car} />}
-          </I18nextProvider>
-        </ThemeProvider>
-      </Suspense>
-    </Container>
+    <Suspense fallback={<Loading />}>
+      <ThemeProvider theme={theme}>
+        <I18nextProvider i18n={i}>
+          <Navbar />
+          {carsData ? <CarGrid carsData={carsData} /> : <CarPage car={car} />}
+          {children}
+          <Footer />
+        </I18nextProvider>
+      </ThemeProvider>
+    </Suspense>
   );
 }
 

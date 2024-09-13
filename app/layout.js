@@ -11,14 +11,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" translate="no">
       <body
-        style={{
-          width: "100vw",
-          // height: "100vh",
-          // padding: "2rem",
-          // display: "flex",
-          // alignItems: "flex-start",
-          justifyContent: "center",
-        }}
+        style={{ position: "relative", minHeight: "100vh", minWidth: "100%" }}
       >
         {children}
       </body>

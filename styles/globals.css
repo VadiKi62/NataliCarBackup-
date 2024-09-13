@@ -21,7 +21,7 @@ body {
   color: rgb(255, 255, 255);
   background: -webkit-linear-gradient(
     left,
-    rgb(var(--background-end-rgb), 0.8),
+    /* transparent, */ rgb(var(--background-end-rgb), 0.8),
     rgb(var(--background-start-rgb), 0.9),
     rgb(var(--foreground-rgb), 0.8)
   );
@@ -338,7 +338,9 @@ a {
 
 a:hover {
   text-decoration: underline;
-  color: rgb(160, 214, 180);
+  color: rgba(154, 210, 203);
+  background-color: rgba(17, 22, 39);
+  margin: 11;
 }
 
 @keyframes spin {
