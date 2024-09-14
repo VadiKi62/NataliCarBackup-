@@ -1,171 +1,3 @@
-// import React, { useState } from "react";
-// import Link from "next/link";
-// import { styled } from "@mui/material/styles";
-// import {
-//   Paper,
-//   Typography,
-//   useMediaQuery,
-//   useTheme,
-//   Stack,
-//   Divider,
-//   Box,
-// } from "@mui/material";
-// import Image from "next/image";
-// import ScrollingCalendar from "./ScrollingCalendar";
-// import { fetchCar } from "@utils/action";
-// import BookingModal from "./BookingModal";
-// import { fetchOrdersByCar } from "@utils/action";
-
-// const StyledCarItem = styled(Paper)(({ theme }) => ({
-//   padding: theme.spacing(2),
-//   maxWidth: 400,
-//   zIndex: 22,
-//   display: "flex",
-//   justifyContent: "space-between",
-//   alignItems: "center",
-//   alignContent: "center",
-//   flexDirection: "column",
-//   boxShadow: theme.shadows[4],
-//   transition: "transform 0.3s",
-//   "&:hover": {
-//     transform: "scale(1.02)",
-//     boxShadow: theme.shadows[5],
-//   },
-//   [theme.breakpoints.up("md")]: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     minWidth: 700,
-//   },
-// }));
-
-// const Wrapper = styled(Box)(({ theme }) => ({
-//   display: "flex",
-//   [theme.breakpoints.down("sm")]: {
-//     flexDirection: "column",
-//     alignItems: "center",
-//   },
-// }));
-
-// const CarImage = styled(Image)(({ theme }) => ({
-//   borderRadius: "8px",
-//   objectFit: "cover",
-//   //   border: `2px solid ${theme.palette.secondary.main}`,
-//   [theme.breakpoints.down("sm")]: {
-//     marginBottom: theme.spacing(2), // add spacing below the image
-//   },
-// }));
-
-// const CarDetails = styled("div")(({ theme }) => ({
-//   display: "flex",
-//   flexDirection: "column",
-//   alignItems: "flex-start",
-//   marginLeft: theme.spacing(2),
-//   [theme.breakpoints.down("sm")]: {
-//     marginLeft: 0, // reset margin for smaller screens
-//     textAlign: "center", // center text on smaller screens
-//   },
-// }));
-
-// const CarTitle = styled(Typography)(({ theme }) => ({
-//   fontSize: "1.5rem",
-//   fontWeight: 700,
-//   color: "black",
-//   maxWidth: "calc(100% - 50px)",
-// }));
-
-// const CarPrice = styled(Typography)(({ theme }) => ({
-//   color: theme.palette.primary.main,
-// }));
-
-// const CarInfo = styled(Typography)(({ theme }) => ({
-//   fontSize: "1rem",
-//   color: "gray",
-// }));
-
-// function CarItemComponent({ car }) {
-//   const theme = useTheme();
-//   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-
-//   const [modalOpen, setModalOpen] = useState(false);
-//   const [bookDates, setBookedDates] = useState({ start: null, end: null });
-//   const [carData, setCarData] = useState(car);
-//   const [ordersData, setOrders] = useState(car.orders);
-
-//   const fetchCarData = async (carId) => {
-//     const updatedCar = await fetchCar(carId);
-//     const updatedOrders = await fetchOrdersByCar(carId);
-//     setOrders(updatedOrders);
-//     setCarData(updatedCar);
-//   };
-
-//   const handleBookingComplete = () => {
-//     setModalOpen(true);
-//   };
-
-//   return (
-//     <StyledCarItem>
-//       <Wrapper>
-//         <Link href={`/car/${car._id}`}>
-//           <CarImage
-//             src={car.photoUrl}
-//             alt={car.model}
-//             width={350}
-//             height={190}
-//           />
-//           <CarDetails>
-//             <CarTitle>{car.model}</CarTitle>
-//             <CarInfo>Class: {car.class}</CarInfo>
-//             <CarInfo>Transmission: {car.transmission}</CarInfo>
-//             <CarInfo>Doors: {car?.numberOfDoors}</CarInfo>
-//             <CarInfo>AC: {car?.airConditioning ? "Yes" : "No"}</CarInfo>
-//             <CarInfo>Engine Power : {car?.enginePower}</CarInfo>
-//             <Stack
-//               direction="row"
-//               divider={
-//                 <Divider orientation="vertical" flexItem color="primary.main" />
-//               }
-//               spacing={2}
-//               sx={{
-//                 justifyContent: "center",
-//                 display: "flex",
-//                 fontSize: "2rem",
-//               }}
-//             >
-//               <CarPrice>Price: </CarPrice>
-//               {Object.entries(car?.pricingTiers).map(([days, price]) => (
-//                 <Typography
-//                   key={days}
-//                   variant="body1"
-//                   component="p"
-//                   color="primary.main"
-//                 >
-//                   {days}d+ €{price}
-//                 </Typography>
-//               ))}
-//             </Stack>
-//           </CarDetails>
-//         </Link>
-//       </Wrapper>
-
-//       <ScrollingCalendar
-//         car={carData}
-//         orders={ordersData}
-//         setBookedDates={setBookedDates}
-//         onBookingComplete={handleBookingComplete}
-//       />
-//       <BookingModal
-//         onSuccessfulBooking={fetchCarData}
-//         open={modalOpen}
-//         onClose={() => setModalOpen(false)}
-//         car={car}
-//         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
-//       />
-//     </StyledCarItem>
-//   );
-// }
-
-// export default CarItemComponent;
-
 import React, { useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -191,6 +23,7 @@ import { fetchOrdersByCar } from "@utils/action";
 import BookingModal from "./BookingModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CalendarPicker from "./CalendarPicker";
+import { useMainContext } from "@app/Context";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -273,14 +106,20 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   }),
 }));
 
-function CarItemComponent({ car }) {
+function CarItemComponent({ car, orders }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [expanded, setExpanded] = useState(false);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [carData, setCarData] = useState(car);
-  const [ordersData, setOrders] = useState(car.orders);
   const [modalOpen, setModalOpen] = useState(false);
+  const { resubmitOrdersData, isLoading } = useMainContext();
+  // const [ordersData, setOrders] = useState(orders);
+
+  if (orders.length > 0) {
+    console.log("CAR FROM CARITEM COMPONENT", car.model);
+    console.log("ORDERS FROM CARITEM COMPONENT", orders);
+  }
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -290,12 +129,6 @@ function CarItemComponent({ car }) {
     setModalOpen(true);
   };
 
-  const fetchCarData = async (carId) => {
-    const updatedCar = await fetchCar(carId);
-    const updatedOrders = await fetchOrdersByCar(carId);
-    setOrders(updatedOrders);
-    setCarData(updatedCar);
-  };
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
@@ -373,14 +206,20 @@ function CarItemComponent({ car }) {
         setBookedDates={setBookedDates}
         onBookingComplete={handleBookingComplete}
       /> */}
-      <CalendarPicker
-        car={car}
-        orders={ordersData}
-        setBookedDates={setBookedDates}
-        onBookingComplete={handleBookingComplete}
-      />
+      {isLoading ? (
+        <Typography variant="body2" color="text.secondary">
+          Loading orders...
+        </Typography>
+      ) : (
+        <CalendarPicker
+          car={car}
+          orders={orders}
+          setBookedDates={setBookedDates}
+          onBookingComplete={handleBookingComplete}
+        />
+      )}
       <BookingModal
-        onSuccessfulBooking={fetchCarData}
+        onSuccessfulBooking={resubmitOrdersData}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}

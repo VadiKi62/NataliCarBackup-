@@ -43,6 +43,23 @@ export const fetchAll = async () => {
   }
 };
 
+export const fetchAllOrders = async () => {
+  try {
+    const apiUrl = `${API_URL}/api/order/all`;
+    const data = await fetch(apiUrl, {
+      next: { revalidate: 1 },
+    });
+    if (!data.ok) {
+      throw new Error("Failed to fetch cars");
+    }
+    const ordersData = await data.json();
+    return ordersData;
+  } catch (error) {
+    console.error("Error fetching cars:", error);
+    throw error;
+  }
+};
+
 export const addOrder = async (orderData) => {
   try {
     console.log(orderData);

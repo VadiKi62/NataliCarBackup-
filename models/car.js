@@ -34,6 +34,16 @@ const CarSchema = new Schema({
   },
   fueltype: {
     type: String,
+    default: "petrol",
+  },
+  seats: {
+    type: Number,
+    default: 5,
+    required: true,
+  },
+  registration: {
+    type: Number,
+    default: 2016,
   },
   color: {
     type: String,
@@ -51,6 +61,10 @@ const CarSchema = new Schema({
   enginePower: {
     type: Number,
     required: true,
+  },
+  engine: {
+    type: String,
+    default: "1.500",
   },
   pricingTiers: {
     type: Object,

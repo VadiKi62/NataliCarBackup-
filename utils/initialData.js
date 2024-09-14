@@ -8,6 +8,8 @@ export const carsData = [
     numberOfDoors: 4,
     airConditioning: true,
     enginePower: 450,
+    fuelType: "petrol",
+    seats: 5,
     pricingTiers: { 3: 200, 6: 170, 10: 120 },
   },
   {
@@ -22,6 +24,7 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 120,
+    fuelType: "petrol",
     pricingTiers: { 3: 35, 6: 30, 10: 25 },
   },
   {
@@ -36,6 +39,7 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 120,
+    fuelType: "petrol",
     pricingTiers: { 3: 40, 6: 35, 10: 30 },
   },
   {
@@ -50,6 +54,7 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 120,
+    fuelType: "petrol",
     pricingTiers: { 3: 40, 6: 35, 10: 30 },
   },
   {
@@ -64,6 +69,7 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 125,
+    fuelType: "petrol",
     pricingTiers: { 3: 40, 6: 35, 10: 30 },
   },
   {
@@ -92,6 +98,8 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 120,
+    fuelType: "petrol",
+
     pricingTiers: { 3: 35, 6: 30, 10: 25 },
   },
   {
@@ -106,6 +114,8 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 87,
+    fuelType: "petrol",
+
     pricingTiers: { 3: 35, 6: 30, 10: 25 },
   },
   {
@@ -120,6 +130,8 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 87,
+    fuelType: "petrol",
+
     pricingTiers: { 3: 35, 6: 30, 10: 25 },
   },
   {
@@ -134,6 +146,8 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 87,
+    fuelType: "petrol",
+
     pricingTiers: { 3: 35, 6: 30, 10: 25 },
   },
   {

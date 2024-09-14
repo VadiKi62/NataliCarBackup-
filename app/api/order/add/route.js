@@ -15,9 +15,12 @@ export async function POST(request) {
       rentalEndDate,
     } = await request.json();
 
-    // Find the car by its car number
-    const existingCar = await Car.findOne({ number: carNumber });
+    console.log("CARNUMBER FROM API", carNumber);
 
+    // Find the car by its car number
+    const existingCar = await Car.findOne({ carNumber: carNumber });
+
+    console.log("EXISTING CAR  FROM API", existingCar);
     if (!existingCar) {
       return new Response(`Car with number ${carNumber} does not exist`, {
         status: 404,
