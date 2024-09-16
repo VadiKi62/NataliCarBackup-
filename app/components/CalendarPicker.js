@@ -67,12 +67,12 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
 
     if (isSelected) {
       backgroundColor = "primary.dark";
-      color = "warning.main";
+      color = "warning.light";
     } else if (isConfirmed) {
       backgroundColor = "error.light"; // Red for confirmed
       color = "common.white";
     } else if (isUnavailable) {
-      backgroundColor = "yellow"; // Yellow for unconfirmed
+      backgroundColor = "warning.light"; // warning.light for unconfirmed
       color = "common.black";
     }
 
@@ -118,7 +118,7 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
             display: "inline-block",
             width: "20px",
             height: "20px",
-            backgroundColor: "yellow",
+            backgroundColor: "warning.light",
             marginRight: "10px",
           }}
         ></Box>
