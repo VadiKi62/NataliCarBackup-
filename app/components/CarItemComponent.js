@@ -223,6 +223,7 @@ function CarItemComponent({ car, orders }) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}
+        orders={orders}
         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
       />
     </StyledCarItem>

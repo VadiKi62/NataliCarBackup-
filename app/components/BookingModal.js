@@ -13,6 +13,31 @@ import {
 import { addOrder } from "@utils/action";
 import SuccessMessage from "./common/SuccessMessage";
 
+// const { RangePicker } = DatePicker;
+
+const getYearMonth = (date) => date.year() * 12 + date.month();
+
+const disabledDate = (current, { from, type }) => {
+  if (from) {
+    const minDate = dayjs(from).subtract(6, "days");
+    const maxDate = dayjs(from).add(6, "days");
+    switch (type) {
+      case "year":
+        return (
+          current.year() < minDate.year() || current.year() > maxDate.year()
+        );
+      case "month":
+        return (
+          getYearMonth(current) < getYearMonth(minDate) ||
+          getYearMonth(current) > getYearMonth(maxDate)
+        );
+      default:
+        return Math.abs(current.diff(from, "days")) >= 7;
+    }
+  }
+  return false;
+};
+
 const BookingModal = ({
   open,
   onClose,
@@ -26,7 +51,12 @@ const BookingModal = ({
   const [errors, setErrors] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState(null);
+  const [dateRange, setDateRange] = useState([
+    presetDates?.startDate ? dayjs(presetDates.startDate) : null,
+    presetDates?.endDate ? dayjs(presetDates.endDate) : null,
+  ]);
 
   useEffect(() => {
     if (presetDates?.startDate && presetDates?.endDate && car.pricePerDay) {
@@ -59,6 +89,7 @@ const BookingModal = ({
     }
 
     try {
+      setLoading(true);
       const orderData = {
         carNumber: car.carNumber,
         customerName: name,
@@ -77,9 +108,11 @@ const BookingModal = ({
       // Call the callback function to trigger a re-fetch
       if (setIsSubmitted) {
         onSuccessfulBooking();
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error adding order:", error.message);
+      setLoading(false);
       setErrors({ submit: "Failed to submit order. Please try again." });
     }
   };
@@ -102,6 +135,14 @@ const BookingModal = ({
     // Close the modal
     onClose();
   };
+
+  const handleDateChange = (dates) => {
+    setDateRange(dates);
+  };
+
+  if (loading) {
+    return <>loading...</>;
+  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">

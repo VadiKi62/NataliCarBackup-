@@ -4,23 +4,23 @@ import { createTheme } from "@mui/material/styles";
 export default createTheme({
   palette: {
     primary: {
-      main: "#317877",
-      green: "#5f9e40",
-      fiolet: "#a0d6b4",
-      red: "#733178",
+      main: "#990606",
+      green: "#e7cb75",
+      fiolet: "#bfa75d",
+      red: "#8A0707",
     },
     secondary: {
-      main: "#667b68",
-      light: "rgba(160,214,180, 0.70)",
+      main: "#151515",
+      light: "rgba(231,203,117, 0.70)",
       beige: "#fceee9",
-      background: "rgba(163,193,173, 0.70)",
-      complement: "#794957",
+      background: "rgba(191,167,93,1)",
+      complement: "#8A0707",
     },
     text: {
       light: "white",
       dark: "white",
-      main: "	#a0d6b4",
-      red: "#733178",
+      main: "	#e7cb75",
+      red: "#8A0707",
       green: "#a3c1ad",
     },
   },

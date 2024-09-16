@@ -10,9 +10,11 @@ const SuccessMessage = ({ submittedOrder, presetDates, onClose }) => {
       </Typography>
       <Typography variant="body1" sx={{ mt: 2 }}>
         We have received your booking for the{" "}
-        <strong>{submittedOrder?.model}</strong> from{" "}
-        <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong> to{" "}
-        <strong>{dayjs(presetDates?.endDate).format("MMMM D")}</strong>.
+        <strong>
+          {submittedOrder?.model} {submittedOrder?.carNumber}
+        </strong>{" "}
+        from <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong>{" "}
+        to <strong>{dayjs(presetDates?.endDate).format("MMMM D")}</strong>.
       </Typography>
       <Typography textAlign="center" mt={3} variant="h4" color="primary.red">
         Number of days: {submittedOrder.numberOfDays}{" "}

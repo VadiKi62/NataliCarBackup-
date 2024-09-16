@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { Calendar, Typography } from "antd";
+import { Calendar } from "antd";
 import dayjs from "dayjs";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
@@ -84,7 +84,7 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor,
-          borderRadius: "5px",
+          borderRadius: "1px",
           color,
         }}
       >

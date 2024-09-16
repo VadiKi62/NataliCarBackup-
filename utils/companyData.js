@@ -1,7 +1,7 @@
 export const companyData = {
-  name: "nataly rent",
+  name: "NATALY CARS",
   tel: "111111",
-  email: "email@email.com",
-  address: "address",
+  email: "nataly@email.com",
+  address: "Nea Kallikratia",
   slogan: "best rent car online service in Halkidiki",
 };

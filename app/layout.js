@@ -1,6 +1,5 @@
 import "@styles/globals.css";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+import "antd/dist/reset.css";
 
 export const metadata = {
   title: "Car Rent",
