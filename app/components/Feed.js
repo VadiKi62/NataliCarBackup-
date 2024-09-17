@@ -8,6 +8,7 @@ import CarPage from "@app/components/CarPage";
 import theme from "@theme";
 import Loading from "@app/loading";
 import CarGrid from "./CarGrid";
+import ScrollButton from "./common/ScrollButton";
 import i from "@locales/i18n";
 import Navbar from "@app/components/Navbar";
 import Footer from "@app/components/Footer";
@@ -31,6 +32,7 @@ function Feed({ children, ...props }) {
               {children}
             </Container>
             <Footer />
+            <ScrollButton />
           </MainContextProvider>
         </I18nextProvider>
       </ThemeProvider>
