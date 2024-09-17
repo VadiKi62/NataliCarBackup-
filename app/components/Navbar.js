@@ -19,11 +19,26 @@ import { useTranslation } from "react-i18next";
 import { animateScroll as scroll } from "react-scroll";
 import { companyData } from "@utils/companyData";
 
+const GradientAppBar = styled(AppBar, {
+  shouldForwardProp: (prop) => prop !== "scrolled",
+})(({ theme, scrolled }) => ({
+  position: "fixed",
+  transition: theme.transitions.create(["height", "background-color"], {
+    duration: theme.transitions.duration.standard,
+    easing: theme.transitions.easing.easeInOut,
+  }),
+  willChange: "height, background-color",
+  height: scrolled ? 52 : 60,
+  backgroundColor: theme.palette.secondary.main,
+  boxShadow: scrolled ? theme.shadows[2] : "none",
+  backdropFilter: scrolled ? "blur(10px)" : "none",
+}));
+
 const AppStyling = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.secondary.main,
   fontFamily: theme.typography.h1.fontFamily,
   zIndex: 996,
-  position: "sticky",
+  position: "fixed",
   top: 0,
   minWidth: "100%",
   height: "60px",
@@ -39,25 +54,8 @@ const Logo = styled(Typography)(({ theme }) => ({
 }));
 
 const LogoImg = styled(Image)(({ theme }) => ({
-  // marginBottom: "-5px",
-  // marginTop: "-4px",
   marginLeft: "1rem",
-  // display: "flex",
 }));
-
-// const AboutButton = styled(ScrollLink)(({ theme, lang }) => ({
-//   fontSize: lang === "en" ? "17px" : "13px",
-//   padding: 0,
-//   color: theme.palette.text.light,
-//   fontFamily: theme.typography.allVariants.fontFamily,
-//   fontWeight: 700,
-//   cursor: "pointer",
-//   display: "flex",
-//   "&:hover": {
-//     fontSize: "22px",
-//     fontWeight: 900,
-//   },
-// }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
   color: theme.palette.text?.black || theme.palette.text?.light,
@@ -71,8 +69,8 @@ const LanguagePopover = styled(Popover)(({ theme }) => ({
 }));
 
 export default function NavBar() {
-  const headerRef = useRef(0);
-  // const { setLang, restData, isSmallScreen } = useMainContext();
+  const headerRef = useRef(null);
+  const [scrolled, setScrolled] = useState(false);
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const { i18n, t } = useTranslation();
   const lang = i18n.language;
@@ -91,11 +89,9 @@ export default function NavBar() {
     handleLanguageClose();
   };
 
-  const [scrolled, setScrolled] = useState("false");
-
   const handleScroll = () => {
     const scrollPosition = window.scrollY;
-    setScrolled((scrollPosition > 80).toString());
+    setScrolled(scrollPosition > 80);
   };
 
   useEffect(() => {
@@ -105,24 +101,15 @@ export default function NavBar() {
     };
   }, []);
 
-  const width = scrolled === "true" ? 40 : 80;
   return (
-    <AppStyling ref={headerRef}>
+    <GradientAppBar ref={headerRef} scrolled={scrolled}>
       <Toolbar>
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          // marginTop={"-0.6rem"}
           sx={{ width: "100%" }}
         >
-          {/* <LogoImg
-            src="/logos/h1.png"
-            width={200}
-            height={48}
-            alt="to kati allo"
-            priority
-          ></LogoImg> */}
           <Link href="/">
             <Logo>{companyData.name}</Logo>
           </Link>
@@ -155,31 +142,19 @@ export default function NavBar() {
             Русский
           </MenuItem>
           <MenuItem onClick={() => handleLanguageSelect("de")}>
-            {" "}
             Deutsch
           </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("ro")}>
-            {" "}
-            Română
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("sr")}>
-            {" "}
-            Српски
-          </MenuItem>
+          <MenuItem onClick={() => handleLanguageSelect("ro")}>Română</MenuItem>
+          <MenuItem onClick={() => handleLanguageSelect("sr")}>Српски</MenuItem>
           <MenuItem onClick={() => handleLanguageSelect("bg")}>
-            {" "}
             Български
           </MenuItem>
           <MenuItem onClick={() => handleLanguageSelect("fr")}>
-            {" "}
             Française
           </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("ar")}>
-            {" "}
-            Arabic
-          </MenuItem>
+          <MenuItem onClick={() => handleLanguageSelect("ar")}>Arabic</MenuItem>
         </LanguagePopover>
       </Toolbar>
-    </AppStyling>
+    </GradientAppBar>
   );
 }

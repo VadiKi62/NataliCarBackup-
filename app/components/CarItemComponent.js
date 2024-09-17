@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
@@ -9,6 +9,7 @@ import {
   Divider,
   Chip,
   IconButton,
+  CircularProgress,
   Collapse,
 } from "@mui/material";
 import Image from "next/image";
@@ -61,12 +62,10 @@ const CarImage = styled(Box)(({ theme }) => ({
   height: 200,
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
-  // marginBottom: theme.spacing(2),
+
   [theme.breakpoints.up("md")]: {
     width: 450,
     height: 300,
-    // marginBottom: theme.spacing(2),
-    // marginRight: theme.spacing(2),
   },
 }));
 
@@ -107,6 +106,16 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
 }));
 
 function CarItemComponent({ car, orders }) {
+  const [imageLoading, setImageLoading] = useState(true);
+  useEffect(() => {
+    // Set a 3-second delay before showing the image
+    const loadingTimer = setTimeout(() => {
+      setImageLoading(false);
+    }, 3000);
+
+    // Cleanup the timer when the component unmounts
+    return () => clearTimeout(loadingTimer);
+  }, []);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [expanded, setExpanded] = useState(false);
@@ -134,12 +143,26 @@ function CarItemComponent({ car, orders }) {
       <Wrapper>
         <Link href={`/car/${car._id}`} passHref>
           <CarImage>
-            <Image
-              src={car.photoUrl}
-              alt={car.model}
-              layout="fill"
-              objectFit="cover"
-            />
+            {imageLoading ? (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+              >
+                <CircularProgress />
+                <CircularProgress sx={{ color: "primary.green" }} />
+                <CircularProgress sx={{ color: "primary.red" }} />
+              </Box>
+            ) : (
+              <Image
+                src={car.photoUrl}
+                alt={car.model}
+                layout="fill"
+                objectFit="cover"
+                onLoadingComplete={() => setImageLoading(false)}
+              />
+            )}
           </CarImage>
         </Link>
         <CarDetails>
@@ -149,13 +172,10 @@ function CarItemComponent({ car, orders }) {
               <DirectionsCarIcon /> Class: {car.class}
             </CarInfo>
             <CarInfo>
-              <TimeToLeaveIcon />
-              Transmission: {car.transmission}
+              <TimeToLeaveIcon /> Transmission: {car.transmission}
             </CarInfo>
             <CarInfo>
-              {" "}
-              <TimeToLeaveIcon />
-              Doors: {car?.numberOfDoors}
+              <TimeToLeaveIcon /> Doors: {car?.numberOfDoors}
             </CarInfo>
             <CarInfo>
               <AcUnitIcon /> AC: {car?.airConditioning ? "Yes" : "No"}
@@ -179,35 +199,11 @@ function CarItemComponent({ car, orders }) {
             justifyContent="space-between"
             alignItems="center"
           >
-            {/* <Link href={`/car/${car._id}`} passHref>
-            <Typography component="a" color="primary" variant="button">
-              View Details
-            </Typography>
-          </Link>
-          <ExpandButton
-            expanded={expanded}
-            onClick={handleExpandClick}
-            aria-expanded={expanded}
-            aria-label="show more"
-          >
-            <ExpandMoreIcon />
-          </ExpandButton> */}
+            {/* You can add additional controls here if needed */}
           </Box>
-          {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Box mt={2}>
-            <Typography variant="body2" color="text.secondary">
-              {car.description || "No additional description available."}
-            </Typography>
-          </Box>
-        </Collapse> */}
         </CarDetails>
       </Wrapper>
-      {/* <ScrollingCalendar
-        car={car}
-        orders={ordersData}
-        setBookedDates={setBookedDates}
-        onBookingComplete={handleBookingComplete}
-      /> */}
+
       {isLoading ? (
         <Typography variant="body2" color="text.secondary">
           Loading orders...
@@ -220,6 +216,7 @@ function CarItemComponent({ car, orders }) {
           onBookingComplete={handleBookingComplete}
         />
       )}
+
       <BookingModal
         onSuccessfulBooking={resubmitOrdersData}
         open={modalOpen}

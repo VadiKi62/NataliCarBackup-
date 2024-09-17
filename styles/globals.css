@@ -337,9 +337,7 @@ a {
 }
 
 a:hover {
-  text-decoration: underline;
-  color: rgba(154, 210, 203);
-  background-color: rgba(17, 22, 39);
+  color: rgb(var(--foreground-rgb));
   margin: 11;
 }
 

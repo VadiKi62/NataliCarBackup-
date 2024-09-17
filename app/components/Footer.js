@@ -10,6 +10,8 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CallIcon from "@mui/icons-material/Call";
 import EmailIcon from "@mui/icons-material/Email";
+import DefaultButton from "@app/components/common/DefaultButton";
+import DirectionsIcon from "@mui/icons-material/Directions";
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -17,10 +19,10 @@ import { companyData } from "@utils/companyData";
 
 const Section = styled("section")(({ theme }) => ({
   padding: theme.spacing(5),
-  borderTop: `1px solid ${theme.palette.secondary.grey}`,
+  borderTop: `1px solid ${theme.palette.secondary.complement}`,
   textAlign: "center",
-  background: "transparent",
-  backdropFilter: "blur(50px)",
+  background: theme.palette.secondary.complement,
+  backdropFilter: "blur(60px)",
   color: theme.palette.text.dark,
 }));
 
@@ -82,11 +84,14 @@ const LogoImg = styled(Image)(({ theme }) => ({
 
 function Footer() {
   // const { contacts } = useMyContext();
-  const { name, slogan, tel, email, address } = companyData;
-
-  const tel2 = "+302399021556";
+  const { name, slogan, tel, tel2, email, address, coords } = companyData;
 
   const router = useRouter();
+
+  const handleClick = () => {
+    const destinationURL = `https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lon}`;
+    router.push(destinationURL);
+  };
 
   return (
     <Section>
@@ -117,6 +122,20 @@ function Footer() {
           </MuiLink>
         </SocialLinks>
         <ContactInfo container spacing={2}>
+          <DefaultButton
+            onClick={handleClick}
+            label="Get Directions"
+            relative={true}
+            minWidth="100%"
+            startIcon={<DirectionsIcon />}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              "&:hover": {
+                color: "white",
+              },
+            }}
+          />
           <Grid item xs={12} md={4}>
             <ContactIcon>
               <LocationOnIcon />

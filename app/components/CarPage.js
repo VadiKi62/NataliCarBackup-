@@ -90,15 +90,16 @@ const BookButton = styled(Button)(({ theme }) => ({
   //   transform: "translateX(-50%)",
   width: "calc(100% - 20px)", // Slightly smaller than the full width
   maxWidth: "900px",
-  backgroundColor: theme.palette.primary.red,
-  color: "white",
+  backgroundColor: theme.palette.primary.green,
+  color: theme.palette.secondary.main,
   padding: theme.spacing(2),
   fontSize: "1.5rem",
   boxShadow: theme.shadows[5],
   marginBottom: theme.spacing(4), // Add space below the button
-  zIndex: 1000, // Ensures the button stays on top
+  zIndex: 1022200, // Ensures the button stays on top
   "&:hover": {
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: theme.palette.primary.red,
+    color: theme.palette.primary.green,
   },
 }));
 

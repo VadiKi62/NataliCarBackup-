@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from "react";
-import { Calendar } from "antd";
+import { Calendar, Select, Row, Col } from "antd";
 import dayjs from "dayjs";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, IconButton } from "@mui/material";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
+  const [currentDate, setCurrentDate] = useState(dayjs());
 
   const { unavailableDates, confirmedDates } = useMemo(() => {
     const unavailable = [];
@@ -69,10 +72,10 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
       backgroundColor = "primary.dark";
       color = "white";
     } else if (isConfirmed) {
-      backgroundColor = "primary.red"; // Red for confirmed
+      backgroundColor = "primary.red";
       color = "common.white";
     } else if (isUnavailable) {
-      backgroundColor = "primary.green"; // warning.light for unconfirmed
+      backgroundColor = "primary.green";
       color = "common.black";
     }
 
@@ -93,12 +96,77 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
     );
   };
 
+  const handlePrevMonth = () => {
+    setCurrentDate(currentDate.subtract(1, "month"));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(currentDate.add(1, "month"));
+  };
+
+  const headerRender = ({ value, type, onChange, onTypeChange }) => {
+    const current = value.clone();
+    const month = current.format("MMMM");
+    const year = current.year();
+
+    const goToNextMonth = () => {
+      // const newDate = currentDate.add(1, "month");
+      // onChange(newDate);
+      setCurrentDate(currentDate.add(1, "month"));
+    };
+
+    const goToPreviousMonth = () => {
+      // const newDate = currentDate.subtract(1, "month");
+      // onChange(newDate);
+      setCurrentDate(currentDate.subtract(1, "month"));
+    };
+
+    return (
+      <Box
+        sx={{
+          padding: 1,
+          display: "flex",
+          color: "common.black",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <IconButton onClick={goToPreviousMonth} color="inherit">
+          <ArrowBackIosNewIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ margin: 0 }}>
+          {`${month} ${year}`}
+        </Typography>
+        <IconButton onClick={goToNextMonth} color="inherit">
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
+    );
+  };
+
   return (
     <div style={{ maxWidth: "100%", padding: "20px" }}>
-      <Typography sx={{ marginBottom: "20px", color: "primary.main" }}>
+      <Typography
+        variant="h6"
+        sx={{
+          lineHeight: "1.3rem",
+          letterSpacing: "0.1rem",
+          textTransform: "uppercase",
+          marginBottom: "20px",
+          color: "primary.main",
+        }}
+      >
         Choose your dates for booking
       </Typography>
-      <Box sx={{ marginBottom: "10px" }}>
+      <Box
+        sx={{
+          marginBottom: "10px",
+          justifyContent: "center",
+          display: "flex",
+          alignItems: "center",
+          alignContent: "center",
+        }}
+      >
         <Box
           component="span"
           sx={{
@@ -109,9 +177,13 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
             marginRight: "10px",
           }}
         ></Box>
-        <Typography component="span">Confirmed bookings</Typography>
+        <Typography component="span" variant="body2">
+          Confirmed bookings
+        </Typography>
       </Box>
-      <Box sx={{ marginBottom: "10px" }}>
+      <Box
+        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
+      >
         <Box
           component="span"
           sx={{
@@ -122,13 +194,17 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
             marginRight: "10px",
           }}
         ></Box>
-        <Typography component="span">Unconfirmed bookings</Typography>
+        <Typography component="span" variant="body2">
+          Unconfirmed bookings
+        </Typography>
       </Box>
       <Calendar
         fullscreen={false}
         onSelect={onSelect}
         disabledDate={disabledDate}
         fullCellRender={renderDateCell}
+        headerRender={headerRender}
+        value={currentDate}
       />
     </div>
   );

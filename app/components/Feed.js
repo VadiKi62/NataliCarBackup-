@@ -26,8 +26,10 @@ function Feed({ children, ...props }) {
             ordersData={props.ordersData}
           >
             <Navbar />
-            {props?.carsData ? <CarGrid /> : <CarPage car={props?.car} />}
-            {children}
+            <Container sx={{ pt: { xs: 8, md: 10 } }}>
+              {props?.carsData ? <CarGrid /> : <CarPage car={props?.car} />}
+              {children}
+            </Container>
             <Footer />
           </MainContextProvider>
         </I18nextProvider>
