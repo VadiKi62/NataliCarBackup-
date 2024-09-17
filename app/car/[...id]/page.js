@@ -16,7 +16,7 @@ export const generateMetadata = async ({ params }) => {
 
   return {
     title: { title },
-    description: `${title} for rent in Nea Kallikratia`,
+    description: `${title} for rent in Nea Kallikratia.  Natali Cars. Best Car Rent Prices. Best Services.`,
   };
 };
 
