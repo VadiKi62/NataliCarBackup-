@@ -1,5 +1,5 @@
 export const companyData = {
-  name: "NATALY RENT",
+  name: "NATALI CARS",
   tel: "+30 6970 034 707",
   tel2: "(+30) 6989 922 366",
   email: "natali2015makarova@gmail.com",
