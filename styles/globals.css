@@ -3,8 +3,8 @@
 @tailwind utilities; */
 
 :root {
-  --foreground-rgba: 191, 167, 93;
-  --background-start-rgb: 231, 203, 117;
+  --foreground-rgb: 231, 203, 117;
+  --background-start-rgb: 191, 167, 93;
   --background-end-rgb: 191, 167, 93;
 }
 
@@ -18,7 +18,7 @@
 
 body {
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
-  color: rgb(15, 15, 15);
+  color: rgb(255, 255, 255);
   background: -webkit-linear-gradient(
     left,
     /* transparent, */ rgb(var(--background-end-rgb), 0.8),

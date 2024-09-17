@@ -139,9 +139,9 @@ const BookingModal = ({
   const handleDateChange = (dates) => {
     setDateRange(dates);
   };
-
+  //to add something beautifull
   if (loading) {
-    return <>loading...</>;
+    return <div>loading...</div>;
   }
 
   return (

@@ -14,12 +14,13 @@ import {
 } from "@mui/material";
 import LanguageIcon from "@mui/icons-material/Language";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { Link as ScrollLink, animateScroll as scroll } from "react-scroll";
+import { animateScroll as scroll } from "react-scroll";
 import { companyData } from "@utils/companyData";
 
 const AppStyling = styled("div")(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
+  backgroundColor: theme.palette.secondary.main,
   fontFamily: theme.typography.h1.fontFamily,
   zIndex: 996,
   position: "sticky",
@@ -44,19 +45,19 @@ const LogoImg = styled(Image)(({ theme }) => ({
   // display: "flex",
 }));
 
-const AboutButton = styled(ScrollLink)(({ theme, lang }) => ({
-  fontSize: lang === "en" ? "17px" : "13px",
-  padding: 0,
-  color: theme.palette.text.light,
-  fontFamily: theme.typography.allVariants.fontFamily,
-  fontWeight: 700,
-  cursor: "pointer",
-  display: "flex",
-  "&:hover": {
-    fontSize: "22px",
-    fontWeight: 900,
-  },
-}));
+// const AboutButton = styled(ScrollLink)(({ theme, lang }) => ({
+//   fontSize: lang === "en" ? "17px" : "13px",
+//   padding: 0,
+//   color: theme.palette.text.light,
+//   fontFamily: theme.typography.allVariants.fontFamily,
+//   fontWeight: 700,
+//   cursor: "pointer",
+//   display: "flex",
+//   "&:hover": {
+//     fontSize: "22px",
+//     fontWeight: 900,
+//   },
+// }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
   color: theme.palette.text?.black || theme.palette.text?.light,
@@ -122,7 +123,9 @@ export default function NavBar() {
             alt="to kati allo"
             priority
           ></LogoImg> */}
-          <Logo>{companyData.name}</Logo>
+          <Link href="/">
+            <Logo>{companyData.name}</Logo>
+          </Link>
           <Stack direction="row" spacing={2} alignItems="center">
             <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
               <LanguageIcon />

@@ -90,7 +90,7 @@ const BookButton = styled(Button)(({ theme }) => ({
   //   transform: "translateX(-50%)",
   width: "calc(100% - 20px)", // Slightly smaller than the full width
   maxWidth: "900px",
-  backgroundColor: theme.palette.warning.main,
+  backgroundColor: theme.palette.primary.red,
   color: "white",
   padding: theme.spacing(2),
   fontSize: "1.5rem",
@@ -129,9 +129,7 @@ function CarPageComponent({ car }) {
 
   return (
     <StyledCarPage>
-      <BookButton variant="contained" onClick={() => setModalOpen(true)}>
-        BOOK NOW
-      </BookButton>
+      <BookButton onClick={() => setModalOpen(true)}>BOOK NOW</BookButton>
 
       <StyledCarCard>
         <CarImage src={car.photoUrl} alt={car.model} width={800} height={400} />

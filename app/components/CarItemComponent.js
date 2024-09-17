@@ -61,12 +61,12 @@ const CarImage = styled(Box)(({ theme }) => ({
   height: 200,
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
-  marginBottom: theme.spacing(2),
+  // marginBottom: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     width: 450,
     height: 300,
-    marginBottom: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    // marginBottom: theme.spacing(2),
+    // marginRight: theme.spacing(2),
   },
 }));
 
@@ -132,14 +132,16 @@ function CarItemComponent({ car, orders }) {
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
-        <CarImage>
-          <Image
-            src={car.photoUrl}
-            alt={car.model}
-            layout="fill"
-            objectFit="cover"
-          />
-        </CarImage>
+        <Link href={`/car/${car._id}`} passHref>
+          <CarImage>
+            <Image
+              src={car.photoUrl}
+              alt={car.model}
+              layout="fill"
+              objectFit="cover"
+            />
+          </CarImage>
+        </Link>
         <CarDetails>
           <CarTitle variant="h5">{car.model}</CarTitle>
           <Box mb={2}>
