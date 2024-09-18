@@ -13,6 +13,14 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [allOrders, setAllOrders] = useState(ordersData || []);
   const [isLoading, setIsLoading] = useState(false);
 
+  // useEffect(() => {
+  //   // Poll the database every 10 seconds for updates
+  //   const intervalId = setInterval(() => {
+  //     fetchAndUpdateOrders();
+  //   }, 10000); // Fetch every 10 seconds (adjust as needed)
+
+  //   return () => clearInterval(intervalId); // Clean up on component unmount
+  // }, []);
   const fetchAndUpdateOrders = async () => {
     setIsLoading(true);
     try {
@@ -24,15 +32,6 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    // Poll the database every 10 seconds for updates
-    const intervalId = setInterval(() => {
-      fetchAndUpdateOrders();
-    }, 10000); // Fetch every 10 seconds (adjust as needed)
-
-    return () => clearInterval(intervalId); // Clean up on component unmount
-  }, []);
 
   const ordersByCarId = (carId) => {
     return allOrders?.filter((order) => order.car === carId);

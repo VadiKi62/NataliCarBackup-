@@ -122,12 +122,16 @@ function CarItemComponent({ car }) {
   const [expanded, setExpanded] = useState(false);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [modalOpen, setModalOpen] = useState(false);
-  const { resubmitOrdersData, isLoading, ordersByCarId } = useMainContext();
-  const orders = ordersByCarId(car._id);
 
-  if (orders.length > 0) {
-    console.log(`CAR FROM CARITEM COMPONENT for  ${car.model} : ${orders}`);
-  }
+  const { resubmitOrdersData, isLoading, ordersByCarId, allOrders } =
+    useMainContext();
+  const [carOrders, setCarOrders] = useState([]);
+
+  // Update orders when allOrders or car._id changes
+  useEffect(() => {
+    const updatedOrders = ordersByCarId(car._id);
+    setCarOrders(updatedOrders);
+  }, [allOrders]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -204,7 +208,7 @@ function CarItemComponent({ car }) {
       </Wrapper>
       <CalendarPicker
         isLoading={isLoading}
-        orders={orders}
+        orders={carOrders}
         setBookedDates={setBookedDates}
         onBookingComplete={handleBookingComplete}
       />
@@ -213,7 +217,7 @@ function CarItemComponent({ car }) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}
-        orders={orders}
+        orders={carOrders}
         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
         isLoading={isLoading}
       />
