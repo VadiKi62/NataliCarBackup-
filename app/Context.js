@@ -49,8 +49,6 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   };
 
   return (
-    <MainContext.Provider value={contextValue}>
-      {children}
-    </MainContext.Provider>
+    <MainContext.Provider value={contextValue}>{children}</MainContext.Provider>
   );
 };

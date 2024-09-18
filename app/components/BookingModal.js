@@ -9,6 +9,7 @@ import {
   Typography,
   Box,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import { addOrder } from "@utils/action";
 import SuccessMessage from "./common/SuccessMessage";
@@ -43,7 +44,8 @@ const BookingModal = ({
   onClose,
   car,
   presetDates = null,
-  onSuccessfulBooking,
+  resubmitOrdersData,
+  isLoading,
 }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -51,7 +53,6 @@ const BookingModal = ({
   const [errors, setErrors] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
     presetDates?.startDate ? dayjs(presetDates.startDate) : null,
@@ -89,7 +90,6 @@ const BookingModal = ({
     }
 
     try {
-      setLoading(true);
       const orderData = {
         carNumber: car.carNumber,
         customerName: name,
@@ -107,12 +107,11 @@ const BookingModal = ({
 
       // Call the callback function to trigger a re-fetch
       if (setIsSubmitted) {
-        onSuccessfulBooking();
-        setLoading(false);
+        resubmitOrdersData();
       }
     } catch (error) {
       console.error("Error adding order:", error.message);
-      setLoading(false);
+
       setErrors({ submit: "Failed to submit order. Please try again." });
     }
   };
@@ -139,105 +138,113 @@ const BookingModal = ({
   const handleDateChange = (dates) => {
     setDateRange(dates);
   };
-  //to add something beautifull
-  if (loading) {
-    return <div>loading...</div>;
-  }
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle textAlign="center" mt="3">
-        {isSubmitted ? "Booking Confirmed!" : `Book ${car.model}`}
-      </DialogTitle>
-      <DialogContent>
-        {isSubmitted ? (
-          <SuccessMessage
-            submittedOrder={submittedOrder}
-            presetDates={presetDates}
-            onClose={onClose}
-          />
-        ) : (
-          <Box>
-            <Typography variant="body1">
-              You are booking {car.model} from{" "}
-              <Box
-                component="span"
-                sx={{ fontWeight: "bold", color: "primary.main" }}
-              >
-                {dayjs(presetDates?.startDate).format("MMMM D")}
-              </Box>{" "}
-              till{" "}
-              <Box
-                component="span"
-                sx={{ fontWeight: "bold", color: "primary.main" }}
-              >
-                {dayjs(presetDates?.endDate).format("MMMM D")}
-              </Box>
-              .
-            </Typography>
+      {isLoading ? (
+        <Box sx={{ display: "flex", flexDirection: "column", p: 10 }}>
+          {" "}
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <DialogTitle textAlign="center" mt="3">
+            {isSubmitted ? "Booking Confirmed!" : `Book ${car.model}`}
+          </DialogTitle>
+          <DialogContent>
+            {isSubmitted ? (
+              <SuccessMessage
+                submittedOrder={submittedOrder}
+                presetDates={presetDates}
+                onClose={onClose}
+              />
+            ) : (
+              <Box>
+                <Typography variant="body1">
+                  You are booking {car.model} from{" "}
+                  <Box
+                    component="span"
+                    sx={{ fontWeight: "bold", color: "primary.main" }}
+                  >
+                    {dayjs(presetDates?.startDate).format("MMMM D")}
+                  </Box>{" "}
+                  till{" "}
+                  <Box
+                    component="span"
+                    sx={{ fontWeight: "bold", color: "primary.main" }}
+                  >
+                    {dayjs(presetDates?.endDate).format("MMMM D")}
+                  </Box>
+                  .
+                </Typography>
 
-            <Box component="form" sx={{ "& .MuiTextField-root": { my: 1 } }}>
-              <TextField
-                label="Name"
-                variant="outlined"
-                fullWidth
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                error={!!errors.name}
-                helperText={errors.name}
-              />
-              <TextField
-                label="Email"
-                variant="outlined"
-                fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                type="email"
-                error={!!errors.email}
-                helperText={errors.email}
-              />
-              <TextField
-                label="Phone Number"
-                variant="outlined"
-                fullWidth
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-                error={!!errors.phone}
-                helperText={errors.phone}
-              />
-            </Box>
-            {errors.submit && (
-              <Typography color="error" sx={{ mt: 2 }}>
-                {errors.submit}
-              </Typography>
+                <Box
+                  component="form"
+                  sx={{ "& .MuiTextField-root": { my: 1 } }}
+                >
+                  <TextField
+                    label="Name"
+                    variant="outlined"
+                    fullWidth
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    error={!!errors.name}
+                    helperText={errors.name}
+                  />
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    type="email"
+                    error={!!errors.email}
+                    helperText={errors.email}
+                  />
+                  <TextField
+                    label="Phone Number"
+                    variant="outlined"
+                    fullWidth
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    error={!!errors.phone}
+                    helperText={errors.phone}
+                  />
+                </Box>
+                {errors.submit && (
+                  <Typography color="error" sx={{ mt: 2 }}>
+                    {errors.submit}
+                  </Typography>
+                )}
+              </Box>
             )}
-          </Box>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleModalClose}>
-          {isSubmitted ? "OK" : "Cancel"}
-        </Button>
-        {!isSubmitted && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={
-              !name ||
-              !email ||
-              !phone ||
-              !presetDates?.startDate ||
-              !presetDates?.endDate
-            }
-          >
-            Confirm Booking
-          </Button>
-        )}
-      </DialogActions>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleModalClose}>
+              {isSubmitted ? "OK" : "Cancel"}
+            </Button>
+            {!isSubmitted && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                disabled={
+                  !name ||
+                  !email ||
+                  !phone ||
+                  !presetDates?.startDate ||
+                  !presetDates?.endDate
+                }
+              >
+                Confirm Booking
+              </Button>
+            )}
+          </DialogActions>
+        </>
+      )}
     </Dialog>
   );
 };

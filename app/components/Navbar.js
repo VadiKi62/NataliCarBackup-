@@ -115,7 +115,16 @@ export default function NavBar() {
           </Link>
           <Stack direction="row" spacing={2} alignItems="center">
             <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
-              <LanguageIcon />
+              {/* <LanguageIcon /> */}
+              <Typography
+                className="language-text"
+                sx={{
+                  fontStretch: "extra-condensed",
+                  textTransform: "uppercase",
+                }}
+              >
+                {lang}
+              </Typography>
             </LanguageSwitcher>
           </Stack>
         </Stack>

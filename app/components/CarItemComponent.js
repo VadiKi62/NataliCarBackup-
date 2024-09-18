@@ -79,6 +79,7 @@ const CarTitle = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
   fontWeight: 700,
   marginBottom: theme.spacing(1),
+  marginTop: theme.spacing(1),
 }));
 
 const CarInfo = styled(Typography)(({ theme }) => ({
@@ -203,27 +204,20 @@ function CarItemComponent({ car, orders }) {
           </Box>
         </CarDetails>
       </Wrapper>
-
-      {isLoading ? (
-        <Typography variant="body2" color="text.secondary">
-          Loading orders...
-        </Typography>
-      ) : (
-        <CalendarPicker
-          car={car}
-          orders={orders}
-          setBookedDates={setBookedDates}
-          onBookingComplete={handleBookingComplete}
-        />
-      )}
-
+      <CalendarPicker
+        isLoading={isLoading}
+        orders={orders}
+        setBookedDates={setBookedDates}
+        onBookingComplete={handleBookingComplete}
+      />
       <BookingModal
-        onSuccessfulBooking={resubmitOrdersData}
+        resubmitOrdersData={resubmitOrdersData}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}
         orders={orders}
         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
+        isLoading={isLoading}
       />
     </StyledCarItem>
   );

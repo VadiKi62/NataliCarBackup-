@@ -1,11 +1,16 @@
 import React, { useState, useMemo } from "react";
 import { Calendar, Select, Row, Col } from "antd";
 import dayjs from "dayjs";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
-const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
+const CalendarPicker = ({
+  isLoading,
+  setBookedDates,
+  onBookingComplete,
+  orders,
+}) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
 
@@ -13,6 +18,7 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
     const unavailable = [];
     const confirmed = [];
 
+    console.log("orders coming from unav/confirmed dates", orders);
     orders.forEach((order) => {
       const startDate = dayjs(order.rentalStartDate);
       const endDate = dayjs(order.rentalEndDate);
@@ -38,7 +44,7 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
     return (
       current &&
       (current.isBefore(dayjs().startOf("day")) ||
-        unavailableDates.includes(current.format("YYYY-MM-DD")))
+        unavailableDates?.includes(current.format("YYYY-MM-DD")))
     );
   };
 
@@ -62,8 +68,8 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
       (date >= start && date <= end) ||
       date.isSame(start, "day") ||
       date.isSame(end, "day");
-    const isConfirmed = confirmedDates.includes(dateStr);
-    const isUnavailable = unavailableDates.includes(dateStr);
+    const isConfirmed = confirmedDates?.includes(dateStr);
+    const isUnavailable = unavailableDates?.includes(dateStr);
 
     let backgroundColor = "transparent";
     let color = "inherit";
@@ -94,14 +100,6 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
         {date.date()}
       </Box>
     );
-  };
-
-  const handlePrevMonth = () => {
-    setCurrentDate(currentDate.subtract(1, "month"));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(currentDate.add(1, "month"));
   };
 
   const headerRender = ({ value, type, onChange, onTypeChange }) => {
@@ -145,7 +143,7 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
   };
 
   return (
-    <div style={{ maxWidth: "100%", padding: "20px" }}>
+    <Box sx={{ width: "100%", p: "20px" }}>
       <Typography
         variant="h6"
         sx={{
@@ -198,15 +196,19 @@ const CalendarPicker = ({ car, setBookedDates, onBookingComplete, orders }) => {
           Unconfirmed bookings
         </Typography>
       </Box>
-      <Calendar
-        fullscreen={false}
-        onSelect={onSelect}
-        disabledDate={disabledDate}
-        fullCellRender={renderDateCell}
-        headerRender={headerRender}
-        value={currentDate}
-      />
-    </div>
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
+        <Calendar
+          fullscreen={false}
+          onSelect={onSelect}
+          disabledDate={disabledDate}
+          fullCellRender={renderDateCell}
+          headerRender={headerRender}
+          value={currentDate}
+        />
+      )}
+    </Box>
   );
 };
 
