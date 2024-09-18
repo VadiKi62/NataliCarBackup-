@@ -71,8 +71,12 @@ export const addOrder = async (orderData) => {
     return response.data;
   } catch (error) {
     if (error.response) {
-      console.error(`Server error: ${error.response.status} - ${error.response.data}`);
-      throw new Error(`Server error: ${error.response.status} - ${error.response.data}`);
+      console.error(
+        `Server error: ${error.response.status} - ${error.response.data}`
+      );
+      throw new Error(
+        `Server error: ${error.response.status} - ${error.response.data}`
+      );
     } else {
       console.error("Error adding order:", error.message);
       throw error;

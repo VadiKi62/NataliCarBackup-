@@ -20,7 +20,7 @@ export async function POST(request) {
     // Find the car by its car number
     const existingCar = await Car.findOne({ carNumber: carNumber });
 
-    console.log("EXISTING CAR FROM API", existingCar);
+    console.log("EXISTING CAR  FROM API", existingCar);
     if (!existingCar) {
       return new Response(`Car with number ${carNumber} does not exist`, {
         status: 404,
@@ -31,69 +31,6 @@ export async function POST(request) {
     const startDate = new Date(rentalStartDate);
     const endDate = new Date(rentalEndDate);
     const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-
-    // Check for existing orders
-    const existingOrders = await Order.find({
-      car: existingCar._id,
-      $or: [
-        {
-          rentalStartDate: { $lte: endDate },
-          rentalEndDate: { $gte: startDate },
-        },
-        { rentalStartDate: { $gte: startDate, $lte: endDate } },
-        { rentalEndDate: { $gte: startDate, $lte: endDate } },
-      ],
-    });
-
-    const confirmedDates = [];
-    const nonConfirmedDates = [];
-
-    for (const order of existingOrders) {
-      const orderStartDate = new Date(order.rentalStartDate);
-      const orderEndDate = new Date(order.rentalEndDate);
-
-      for (
-        let d = new Date(startDate);
-        d <= endDate;
-        d.setDate(d.getDate() + 1)
-      ) {
-        if (d >= orderStartDate && d <= orderEndDate) {
-          if (order.isConfirmed) {
-            confirmedDates.push(d.toISOString().split("T")[0]);
-          } else {
-            nonConfirmedDates.push(d.toISOString().split("T")[0]);
-          }
-        }
-      }
-    }
-
-    if (confirmedDates.length > 0) {
-      return new Response(
-        JSON.stringify({
-          message: `${confirmedDates.join(
-            ", "
-          )} are already confirmed for other booking, please check for another dates or another car.`,
-        }),
-        {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    if (nonConfirmedDates.length > 0) {
-      return new Response(
-        JSON.stringify({
-          message: `${nonConfirmedDates.join(
-            ", "
-          )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
-        }),
-        {
-          status: 202,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
 
     // Calculate the price per day using the car's pricing tiers
     const pricePerDay = existingCar.calculatePrice(rentalDays);
@@ -107,10 +44,10 @@ export async function POST(request) {
       rentalStartDate: startDate,
       rentalEndDate: endDate,
       car: existingCar._id,
-      carModel: existingCar.model,
-      carNumber: existingCar.carNumber,
-      numberOfDays: rentalDays,
-      totalPrice,
+      carModel: existingCar.model, // Adding car title
+      carNumber: existingCar.carNumber, // Adding car number
+      numberOfDays: rentalDays, // Adding calculated number of days
+      totalPrice, // Adding calculated total price
     });
 
     // Save the new order
@@ -134,6 +71,13 @@ export async function POST(request) {
   }
 }
 
+export async function GET(req, res) {
+  return new Response(JSON.stringify({ message: "API is working" }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 // export async function POST(request) {
 //   try {
 //     await connectToDB();
@@ -152,7 +96,7 @@ export async function POST(request) {
 //     // Find the car by its car number
 //     const existingCar = await Car.findOne({ carNumber: carNumber });
 
-//     console.log("EXISTING CAR  FROM API", existingCar);
+//     console.log("EXISTING CAR FROM API", existingCar);
 //     if (!existingCar) {
 //       return new Response(`Car with number ${carNumber} does not exist`, {
 //         status: 404,
@@ -163,6 +107,69 @@ export async function POST(request) {
 //     const startDate = new Date(rentalStartDate);
 //     const endDate = new Date(rentalEndDate);
 //     const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+//     // Check for existing orders
+//     const existingOrders = await Order.find({
+//       car: existingCar._id,
+//       $or: [
+//         {
+//           rentalStartDate: { $lte: endDate },
+//           rentalEndDate: { $gte: startDate },
+//         },
+//         { rentalStartDate: { $gte: startDate, $lte: endDate } },
+//         { rentalEndDate: { $gte: startDate, $lte: endDate } },
+//       ],
+//     });
+
+//     const confirmedDates = [];
+//     const nonConfirmedDates = [];
+
+//     for (const order of existingOrders) {
+//       const orderStartDate = new Date(order.rentalStartDate);
+//       const orderEndDate = new Date(order.rentalEndDate);
+
+//       for (
+//         let d = new Date(startDate);
+//         d <= endDate;
+//         d.setDate(d.getDate() + 1)
+//       ) {
+//         if (d >= orderStartDate && d <= orderEndDate) {
+//           if (order.isConfirmed) {
+//             confirmedDates.push(d.toISOString().split("T")[0]);
+//           } else {
+//             nonConfirmedDates.push(d.toISOString().split("T")[0]);
+//           }
+//         }
+//       }
+//     }
+
+//     if (confirmedDates.length > 0) {
+//       return new Response(
+//         JSON.stringify({
+//           message: `${confirmedDates.join(
+//             ", "
+//           )} are already confirmed for other booking, please check for another dates or another car.`,
+//         }),
+//         {
+//           status: 409,
+//           headers: { "Content-Type": "application/json" },
+//         }
+//       );
+//     }
+
+//     if (nonConfirmedDates.length > 0) {
+//       return new Response(
+//         JSON.stringify({
+//           message: `${nonConfirmedDates.join(
+//             ", "
+//           )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
+//         }),
+//         {
+//           status: 202,
+//           headers: { "Content-Type": "application/json" },
+//         }
+//       );
+//     }
 
 //     // Calculate the price per day using the car's pricing tiers
 //     const pricePerDay = existingCar.calculatePrice(rentalDays);
@@ -176,10 +183,10 @@ export async function POST(request) {
 //       rentalStartDate: startDate,
 //       rentalEndDate: endDate,
 //       car: existingCar._id,
-//       carModel: existingCar.model, // Adding car title
-//       carNumber: existingCar.carNumber, // Adding car number
-//       numberOfDays: rentalDays, // Adding calculated number of days
-//       totalPrice, // Adding calculated total price
+//       carModel: existingCar.model,
+//       carNumber: existingCar.carNumber,
+//       numberOfDays: rentalDays,
+//       totalPrice,
 //     });
 
 //     // Save the new order
@@ -202,10 +209,3 @@ export async function POST(request) {
 //     });
 //   }
 // }
-
-export async function GET(req, res) {
-  return new Response(JSON.stringify({ message: "API is working" }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-}
