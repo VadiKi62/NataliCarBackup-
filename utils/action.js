@@ -1,14 +1,13 @@
-import axios from "axios";
-
 export const API_URL =
   process.env.NODE_ENV === "development"
     ? process.env.NEXT_LOCAL_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
-// Fetch a single car by ID using axios
+// Fetch a single car by ID using fetch
 export const fetchCar = async (id) => {
   try {
-    const response = await axios.get(`${API_URL}/api/car/${id}`, {
+    const response = await fetch(`${API_URL}/api/car/${id}`, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
@@ -18,177 +17,183 @@ export const fetchCar = async (id) => {
       throw new Error("Car not found");
     }
 
-    console.log("Fetched Car:", response.data);
-    return response.data;
+    const data = await response.json();
+    console.log("Fetched Car:", data);
+    return data;
   } catch (error) {
     console.error("Error fetching car:", error.message);
     throw error;
   }
 };
 
-// Fetch all cars using axios
+// Fetch all cars using fetch
 export const fetchAll = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/car/all`, {
+    const apiUrl = `${API_URL}/api/car/all`;
+    const response = await fetch(apiUrl, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    return response.data;
+    if (!response.ok) {
+      throw new Error("Failed to fetch cars");
+    }
+    const carsData = await response.json();
+    return carsData;
   } catch (error) {
     console.error("Error fetching cars:", error);
     throw error;
   }
 };
 
-// Fetch all orders using axios
+// Fetch all orders using fetch
 export const fetchAllOrders = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/order/all`, {
+    const apiUrl = `${API_URL}/api/order/all`;
+    const response = await fetch(apiUrl, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    return response.data;
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    const ordersData = await response.json();
+    return ordersData;
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;
   }
 };
 
-// Add an order using axios
+// Add a new order using fetch
 export const addOrder = async (orderData) => {
   try {
-    const response = await axios.post(`${API_URL}/api/order/add`, orderData, {
+    console.log(orderData);
+
+    const response = await fetch(`${API_URL}/api/order/add`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(orderData),
     });
 
-    console.log("Order added:", response.data);
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error(
-        `Server error: ${error.response.status} - ${error.response.data}`
-      );
-      throw new Error(
-        `Server error: ${error.response.status} - ${error.response.data}`
-      );
-    } else {
-      console.error("Error adding order:", error.message);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`Failed to add order. Status: ${response.status}`);
     }
-  }
-};
 
-// Fetch orders by car ID using axios
-export const fetchOrdersByCar = async (carId) => {
-  try {
-    const response = await axios.get(`${API_URL}/api/order/${carId}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const result = await response.json();
+    console.log("Order added:", result);
 
-    return response.data;
+    return result;
   } catch (error) {
-    console.error("Error fetching orders by car:", error);
+    console.error("Error adding order:", error.message);
     throw error;
   }
 };
 
-// Batch fetch car and order data concurrently
-export const fetchCarAndOrders = async (carId) => {
+// Fetch orders by car ID using fetch
+export const fetchOrdersByCar = async (carId) => {
   try {
-    const [carData, ordersData] = await Promise.all([
-      fetchCar(carId),
-      fetchOrdersByCar(carId),
-    ]);
+    const response = await fetch(`${API_URL}/api/order/${carId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-    return { carData, ordersData };
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+
+    const orders = await response.json();
+    return orders; // Return the orders data
   } catch (error) {
-    console.error("Error fetching car and orders:", error);
-    throw error; // Optionally, rethrow the error to handle it in your component
+    console.error("Error fetching orders:", error);
+    throw error;
   }
 };
-// export const updatePrice = async (restId, menuNumber, newPrice) => {
-//   try {
-//     const response = await fetch(`/api/auth/priceUpd`, {
-//       method: "PUT",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ restId, menuNumber, newPrice }),
-//     });
 
-//     if (!response.ok) {
-//       throw new Error("Failed to update price");
-//     }
+// Update price using fetch
+export const updatePrice = async (restId, menuNumber, newPrice) => {
+  try {
+    const response = await fetch(`${API_URL}/api/auth/priceUpd`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ restId, menuNumber, newPrice }),
+    });
 
-//     const data = await response.json();
-//     return data;
-//   } catch (error) {
-//     console.error("Error updating price:", error);
-//     throw error;
-//   }
-// };
+    if (!response.ok) {
+      throw new Error("Failed to update price");
+    }
 
-// export const toggleIsActive = async (restId, menuNumber) => {
-//   try {
-//     const apiUrl = `/api/auth/toggleActive`;
-//     const response = await fetch(apiUrl, {
-//       method: "PATCH",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ restId, menuNumber }),
-//     });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error updating price:", error);
+    throw error;
+  }
+};
 
-//     if (!response.ok) {
-//       throw new Error(
-//         `Failed to toggle isActive status of the menu item with number ${menuNumber}`
-//       );
-//     }
+// Toggle active status using fetch
+export const toggleIsActive = async (restId, menuNumber) => {
+  try {
+    const apiUrl = `${API_URL}/api/auth/toggleActive`;
+    const response = await fetch(apiUrl, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ restId, menuNumber }),
+    });
 
-//     const updatedMenu = await response.json();
-//     return updatedMenu;
-//   } catch (error) {
-//     console.error(
-//       `Error toggling isActive status with rest ID ${restId} and menu number ${menuNumber}:`,
-//       error
-//     );
-//     throw error;
-//   }
-// };
+    if (!response.ok) {
+      throw new Error(
+        `Failed to toggle isActive status of the menu item with number ${menuNumber}`
+      );
+    }
 
-// export const updateName = async (restId, menuNumber, newName, lang = "en") => {
-//   try {
-//     const apiUrl = `/api/auth/changeName`;
-//     const response = await fetch(apiUrl, {
-//       method: "PATCH",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ restId, menuNumber, newName, lang }),
-//     });
-//     console.log("response", response);
+    const updatedMenu = await response.json();
+    return updatedMenu;
+  } catch (error) {
+    console.error(
+      `Error toggling isActive status with rest ID ${restId} and menu number ${menuNumber}:`,
+      error
+    );
+    throw error;
+  }
+};
 
-//     if (!response.ok) {
-//       throw new Error(
-//         `Failed to update name of the menu item with number ${menuNumber} in ${lang}`
-//       );
-//     }
+// Update name using fetch
+export const updateName = async (restId, menuNumber, newName, lang = "en") => {
+  try {
+    const apiUrl = `${API_URL}/api/auth/changeName`;
+    const response = await fetch(apiUrl, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ restId, menuNumber, newName, lang }),
+    });
 
-//     const updatedMenu = await response.json();
-//     return updatedMenu;
-//   } catch (error) {
-//     console.error(
-//       `Error updating name in English with rest ID ${restId} and menu number ${menuNumber}:`,
-//       error
-//     );
-//     throw error;
-//   }
-// };
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update name of the menu item with number ${menuNumber} in ${lang}`
+      );
+    }
+
+    const updatedMenu = await response.json();
+    return updatedMenu;
+  } catch (error) {
+    console.error(
+      `Error updating name in English with rest ID ${restId} and menu number ${menuNumber}:`,
+      error
+    );
+    throw error;
+  }
+};
