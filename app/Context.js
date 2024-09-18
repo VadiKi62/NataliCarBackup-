@@ -13,17 +13,29 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [allOrders, setAllOrders] = useState(ordersData || []);
   const [isLoading, setIsLoading] = useState(false);
 
-  const resubmitOrdersData = async () => {
-    console.log("resubmitORDERSSSSSS1");
-    setIsLoading(true); // Start loading
-    const newOrdersData = await fetchAllOrders(); // Await the new data
-    console.log("!!_!_!_!__!_!____!_!__!_resubmitORDERSSSSSS22222!!!!");
-    setAllOrders(newOrdersData); // Update orders state
-    setIsLoading(false); // Stop loading
+  const fetchAndUpdateOrders = async () => {
+    setIsLoading(true);
+    try {
+      const newOrdersData = await fetchAllOrders(); // Fetch latest orders data
+      setAllOrders(newOrdersData); // Update the state with new data
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    // Poll the database every 10 seconds for updates
+    const intervalId = setInterval(() => {
+      fetchAndUpdateOrders();
+    }, 10000); // Fetch every 10 seconds (adjust as needed)
+
+    return () => clearInterval(intervalId); // Clean up on component unmount
+  }, []);
+
   const ordersByCarId = (carId) => {
-    return allOrders?.filter((order) => order.car == carId);
+    return allOrders?.filter((order) => order.car === carId);
   };
 
   const contextValue = {
@@ -31,11 +43,14 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     allOrders,
     setCars,
     setAllOrders,
-    resubmitOrdersData,
+    resubmitOrdersData: fetchAndUpdateOrders, // Reuse fetch function for manual resubmission
     ordersByCarId,
     isLoading,
   };
+
   return (
-    <MainContext.Provider value={contextValue}>{children}</MainContext.Provider>
+    <MainContext.Provider value={contextValue}>
+      {children}
+    </MainContext.Provider>
   );
 };
