@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 export const API_URL =
   process.env.NODE_ENV === "development"
     ? process.env.NEXT_LOCAL_API_BASE_URL
@@ -56,6 +57,10 @@ export const fetchAllOrders = async () => {
       headers: {
         "Content-Type": "application/json",
       },
+      next: {
+        tags: ["orders"],
+        revalidate: 30,
+      },
     });
     if (!response.ok) {
       throw new Error("Failed to fetch orders");
@@ -113,7 +118,7 @@ export const addOrderNew = async (orderData) => {
     if (response.ok) {
       console.log("Order added:", result);
       return { status: "success", data: result };
-    } else if (response.status === 202) {
+    } else if (response.status === 402) {
       // Non-confirmed dates conflict
       return { status: "pending", message: result.message };
     } else if (response.status === 409) {

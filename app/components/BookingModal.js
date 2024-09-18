@@ -167,6 +167,8 @@ const BookingModal = ({
         <Box sx={{ display: "flex", flexDirection: "column", p: 10 }}>
           {" "}
           <CircularProgress />
+          <CircularProgress sx={{ color: "primary.green" }} />
+          <CircularProgress sx={{ color: "primary.red" }} />
         </Box>
       ) : (
         <>

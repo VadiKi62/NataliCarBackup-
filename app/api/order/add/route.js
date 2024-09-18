@@ -164,7 +164,7 @@ export async function POST(request) {
           )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
         }),
         {
-          status: 202,
+          status: 402,
           headers: { "Content-Type": "application/json" },
         }
       );

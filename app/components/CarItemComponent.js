@@ -131,7 +131,7 @@ function CarItemComponent({ car }) {
   useEffect(() => {
     const updatedOrders = ordersByCarId(car._id);
     setCarOrders(updatedOrders);
-  }, [allOrders]);
+  }, [allOrders, car._id, ordersByCarId]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);

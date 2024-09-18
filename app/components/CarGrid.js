@@ -11,18 +11,7 @@ const Section = styled("div")(({ theme }) => ({
 }));
 
 function CarGrid() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { cars, allOrders, ordersByCarId } = useMainContext();
-  const [ordersData, setOrders] = useState(allOrders);
-  //   if (loading) {
-  //     return <CircularProgress />;
-  //   }
-  console.log("ordersData", ordersData);
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
 
   return (
     <Section>
