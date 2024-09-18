@@ -133,7 +133,7 @@ const CalendarPicker = ({
           <ArrowBackIosNewIcon />
         </IconButton>
         <Typography variant="h6" sx={{ margin: 0 }}>
-          {${month} ${year}}
+          {`${month} ${year}`}
         </Typography>
         <IconButton onClick={goToNextMonth} color="inherit">
           <ArrowForwardIosIcon />
