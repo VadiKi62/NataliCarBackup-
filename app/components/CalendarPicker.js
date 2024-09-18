@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Calendar } from "antd";
+import { Calendar, Select, Row, Col } from "antd";
 import dayjs from "dayjs";
 import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -9,7 +9,7 @@ const CalendarPicker = ({
   isLoading,
   setBookedDates,
   onBookingComplete,
-  orders = [],
+  orders,
 }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -35,6 +35,7 @@ const CalendarPicker = ({
         currentDate = currentDate.add(1, "day");
       }
     });
+    console.log("orders coming from unav/confirmed dates", orders);
 
     return { unavailableDates: unavailable, confirmedDates: confirmed };
   }, [orders]);
@@ -53,9 +54,7 @@ const CalendarPicker = ({
     if (!start || (start && end)) {
       setSelectedRange([date, null]);
     } else {
-      const range = [start, date].sort((a, b) =>
-        a.isAfter(b) ? 1 : -1
-      );
+      const range = [start, date].sort((a, b) => a - b);
       setSelectedRange(range);
       setBookedDates({ start: range[0], end: range[1] });
       onBookingComplete();
@@ -66,7 +65,7 @@ const CalendarPicker = ({
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
     const isSelected =
-      (start && end && date.isAfter(start, "day") && date.isBefore(end, "day")) ||
+      (date >= start && date <= end) ||
       date.isSame(start, "day") ||
       date.isSame(end, "day");
     const isConfirmed = confirmedDates?.includes(dateStr);
@@ -76,13 +75,13 @@ const CalendarPicker = ({
     let color = "inherit";
 
     if (isSelected) {
-      backgroundColor = "primary.dark"; // Ensure this exists in your theme
+      backgroundColor = "primary.dark";
       color = "white";
     } else if (isConfirmed) {
-      backgroundColor = "primary.red"; // Ensure this exists in your theme
+      backgroundColor = "primary.red";
       color = "common.white";
     } else if (isUnavailable) {
-      backgroundColor = "primary.green"; // Ensure this exists in your theme
+      backgroundColor = "primary.green";
       color = "common.black";
     }
 
@@ -103,21 +102,21 @@ const CalendarPicker = ({
     );
   };
 
-  const headerRender = ({ value, onChange }) => {
+  const headerRender = ({ value, type, onChange, onTypeChange }) => {
     const current = value.clone();
     const month = current.format("MMMM");
     const year = current.year();
 
     const goToNextMonth = () => {
-      const newDate = currentDate.add(1, "month");
-      setCurrentDate(newDate);
-      onChange(newDate);
+      // const newDate = currentDate.add(1, "month");
+      // onChange(newDate);
+      setCurrentDate(currentDate.add(1, "month"));
     };
 
     const goToPreviousMonth = () => {
-      const newDate = currentDate.subtract(1, "month");
-      setCurrentDate(newDate);
-      onChange(newDate);
+      // const newDate = currentDate.subtract(1, "month");
+      // onChange(newDate);
+      setCurrentDate(currentDate.subtract(1, "month"));
     };
 
     return (
@@ -134,7 +133,7 @@ const CalendarPicker = ({
           <ArrowBackIosNewIcon />
         </IconButton>
         <Typography variant="h6" sx={{ margin: 0 }}>
-          {`${month} ${year}`}
+          {${month} ${year}}
         </Typography>
         <IconButton onClick={goToNextMonth} color="inherit">
           <ArrowForwardIosIcon />
@@ -204,7 +203,7 @@ const CalendarPicker = ({
           fullscreen={false}
           onSelect={onSelect}
           disabledDate={disabledDate}
-          dateCellRender={renderDateCell} // Updated this prop
+          fullCellRender={renderDateCell}
           headerRender={headerRender}
           value={currentDate}
         />
