@@ -11,7 +11,7 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
-import { addOrder } from "@utils/action";
+import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "./common/SuccessMessage";
 
 // const { RangePicker } = DatePicker;
@@ -80,16 +80,20 @@ const BookingModal = ({
 
   const handleSubmit = async () => {
     const newErrors = {};
+
+    // Validation checks
     if (!name) newErrors.name = "Name is required";
     if (!validateEmail(email)) newErrors.email = "Invalid email address";
     if (!validatePhone(phone)) newErrors.phone = "Invalid phone number";
 
+    // If there are validation errors, set them and return early
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     try {
+      // Prepare order data
       const orderData = {
         carNumber: car.carNumber,
         customerName: name,
@@ -100,19 +104,40 @@ const BookingModal = ({
         totalPrice,
       };
 
-      const result = await addOrder(orderData);
-      setSubmittedOrder(result);
-      console.log("Order added successfully:", result);
-      setIsSubmitted(true); // Mark submission as successful
+      // Use fetch to submit the order
+      const response = await addOrderNew(orderData);
 
-      // Call the callback function to trigger a re-fetch
-      if (setIsSubmitted) {
-        resubmitOrdersData();
+      console.log("response ORDER", response);
+
+      // Handle different response statuses
+      switch (response.status) {
+        case "success":
+          setSubmittedOrder(response.data);
+          console.log("Order added successfully:", response.data);
+          setIsSubmitted(true);
+          if (setIsSubmitted) {
+            resubmitOrdersData();
+          }
+          break;
+        case "pending":
+          console.warn("Order is pending:", response.message);
+          setErrors({ submit: response.message });
+          break;
+        case "conflict":
+          console.warn("Conflict with booking:", response.message);
+          setErrors({ submit: response.message });
+          break;
+        case "error":
+          throw new Error(response.message);
+        default:
+          throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
       console.error("Error adding order:", error.message);
-
-      setErrors({ submit: "Failed to submit order. Please try again." });
+      setErrors({
+        submit:
+          error.message || "An error occurred while processing your request.",
+      });
     }
   };
 
@@ -127,10 +152,7 @@ const BookingModal = ({
   };
 
   const handleModalClose = () => {
-    if (isSubmitted) {
-      resetForm();
-    }
-
+    resetForm();
     // Close the modal
     onClose();
   };

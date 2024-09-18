@@ -95,6 +95,48 @@ export const addOrder = async (orderData) => {
   }
 };
 
+//Adding new order using new order api
+export const addOrderNew = async (orderData) => {
+  try {
+    console.log(orderData);
+
+    const response = await fetch(`${API_URL}/api/order/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Order added:", result);
+      return { status: "success", data: result };
+    } else if (response.status === 202) {
+      // Non-confirmed dates conflict
+      return { status: "pending", message: result.message };
+    } else if (response.status === 409) {
+      // Confirmed dates conflict
+      return { status: "conflict", message: result.message };
+    } else {
+      throw new Error(`Unexpected response status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error occurred:", error.message);
+
+    // Handling fetch-specific errors
+    if (error.message === "Failed to fetch") {
+      return { status: "error", message: "No response received from server." };
+    } else {
+      return {
+        status: "error",
+        message: error.message || "An error occurred.",
+      };
+    }
+  }
+};
+
 // Fetch orders by car ID using fetch
 export const fetchOrdersByCar = async (carId) => {
   try {

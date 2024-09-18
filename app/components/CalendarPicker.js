@@ -35,7 +35,6 @@ const CalendarPicker = ({
         currentDate = currentDate.add(1, "day");
       }
     });
-    console.log("orders coming from unav/confirmed dates", orders);
 
     return { unavailableDates: unavailable, confirmedDates: confirmed };
   }, [orders]);
