@@ -106,7 +106,7 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   }),
 }));
 
-function CarItemComponent({ car, orders }) {
+function CarItemComponent({ car }) {
   const [imageLoading, setImageLoading] = useState(true);
   useEffect(() => {
     // Set a 3-second delay before showing the image
@@ -121,14 +121,12 @@ function CarItemComponent({ car, orders }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [expanded, setExpanded] = useState(false);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
-  const [carData, setCarData] = useState(car);
   const [modalOpen, setModalOpen] = useState(false);
-  const { resubmitOrdersData, isLoading } = useMainContext();
-  // const [ordersData, setOrders] = useState(orders);
+  const { resubmitOrdersData, isLoading, ordersByCarId } = useMainContext();
+  const orders = ordersByCarId(car._id);
 
   if (orders.length > 0) {
-    console.log("CAR FROM CARITEM COMPONENT", car.model);
-    console.log("ORDERS FROM CARITEM COMPONENT", orders);
+    console.log(`CAR FROM CARITEM COMPONENT for  ${car.model} : ${orders}`);
   }
 
   const handleExpandClick = () => {

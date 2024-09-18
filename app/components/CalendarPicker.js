@@ -108,14 +108,10 @@ const CalendarPicker = ({
     const year = current.year();
 
     const goToNextMonth = () => {
-      // const newDate = currentDate.add(1, "month");
-      // onChange(newDate);
       setCurrentDate(currentDate.add(1, "month"));
     };
 
     const goToPreviousMonth = () => {
-      // const newDate = currentDate.subtract(1, "month");
-      // onChange(newDate);
       setCurrentDate(currentDate.subtract(1, "month"));
     };
 
