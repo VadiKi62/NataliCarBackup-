@@ -18,7 +18,6 @@ const CalendarPicker = ({
     const unavailable = [];
     const confirmed = [];
 
-    console.log("orders coming from unav/confirmed dates", orders);
     orders.forEach((order) => {
       const startDate = dayjs(order.rentalStartDate);
       const endDate = dayjs(order.rentalEndDate);
@@ -36,6 +35,7 @@ const CalendarPicker = ({
         currentDate = currentDate.add(1, "day");
       }
     });
+    console.log("orders coming from unav/confirmed dates", orders);
 
     return { unavailableDates: unavailable, confirmedDates: confirmed };
   }, [orders]);
