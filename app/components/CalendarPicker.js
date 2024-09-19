@@ -1,16 +1,10 @@
-// import React, { useState, useMemo } from "react";
-// import { Calendar, Select, Row, Col } from "antd";
-// import dayjs from "dayjs";
-// import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
-// import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-// import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-
 import React, { useState, useEffect } from "react";
 import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import { Calendar } from "antd";
 import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import DefaultButton from "./common/DefaultButton";
 
 const CalendarPicker = ({
   isLoading,
@@ -22,6 +16,7 @@ const CalendarPicker = ({
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
+  const [showBookButton, setShowBookButton] = useState(false);
 
   useEffect(() => {
     const unavailable = [];
@@ -62,12 +57,18 @@ const CalendarPicker = ({
 
     if (!start || (start && end)) {
       setSelectedRange([date, null]);
+      setShowBookButton(false);
     } else {
       const range = [start, date].sort((a, b) => a - b);
       setSelectedRange(range);
       setBookedDates({ start: range[0], end: range[1] });
-      onBookingComplete();
+      setShowBookButton(true);
     }
+  };
+
+  const handleBooking = () => {
+    onBookingComplete();
+    setShowBookButton(false);
   };
 
   const renderDateCell = (date) => {
@@ -204,14 +205,39 @@ const CalendarPicker = ({
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <Calendar
-          fullscreen={false}
-          onSelect={onSelect}
-          disabledDate={disabledDate}
-          fullCellRender={renderDateCell}
-          headerRender={headerRender}
-          value={currentDate}
-        />
+        <>
+          <Calendar
+            fullscreen={false}
+            onSelect={onSelect}
+            disabledDate={disabledDate}
+            fullCellRender={renderDateCell}
+            headerRender={headerRender}
+            value={currentDate}
+          />
+          {showBookButton && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
+                animation: "blink 1s linear infinite",
+                "@keyframes blink": {
+                  "0%": { opacity: 1 },
+                  "50%": { opacity: 0.5 },
+                  "100%": { opacity: 1 },
+                },
+              }}
+            >
+              <DefaultButton
+                onClick={handleBooking}
+                label={`Book ${selectedRange[0].format(
+                  "MMM D"
+                )} - ${selectedRange[1].format("MMM D")}`}
+                relative={true}
+              />
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );

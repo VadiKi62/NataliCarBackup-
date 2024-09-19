@@ -20,10 +20,10 @@ export default function DefaultButton({
         sx={{
           p: 3,
           m: 1,
-          fontSize: "1.5rem",
+          fontSize: "1.3rem",
           fontWeight: 500,
           position: relative ? "relative" : "absolute",
-          lineHeight: "12px",
+          lineHeight: "1.5rem",
           top: relative ? 0 : 5,
           left: relative ? 0 : 5,
           borderRadius: "15px",

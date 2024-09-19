@@ -11,9 +11,7 @@ const Section = styled("div")(({ theme }) => ({
 }));
 
 function CarGrid() {
-  const { cars, allOrders, ordersByCarId } = useMainContext();
-
-  console.log("orders from CarGrid : ", allOrders);
+  const { cars } = useMainContext();
 
   return (
     <Section>
@@ -25,7 +23,7 @@ function CarGrid() {
       >
         {cars.map((car) => (
           <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-            <CarItemComponent car={car} orders={ordersByCarId(car._id)} />
+            <CarItemComponent car={car} />
           </Grid>
         ))}
       </Grid>
