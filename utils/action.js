@@ -53,14 +53,7 @@ export const fetchAllOrders = async () => {
   try {
     const apiUrl = `${API_URL}/api/order/all`;
     const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      next: {
-        tags: ["orders"],
-        revalidate: 30,
-      },
+      next: { cache: "no-store " },
     });
     if (!response.ok) {
       throw new Error("Failed to fetch orders");
