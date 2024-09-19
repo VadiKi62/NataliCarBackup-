@@ -12,6 +12,7 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [cars, setCars] = useState(carsData);
   const [allOrders, setAllOrders] = useState(ordersData || []);
   const [isLoading, setIsLoading] = useState(false);
+  console.log("orders from Context : ", allOrders);
 
   // useEffect(() => {
   //   // Poll the database every 10 seconds for updates
@@ -26,6 +27,7 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     try {
       const newOrdersData = await fetchAllOrders(); // Fetch latest orders data
       setAllOrders(newOrdersData); // Update the state with new data
+      console.log("FROM FETCHA AND UPDATE newOrdersData", newOrdersData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {

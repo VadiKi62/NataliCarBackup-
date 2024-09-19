@@ -1,7 +1,14 @@
-import React, { useState, useMemo } from "react";
-import { Calendar, Select, Row, Col } from "antd";
-import dayjs from "dayjs";
+// import React, { useState, useMemo } from "react";
+// import { Calendar, Select, Row, Col } from "antd";
+// import dayjs from "dayjs";
+// import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
+// import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+// import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+
+import React, { useState, useEffect } from "react";
 import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
+import { Calendar } from "antd";
+import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
@@ -13,8 +20,10 @@ const CalendarPicker = ({
 }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
+  const [unavailableDates, setUnavailableDates] = useState([]);
+  const [confirmedDates, setConfirmedDates] = useState([]);
 
-  const { unavailableDates, confirmedDates } = useMemo(() => {
+  useEffect(() => {
     const unavailable = [];
     const confirmed = [];
 
@@ -36,7 +45,8 @@ const CalendarPicker = ({
       }
     });
 
-    return { unavailableDates: unavailable, confirmedDates: confirmed };
+    setUnavailableDates(unavailable);
+    setConfirmedDates(confirmed);
   }, [orders]);
 
   const disabledDate = (current) => {

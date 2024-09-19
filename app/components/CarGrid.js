@@ -13,6 +13,8 @@ const Section = styled("div")(({ theme }) => ({
 function CarGrid() {
   const { cars, allOrders, ordersByCarId } = useMainContext();
 
+  console.log("orders from CarGrid : ", allOrders);
+
   return (
     <Section>
       <Grid
