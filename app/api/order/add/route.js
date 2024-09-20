@@ -156,20 +156,6 @@ export async function POST(request) {
       );
     }
 
-    if (nonConfirmedDates.length > 0) {
-      return new Response(
-        JSON.stringify({
-          message: `${nonConfirmedDates.join(
-            ", "
-          )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
-        }),
-        {
-          status: 402,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
     // Calculate the price per day using the car's pricing tiers
     const pricePerDay = existingCar.calculatePrice(rentalDays);
     const totalPrice = pricePerDay * rentalDays;
@@ -188,6 +174,20 @@ export async function POST(request) {
       totalPrice,
     });
 
+    if (nonConfirmedDates.length > 0) {
+      return new Response(
+        JSON.stringify({
+          message: `${nonConfirmedDates.join(
+            ", "
+          )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
+          data: newOrder,
+        }),
+        {
+          status: 402,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
     // Save the new order
     await newOrder.save();
 

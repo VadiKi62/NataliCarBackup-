@@ -1,4 +1,6 @@
 import { revalidateTag } from "next/cache";
+import sendEmail from "./sendEmail";
+
 export const API_URL =
   process.env.NODE_ENV === "development"
     ? process.env.NEXT_LOCAL_API_BASE_URL
@@ -69,8 +71,6 @@ export const fetchAllOrders = async () => {
 // Add a new order using fetch
 export const addOrder = async (orderData) => {
   try {
-    console.log(orderData);
-
     const response = await fetch(`${API_URL}/api/order/add`, {
       method: "POST",
       headers: {
@@ -78,6 +78,8 @@ export const addOrder = async (orderData) => {
       },
       body: JSON.stringify(orderData),
     });
+
+    console.log("response add order : ", response);
 
     if (!response.ok) {
       throw new Error(`Failed to add order. Status: ${response.status}`);
@@ -113,7 +115,7 @@ export const addOrderNew = async (orderData) => {
       return { status: "success", data: result };
     } else if (response.status === 402) {
       // Non-confirmed dates conflict
-      return { status: "pending", message: result.message };
+      return { status: "pending", message: result.message, data: result.data };
     } else if (response.status === 409) {
       // Confirmed dates conflict
       return { status: "conflict", message: result.message };

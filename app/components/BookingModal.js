@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "./common/SuccessMessage";
+import sendEmail from "@utils/sendEmail";
 
 // const { RangePicker } = DatePicker;
 
@@ -52,6 +53,7 @@ const BookingModal = ({
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
+  const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
@@ -93,7 +95,6 @@ const BookingModal = ({
     }
 
     try {
-      // Prepare order data
       const orderData = {
         carNumber: car.carNumber,
         customerName: name,
@@ -104,10 +105,48 @@ const BookingModal = ({
         totalPrice,
       };
 
-      // Use fetch to submit the order
       const response = await addOrderNew(orderData);
 
       console.log("response ORDER", response);
+
+      const prepareEmailData = (orderData, status) => {
+        const formattedStartDate = dayjs(orderData.rentalStartDate).format(
+          "DD.MM.YYYY"
+        );
+        const formattedEndDate = dayjs(orderData.rentalEndDate).format(
+          "DD.MM.YYYY"
+        );
+
+        let title =
+          status === "success"
+            ? `Новое бронирование ${orderData.carNumber} ${orderData.carModel}`
+            : `Ожидающее бронирование ${orderData.carNumber} ${orderData.carModel}`;
+
+        let statusMessage =
+          status === "success"
+            ? "Бронирование cо свободными датами."
+            : "Бронирование в ожидании подтверждения.";
+
+        return {
+          email: orderData.email,
+          title: title,
+          message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${orderData.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} id : ${orderData.car} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
+        };
+      };
+
+      const sendConfirmationEmail = async (formData) => {
+        try {
+          const emailResponse = await sendEmail(formData);
+          if (emailResponse.status === 200) {
+            setSuccessfullySent(true);
+          } else {
+            setSuccessfullySent(false);
+          }
+        } catch (emailError) {
+          console.error("Error sending email:", emailError);
+          setSuccessfullySent(false);
+        }
+      };
 
       // Handle different response statuses
       switch (response.status) {
@@ -115,20 +154,28 @@ const BookingModal = ({
           setSubmittedOrder(response.data);
           console.log("Order added successfully:", response.data);
           setIsSubmitted(true);
-          if (setIsSubmitted) {
-            resubmitOrdersData();
-          }
+          resubmitOrdersData();
+          await sendConfirmationEmail(
+            prepareEmailData(response.data, "success")
+          );
           break;
+
         case "pending":
           console.warn("Order is pending:", response.message);
           setErrors({ submit: response.message });
+          await sendConfirmationEmail(
+            prepareEmailData(response.data, "pending")
+          );
           break;
+
         case "conflict":
           console.warn("Conflict with booking:", response.message);
           setErrors({ submit: response.message });
           break;
+
         case "error":
           throw new Error(response.message);
+
         default:
           throw new Error(`Unexpected response status: ${response.status}`);
       }
@@ -149,11 +196,11 @@ const BookingModal = ({
     setErrors({});
     setIsSubmitted(false);
     setSubmittedOrder(null);
+    setSuccessfullySent(false);
   };
 
   const handleModalClose = () => {
     resetForm();
-    // Close the modal
     onClose();
   };
 
@@ -164,7 +211,7 @@ const BookingModal = ({
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       {isLoading ? (
-        <Box sx={{ display: "flex", flexDirection: "column", p: 10 }}>
+        <Box sx={{ display: "flex", alignContent: "center", p: 10 }}>
           {" "}
           <CircularProgress />
           <CircularProgress sx={{ color: "primary.green" }} />
@@ -181,6 +228,7 @@ const BookingModal = ({
                 submittedOrder={submittedOrder}
                 presetDates={presetDates}
                 onClose={onClose}
+                emailSent={emailSent}
               />
             ) : (
               <Box>
@@ -250,6 +298,7 @@ const BookingModal = ({
             <Button onClick={handleModalClose}>
               {isSubmitted ? "OK" : "Cancel"}
             </Button>
+
             {!isSubmitted && (
               <Button
                 variant="contained"

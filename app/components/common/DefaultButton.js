@@ -9,6 +9,7 @@ export default function DefaultButton({
   onClick,
   label,
   children,
+  blinking = false,
   props,
 }) {
   return (
@@ -34,6 +35,18 @@ export default function DefaultButton({
           color: "black",
           bgcolor: disabled ? "primary.fiolet" : "primary.green",
           opacity: disabled ? 0.7 : 1,
+          "&:hover": {
+            color: "white",
+            blinking: " false",
+          },
+          ...(blinking && {
+            animation: "blink 1s linear infinite",
+          }),
+          "@keyframes blink": {
+            "0%": { opacity: 1 },
+            "50%": { opacity: 0.5 },
+            "100%": { opacity: 1 },
+          },
         }}
         onClick={onClick}
         {...props}

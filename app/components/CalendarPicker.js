@@ -215,27 +215,14 @@ const CalendarPicker = ({
             value={currentDate}
           />
           {showBookButton && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "20px",
-                animation: "blink 1s linear infinite",
-                "@keyframes blink": {
-                  "0%": { opacity: 1 },
-                  "50%": { opacity: 0.5 },
-                  "100%": { opacity: 1 },
-                },
-              }}
-            >
-              <DefaultButton
-                onClick={handleBooking}
-                label={`Book ${selectedRange[0].format(
-                  "MMM D"
-                )} - ${selectedRange[1].format("MMM D")}`}
-                relative={true}
-              />
-            </Box>
+            <DefaultButton
+              onClick={handleBooking}
+              blinking={true}
+              label={`Book ${selectedRange[0].format(
+                "MMM D"
+              )} - ${selectedRange[1].format("MMM D")}`}
+              relative={true}
+            />
           )}
         </>
       )}

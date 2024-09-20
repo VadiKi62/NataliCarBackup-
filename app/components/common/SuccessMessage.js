@@ -2,7 +2,12 @@ import React from "react";
 import { Typography, Box, Button } from "@mui/material";
 import dayjs from "dayjs";
 
-const SuccessMessage = ({ submittedOrder, presetDates, onClose }) => {
+const SuccessMessage = ({
+  submittedOrder,
+  presetDates,
+  onClose,
+  emailSent,
+}) => {
   return (
     <Box>
       <Typography
@@ -37,9 +42,12 @@ const SuccessMessage = ({ submittedOrder, presetDates, onClose }) => {
       >
         Total price : €{submittedOrder.totalPrice}{" "}
       </Typography>
-      <Typography variant="body1" sx={{ mt: 1 }}>
-        We will contact you within 24 hours to finalize the details.
-      </Typography>
+      {emailSent && (
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          We have got your order and we will contact you within 24 hours to
+          finalize the details.
+        </Typography>
+      )}
     </Box>
   );
 };
