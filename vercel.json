@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/order/all/route.js": {
-      "maxDuration": 30
-    }
-  }
-}
