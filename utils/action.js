@@ -53,9 +53,9 @@ export const fetchAll = async () => {
 // Fetch all orders using fetch
 export const fetchAllOrders = async () => {
   try {
-    const apiUrl = `${API_URL}/api/order/all`;
+    const apiUrl = `${API_URL}/api/order/all?timestamp=${new Date().getTime()}`;
     const response = await fetch(apiUrl, {
-      next: { cache: "no-store " },
+      next: { cache: "no-store" },
     });
     if (!response.ok) {
       throw new Error("Failed to fetch orders");
@@ -64,33 +64,6 @@ export const fetchAllOrders = async () => {
     return ordersData;
   } catch (error) {
     console.error("Error fetching orders:", error);
-    throw error;
-  }
-};
-
-// Add a new order using fetch
-export const addOrder = async (orderData) => {
-  try {
-    const response = await fetch(`${API_URL}/api/order/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(orderData),
-    });
-
-    console.log("response add order : ", response);
-
-    if (!response.ok) {
-      throw new Error(`Failed to add order. Status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log("Order added:", result);
-
-    return result;
-  } catch (error) {
-    console.error("Error adding order:", error.message);
     throw error;
   }
 };

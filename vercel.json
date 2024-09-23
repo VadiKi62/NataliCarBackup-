@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/order/all.js": {
+      "maxDuration": 30
+    }
+  }
+}
