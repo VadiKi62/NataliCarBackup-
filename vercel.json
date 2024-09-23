@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/order/all.js": {
+    "api/order/all/route.js": {
       "maxDuration": 30
     }
   }
