@@ -45,6 +45,10 @@ const CarSchema = new Schema({
     type: Number,
     default: 2016,
   },
+  regNumber: {
+    type: String,
+    default: "NKT 123",
+  },
   color: {
     type: String,
   },
