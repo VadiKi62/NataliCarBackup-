@@ -68,6 +68,28 @@ export const fetchAllOrders = async () => {
   }
 };
 
+// REFetch all orders using fetch
+export const reFetchAllOrders = async () => {
+  try {
+    const apiUrl = `${API_URL}/api/order/refetch`;
+    const response = await fetch(apiUrl, {
+      next: { cache: "no-store" },
+      method: "POST",
+      // headers: {
+      //   "Content-Type": "application/json",
+      // },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    const ordersData = await response.json();
+    return ordersData;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    throw error;
+  }
+};
+
 //Adding new order using new order api
 export const addOrderNew = async (orderData) => {
   try {

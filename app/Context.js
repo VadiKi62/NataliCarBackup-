@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { fetchAllOrders } from "@utils/action";
+import { fetchAllOrders, reFetchAllOrders } from "@utils/action";
 
 const MainContext = createContext();
 
@@ -25,9 +25,9 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const fetchAndUpdateOrders = async () => {
     setIsLoading(true);
     try {
-      const newOrdersData = await fetchAllOrders(); // Fetch latest orders data
+      const newOrdersData = await reFetchAllOrders(); // Fetch latest orders data
       setAllOrders(newOrdersData); // Update the state with new data
-      console.log("FROM FETCHA AND UPDATE newOrdersData", newOrdersData);
+      console.log("FROM FETCA AND UPDATE newOrdersData", newOrdersData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
