@@ -21,11 +21,13 @@ function CarGrid() {
         direction="column"
         sx={{ alignItems: "center", alignContent: "center" }}
       >
-        {cars.map((car) => (
-          <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-            <CarItemComponent car={car} />
-          </Grid>
-        ))}
+        {cars
+          .sort((a, b) => a.sort - b.sort)
+          .map((car) => (
+            <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
+              <CarItemComponent car={car} />
+            </Grid>
+          ))}
       </Grid>
     </Section>
   );

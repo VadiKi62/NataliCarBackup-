@@ -27,6 +27,10 @@ const CarSchema = new Schema({
     ],
     required: true,
   },
+  sort: {
+    type: Number,
+    default: 999,
+  },
   transmission: {
     type: String,
     enum: ["Automatic", "Manual"],
