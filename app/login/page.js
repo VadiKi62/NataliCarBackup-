@@ -1,18 +1,18 @@
-import React from "react";
-import styles from "@app/components/LoginForm/login.module.css";
-import LoginForm from "@app/components/LoginForm/loginForm";
+// import React from "react";
+// import styles from "@app/components/LoginForm/login.module.css";
+// import LoginForm from "@app/components/LoginForm/loginForm";
 
-const LoginPage = () => {
-  console.log("hello from login page");
-  return (
-    <div className={styles.container}>
-      {" "}
-      <LoginForm />{" "}
-    </div>
-  );
-};
+// const LoginPage = () => {
+//   console.log("hello from login page");
+//   return (
+//     <div className={styles.container}>
+//       {" "}
+//       <LoginForm />{" "}
+//     </div>
+//   );
+// };
 
-export default LoginPage;
+// export default LoginPage;
 
 // "use client";
 // import { signIn } from "next-auth/react";
