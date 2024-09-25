@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "@app/components/loginForm/login.module.css";
-import LoginForm from "@app/components/loginForm/loginForm";
+import LoginForm from "@app/components/LoginForm/loginForm";
 
 const LoginPage = () => {
   console.log("hello from login page");

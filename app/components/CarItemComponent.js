@@ -161,9 +161,9 @@ function CarItemComponent({ car }) {
               <Image
                 src={car.photoUrl}
                 alt={car.model}
-                layout="fill"
-                objectFit="cover"
-                onLoadingComplete={() => setImageLoading(false)}
+                fill
+                cover
+                onLoad={() => setImageLoading(false)}
               />
             )}
           </CarImage>

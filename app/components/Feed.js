@@ -16,7 +16,6 @@ import { MainContextProvider } from "../Context";
 
 function Feed({ children, ...props }) {
   unstable_noStore();
-  // const { carsData, car, ordersData } = props;
 
   return (
     <Suspense fallback={<Loading />}>
