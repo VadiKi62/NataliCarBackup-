@@ -10,7 +10,7 @@ export default async function Home() {
   unstable_noStore();
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
-  console.log("orders from page.js (server) : ", ordersData);
+
   return (
     <Suspense fallback={<Loading />}>
       {" "}

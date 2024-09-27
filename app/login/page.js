@@ -1,5 +1,5 @@
 import React from "react";
-import Login from "@app/components/LoginForm/Login";
+import Login from "../components/Login";
 
 const containerStyle = {
   width: "100%",
