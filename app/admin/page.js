@@ -12,11 +12,8 @@ import Admin from "../components/Admin/Admin";
 import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
 
-export default async function AdminPage(params) {
-  const carsData = await fetchAllCars();
-  const ordersData = await reFetchAllOrders();
-  console.log("orders from admin/page.js (server) : ", ordersData);
-  unstable_noStore();
+export default async function AdminPage() {
+  // unstable_noStore();
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.isAdmin) {
@@ -24,6 +21,9 @@ export default async function AdminPage(params) {
     return null;
   }
 
+  const carsData = await fetchAllCars();
+  const ordersData = await reFetchAllOrders();
+  console.log("orders from admin/page.js (server) : ", ordersData);
   return (
     <ThemeProvider theme={theme}>
       <AdminLayout>
