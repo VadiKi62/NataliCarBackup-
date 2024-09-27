@@ -8,11 +8,12 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "@theme";
 import AdminLayout from "./layout";
 import Loading from "@app/loading";
-import Admin from "../components/Admin";
-import { fetchAll, fetchAllOrders, reFetchAllOrders } from "@utils/action";
+import Admin from "../components/Admin/Admin";
+import { fetchAllCars, reFetchAllOrders } from "@utils/action";
+import { MainContextProvider } from "@app/Context";
 
 export default async function AdminPage(params) {
-  const carsData = await fetchAll();
+  const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
   console.log("orders from admin/page.js (server) : ", ordersData);
   unstable_noStore();
@@ -26,10 +27,12 @@ export default async function AdminPage(params) {
   return (
     <ThemeProvider theme={theme}>
       <AdminLayout>
-        <Suspense fallback={<Loading />}>
-          <div>Hello {session.user.name}</div>
-          <Admin session={session} cars={carsData} orders={ordersData} />
-        </Suspense>
+        <MainContextProvider carsData={carsData} ordersData={ordersData}>
+          <Suspense fallback={<Loading />}>
+            <div>Hello {session.user.name}</div>
+            <Admin session={session} cars={carsData} orders={ordersData} />
+          </Suspense>
+        </MainContextProvider>
       </AdminLayout>
     </ThemeProvider>
   );

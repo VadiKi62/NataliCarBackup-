@@ -2,16 +2,13 @@ import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
 
 export const PUT = async (req) => {
-  //   console.log(req);
-  //   const { id } = req.query;
   try {
     await connectToDB();
-    console.log(req);
-    const { _id, ...updateFields } = req.body.json();
-    console.log(_id);
+
+    const { _id, ...updateFields } = await req.json();
 
     const updatedCar = await Car.findByIdAndUpdate(_id, updateFields, {
-      new: true, // Return the updated document
+      new: true,
     });
 
     if (!updatedCar) {

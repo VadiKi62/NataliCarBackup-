@@ -50,20 +50,45 @@ export const fetchAll = async () => {
   }
 };
 
-// Fetch all orders using fetch
-export const fetchAllOrders = async () => {
+// Fetch all cars using fetch
+export const fetchAllCars = async () => {
   try {
-    const apiUrl = `${API_URL}/api/order/all?timestamp=${new Date().getTime()}`;
+    const apiUrl = `${API_URL}/api/car/all`;
     const response = await fetch(apiUrl, {
-      next: { cache: "no-store" },
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch orders");
+      throw new Error("Failed to fetch cars");
     }
-    const ordersData = await response.json();
-    return ordersData;
+    const carsData = await response.json();
+    return carsData;
   } catch (error) {
-    console.error("Error fetching orders:", error);
+    console.error("Error fetching cars:", error);
+    throw error;
+  }
+};
+
+export const updateCar = async (updatedCar) => {
+  console.log("updatedCar from action", updatedCar);
+  try {
+    const response = await fetch(`/api/car/update`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedCar),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update car");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating car:", error);
     throw error;
   }
 };
@@ -154,29 +179,6 @@ export const fetchOrdersByCar = async (carId) => {
   }
 };
 
-// Update price using fetch
-export const updatePrice = async (restId, menuNumber, newPrice) => {
-  try {
-    const response = await fetch(`${API_URL}/api/auth/priceUpd`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ restId, menuNumber, newPrice }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update price");
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error updating price:", error);
-    throw error;
-  }
-};
-
 // Toggle active status using fetch
 export const toggleIsActive = async (restId, menuNumber) => {
   try {
@@ -231,6 +233,24 @@ export const updateName = async (restId, menuNumber, newName, lang = "en") => {
       `Error updating name in English with rest ID ${restId} and menu number ${menuNumber}:`,
       error
     );
+    throw error;
+  }
+};
+
+// Fetch all orders using fetch
+export const fetchAllOrders = async () => {
+  try {
+    const apiUrl = `${API_URL}/api/order/all?timestamp=${new Date().getTime()}`;
+    const response = await fetch(apiUrl, {
+      next: { cache: "no-store" },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch orders");
+    }
+    const ordersData = await response.json();
+    return ordersData;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
     throw error;
   }
 };

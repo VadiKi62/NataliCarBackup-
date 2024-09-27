@@ -1,131 +1,71 @@
-"use client";
 import React, { useState, useEffect } from "react";
-import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import {
-  Paper,
-  Box,
-  Typography,
-  Stack,
-  Divider,
-  Chip,
-  IconButton,
-  CircularProgress,
-  Collapse,
-  TextField,
-  Button,
-} from "@mui/material";
+
+import { styled } from "@mui/material/styles";
+
 import Image from "next/image";
 import Link from "next/link";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 import { fetchCar } from "@utils/action";
 import { fetchOrdersByCar } from "@utils/action";
-import BookingModal from "@app/components/BookingModal";
+
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
-import CalendarPicker from "@app/components/CalendarPicker";
-import { useMainContext } from "@app/Context";
+import CalendarAdmin from "./CalendarAdmin";
 
-const StyledCarItem = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  maxWidth: 400,
-  zIndex: 22,
-  display: "flex",
-  justifyContent: "center",
-  bgColor: "black",
-  alignItems: "center",
-  alignContent: "center",
-  flexDirection: "column",
-  boxShadow: theme.shadows[4],
-  transition: "transform 0.3s",
-  "&:hover": {
-    transform: "scale(1.02)",
-    boxShadow: theme.shadows[5],
-  },
-  [theme.breakpoints.up("sm")]: {
-    flexDirection: "row",
-    alignItems: "center",
-    minWidth: 750,
-    padding: theme.spacing(5),
-  },
+import {
+  TextField,
+  Button,
+  Box,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Checkbox,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography,
+  Collapse,
+} from "@mui/material";
+
+const StyledCarItem = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
 }));
 
-const Wrapper = styled(Box)(({ theme }) => ({
+const CompactView = styled(CardContent)(({ theme }) => ({
   display: "flex",
-  flexDirection: "column",
+  justifyContent: "space-between",
   alignItems: "center",
 }));
 
-const CarImage = styled(Box)(({ theme }) => ({
-  position: "relative",
-  width: 300,
-  height: 200,
-  borderRadius: theme.shape.borderRadius,
-  overflow: "hidden",
-
-  [theme.breakpoints.up("md")]: {
-    width: 450,
-    height: 300,
-  },
+const ExpandedView = styled(CardContent)(({ theme }) => ({
+  paddingTop: 0,
 }));
 
-const CarDetails = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  flexGrow: 1,
+const CarImage = styled(CardMedia)(({ theme }) => ({
+  width: 180,
+  height: 100,
+  backgroundSize: "cover",
+  marginRight: theme.spacing(2),
 }));
 
-const CarTitle = styled(Typography)(({ theme }) => ({
-  fontSize: "1.5rem",
-  fontWeight: 700,
-  marginBottom: theme.spacing(1),
-  marginTop: theme.spacing(1),
-}));
-
-const CarInfo = styled(Typography)(({ theme }) => ({
-  fontSize: "0.9rem",
-  color: theme.palette.text.secondary,
-  display: "flex",
-  alignItems: "center",
-  marginBottom: theme.spacing(0.5),
-  "& svg": {
-    marginRight: theme.spacing(1),
-    fontSize: "1.1rem",
-  },
-}));
-
-const PriceChip = styled(Chip)(({ theme }) => ({
-  marginRight: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-}));
-
-const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
-  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
-function CarItemComponent({ car }) {
-  const [imageLoading, setImageLoading] = useState(true);
+function CarItemComponent({ car, onCarUpdate }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedCar, setUpdatedCar] = useState({ ...car });
-  const [modalOpen, setModalOpen] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect(() => {
-    // Set a 3-second delay before showing the image
-    const loadingTimer = setTimeout(() => {
-      setImageLoading(false);
-    }, 3000);
-    return () => clearTimeout(loadingTimer);
-  }, []);
+  const handleExpandToggle = () => {
+    setIsExpanded(!isExpanded);
+    setIsEditing(false);
+  };
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
+    setIsExpanded(true);
   };
 
   const handleChange = (e) => {
@@ -133,104 +73,285 @@ function CarItemComponent({ car }) {
     setUpdatedCar((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setUpdatedCar((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  const handlePricingTierChange = (tier, value) => {
+    setUpdatedCar((prev) => ({
+      ...prev,
+      pricingTiers: { ...prev.pricingTiers, [tier]: Number(value) },
+    }));
+  };
+
   const handleUpdate = async () => {
-    console.log("UPD DATA", updatedCar);
     try {
-      const response = await fetch(`/api/car/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedCar),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update car");
-      }
-
-      const updatedCarData = await response.json();
+      const updatedCarData = await updateCar(updatedCar);
       setUpdatedCar(updatedCarData);
       setIsEditing(false);
+      if (onCarUpdate) {
+        onCarUpdate(updatedCarData);
+      }
     } catch (error) {
-      console.error(error);
-      // Handle error (e.g., show a notification)
+      console.error("Failed to update car:", error);
     }
   };
 
   return (
-    <StyledCarItem elevation={3}>
-      <Wrapper>
-        <Link href={`/car/${car._id}`} passHref>
-          <CarImage>
-            {imageLoading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-              </Box>
-            ) : (
-              <Image src={car.photoUrl} alt={car.model} fill cover />
-            )}
-          </CarImage>
-        </Link>
-
-        <Box>
-          {isEditing ? (
-            <>
-              <TextField
-                name="model"
-                label="Model"
-                value={updatedCar.model}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                name="class"
-                label="Class"
-                value={updatedCar.class}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                name="color"
-                label="Color"
-                value={updatedCar.color}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              {/* Add more fields as necessary */}
-              <Button onClick={handleUpdate}>Save</Button>
-              <Button onClick={handleEditToggle}>Cancel</Button>
-            </>
-          ) : (
-            <>
-              <h5>{car.model}</h5>
-              <p>Class: {car.class}</p>
-              <p>Color: {car.color}</p>
-              <Button onClick={handleEditToggle}>Edit</Button>
-            </>
-          )}
+    <StyledCarItem>
+      <CompactView>
+        <Box display="flex" alignItems="center">
+          <CarImage image={car.photoUrl} title={car.model} />
+          <Box>
+            <Typography variant="h6">{car.model}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Car Number: {car.carNumber}
+            </Typography>
+          </Box>
         </Box>
-      </Wrapper>
-      <CalendarPicker
-        isLoading={false} // Adjust as needed
-        orders={[]} // Pass relevant data
-        setBookedDates={() => {}}
-        onBookingComplete={() => {}}
-      />
-      <BookingModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        car={car}
-        orders={[]} // Pass relevant data
-        isLoading={false} // Adjust as needed
-      />
+        <Box>
+          <Button onClick={handleExpandToggle}>
+            {isExpanded ? "Hide Details" : "Show Full Info"}
+          </Button>
+          <Button onClick={handleEditToggle}>Edit</Button>
+        </Box>
+      </CompactView>
+
+      <Collapse in={isExpanded}>
+        <ExpandedView>
+          {isEditing ? (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  name="model"
+                  label="Model"
+                  value={updatedCar.model}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="carNumber"
+                  label="Car Number"
+                  value={updatedCar.carNumber}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="photoUrl"
+                  label="Photo URL"
+                  value={updatedCar.photoUrl}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <Select
+                  name="class"
+                  value={updatedCar.class}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                >
+                  {[
+                    "Economy",
+                    "Premium",
+                    "MiniBus",
+                    "Crossover",
+                    "Limousine",
+                    "Compact",
+                    "Convertible",
+                  ].map((cls) => (
+                    <MenuItem key={cls} value={cls}>
+                      {cls}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  name="transmission"
+                  label="Transmission"
+                  value={updatedCar.transmission}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="fueltype"
+                  label="Fuel Type"
+                  value={updatedCar.fueltype}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="seats"
+                  label="Seats"
+                  type="number"
+                  value={updatedCar.seats}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="registration"
+                  label="Registration Year"
+                  type="number"
+                  value={updatedCar.registration}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  name="regNumber"
+                  label="Registration Number"
+                  value={updatedCar.regNumber}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="color"
+                  label="Color"
+                  value={updatedCar.color}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="numberOfDoors"
+                  label="Number of Doors"
+                  type="number"
+                  value={updatedCar.numberOfDoors}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  name="enginePower"
+                  label="Engine Power"
+                  type="number"
+                  value={updatedCar.enginePower}
+                  onChange={handleChange}
+                  fullWidth
+                  margin="normal"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={updatedCar.airConditioning}
+                      onChange={handleCheckboxChange}
+                      name="airConditioning"
+                    />
+                  }
+                  label="Air Conditioning"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="h6">Pricing Tiers:</Typography>
+                <Grid container spacing={2}>
+                  {Object.entries(updatedCar.pricingTiers).map(
+                    ([tier, price]) => (
+                      <Grid item xs={6} sm={4} md={3} key={tier}>
+                        <TextField
+                          name={`pricingTiers.${tier}`}
+                          label={`Tier ${tier}`}
+                          type="number"
+                          value={price}
+                          onChange={(e) =>
+                            handlePricingTierChange(tier, e.target.value)
+                          }
+                          fullWidth
+                          margin="normal"
+                        />
+                      </Grid>
+                    )
+                  )}
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  onClick={handleUpdate}
+                  variant="contained"
+                  color="primary"
+                  style={{ marginRight: "10px" }}
+                >
+                  Save
+                </Button>
+                <Button onClick={() => setIsEditing(false)} variant="outlined">
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+          ) : (
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>
+                  <strong>Class:</strong> {car.class}
+                </Typography>
+                <Typography>
+                  <strong>Color:</strong> {car.color}
+                </Typography>
+                <Typography>
+                  <strong>Transmission:</strong> {car.transmission}
+                </Typography>
+                <Typography>
+                  <strong>Fuel Type:</strong> {car.fueltype}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>
+                  <strong>Seats:</strong> {car.seats}
+                </Typography>
+                <Typography>
+                  <strong>Registration Year:</strong> {car.registration}
+                </Typography>
+                <Typography>
+                  <strong>Registration Number:</strong> {car.regNumber}
+                </Typography>
+                <Typography>
+                  <strong>Number of Doors:</strong> {car.numberOfDoors}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography>
+                  <strong>Air Conditioning:</strong>{" "}
+                  {car.airConditioning ? "Yes" : "No"}
+                </Typography>
+                <Typography>
+                  <strong>Engine Power:</strong> {car.enginePower}
+                </Typography>
+                <Typography>
+                  <strong>Engine:</strong> {car.engine}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3}>
+                <Typography variant="h6">Pricing Tiers:</Typography>
+                {Object.entries(car.pricingTiers).map(([tier, price]) => (
+                  <Typography key={tier}>
+                    <strong>Tier {tier}:</strong> {price}
+                  </Typography>
+                ))}
+              </Grid>
+            </Grid>
+          )}
+        </ExpandedView>
+      </Collapse>
+
+      <CardContent>
+        <CalendarAdmin
+          isLoading={false}
+          orders={[]}
+          setBookedDates={() => {}}
+          onBookingComplete={() => {}}
+        />
+      </CardContent>
     </StyledCarItem>
   );
 }

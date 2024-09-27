@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { fetchAllOrders, reFetchAllOrders } from "@utils/action";
+import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 
 const MainContext = createContext();
 
@@ -12,16 +12,7 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [cars, setCars] = useState(carsData);
   const [allOrders, setAllOrders] = useState(ordersData || []);
   const [isLoading, setIsLoading] = useState(false);
-  console.log("orders from Context : ", allOrders);
 
-  // useEffect(() => {
-  //   // Poll the database every 10 seconds for updates
-  //   const intervalId = setInterval(() => {
-  //     fetchAndUpdateOrders();
-  //   }, 10000); // Fetch every 10 seconds (adjust as needed)
-
-  //   return () => clearInterval(intervalId); // Clean up on component unmount
-  // }, []);
   const fetchAndUpdateOrders = async () => {
     setIsLoading(true);
     try {
@@ -35,6 +26,18 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     }
   };
 
+  const fetchAndUpdateCars = async () => {
+    try {
+      const newCArsData = await reFetchAllOrders();
+      setCars(newCArsData);
+      console.log("FROM FETCH AND UPDATE newCArsData", newCArsData);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    } finally {
+      console.log("cars data was updated");
+    }
+  };
+
   const ordersByCarId = (carId) => {
     return allOrders?.filter((order) => order.car === carId);
   };
@@ -44,9 +47,10 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     allOrders,
     setCars,
     setAllOrders,
-    resubmitOrdersData: fetchAndUpdateOrders, // Reuse fetch function for manual resubmission
+    resubmitOrdersData: fetchAndUpdateOrders,
     ordersByCarId,
     isLoading,
+    fetchAndUpdateCars,
   };
 
   return (

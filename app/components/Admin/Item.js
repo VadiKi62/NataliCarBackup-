@@ -9,6 +9,7 @@ import {
   Divider,
   Chip,
   IconButton,
+  Button,
   CircularProgress,
   Collapse,
 } from "@mui/material";
@@ -18,13 +19,13 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ScrollingCalendar from "./ScrollingCalendar";
-import { fetchCar } from "@utils/action";
-import { fetchOrdersByCar } from "@utils/action";
-import BookingModal from "./BookingModal";
+
+import EditModal from "./EditModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
-import CalendarPicker from "./CalendarPicker";
+import CalendarAdmin from "./CalendarAdmin";
+import { updateCar } from "@utils/action";
 import { useMainContext } from "@app/Context";
+import DefaultButton from "../common/DefaultButton";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -45,7 +46,7 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 750,
+    minWidth: 950,
     padding: theme.spacing(5),
   },
 }));
@@ -106,8 +107,23 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   }),
 }));
 
-function CarItemComponent({ car }) {
+function CarItemComponent({ car, onCarUpdate }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [updatedCar, setUpdatedCar] = useState({ ...car });
   const [imageLoading, setImageLoading] = useState(true);
+
+  const { ordersByCarId, allOrders } = useMainContext();
+  const [carOrders, setCarOrders] = useState([]);
+  const [updateStatus, setUpdateStatus] = useState(null);
+
+  // Update orders when allOrders or car._id changes
+  useEffect(() => {
+    const updatedOrders = ordersByCarId(car._id);
+    setCarOrders(updatedOrders);
+  }, [allOrders, car._id, ordersByCarId]);
+
   useEffect(() => {
     // Set a 3-second delay before showing the image
     const loadingTimer = setTimeout(() => {
@@ -117,57 +133,91 @@ function CarItemComponent({ car }) {
     // Cleanup the timer when the component unmounts
     return () => clearTimeout(loadingTimer);
   }, []);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [expanded, setExpanded] = useState(false);
-  const [bookDates, setBookedDates] = useState({ start: null, end: null });
-  const [modalOpen, setModalOpen] = useState(false);
 
-  const { resubmitOrdersData, isLoading, ordersByCarId, allOrders } =
-    useMainContext();
-  const [carOrders, setCarOrders] = useState([]);
-
-  // Update orders when allOrders or car._id changes
-  useEffect(() => {
-    const updatedOrders = ordersByCarId(car._id);
-    setCarOrders(updatedOrders);
-  }, [allOrders, car._id, ordersByCarId]);
-
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
+  const handleExpandToggle = () => {
+    setIsExpanded(!isExpanded);
+    setIsEditing(false);
   };
 
-  const handleBookingComplete = () => {
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    setIsExpanded(true);
     setModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedCar((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setUpdatedCar((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  const handlePricingTierChange = (tier, value) => {
+    setUpdatedCar((prev) => ({
+      ...prev,
+      pricingTiers: { ...prev.pricingTiers, [tier]: Number(value) },
+    }));
+  };
+
+  const handleUpdate = async () => {
+    try {
+      console.log(updatedCar);
+      const updatedCarData = await updateCar(updatedCar);
+      setUpdatedCar(updatedCarData);
+      setIsEditing(false);
+
+      // Set success status and message
+      setUpdateStatus({
+        type: 200,
+        message: "Car updated successfully!",
+      });
+
+      if (onCarUpdate) {
+        onCarUpdate(updatedCarData);
+      }
+    } catch (error) {
+      console.error("Failed to update car:", error);
+
+      // Set error status and message
+      setUpdateStatus({
+        type: 400,
+        message: "Failed to update car. Please try again.",
+      });
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setUpdateStatus(null);
   };
 
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
-        <Link href={`/car/${car._id}`} passHref>
-          <CarImage>
-            {imageLoading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-                <CircularProgress sx={{ color: "primary.green" }} />
-                <CircularProgress sx={{ color: "primary.red" }} />
-              </Box>
-            ) : (
-              <Image
-                src={car.photoUrl}
-                alt={car.model}
-                fill
-                // cover
-                onLoad={() => setImageLoading(false)}
-              />
-            )}
-          </CarImage>
-        </Link>
+        <CarImage>
+          {imageLoading ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100%"
+            >
+              <CircularProgress />
+              <CircularProgress sx={{ color: "primary.green" }} />
+              <CircularProgress sx={{ color: "primary.red" }} />
+            </Box>
+          ) : (
+            <Image
+              src={car.photoUrl}
+              alt={car.model}
+              fill
+              cover
+              onLoad={() => setImageLoading(false)}
+            />
+          )}
+        </CarImage>
         <CarDetails>
           <CarTitle variant="h5">{car.model}</CarTitle>
           <Box mb={2}>
@@ -197,29 +247,37 @@ function CarItemComponent({ car }) {
               />
             ))}
           </Box>
-          <Box
+          {/* <Box
             display="flex"
             justifyContent="space-between"
             alignItems="center"
-          >
-            {/* You can add additional controls here if needed */}
-          </Box>
+          > */}
+          {/* <Button onClick={handleExpandToggle}>
+              {isExpanded ? "Hide Details" : "Show Full Info"}
+            </Button> */}
+          {/* <DefaultButton relative minWidth="500px" onClick={handleEditToggle}>
+            Edit
+          </DefaultButton> */}
+          {/* </Box> */}
         </CarDetails>
+        <DefaultButton relative minWidth="100%" onClick={handleEditToggle}>
+          Edit
+        </DefaultButton>
       </Wrapper>
-      <CalendarPicker
-        isLoading={isLoading}
-        orders={carOrders}
-        setBookedDates={setBookedDates}
-        onBookingComplete={handleBookingComplete}
-      />
-      <BookingModal
-        resubmitOrdersData={resubmitOrdersData}
+
+      <CalendarAdmin orders={carOrders} />
+      <EditModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleModalClose}
         car={car}
+        updatedCar={updatedCar}
+        handleChange={handleChange}
+        handleUpdate={handleUpdate}
         orders={carOrders}
-        presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
-        isLoading={isLoading}
+        handlePricingTierChange={handlePricingTierChange}
+        handleCheckboxChange={handleCheckboxChange}
+        updateStatus={updateStatus}
+        setUpdateStatus={setUpdateStatus}
       />
     </StyledCarItem>
   );
