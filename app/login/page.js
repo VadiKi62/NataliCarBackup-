@@ -1,11 +1,18 @@
 import React from "react";
-import styles from "@app/components/LoginForm/login.module.css";
-import LoginForm from "@app/components/LoginForm";
+import Login from "@app/components/LoginForm/Login";
+
+const containerStyle = {
+  width: "100%",
+  height: "100vh",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
 
 const LoginPage = () => {
   return (
-    <div className={styles.container}>
-      <LoginForm />{" "}
+    <div style={containerStyle}>
+      <Login />{" "}
     </div>
   );
 };
