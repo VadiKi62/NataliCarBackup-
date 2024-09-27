@@ -1,13 +1,12 @@
 import React from "react";
-// import styles from "@app/components/LoginForm/login.module.css";
-// import LoginForm from "@app/components/LoginForm";
+import styles from "@app/components/LoginForm/login.module.css";
+import LoginForm from "@app/components/LoginForm";
 
 const LoginPage = () => {
   return (
-    // <div className={styles.container}>
-
-    // {/* <LoginForm />{" "} */}
-    <div>hello</div>
+    <div className={styles.container}>
+      <LoginForm />{" "}
+    </div>
   );
 };
 

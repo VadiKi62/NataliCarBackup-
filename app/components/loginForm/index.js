@@ -1,8 +1,8 @@
 "use client";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import styles from "./loginForm.module.css";
-import { useState } from "react";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +28,7 @@ const LoginForm = () => {
         );
       else setError(result.error);
     } else if (result.ok) {
-      router.push("/");
+      router.push("/admin");
     }
   };
 
