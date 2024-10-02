@@ -4,7 +4,7 @@ import { Calendar } from "antd";
 import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import DefaultButton from "./common/DefaultButton";
+import DefaultButton from "../common/DefaultButton";
 
 const CalendarPicker = ({
   isLoading,

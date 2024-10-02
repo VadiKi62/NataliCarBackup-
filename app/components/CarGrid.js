@@ -3,7 +3,7 @@ import { Grid, Container, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useMainContext } from "../Context";
 
-import CarItemComponent from "./CarItemComponent";
+import CarItemComponent from "./CarComponent/CarItemComponent";
 
 const Section = styled("div")(({ theme }) => ({
   backgroundColor: "transparent",

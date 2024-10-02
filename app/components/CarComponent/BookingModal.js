@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { addOrder, addOrderNew } from "@utils/action";
-import SuccessMessage from "./common/SuccessMessage";
+import SuccessMessage from "../common/SuccessMessage";
 import sendEmail from "@utils/sendEmail";
 
 // const { RangePicker } = DatePicker;

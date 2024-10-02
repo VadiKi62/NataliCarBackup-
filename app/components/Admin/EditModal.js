@@ -40,7 +40,12 @@ const EditModal = ({
   const handleCloseSnackbar = () => {
     setUpdateStatus(null);
   };
-  console.log("updateStatus", updateStatus);
+
+  const tierStrings = {
+    3: "3-4 days",
+    6: "5-14 days",
+    10: "15 days+",
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -67,6 +72,7 @@ const EditModal = ({
           <Select
             sx={{ mt: 1 }}
             name="class"
+            label="class"
             value={updatedCar.class}
             onChange={handleChange}
           >
@@ -86,12 +92,19 @@ const EditModal = ({
           </Select>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <StyledTextField
-            name="transmission"
+          <Select
+            sx={{ mt: 1 }}
+            name="Transmission"
             label="Transmission"
             value={updatedCar.transmission}
             onChange={handleChange}
-          />
+          >
+            {["Manual", "Automatic"].map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
           <StyledTextField
             name="fueltype"
             label="Fuel Type"
@@ -160,7 +173,7 @@ const EditModal = ({
               <Grid item xs={6} sm={4} md={3} key={tier}>
                 <StyledTextField
                   name={`pricingTiers.${tier}`}
-                  label={`Tier ${tier}`}
+                  label={tierStrings[`${tier}`]}
                   type="number"
                   value={price}
                   onChange={(e) =>

@@ -15,9 +15,7 @@ export default async function Home() {
     <Suspense fallback={<Loading />}>
       {" "}
       <CircleBg />
-      <Suspense fallback={<Loading />}>
-        <Feed carsData={carsData} ordersData={ordersData} />
-      </Suspense>
+      <Feed carsData={carsData} ordersData={ordersData} />
     </Suspense>
   );
 }

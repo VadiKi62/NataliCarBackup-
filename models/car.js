@@ -14,6 +14,10 @@ const CarSchema = new Schema({
     type: String,
     required: false,
   },
+  sort: {
+    type: Number,
+    default: 999,
+  },
   class: {
     type: String,
     enum: [
@@ -26,10 +30,6 @@ const CarSchema = new Schema({
       "Convertible",
     ],
     required: true,
-  },
-  sort: {
-    type: Number,
-    default: 999,
   },
   transmission: {
     type: String,

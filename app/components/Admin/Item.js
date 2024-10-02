@@ -237,7 +237,7 @@ function CarItemComponent({ car, onCarUpdate }) {
               <SpeedIcon /> Engine Power: {car?.enginePower}
             </CarInfo>
           </Box>
-          <Box mb={2}>
+          {/* <Box mb={2}>
             {Object.entries(car?.pricingTiers).map(([days, price]) => (
               <PriceChip
                 key={days}
@@ -246,7 +246,7 @@ function CarItemComponent({ car, onCarUpdate }) {
                 variant="outlined"
               />
             ))}
-          </Box>
+          </Box> */}
           {/* <Box
             display="flex"
             justifyContent="space-between"

@@ -18,17 +18,20 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ScrollingCalendar from "./ScrollingCalendar";
+import ScrollingCalendar from "../ScrollingCalendar";
 import { fetchCar } from "@utils/action";
 import { fetchOrdersByCar } from "@utils/action";
 import BookingModal from "./BookingModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CalendarPicker from "./CalendarPicker";
 import { useMainContext } from "@app/Context";
+import PricingTiers from "@app/components/CarComponent/PricingTiers";
+import CarDetails from "./CarDetails";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  maxWidth: 400,
+  marginLeft: 2,
+  maxWidth: 350,
   zIndex: 22,
   display: "flex",
   justifyContent: "center",
@@ -45,7 +48,13 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 750,
+    minWidth: 680,
+    padding: theme.spacing(5),
+  },
+  [theme.breakpoints.up("md")]: {
+    // flexDirection: "row",
+    // alignItems: "center",
+    minWidth: 950,
     padding: theme.spacing(5),
   },
 }));
@@ -69,30 +78,11 @@ const CarImage = styled(Box)(({ theme }) => ({
   },
 }));
 
-const CarDetails = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  flexGrow: 1,
-}));
-
-const CarTitle = styled(Typography)(({ theme }) => ({
-  fontSize: "1.5rem",
-  fontWeight: 700,
-  marginBottom: theme.spacing(1),
-  marginTop: theme.spacing(1),
-}));
-
-const CarInfo = styled(Typography)(({ theme }) => ({
-  fontSize: "0.9rem",
-  color: theme.palette.text.secondary,
-  display: "flex",
-  alignItems: "center",
-  marginBottom: theme.spacing(0.5),
-  "& svg": {
-    marginRight: theme.spacing(1),
-    fontSize: "1.1rem",
-  },
-}));
+// const StyledCarDetails = styled(Box)(({ theme }) => ({
+//   display: "flex",
+//   flexDirection: "column",
+//   flexGrow: 1,
+// }));
 
 const PriceChip = styled(Chip)(({ theme }) => ({
   marginRight: theme.spacing(1),
@@ -162,49 +152,12 @@ function CarItemComponent({ car }) {
                 src={car.photoUrl}
                 alt={car.model}
                 fill
-                // cover
                 onLoad={() => setImageLoading(false)}
               />
             )}
           </CarImage>
         </Link>
-        <CarDetails>
-          <CarTitle variant="h5">{car.model}</CarTitle>
-          <Box mb={2}>
-            <CarInfo>
-              <DirectionsCarIcon /> Class: {car.class}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Transmission: {car.transmission}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Doors: {car?.numberOfDoors}
-            </CarInfo>
-            <CarInfo>
-              <AcUnitIcon /> AC: {car?.airConditioning ? "Yes" : "No"}
-            </CarInfo>
-            <CarInfo>
-              <SpeedIcon /> Engine Power: {car?.enginePower}
-            </CarInfo>
-          </Box>
-          <Box mb={2}>
-            {Object.entries(car?.pricingTiers).map(([days, price]) => (
-              <PriceChip
-                key={days}
-                label={`${days}d+ €${price}`}
-                color="primary"
-                variant="outlined"
-              />
-            ))}
-          </Box>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            {/* You can add additional controls here if needed */}
-          </Box>
-        </CarDetails>
+        <CarDetails car={car} />
       </Wrapper>
       <CalendarPicker
         isLoading={isLoading}
