@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  CircularProgress,
+  Modal,
+  Paper,
+} from "@mui/material";
 import { Calendar } from "antd";
 import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DefaultButton from "@app/components/common/DefaultButton";
+import OrderModal from "./OrderModal";
 
 const CalendarAdmin = ({ isLoading = false, orders }) => {
-  const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
-  const [showBookButton, setShowBookButton] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null); // To store the selected booking
+  const [open, setOpen] = useState(false); // To control modal visibility
 
   useEffect(() => {
     const unavailable = [];
@@ -39,59 +47,45 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     setConfirmedDates(confirmed);
   }, [orders]);
 
-  const disabledDate = (current) => {
-    return (
-      current &&
-      (current.isBefore(dayjs().startOf("day")) ||
-        unavailableDates?.includes(current.format("YYYY-MM-DD")))
-    );
-  };
-
-  const onSelect = (date) => {
-    const [start, end] = selectedRange;
-
-    if (!start || (start && end)) {
-      setSelectedRange([date, null]);
-      setShowBookButton(false);
-    } else {
-      const range = [start, date].sort((a, b) => a - b);
-      setSelectedRange(range);
-      setBookedDates({ start: range[0], end: range[1] });
-      setShowBookButton(true);
-    }
-  };
-
-  const handleBooking = () => {
-    onBookingComplete();
-    setShowBookButton(false);
-  };
-
   const renderDateCell = (date) => {
-    const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
-    const isSelected =
-      (date >= start && date <= end) ||
-      date.isSame(start, "day") ||
-      date.isSame(end, "day");
+
     const isConfirmed = confirmedDates?.includes(dateStr);
     const isUnavailable = unavailableDates?.includes(dateStr);
 
     let backgroundColor = "transparent";
     let color = "inherit";
 
-    if (isSelected) {
-      backgroundColor = "primary.dark";
-      color = "white";
-    } else if (isConfirmed) {
+    if (isConfirmed) {
       backgroundColor = "primary.red";
       color = "common.white";
-    } else if (isUnavailable) {
+    }
+    if (isUnavailable) {
       backgroundColor = "primary.green";
       color = "common.black";
     }
 
+    const handleDateClick = () => {
+      setOpen(true);
+      const selectedOrder = orders.find(
+        (order) =>
+          (dayjs(order.rentalStartDate).isSame(dateStr) ||
+            dayjs(order.rentalStartDate).isBefore(dateStr)) && // Check if rentalStartDate is the same or before the clicked date
+          (dayjs(order.rentalEndDate).isSame(dateStr) ||
+            dayjs(order.rentalEndDate).isAfter(dateStr)) && // Check if rentalEndDate is the same or after the clicked date
+          (confirmedDates.includes(dateStr) ||
+            unavailableDates.includes(dateStr)) // Check if the date is confirmed or unavailable
+      );
+
+      if (selectedOrder) {
+        setSelectedOrder(selectedOrder);
+        setOpen(true);
+      }
+    };
+
     return (
       <Box
+        onClick={handleDateClick}
         sx={{
           height: "100%",
           display: "flex",
@@ -100,6 +94,7 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
           backgroundColor,
           borderRadius: "1px",
           color,
+          cursor: "pointer",
         }}
       >
         {date.date()}
@@ -107,7 +102,22 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     );
   };
 
-  const headerRender = ({ value, type, onChange, onTypeChange }) => {
+  const handleClose = () => setOpen(false);
+
+  //!! UPDATE ORDER in API
+  const handleSaveOrder = (updatedOrder) => {
+    // Here you would typically update the order in your backend
+    console.log("Order updated:", updatedOrder);
+    // Update the local state
+    const updatedOrders = orders.map((order) =>
+      order._id === updatedOrder._id ? updatedOrder : order
+    );
+    // You might need to update the parent component's state here
+    // onOrdersUpdate(updatedOrders);
+    handleClose();
+  };
+  //to display names of months above the calendar
+  const headerRender = ({ value }) => {
     const current = value.clone();
     const month = current.format("MMMM");
     const year = current.year();
@@ -191,24 +201,61 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
         <>
           <Calendar
             fullscreen={false}
-            onSelect={onSelect}
-            disabledDate={disabledDate}
             fullCellRender={renderDateCell}
             headerRender={headerRender}
             value={currentDate}
           />
-          {showBookButton && (
-            <DefaultButton
-              onClick={handleBooking}
-              blinking={true}
-              label={`Book ${selectedRange[0].format(
-                "MMM D"
-              )} - ${selectedRange[1].format("MMM D")}`}
-              relative={true}
-            />
-          )}
         </>
       )}
+
+      {/* Modal for displaying selected booking */}
+
+      {/* <Modal open={open} onClose={handleClose}>
+        <Paper
+          sx={{
+            width: 400,
+            maxWidth: "90%",
+            p: 4,
+            margin: "auto",
+            top: "50%",
+            transform: "translateY(-50%)",
+            position: "relative",
+          }}
+        >
+          {selectedOrder ? (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Booking Details
+              </Typography>
+              <Typography variant="body2">
+                Customer: {selectedOrder.customerName}
+              </Typography>
+              <Typography variant="body2">
+                Car Model: {selectedOrder.carModel}
+              </Typography>
+              <Typography variant="body2">
+                Rental Start:{" "}
+                {dayjs(selectedOrder.rentalStartDate).format("DD-MM-YYYY")}
+              </Typography>
+              <Typography variant="body2">
+                Rental End:{" "}
+                {dayjs(selectedOrder.rentalEndDate).format("DD-MM-YYYY")}
+              </Typography>
+              <Typography variant="body2">
+                Confirmed: {selectedOrder.confirmed ? "Yes" : "No"}
+              </Typography>
+            </Box>
+          ) : (
+            <Typography>No booking information available.</Typography>
+          )}
+        </Paper>
+      </Modal> */}
+      <OrderModal
+        open={open}
+        onClose={handleClose}
+        order={selectedOrder}
+        onSave={handleSaveOrder}
+      />
     </Box>
   );
 };

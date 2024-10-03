@@ -5,6 +5,10 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  carNumber: {
+    type: String,
+    required: true,
+  },
   confirmed: {
     type: Boolean,
     default: false,
@@ -39,14 +43,14 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  carNumber: {
-    type: String,
-    required: true,
-  },
   car: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Car",
     required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
   },
 });
 
@@ -65,8 +69,8 @@ OrderSchema.pre("save", async function (next) {
   const car = await Car.findById(this.car);
 
   if (car) {
-    this.carTitle = car.title;
-    this.carNumber = car.number;
+    this.carNumber = car.carNumber;
+    this.carModel = car.model;
 
     // Calculate total price using the car's pricing tiers
     const pricePerDay = car.calculatePrice(numberOfDays);

@@ -90,8 +90,6 @@ export async function POST(request) {
       rentalEndDate,
     } = await request.json();
 
-    console.log("CARNUMBER FROM API", carNumber);
-
     // Find the car by its car number
     const existingCar = await Car.findOne({ carNumber: carNumber });
 
@@ -145,9 +143,9 @@ export async function POST(request) {
     if (confirmedDates.length > 0) {
       return new Response(
         JSON.stringify({
-          message: `${confirmedDates.join(
+          message: `Даты ${confirmedDates.join(
             ", "
-          )} are already confirmed for other booking, please check for another dates or another car.`,
+          )} уже забронированы и не доступны. Пожалуйста, посмотрите другие даты или другую машину.`,
         }),
         {
           status: 409,
@@ -162,6 +160,7 @@ export async function POST(request) {
 
     // Create a new order document with calculated values
     const newOrder = new Order({
+      carNumber: carNumber,
       customerName,
       phone,
       email,
@@ -169,17 +168,17 @@ export async function POST(request) {
       rentalEndDate: endDate,
       car: existingCar._id,
       carModel: existingCar.model,
-      carNumber: existingCar.carNumber,
       numberOfDays: rentalDays,
       totalPrice,
+      date: new Date(),
     });
 
     if (nonConfirmedDates.length > 0) {
       return new Response(
         JSON.stringify({
-          message: `${nonConfirmedDates.join(
+          message: `Даты ${nonConfirmedDates.join(
             ", "
-          )} are already booked but not confirmed yet, so we'll get in touch with you shortly.`,
+          )} забронированы но пока не подтверждены другими пользователями. Мы свяжемся с Вами в течении 24 часов и уточним наличие дат.`,
           data: newOrder,
         }),
         {
@@ -196,6 +195,7 @@ export async function POST(request) {
 
     // Save the updated car document
     await existingCar.save();
+    console.log("New Order:", newOrder);
 
     return new Response(JSON.stringify(newOrder), {
       status: 200,

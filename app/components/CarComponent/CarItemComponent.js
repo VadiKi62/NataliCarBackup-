@@ -152,6 +152,7 @@ function CarItemComponent({ car }) {
                 src={car.photoUrl}
                 alt={car.model}
                 fill
+                priority
                 onLoad={() => setImageLoading(false)}
               />
             )}

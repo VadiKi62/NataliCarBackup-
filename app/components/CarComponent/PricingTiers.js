@@ -23,6 +23,7 @@ const PricingDisplay = ({ prices }) => {
         }}
       >
         {Object.entries(prices).map(([days, amount], index) => (
+          // <div key={index}>
           <>
             <Typography
               color="textPrimary"

@@ -1,4 +1,5 @@
 import { Order } from "@models/order";
+import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
 
 export const DELETE = async (request) => {
@@ -7,6 +8,10 @@ export const DELETE = async (request) => {
 
     // Delete all existing cars
     await Order.deleteMany({});
+
+    // Update all cars to clear their orders array
+    await Car.updateMany({}, { $set: { orders: [] } });
+
     return new Response("ALl orders deleted", {
       status: 200,
     });

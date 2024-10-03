@@ -129,6 +129,7 @@ export const addOrderNew = async (orderData) => {
     });
 
     const result = await response.json();
+    console.log("ADDING ORDER RESULT", result);
 
     if (response.ok) {
       console.log("Order added:", result);
