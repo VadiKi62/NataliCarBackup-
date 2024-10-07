@@ -24,7 +24,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   marginTop: 10,
 }));
 
-const EditModal = ({
+const EditCarModal = ({
   open,
   onClose,
   car,
@@ -215,4 +215,4 @@ const EditModal = ({
   );
 };
 
-export default EditModal;
+export default EditCarModal;

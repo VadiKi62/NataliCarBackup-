@@ -3,13 +3,13 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
-import CarItemAdmin from "./CarItemAdmin";
 import Item from "./Item";
 import { Grid, Container, CircularProgress } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
 
 function Admin({ session, cars, orders }) {
   const [carsData, setCars] = useState(cars);
+  const [ordersData, setOrders] = useState(orders);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -37,6 +37,14 @@ function Admin({ session, cars, orders }) {
     );
   };
 
+  const handleOrderUpdate = (updatedOrder) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order._id === updatedOrder._id ? updatedOrder : order
+      )
+    );
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   return (
@@ -53,7 +61,13 @@ function Admin({ session, cars, orders }) {
           .sort((a, b) => a.sort - b.sort)
           .map((car) => (
             <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-              <Item car={car} onCarUpdate={handleCarUpdate} />
+              <Item
+                car={car}
+                onCarUpdate={handleCarUpdate}
+                orders={ordersData}
+                handleOrderUpdate={handleOrderUpdate}
+                setOrders={setOrders}
+              />
             </Grid>
           ))}
       </Grid>

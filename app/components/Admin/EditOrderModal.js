@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 
-const OrderModal = ({ open, onClose, order, onSave }) => {
+const EditOrderModal = ({ open, onClose, order, onSave }) => {
   const [editMode, setEditMode] = useState({});
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -126,4 +126,4 @@ const OrderModal = ({ open, onClose, order, onSave }) => {
   );
 };
 
-export default OrderModal;
+export default EditOrderModal;

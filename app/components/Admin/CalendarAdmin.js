@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DefaultButton from "@app/components/common/DefaultButton";
-import OrderModal from "./OrderModal";
+import EditOrderModal from "./EditOrderModal";
 
 const CalendarAdmin = ({ isLoading = false, orders }) => {
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -47,76 +47,89 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     setConfirmedDates(confirmed);
   }, [orders]);
 
-  const renderDateCell = (date) => {
-    const dateStr = date.format("YYYY-MM-DD");
+  // // Memoize orders based on the `orders` prop
+  // const orders = useMemo(() => orders, [orders]);
 
-    const isConfirmed = confirmedDates?.includes(dateStr);
-    const isUnavailable = unavailableDates?.includes(dateStr);
+  // Memoize date cell rendering logic
+  const renderDateCell = useCallback(
+    (date) => {
+      const dateStr = date.format("YYYY-MM-DD");
 
-    let backgroundColor = "transparent";
-    let color = "inherit";
+      const isConfirmed = confirmedDates.includes(dateStr);
+      const isUnavailable = unavailableDates.includes(dateStr);
 
-    if (isConfirmed) {
-      backgroundColor = "primary.red";
-      color = "common.white";
-    }
-    if (isUnavailable) {
-      backgroundColor = "primary.green";
-      color = "common.black";
-    }
+      let backgroundColor = "transparent";
+      let color = "inherit";
 
-    const handleDateClick = () => {
-      setOpen(true);
-      const selectedOrder = orders.find(
-        (order) =>
-          (dayjs(order.rentalStartDate).isSame(dateStr) ||
-            dayjs(order.rentalStartDate).isBefore(dateStr)) && // Check if rentalStartDate is the same or before the clicked date
-          (dayjs(order.rentalEndDate).isSame(dateStr) ||
-            dayjs(order.rentalEndDate).isAfter(dateStr)) && // Check if rentalEndDate is the same or after the clicked date
-          (confirmedDates.includes(dateStr) ||
-            unavailableDates.includes(dateStr)) // Check if the date is confirmed or unavailable
-      );
-
-      if (selectedOrder) {
-        setSelectedOrder(selectedOrder);
-        setOpen(true);
+      if (isConfirmed) {
+        backgroundColor = "primary.red";
+        color = "common.white";
       }
-    };
+      if (isUnavailable) {
+        backgroundColor = "primary.green";
+        color = "common.black";
+      }
 
-    return (
-      <Box
-        onClick={handleDateClick}
-        sx={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor,
-          borderRadius: "1px",
-          color,
-          cursor: "pointer",
-        }}
-      >
-        {date.date()}
-      </Box>
-    );
-  };
+      const handleDateClick = (event) => {
+        const firstCheck = orders.find(
+          (order) =>
+            confirmedDates.includes(dateStr) ||
+            unavailableDates.includes(dateStr)
+        );
+
+        if (!firstCheck) {
+          setSelectedOrder(null);
+        } else {
+          const selectedOrder = orders.find(
+            (order) =>
+              (dayjs(order.rentalStartDate).isSame(dateStr) ||
+                dayjs(order.rentalStartDate).isBefore(dateStr)) &&
+              (dayjs(order.rentalEndDate).isSame(dateStr) ||
+                dayjs(order.rentalEndDate).isAfter(dateStr))
+          );
+          console.log(selectedOrder);
+          if (selectedOrder) {
+            setSelectedOrder(selectedOrder);
+            setOpen(true);
+          }
+        }
+      };
+
+      return (
+        <Box
+          onClick={handleDateClick}
+          sx={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor,
+            borderRadius: "1px",
+            color,
+            cursor: "pointer",
+          }}
+        >
+          {date.date()}
+        </Box>
+      );
+    },
+    [confirmedDates, unavailableDates, orders]
+  );
 
   const handleClose = () => setOpen(false);
 
-  //!! UPDATE ORDER in API
-  const handleSaveOrder = (updatedOrder) => {
-    // Here you would typically update the order in your backend
-    console.log("Order updated:", updatedOrder);
-    // Update the local state
-    const updatedOrders = orders.map((order) =>
-      order._id === updatedOrder._id ? updatedOrder : order
-    );
-    // You might need to update the parent component's state here
-    // onOrdersUpdate(updatedOrders);
-    handleClose();
-  };
-  //to display names of months above the calendar
+  // Memoize order save handler
+  const handleSaveOrder = useCallback(
+    (updatedOrder) => {
+      console.log("Order updated:", updatedOrder);
+      const updatedOrders = orders.map((order) =>
+        order._id === updatedOrder._id ? updatedOrder : order
+      );
+      handleClose();
+    },
+    [orders]
+  );
+
   const headerRender = ({ value }) => {
     const current = value.clone();
     const month = current.format("MMMM");
@@ -250,7 +263,7 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
           )}
         </Paper>
       </Modal> */}
-      <OrderModal
+      <EditOrderModal
         open={open}
         onClose={handleClose}
         order={selectedOrder}

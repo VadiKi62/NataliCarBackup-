@@ -20,7 +20,7 @@ import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import EditModal from "./EditModal";
+import EditCarModal from "./EditCarModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CalendarAdmin from "./CalendarAdmin";
 import { updateCar } from "@utils/action";
@@ -107,7 +107,7 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   }),
 }));
 
-function CarItemComponent({ car, onCarUpdate }) {
+function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -161,7 +161,7 @@ function CarItemComponent({ car, onCarUpdate }) {
     }));
   };
 
-  const handleUpdate = async () => {
+  const handleCarsUpdate = async () => {
     try {
       console.log(updatedCar);
       const updatedCarData = await updateCar(updatedCar);
@@ -266,13 +266,13 @@ function CarItemComponent({ car, onCarUpdate }) {
       </Wrapper>
 
       <CalendarAdmin orders={carOrders} />
-      <EditModal
+      <EditCarModal
         open={modalOpen}
         onClose={handleModalClose}
         car={car}
         updatedCar={updatedCar}
         handleChange={handleChange}
-        handleUpdate={handleUpdate}
+        handleUpdate={handleCarsUpdate}
         orders={carOrders}
         handlePricingTierChange={handlePricingTierChange}
         handleCheckboxChange={handleCheckboxChange}

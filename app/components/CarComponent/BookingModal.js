@@ -14,6 +14,7 @@ import {
 import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
 import sendEmail from "@utils/sendEmail";
+import Slide from "@mui/material/Slide";
 
 // const { RangePicker } = DatePicker;
 
@@ -210,6 +211,7 @@ const BookingModal = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      {/*  */}
       {isLoading ? (
         <Box sx={{ display: "flex", alignContent: "center", p: 10 }}>
           {" "}
@@ -318,6 +320,7 @@ const BookingModal = ({
           </DialogActions>
         </>
       )}
+      {/* </Slide> */}
     </Dialog>
   );
 };

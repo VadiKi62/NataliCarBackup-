@@ -209,35 +209,6 @@ export const toggleIsActive = async (restId, menuNumber) => {
   }
 };
 
-// Update name using fetch
-export const updateName = async (restId, menuNumber, newName, lang = "en") => {
-  try {
-    const apiUrl = `${API_URL}/api/auth/changeName`;
-    const response = await fetch(apiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ restId, menuNumber, newName, lang }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to update name of the menu item with number ${menuNumber} in ${lang}`
-      );
-    }
-
-    const updatedMenu = await response.json();
-    return updatedMenu;
-  } catch (error) {
-    console.error(
-      `Error updating name in English with rest ID ${restId} and menu number ${menuNumber}:`,
-      error
-    );
-    throw error;
-  }
-};
-
 // Fetch all orders using fetch
 export const fetchAllOrders = async () => {
   try {
@@ -253,5 +224,100 @@ export const fetchAllOrders = async () => {
   } catch (error) {
     console.error("Error fetching orders:", error);
     throw error;
+  }
+};
+
+// action for changing rental dates
+export const changeRentalDates = async (orderId, newStartDate, newEndDate) => {
+  try {
+    const response = await fetch("/api/order/update/changeDates", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: orderId,
+        rentalStartDate: newStartDate,
+        rentalEndDate: newEndDate,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+      // handle success (no conflicts)
+      console.log("Order updated successfully:", data);
+    } else if (response.status === 201) {
+      // handle non-confirmed conflict dates
+      console.log(
+        "Order updated but pending confirmation on some dates:",
+        data
+      );
+    } else if (response.status === 300) {
+      // handle confirmed conflict dates
+      console.log("Conflicting confirmed dates:", data);
+    } else {
+      console.error("Unexpected response:", data);
+    }
+  } catch (error) {
+    console.error("Error updating order:", error);
+  }
+};
+
+// action for switching confirmed status
+export const toggleConfirmedStatus = async (orderId) => {
+  try {
+    const response = await fetch("/api/orders/update/switchConfirm", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: orderId,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+      console.log("Order confirmation status updated:", data);
+    } else {
+      console.error("Failed to update confirmation status:", data);
+    }
+  } catch (error) {
+    console.error("Error updating confirmation status:", error);
+  }
+};
+
+// action for changing customer information
+export const updateCustomerInfo = async (
+  orderId,
+  newName,
+  newEmail,
+  newPhone
+) => {
+  try {
+    const response = await fetch("/api/orders/update/customer", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: orderId,
+        customerName: newName,
+        email: newEmail,
+        phone: newPhone,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+      console.log("Customer information updated:", data);
+    } else {
+      console.error("Failed to update customer information:", data);
+    }
+  } catch (error) {
+    console.error("Error updating customer information:", error);
   }
 };
