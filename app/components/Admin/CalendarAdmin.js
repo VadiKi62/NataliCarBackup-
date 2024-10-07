@@ -47,10 +47,6 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     setConfirmedDates(confirmed);
   }, [orders]);
 
-  // // Memoize orders based on the `orders` prop
-  // const orders = useMemo(() => orders, [orders]);
-
-  // Memoize date cell rendering logic
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -70,23 +66,28 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
         color = "common.black";
       }
 
-      const handleDateClick = (event) => {
-        const firstCheck = orders.find(
-          (order) =>
-            confirmedDates.includes(dateStr) ||
-            unavailableDates.includes(dateStr)
-        );
+      const handleDateClick = () => {
+        const firstCheck =
+          confirmedDates.includes(dateStr) ||
+          unavailableDates.includes(dateStr);
 
         if (!firstCheck) {
           setSelectedOrder(null);
         } else {
-          const selectedOrder = orders.find(
-            (order) =>
-              (dayjs(order.rentalStartDate).isSame(dateStr) ||
-                dayjs(order.rentalStartDate).isBefore(dateStr)) &&
-              (dayjs(order.rentalEndDate).isSame(dateStr) ||
-                dayjs(order.rentalEndDate).isAfter(dateStr))
-          );
+          const selectedOrder = orders.find((order) => {
+            const rentalStart = dayjs(order.rentalStartDate).format(
+              "YYYY-MM-DD"
+            );
+            const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+
+            return (
+              rentalStart === dateStr ||
+              rentalEnd === dateStr ||
+              (dayjs(rentalStart).isBefore(dateStr, "day") &&
+                dayjs(rentalEnd).isAfter(dateStr, "day"))
+            );
+          });
+
           console.log(selectedOrder);
           if (selectedOrder) {
             setSelectedOrder(selectedOrder);
