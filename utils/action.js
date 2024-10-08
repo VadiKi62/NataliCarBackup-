@@ -227,7 +227,7 @@ export const fetchAllOrders = async () => {
   }
 };
 
-// action for changing rental dates
+// UPDATE 1. action for changing rental dates
 export const changeRentalDates = async (orderId, newStartDate, newEndDate) => {
   try {
     const response = await fetch("/api/order/update/changeDates", {
@@ -264,7 +264,7 @@ export const changeRentalDates = async (orderId, newStartDate, newEndDate) => {
   }
 };
 
-// action for switching confirmed status
+// UPDATE 2.  action for switching confirmed status
 export const toggleConfirmedStatus = async (orderId) => {
   try {
     const response = await fetch("/api/orders/update/switchConfirm", {
@@ -289,7 +289,7 @@ export const toggleConfirmedStatus = async (orderId) => {
   }
 };
 
-// action for changing customer information
+// UPDATE 3.  action for changing customer information
 export const updateCustomerInfo = async (
   orderId,
   newName,

@@ -1,6 +1,36 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
+  timeIn: {
+    type: Date,
+    default: function () {
+      if (this.rentalStartDate) {
+        const time = new Date(this.rentalStartDate);
+        time.setHours(0, 16, 0, 0);
+        return time;
+      }
+      return null;
+    },
+  },
+  timeOut: {
+    type: Date,
+    default: function () {
+      if (this.rentalEndDate) {
+        const time = new Date(this.rentalEndDate);
+        time.setHours(0, 8, 0, 0);
+        return time;
+      }
+      return null;
+    },
+  },
+  placeIn: {
+    type: String,
+    default: "Nea Kallikratia",
+  },
+  placeOut: {
+    type: String,
+    default: "Nea Kallikratia",
+  },
   customerName: {
     type: String,
     required: true,

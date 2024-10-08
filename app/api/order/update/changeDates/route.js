@@ -5,7 +5,15 @@ export const PUT = async (req) => {
   try {
     await connectToDB();
 
-    const { _id, rentalStartDate, rentalEndDate } = await req.json();
+    const {
+      _id,
+      rentalStartDate,
+      rentalEndDate,
+      timeIn,
+      timeOut,
+      placeIn,
+      placeOut,
+    } = await req.json();
 
     // Find the order to update
     const order = await Order.findById(_id).populate("car");
@@ -82,11 +90,15 @@ export const PUT = async (req) => {
     const pricePerDay = car.calculatePrice(rentalDays);
     const totalPrice = pricePerDay * rentalDays;
 
-    // Update the order with the new dates, rental days, and total price
+    // Update the order with the new dates, rental days, total price, and new time/place info
     order.rentalStartDate = newStartDate;
     order.rentalEndDate = newEndDate;
     order.numberOfDays = rentalDays;
     order.totalPrice = totalPrice;
+    order.timeIn = timeIn ? new Date(timeIn) : order.timeIn;
+    order.timeOut = timeOut ? new Date(timeOut) : order.timeOut;
+    order.placeIn = placeIn || order.placeIn;
+    order.placeOut = placeOut || order.placeOut;
 
     // Response 201: Only non-confirmed conflicts, update and return conflict info
     if (nonConfirmedOrders.length > 0) {
