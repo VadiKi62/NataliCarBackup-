@@ -126,7 +126,7 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
       const updatedOrders = orders.map((order) =>
         order._id === updatedOrder._id ? updatedOrder : order
       );
-      handleClose();
+      // handleClose();
     },
     [orders]
   );

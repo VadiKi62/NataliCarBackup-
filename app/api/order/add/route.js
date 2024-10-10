@@ -1,6 +1,16 @@
 import { connectToDB } from "@utils/database";
+import mongoose from "mongoose";
 import { Car } from "@models/car";
 import { Order } from "@models/order";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import isBetween from "dayjs/plugin/isBetween";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isBetween);
+dayjs.tz.setDefault("Europe/Athens");
 
 export async function POST(request) {
   try {
@@ -28,41 +38,45 @@ export async function POST(request) {
       });
     }
 
-    // Calculate the number of rental days
-    const startDate = new Date(rentalStartDate);
-    const endDate = new Date(rentalEndDate);
-    const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+    // Calculate the number of rental days using dayjs
+    const startDate = dayjs(rentalStartDate);
+    const endDate = dayjs(rentalEndDate);
+    const rentalDays = endDate.diff(startDate, "day") + 1; // include both start and end day
 
     // Check for existing orders
     const existingOrders = await Order.find({
       car: existingCar._id,
       $or: [
         {
-          rentalStartDate: { $lte: endDate },
-          rentalEndDate: { $gte: startDate },
+          rentalStartDate: { $lte: endDate.toDate() },
+          rentalEndDate: { $gte: startDate.toDate() },
         },
-        { rentalStartDate: { $gte: startDate, $lte: endDate } },
-        { rentalEndDate: { $gte: startDate, $lte: endDate } },
+        {
+          rentalStartDate: { $gte: startDate.toDate(), $lte: endDate.toDate() },
+        },
+        { rentalEndDate: { $gte: startDate.toDate(), $lte: endDate.toDate() } },
       ],
     });
 
     const confirmedDates = [];
     const nonConfirmedDates = [];
+    const conflicOrdersId = [];
 
     for (const order of existingOrders) {
-      const orderStartDate = new Date(order.rentalStartDate);
-      const orderEndDate = new Date(order.rentalEndDate);
+      const orderStartDate = dayjs(order.rentalStartDate);
+      const orderEndDate = dayjs(order.rentalEndDate);
 
       for (
-        let d = new Date(startDate);
-        d <= endDate;
-        d.setDate(d.getDate() + 1)
+        let d = startDate;
+        d.isBefore(endDate) || d.isSame(endDate);
+        d = d.add(1, "day")
       ) {
-        if (d >= orderStartDate && d <= orderEndDate) {
+        if (d.isBetween(orderStartDate, orderEndDate, null, "[]")) {
           if (order.confirmed) {
-            confirmedDates.push(d.toISOString().split("T")[0]);
+            confirmedDates.push(d.format("MMM D"));
           } else {
-            nonConfirmedDates.push(d.toISOString().split("T")[0]);
+            conflicOrdersId.push(new mongoose.Types.ObjectId(order._id));
+            nonConfirmedDates.push(d.format("MMM D"));
           }
         }
       }
@@ -92,8 +106,8 @@ export async function POST(request) {
       customerName,
       phone,
       email,
-      rentalStartDate: startDate,
-      rentalEndDate: endDate,
+      rentalStartDate: startDate.toDate(),
+      rentalEndDate: endDate.toDate(),
       car: existingCar._id,
       carModel: existingCar.model,
       numberOfDays: rentalDays,
@@ -102,10 +116,13 @@ export async function POST(request) {
       timeOut,
       placeIn,
       placeOut,
-      date: new Date(),
+      date: dayjs().toDate(),
     });
 
     if (nonConfirmedDates.length > 0) {
+      newOrder.hasConflictDates = conflicOrdersId;
+
+      await newOrder.save();
       return new Response(
         JSON.stringify({
           message: `Даты ${nonConfirmedDates.join(
@@ -119,15 +136,13 @@ export async function POST(request) {
         }
       );
     }
+
     // Save the new order
     await newOrder.save();
-
     // Add the new order to the car's orders array
     existingCar.orders.push(newOrder._id);
-
     // Save the updated car document
     await existingCar.save();
-    console.log("New Order:", newOrder);
 
     return new Response(JSON.stringify(newOrder), {
       status: 200,

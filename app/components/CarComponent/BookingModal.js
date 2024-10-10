@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import dayjs from "dayjs";
+
 import {
   Dialog,
   DialogTitle,
@@ -14,7 +14,15 @@ import {
 import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
 import sendEmail from "@utils/sendEmail";
-import Slide from "@mui/material/Slide";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+// Extend dayjs with plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Set the default timezone
+dayjs.tz.setDefault("Europe/Athens");
 
 // const { RangePicker } = DatePicker;
 
@@ -58,15 +66,20 @@ const BookingModal = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
-    presetDates?.startDate ? dayjs(presetDates.startDate) : null,
-    presetDates?.endDate ? dayjs(presetDates.endDate) : null,
+    presetDates?.startDate
+      ? dayjs.tz(presetDates.startDate, "Europe/Athens")
+      : null,
+    presetDates?.endDate
+      ? dayjs.tz(presetDates.endDate, "Europe/Athens")
+      : null,
   ]);
 
   useEffect(() => {
     if (presetDates?.startDate && presetDates?.endDate && car.pricePerDay) {
       const days =
-        dayjs(presetDates.endDate).diff(dayjs(presetDates.startDate), "day") +
-        1;
+        dayjs
+          .tz(presetDates.endDate, "Europe/Athens")
+          .diff(dayjs.tz(presetDates.startDate, "Europe/Athens"), "day") + 1;
       setTotalPrice(days * car.pricePerDay);
     }
   }, [presetDates?.startDate, presetDates?.endDate, car.pricePerDay]);
@@ -101,8 +114,10 @@ const BookingModal = ({
         customerName: name,
         phone,
         email,
-        rentalStartDate: presetDates?.startDate,
-        rentalEndDate: presetDates?.endDate,
+        rentalStartDate: dayjs
+          .tz(presetDates?.startDate, "Europe/Athens")
+          .toDate(),
+        rentalEndDate: dayjs.tz(presetDates?.endDate, "Europe/Athens").toDate(),
         totalPrice,
       };
 
@@ -111,12 +126,12 @@ const BookingModal = ({
       console.log("response ORDER", response);
 
       const prepareEmailData = (orderData, status) => {
-        const formattedStartDate = dayjs(orderData.rentalStartDate).format(
-          "DD.MM.YYYY"
-        );
-        const formattedEndDate = dayjs(orderData.rentalEndDate).format(
-          "DD.MM.YYYY"
-        );
+        const formattedStartDate = dayjs
+          .tz(orderData.rentalStartDate, "Europe/Athens")
+          .format("DD.MM.YYYY");
+        const formattedEndDate = dayjs
+          .tz(orderData.rentalEndDate, "Europe/Athens")
+          .format("DD.MM.YYYY");
 
         let title =
           status === "success"

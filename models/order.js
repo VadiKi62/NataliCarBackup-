@@ -1,13 +1,30 @@
 import mongoose from "mongoose";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+const timeZone = "Europe/Athens";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.utc();
 
 const OrderSchema = new mongoose.Schema({
+  rentalStartDate: {
+    type: Date,
+    required: true,
+    set: (value) => dayjs(value).utc().toDate(),
+  },
+  rentalEndDate: {
+    type: Date,
+    required: true,
+    set: (value) => dayjs(value).utc().toDate(),
+  },
   timeIn: {
     type: Date,
     default: function () {
       if (this.rentalStartDate) {
-        const time = new Date(this.rentalStartDate);
-        time.setHours(0, 16, 0, 0);
-        return time;
+        return dayjs(this.rentalStartDate).hour(15).minute(0).utc().toDate();
       }
       return null;
     },
@@ -16,9 +33,7 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: function () {
       if (this.rentalEndDate) {
-        const time = new Date(this.rentalEndDate);
-        time.setHours(0, 8, 0, 0);
-        return time;
+        return dayjs(this.rentalEndDate).hour(10).minute(0).utc().toDate();
       }
       return null;
     },
@@ -44,8 +59,9 @@ const OrderSchema = new mongoose.Schema({
     default: false,
   },
   hasConflictDates: {
-    type: Boolean,
-    default: false,
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Order",
+    default: [],
   },
   phone: {
     type: String,
@@ -53,14 +69,6 @@ const OrderSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
-  },
-  rentalStartDate: {
-    type: Date,
-    required: true,
-  },
-  rentalEndDate: {
-    type: Date,
     required: true,
   },
   numberOfDays: {
@@ -80,7 +88,7 @@ const OrderSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now,
+    default: dayjs().tz("Europe/Athens").toDate(),
   },
 });
 
@@ -113,27 +121,3 @@ OrderSchema.pre("save", async function (next) {
 const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
 
 export { OrderSchema, Order };
-
-// OrderSchema.pre("save", async function (next) {
-//   if (
-//     this.isModified("rentalStartDate") ||
-//     this.isModified("rentalEndDate") ||
-//     this.isModified("car")
-//   ) {
-//     const car = await this.model("Car").findById(this.car);
-//     if (!car) {
-//       return next(new Error("Car not found"));
-//     }
-
-//     const days = Math.ceil(
-//       (this.rentalEndDate - this.rentalStartDate) / (1000 * 60 * 60 * 24)
-//     );
-//     this.pricePerDay = car.calculatePrice(days);
-//     this.totalPrice = this.pricePerDay * days;
-//   }
-//   next();
-// });
-
-// const Order = models.Order || model("Order", OrderSchema);
-
-// export { OrderSchema, Order };

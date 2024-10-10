@@ -7,57 +7,214 @@ import {
   TextField,
   Button,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { changeRentalDates } from "@utils/action"; // Assuming this is the correct import path
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+import Snackbar from "@app/components/common/Snackbar";
+
+import {
+  changeRentalDates,
+  toggleConfirmedStatus,
+  updateCustomerInfo,
+} from "@utils/action";
+
+// Extend dayjs with plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Set the default timezone
+const timeZone = "Europe/Athens";
+dayjs.tz.setDefault(timeZone);
 
 const EditOrderModal = ({ open, onClose, order, onSave }) => {
   const [editMode, setEditMode] = useState({});
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+    setUpdateMessage(null);
+  };
+
+  const showMessage = (message, isError = false) => {
+    setUpdateMessage(message);
+    setSnackbarOpen(true);
+    if (!isError) {
+      setTimeout(() => {
+        setSnackbarOpen(false);
+        setUpdateMessage(null);
+      }, 3000);
+    }
+  };
+
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState(null);
 
   useEffect(() => {
     if (order) {
-      setEditedOrder(order);
+      // Convert dates to the correct timezone when setting initial state
+      const adjustedOrder = {
+        ...order,
+        rentalStartDate: dayjs(order.rentalStartDate),
+        rentalEndDate: dayjs(order.rentalEndDate),
+        timeIn: dayjs(order.timeIn).utc(),
+        timeOut: dayjs(order.timeOut).utc(),
+      };
+      setEditedOrder(adjustedOrder);
       setLoading(false);
     }
   }, [order]);
 
-  const handleDoubleClick = (field) => {
-    setEditMode({ ...editMode, [field]: true });
-  };
-
-  const handleChange = (field, value) => {
-    setEditedOrder({ ...editedOrder, [field]: value });
-  };
-
-  const handleSave = async () => {
+  const handleConfirmationToggle = async () => {
+    setIsUpdating(true);
+    setUpdateMessage(null);
     try {
-      // Call the changeRentalDates action for the first section
-      await changeRentalDates(
+      const { updatedOrder, message } = await toggleConfirmedStatus(
+        editedOrder._id
+      );
+
+      setEditedOrder((prevOrder) => ({
+        ...prevOrder,
+        confirmed: updatedOrder?.confirmed,
+      }));
+
+      showMessage(message);
+      onSave(updatedOrder);
+    } catch (error) {
+      console.error("Error toggling confirmation status:", error);
+      setUpdateMessage(error.message || "Статус не обновлен. Ошибка сервера.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDateUpdate = async () => {
+    setIsUpdating(true);
+    try {
+      const datesToSend = {
+        rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
+        rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
+        timeIn: editedOrder.timeIn,
+        timeOut: editedOrder.timeOut,
+      };
+
+      const response = await changeRentalDates(
         editedOrder._id,
-        editedOrder.rentalStartDate,
-        editedOrder.rentalEndDate,
-        editedOrder.timeIn,
-        editedOrder.timeOut,
+        datesToSend.rentalStartDate,
+        datesToSend.rentalEndDate,
+        datesToSend.timeIn,
+        datesToSend.timeOut,
         editedOrder.placeIn,
         editedOrder.placeOut
       );
-
-      // Call onSave for other sections (you might want to create separate actions for these)
+      showMessage(response.message || "Rental dates updated successfully.");
       onSave(editedOrder);
-      setEditMode({});
     } catch (error) {
-      console.error("Error saving changes:", error);
-      // Handle error (e.g., show an error message to the user)
+      console.error("Error updating dates:", error);
+      setUpdateMessage("Failed to update date details.");
+    } finally {
+      setIsUpdating(false);
     }
+  };
+
+  const handleCustomerUpdate = async () => {
+    setIsUpdating(true);
+    try {
+      const updates = {
+        customerName: editedOrder.customerName,
+        phone: editedOrder.phone,
+        email: editedOrder.email,
+      };
+
+      const response = await updateCustomerInfo(editedOrder._id, updates);
+      showMessage(response.message || "Customer details updated successfully.");
+      onSave(editedOrder);
+    } catch (error) {
+      console.error("Error updating customer info:", error);
+      setUpdateMessage("Failed to update customer details.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  const handleChange = (field, value) => {
+    let newValue = value;
+
+    if (field === "rentalStartDate" || field === "rentalEndDate") {
+      // Check if the value is valid and in 'YYYY-MM-DD' format for dates
+      const isValidDate = dayjs(value, "YYYY-MM-DD", true).isValid();
+      if (isValidDate) {
+        newValue = dayjs(value);
+
+        // Adjust timeIn and timeOut when rentalStartDate or rentalEndDate is changed
+        if (field === "rentalStartDate") {
+          newValue = newValue
+            .hour(dayjs(editedOrder?.timeIn).hour())
+            .minute(dayjs(editedOrder?.timeIn).minute());
+        } else if (field === "rentalEndDate") {
+          newValue = newValue
+            .hour(dayjs(editedOrder?.timeOut).hour())
+            .minute(dayjs(editedOrder?.timeOut).minute());
+        }
+      } else {
+        console.error("Invalid date format");
+        return; // Skip if the date format is invalid
+      }
+    }
+
+    if (field === "timeIn" || field === "timeOut") {
+      // Check if the value is valid and in 'HH:mm' format for times
+      const isValidTime = dayjs(value, "HH:mm", true).isValid();
+      if (isValidTime) {
+        if (field === "timeIn") {
+          // Set timeIn, but apply it to the rentalStartDate
+          newValue = dayjs(editedOrder.rentalStartDate)
+            .utc()
+            .hour(dayjs(value, "HH:mm").hour())
+            .minute(dayjs(value, "HH:mm").minute());
+        } else if (field === "timeOut") {
+          // Set timeOut, but apply it to the rentalEndDate
+          newValue = dayjs(editedOrder.rentalEndDate)
+            .utc()
+            .hour(dayjs(value, "HH:mm").hour())
+            .minute(dayjs(value, "HH:mm").minute());
+        }
+      } else {
+        console.error("Invalid time format");
+        return; // Skip if the time format is invalid
+      }
+    }
+
+    setEditedOrder({ ...editedOrder, [field]: newValue });
   };
 
   const renderField = (label, field, type = "text") => {
     if (!editedOrder) return null;
 
+    let inputType = type;
+    let value;
+
+    switch (type) {
+      case "date":
+        value = editedOrder[field].format("YYYY-MM-DD");
+        inputType = "date";
+        break;
+      case "time":
+        value = editedOrder[field].format("HH:mm");
+        inputType = "time";
+        break;
+      case "boolean":
+        value = editedOrder[field] ? "Yes" : "No";
+        inputType = "checkbox";
+        break;
+      default:
+        value = editedOrder[field];
+    }
+
     return (
-      <Box onDoubleClick={() => handleDoubleClick(field)} sx={{ mb: 1 }}>
+      <Box sx={{ mb: 1 }}>
         <Typography
           variant="body2"
           component="span"
@@ -65,32 +222,31 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
         >
           {label}:
         </Typography>
-        {editMode[field] ? (
-          <TextField
-            size="small"
-            value={editedOrder[field] || ""}
-            onChange={(e) => handleChange(field, e.target.value)}
-            type={type}
-          />
-        ) : (
-          <Typography variant="body2" component="span">
-            {type === "date"
-              ? dayjs(editedOrder[field]).format("DD-MM-YYYY")
-              : type === "boolean"
-              ? editedOrder[field]
-                ? "Yes"
-                : "No"
-              : editedOrder[field]}
-          </Typography>
-        )}
+        <TextField
+          size="small"
+          value={value}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            handleChange(field, newValue); // Pass the value to handleChange
+          }}
+          type={inputType}
+        />
       </Box>
     );
   };
 
   const renderDateTimeSection = () => (
     <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Dates, Times, and Places
+      <Typography
+        variant="h6"
+        gutterBottom
+        sx={{
+          lineHeight: "1.4rem",
+          fontSize: "1.2rem",
+          backgroundColor: "secondary.light",
+        }}
+      >
+        Время & Дата & Место выдачи/забора
       </Typography>
       {renderField("Rental Start Date", "rentalStartDate", "date")}
       {renderField("Rental End Date", "rentalEndDate", "date")}
@@ -98,13 +254,27 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       {renderField("Time Out", "timeOut", "time")}
       {renderField("Place In", "placeIn")}
       {renderField("Place Out", "placeOut")}
+      <Typography variant="body2" sx={{ fontWeight: "bold", mr: 1 }}>
+        Всего цена : {editedOrder?.totalPrice}
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: "bold", mr: 1 }}>
+        Кол-во дней : {editedOrder?.numberOfDays}
+      </Typography>
     </Box>
   );
 
   const renderCustomerSection = () => (
     <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Customer Information
+      <Typography
+        variant="h6"
+        gutterBottom
+        sx={{
+          lineHeight: "1.4rem",
+          fontSize: "1.2rem",
+          backgroundColor: "secondary.light",
+        }}
+      >
+        Информация о клиенте
       </Typography>
       {renderField("Customer Name", "customerName")}
       {renderField("Phone", "phone")}
@@ -114,55 +284,156 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
 
   const renderConfirmationSection = () => (
     <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Confirmation Status
-      </Typography>
-      {renderField("Confirmed", "confirmed", "boolean")}
+      <Button
+        variant="contained"
+        onClick={handleConfirmationToggle}
+        disabled={isUpdating}
+        sx={{
+          width: "100%",
+          backgroundColor: editedOrder?.confirmed
+            ? "text.green"
+            : "primary.main",
+          color: editedOrder?.confirmed ? "black" : "white",
+          "&:hover": {
+            backgroundColor: editedOrder?.confirmed ? "darkgreen" : "darkred",
+            color: "white",
+          },
+        }}
+      >
+        {isUpdating ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : editedOrder?.confirmed ? (
+          "Заказ подтвержден."
+        ) : (
+          "Заказ не подтвержден. "
+        )}
+      </Button>
+      {updateMessage && (
+        <Typography
+          varian="body1"
+          sx={{ mt: 1, color: "primary.main", lineHeight: "1rem" }}
+        >
+          {updateMessage}
+        </Typography>
+      )}
     </Box>
   );
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      sx={{
-        display: "flex",
-        alignContent: "center",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Paper
-        sx={{
-          width: 400,
-          maxWidth: "90%",
-          p: 4,
-          margin: "auto",
-          maxHeight: "90vh",
-          overflow: "auto",
-        }}
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
-        {loading ? (
-          <Box>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <Typography variant="h5" gutterBottom>
-              Edit Booking Details
-            </Typography>
-            {renderDateTimeSection()}
-            {renderCustomerSection()}
-            {renderConfirmationSection()}
-            <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-              <Button onClick={handleSave} variant="contained" color="primary">
-                Save Changes
-              </Button>
+        <Paper
+          sx={{
+            width: 500,
+            maxWidth: "90%",
+            p: 4,
+            maxHeight: "90vh",
+            overflow: "auto",
+          }}
+        >
+          {loading ? (
+            <Box display="flex" justifyContent="center">
+              <CircularProgress />
             </Box>
-          </>
-        )}
-      </Paper>
-    </Modal>
+          ) : (
+            <>
+              <Typography variant="h5" gutterBottom>
+                Edit Order for {order.carModel}
+              </Typography>
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Rental Details
+                </Typography>
+                {renderField("Rental Start Date", "rentalStartDate", "date")}
+                {renderField("Rental End Date", "rentalEndDate", "date")}
+                {renderField("Time In", "timeIn", "time")}
+                {renderField("Time Out", "timeOut", "time")}
+                {renderField("Place In", "placeIn")}
+                {renderField("Place Out", "placeOut")}
+                <Button
+                  variant="contained"
+                  onClick={handleDateUpdate}
+                  disabled={isUpdating}
+                  sx={{ mt: 2 }}
+                >
+                  Update Rental Details
+                </Button>
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Customer Information
+                </Typography>
+                {renderField("Customer Name", "customerName")}
+                {renderField("Phone", "phone")}
+                {renderField("Email", "email")}
+                <Button
+                  variant="contained"
+                  onClick={handleCustomerUpdate}
+                  disabled={isUpdating}
+                  sx={{ mt: 2 }}
+                >
+                  Update Customer Info
+                </Button>
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Box sx={{ mb: 3 }}>
+                <Button
+                  variant="contained"
+                  onClick={handleConfirmationToggle}
+                  disabled={isUpdating}
+                  sx={{
+                    width: "100%",
+                    backgroundColor: editedOrder?.confirmed
+                      ? "success.main"
+                      : "warning.main",
+                  }}
+                >
+                  {editedOrder?.confirmed ? "Order Confirmed" : "Confirm Order"}
+                </Button>
+              </Box>
+
+              <Box
+                sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
+              >
+                <Button onClick={onClose} variant="outlined">
+                  Cancel
+                </Button>
+                <Typography variant="body2" sx={{ alignSelf: "center" }}>
+                  Total Price: {editedOrder?.totalPrice} | Days:{" "}
+                  {editedOrder?.numberOfDays}
+                </Typography>
+              </Box>
+            </>
+          )}
+          {/* <Typography> {updateMessage}</Typography> */}
+          {/* <Snackbar
+          open={!!updateMessage}
+          autoHideDuration={6000}
+          onClose={() => setUpdateMessage(null)}
+        >
+
+        </Snackbar> */}
+        </Paper>
+      </Modal>
+      <Snackbar
+        open={snackbarOpen}
+        message={updateMessage}
+        closeFunc={handleSnackbarClose}
+        isError={
+          updateMessage && updateMessage.toLowerCase().includes("failed")
+        }
+      />
+    </>
   );
 };
 

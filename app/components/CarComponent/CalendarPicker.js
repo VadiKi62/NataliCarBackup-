@@ -6,6 +6,15 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DefaultButton from "../common/DefaultButton";
 
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+// Extend dayjs with plugins
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Set the default timezone
+dayjs.tz.setDefault("Europe/Athens");
+
 const CalendarPicker = ({
   isLoading,
   setBookedDates,

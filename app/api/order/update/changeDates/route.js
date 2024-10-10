@@ -1,5 +1,12 @@
 import { Order } from "@models/order";
 import { connectToDB } from "@utils/database";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Europe/Athens");
 
 export const PUT = async (req) => {
   try {
@@ -28,13 +35,20 @@ export const PUT = async (req) => {
     const car = order.car;
 
     // Get the updated start and end dates
-    const newStartDate = rentalStartDate
+    let newStartDate = rentalStartDate
       ? new Date(rentalStartDate)
       : order.rentalStartDate;
-    const newEndDate = rentalEndDate
+    let newEndDate = rentalEndDate
       ? new Date(rentalEndDate)
       : order.rentalEndDate;
 
+    newStartDate = dayjs(rentalStartDate).tz("Europe/Athens");
+    newEndDate = dayjs(rentalEndDate).tz("Europe/Athens");
+
+    const newTimeIn = timeIn ? dayjs(timeIn).tz("Europe/Athens") : order.timeIn;
+    const newTimeOut = timeOut
+      ? dayjs(timeOut).tz("Europe/Athens")
+      : order.timeOut;
     // Check for conflicting orders
     const conflictingOrders = await Order.find({
       car: car._id,
@@ -76,7 +90,7 @@ export const PUT = async (req) => {
     if (confirmedOrders.length > 0) {
       return new Response(
         JSON.stringify({
-          message: `The following dates are already confirmed and unavailable:`,
+          message: `Заказ не обновлен, даты уже заняты и подтверждены:`,
           confirmedOrders: confirmedOrders,
         }),
         { status: 300, headers: { "Content-Type": "application/json" } }
@@ -91,26 +105,33 @@ export const PUT = async (req) => {
     const totalPrice = pricePerDay * rentalDays;
 
     // Update the order with the new dates, rental days, total price, and new time/place info
-    order.rentalStartDate = newStartDate;
-    order.rentalEndDate = newEndDate;
+    order.rentalStartDate = newStartDate.toDate();
+    order.rentalEndDate = newEndDate.toDate();
     order.numberOfDays = rentalDays;
     order.totalPrice = totalPrice;
-    order.timeIn = timeIn ? new Date(timeIn) : order.timeIn;
-    order.timeOut = timeOut ? new Date(timeOut) : order.timeOut;
+    order.timeIn = newTimeIn;
+    order.timeOut = newTimeOut;
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
     // Response 201: Only non-confirmed conflicts, update and return conflict info
     if (nonConfirmedOrders.length > 0) {
-      await order.save(); // Save the updated order
+      const message = "НЕкоторые даты уже забронированы, но не подтверждены ";
+      const data = {
+        nonConfirmedOrders: nonConfirmedOrders,
+        updatedOrder: order,
+      };
+      await order.save();
 
       return new Response(
-        JSON.stringify({
-          message: `The order has been updated, but some dates are pending confirmation:`,
-          nonConfirmedOrders: nonConfirmedOrders,
-          updatedOrder: order,
+        SON.stringify({
+          message,
+          data,
         }),
-        { status: 201, headers: { "Content-Type": "application/json" } }
+        {
+          status: 200, // or 201 depending on your use case
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
@@ -119,8 +140,8 @@ export const PUT = async (req) => {
 
     return new Response(
       JSON.stringify({
-        message: `Order updated successfully with no conflicts.`,
-        updatedOrder: order,
+        message: `ВСЕ ОТЛИЧНО! Даты изменены.`,
+        data: order,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );

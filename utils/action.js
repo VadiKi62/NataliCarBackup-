@@ -1,5 +1,12 @@
 import { revalidateTag } from "next/cache";
 import sendEmail from "./sendEmail";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Europe/Athens");
 
 export const API_URL =
   process.env.NODE_ENV === "development"
@@ -228,7 +235,15 @@ export const fetchAllOrders = async () => {
 };
 
 // UPDATE 1. action for changing rental dates
-export const changeRentalDates = async (orderId, newStartDate, newEndDate) => {
+export const changeRentalDates = async (
+  orderId,
+  newStartDate,
+  newEndDate,
+  timeIn,
+  timeOut,
+  placeIn,
+  placeOut
+) => {
   try {
     const response = await fetch("/api/order/update/changeDates", {
       method: "PUT",
@@ -239,85 +254,100 @@ export const changeRentalDates = async (orderId, newStartDate, newEndDate) => {
         _id: orderId,
         rentalStartDate: newStartDate,
         rentalEndDate: newEndDate,
+        timeIn: timeIn || null, // Optional fields
+        timeOut: timeOut || null,
+        placeIn: placeIn || null,
+        placeOut: placeOut || null,
       }),
     });
 
     const data = await response.json();
 
     if (response.status === 200) {
-      // handle success (no conflicts)
-      console.log("Order updated successfully:", data);
+      // Handle success, no conflicts
+      console.log("Заказ обновлен!:", data.message);
+      return {
+        status: 200,
+        message: data.message,
+        data: data.data,
+      };
     } else if (response.status === 201) {
-      // handle non-confirmed conflict dates
-      console.log(
-        "Order updated but pending confirmation on some dates:",
-        data
-      );
+      // Handle non-confirmed conflict dates (partial update)
+      console.log("Заказ обновлен но с non-confirmed conflicts:", data);
+      return {
+        status: 201,
+        message:
+          "Конфликтующие заказы. Some dates are already reserved but not confirmed",
+        conflicts: data.nonConfirmedOrders,
+        updatedOrder: data.updatedOrder,
+      };
     } else if (response.status === 300) {
-      // handle confirmed conflict dates
-      console.log("Conflicting confirmed dates:", data);
+      // Handle confirmed conflict dates (no update)
+      console.log("Confirmed conflicting dates:", data);
+      return {
+        status: 300,
+        message: "Conflicting confirmed dates",
+        confirmedConflicts: data.confirmedOrders,
+      };
     } else {
+      // Handle unexpected responses
       console.error("Unexpected response:", data);
+      return {
+        status: response.status,
+        message: data.message || "Unexpected response",
+        data: data,
+      };
     }
   } catch (error) {
+    // Handle fetch or server errors
     console.error("Error updating order:", error);
+    return {
+      status: 500,
+      message: "Error updating order: " + error.message,
+    };
   }
 };
 
 // UPDATE 2.  action for switching confirmed status
 export const toggleConfirmedStatus = async (orderId) => {
   try {
-    const response = await fetch("/api/orders/update/switchConfirm", {
+    const response = await fetch(`/api/order/update/switchConfirm/${orderId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        _id: orderId,
-      }),
     });
 
     const data = await response.json();
 
     if (response.status === 200) {
       console.log("Order confirmation status updated:", data);
-    } else {
-      console.error("Failed to update confirmation status:", data);
+      return { updatedOrder: data.data, message: data.message };
     }
   } catch (error) {
     console.error("Error updating confirmation status:", error);
+    return error;
   }
 };
 
 // UPDATE 3.  action for changing customer information
-export const updateCustomerInfo = async (
-  orderId,
-  newName,
-  newEmail,
-  newPhone
-) => {
-  try {
-    const response = await fetch("/api/orders/update/customer", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        _id: orderId,
-        customerName: newName,
-        email: newEmail,
-        phone: newPhone,
-      }),
-    });
+export const updateCustomerInfo = async (orderId, updateData) => {
+  const response = await fetch("/api/order/update/customer", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      _id: orderId,
+      phone: updateData.phone,
+      email: updateData.email,
+      customerName: updateData.customerName,
+    }),
+  });
 
-    const data = await response.json();
-
-    if (response.status === 200) {
-      console.log("Customer information updated:", data);
-    } else {
-      console.error("Failed to update customer information:", data);
-    }
-  } catch (error) {
-    console.error("Error updating customer information:", error);
+  if (!response.ok) {
+    throw new Error("Failed to update customer information");
   }
+
+  return await response.json();
 };
