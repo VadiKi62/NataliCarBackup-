@@ -29,7 +29,7 @@ export const PATCH = async (request, { params }) => {
     return new Response(
       JSON.stringify({
         data: updatedOrder,
-        message: ` Статус успешно обновлен на ${!order.confirmed} `,
+        message: ` Статус успешно обновлен на ${order.confirmed} `,
       }),
       {
         success: true,

@@ -276,18 +276,17 @@ export const changeRentalDates = async (
       console.log("Заказ обновлен но с non-confirmed conflicts:", data);
       return {
         status: 201,
-        message:
-          "Конфликтующие заказы. Some dates are already reserved but not confirmed",
-        conflicts: data.nonConfirmedOrders,
-        updatedOrder: data.updatedOrder,
+        message: data.message,
+        conflicts: data.data.nonConfirmedOrders,
+        updatedOrder: data.data.updatedOrder,
       };
     } else if (response.status === 300) {
       // Handle confirmed conflict dates (no update)
       console.log("Confirmed conflicting dates:", data);
       return {
         status: 300,
-        message: "Conflicting confirmed dates",
-        confirmedConflicts: data.confirmedOrders,
+        message: data.message,
+        conflicts: data.confirmedOrders,
       };
     } else {
       // Handle unexpected responses

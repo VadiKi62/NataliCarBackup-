@@ -1,4 +1,5 @@
 import { Order } from "@models/order";
+import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -24,6 +25,7 @@ export const PUT = async (req) => {
 
     // Find the order to update
     const order = await Order.findById(_id).populate("car");
+    console.log("order", order);
 
     if (!order) {
       return new Response(JSON.stringify({ message: "Order not found" }), {
@@ -42,13 +44,11 @@ export const PUT = async (req) => {
       ? new Date(rentalEndDate)
       : order.rentalEndDate;
 
-    newStartDate = dayjs(rentalStartDate).tz("Europe/Athens");
-    newEndDate = dayjs(rentalEndDate).tz("Europe/Athens");
+    newStartDate = dayjs(rentalStartDate).utc();
+    newEndDate = dayjs(rentalEndDate).utc();
 
-    const newTimeIn = timeIn ? dayjs(timeIn).tz("Europe/Athens") : order.timeIn;
-    const newTimeOut = timeOut
-      ? dayjs(timeOut).tz("Europe/Athens")
-      : order.timeOut;
+    const newTimeIn = timeIn ? dayjs(timeIn).utc() : order.timeIn;
+    const newTimeOut = timeOut ? dayjs(timeOut).utc() : order.timeOut;
     // Check for conflicting orders
     const conflictingOrders = await Order.find({
       car: car._id,
@@ -76,12 +76,17 @@ export const PUT = async (req) => {
           email: conflictingOrder.email,
           rentalStartDate: conflictingOrder.rentalStartDate,
           rentalEndDate: conflictingOrder.rentalEndDate,
+          confirmed: conflictingOrder.confirmed,
         });
       } else {
         nonConfirmedOrders.push({
           id: conflictingOrder._id,
           rentalStartDate: conflictingOrder.rentalStartDate,
           rentalEndDate: conflictingOrder.rentalEndDate,
+          phone: conflictingOrder.phone,
+          email: conflictingOrder.email,
+          customerName: conflictingOrder.customerName,
+          confirmed: conflictingOrder.confirmed,
         });
       }
     }
@@ -116,7 +121,8 @@ export const PUT = async (req) => {
 
     // Response 201: Only non-confirmed conflicts, update and return conflict info
     if (nonConfirmedOrders.length > 0) {
-      const message = "НЕкоторые даты уже забронированы, но не подтверждены ";
+      const message =
+        "Конфликт бронирования, заказ создан но возникли брони в одни дни ";
       const data = {
         nonConfirmedOrders: nonConfirmedOrders,
         updatedOrder: order,
@@ -124,12 +130,12 @@ export const PUT = async (req) => {
       await order.save();
 
       return new Response(
-        SON.stringify({
+        JSON.stringify({
           message,
           data,
         }),
         {
-          status: 200, // or 201 depending on your use case
+          status: 201,
           headers: { "Content-Type": "application/json" },
         }
       );

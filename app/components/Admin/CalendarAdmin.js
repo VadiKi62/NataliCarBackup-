@@ -46,7 +46,7 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
   }, [orders]);
-
+  console.log("confirmedDates", confirmedDates);
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");

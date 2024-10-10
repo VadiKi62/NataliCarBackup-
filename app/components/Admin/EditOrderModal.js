@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
+import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
 
 import {
@@ -33,6 +34,8 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
   const [editMode, setEditMode] = useState({});
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [conflictMessage1, setConflictMessage1] = useState(null);
+  const [conflictMessage2, setConflictMessage2] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -110,7 +113,14 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
         editedOrder.placeIn,
         editedOrder.placeOut
       );
-      showMessage(response.message || "Rental dates updated successfully.");
+      console.log("RESPONSE", response);
+      showMessage(response.message);
+      if (response.status == 201) {
+        setConflictMessage1(response.conflicts);
+      }
+      if (response.status == 300) {
+        setConflictMessage2(response.conflicts);
+      }
       onSave(editedOrder);
     } catch (error) {
       console.error("Error updating dates:", error);
@@ -328,9 +338,9 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       >
         <Paper
           sx={{
-            width: 500,
+            width: { xs: 500, md: 700 },
             maxWidth: "90%",
-            p: 4,
+            p: { xs: 2, md: 4 },
             maxHeight: "90vh",
             overflow: "auto",
           }}
@@ -342,13 +352,41 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
           ) : (
             <>
               <Typography variant="h5" gutterBottom>
-                Edit Order for {order.carModel}
+                Edit Order for {order?.carModel}
               </Typography>
+              {/* <Divider sx={{ my: 2 }} /> */}
+              <Box
+                display="flex"
+                alignContent="center"
+                alignItems="center"
+                justifyContent="right"
+              >
+                <Typography variant="body1" sx={{ alignSelf: "center" }}>
+                  Total Price: {editedOrder?.totalPrice} | Days:{" "}
+                  {editedOrder?.numberOfDays}
+                </Typography>
+              </Box>
+              <Divider sx={{ my: 2 }} />
 
               <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Rental Details
-                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={handleConfirmationToggle}
+                  disabled={isUpdating}
+                  sx={{
+                    width: "100%",
+                    backgroundColor: editedOrder?.confirmed
+                      ? "text.green"
+                      : "text.red",
+                  }}
+                >
+                  {editedOrder?.confirmed
+                    ? "Заказ подтвержден"
+                    : "Заказ не подтвержден"}
+                </Button>
+              </Box>
+
+              <Box sx={{ mb: 3 }}>
                 {renderField("Rental Start Date", "rentalStartDate", "date")}
                 {renderField("Rental End Date", "rentalEndDate", "date")}
                 {renderField("Time In", "timeIn", "time")}
@@ -363,6 +401,12 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
                 >
                   Update Rental Details
                 </Button>
+                {conflictMessage1 && (
+                  <ConflictMessage conflicts={conflictMessage1} type={1} />
+                )}
+                {conflictMessage2 && (
+                  <ConflictMessage conflicts={conflictMessage2} type={2} />
+                )}
               </Box>
 
               <Divider sx={{ my: 2 }} />
@@ -385,22 +429,6 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
               </Box>
 
               <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ mb: 3 }}>
-                <Button
-                  variant="contained"
-                  onClick={handleConfirmationToggle}
-                  disabled={isUpdating}
-                  sx={{
-                    width: "100%",
-                    backgroundColor: editedOrder?.confirmed
-                      ? "success.main"
-                      : "warning.main",
-                  }}
-                >
-                  {editedOrder?.confirmed ? "Order Confirmed" : "Confirm Order"}
-                </Button>
-              </Box>
 
               <Box
                 sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
