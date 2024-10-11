@@ -19,17 +19,27 @@ export const PUT = async (req) => {
     });
 
     if (!updatedOrder) {
-      return new Response(
-        JSON.stringify({ success: false, message: "Order not found" }),
-        { status: 404 }
-      );
+      return new Response(JSON.stringify({ message: "Заказ не найден" }), {
+        status: 404,
+        success: false,
+      });
     }
 
-    return new Response(JSON.stringify(updatedOrder), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        updatedOrder,
+        message: "Данные клиента обновлены успешно",
+      }),
+      {
+        status: 200,
+        success: true,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
-    return new Response("Failed to update order", { status: 500 });
+    return new Response(
+      JSON.stringify({ message: "Ошибка. Данные клиента не обновлены" }),
+      { status: 500, success: false }
+    );
   }
 };

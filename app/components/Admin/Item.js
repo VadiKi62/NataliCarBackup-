@@ -134,11 +134,6 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
     return () => clearTimeout(loadingTimer);
   }, []);
 
-  const handleExpandToggle = () => {
-    setIsExpanded(!isExpanded);
-    setIsEditing(false);
-  };
-
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     setIsExpanded(true);
@@ -265,7 +260,11 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
         </DefaultButton>
       </Wrapper>
 
-      <CalendarAdmin orders={carOrders} />
+      <CalendarAdmin
+        orders={carOrders}
+        handleOrderUpdate={handleOrderUpdate}
+        setCarOrders={setCarOrders}
+      />
       <EditCarModal
         open={modalOpen}
         onClose={handleModalClose}
@@ -278,6 +277,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
         handleCheckboxChange={handleCheckboxChange}
         updateStatus={updateStatus}
         setUpdateStatus={setUpdateStatus}
+        handleOrderUpdate={handleOrderUpdate}
       />
     </StyledCarItem>
   );

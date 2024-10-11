@@ -121,6 +121,7 @@ export const PUT = async (req) => {
 
     // Response 201: Only non-confirmed conflicts, update and return conflict info
     if (nonConfirmedOrders.length > 0) {
+      order.hasConflictDates = nonConfirmedOrders.map((order) => order.id);
       const message =
         "Конфликт бронирования, заказ создан но возникли брони в одни дни ";
       const data = {

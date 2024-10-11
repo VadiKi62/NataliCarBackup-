@@ -31,12 +31,32 @@ const timeZone = "Europe/Athens";
 dayjs.tz.setDefault(timeZone);
 
 const EditOrderModal = ({ open, onClose, order, onSave }) => {
-  const [editMode, setEditMode] = useState({});
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  useEffect(() => {
+    if (order) {
+      // Convert dates to the correct timezone when setting initial state
+      const adjustedOrder = {
+        ...order,
+        rentalStartDate: dayjs(order.rentalStartDate),
+        rentalEndDate: dayjs(order.rentalEndDate),
+        timeIn: dayjs(order.timeIn).utc(),
+        timeOut: dayjs(order.timeOut).utc(),
+      };
+      setEditedOrder(adjustedOrder);
+      setLoading(false);
+    }
+  }, [order]);
+
+  const onCloseModalEdit = () => {
+    onClose();
+    setConflictMessage2(null);
+    setConflictMessage1(null);
+  };
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
     setUpdateMessage(null);
@@ -55,21 +75,6 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateMessage, setUpdateMessage] = useState(null);
-
-  useEffect(() => {
-    if (order) {
-      // Convert dates to the correct timezone when setting initial state
-      const adjustedOrder = {
-        ...order,
-        rentalStartDate: dayjs(order.rentalStartDate),
-        rentalEndDate: dayjs(order.rentalEndDate),
-        timeIn: dayjs(order.timeIn).utc(),
-        timeOut: dayjs(order.timeOut).utc(),
-      };
-      setEditedOrder(adjustedOrder);
-      setLoading(false);
-    }
-  }, [order]);
 
   const handleConfirmationToggle = async () => {
     setIsUpdating(true);
@@ -117,11 +122,14 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       showMessage(response.message);
       if (response.status == 201) {
         setConflictMessage1(response.conflicts);
+        onSave(response.updatedOrder);
       }
       if (response.status == 300) {
         setConflictMessage2(response.conflicts);
       }
-      onSave(editedOrder);
+      if (response.status == 200) {
+        onSave(response.updatedOrder);
+      }
     } catch (error) {
       console.error("Error updating dates:", error);
       setUpdateMessage("Failed to update date details.");
@@ -140,8 +148,8 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       };
 
       const response = await updateCustomerInfo(editedOrder._id, updates);
-      showMessage(response.message || "Customer details updated successfully.");
-      onSave(editedOrder);
+      showMessage(response.message);
+      onSave(response.updatedOrder);
     } catch (error) {
       console.error("Error updating customer info:", error);
       setUpdateMessage("Failed to update customer details.");
@@ -433,24 +441,12 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
               <Box
                 sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
               >
-                <Button onClick={onClose} variant="outlined">
+                <Button onClick={onCloseModalEdit} variant="outlined">
                   Cancel
                 </Button>
-                <Typography variant="body2" sx={{ alignSelf: "center" }}>
-                  Total Price: {editedOrder?.totalPrice} | Days:{" "}
-                  {editedOrder?.numberOfDays}
-                </Typography>
               </Box>
             </>
           )}
-          {/* <Typography> {updateMessage}</Typography> */}
-          {/* <Snackbar
-          open={!!updateMessage}
-          autoHideDuration={6000}
-          onClose={() => setUpdateMessage(null)}
-        >
-
-        </Snackbar> */}
         </Paper>
       </Modal>
       <Snackbar

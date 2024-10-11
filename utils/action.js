@@ -269,7 +269,7 @@ export const changeRentalDates = async (
       return {
         status: 200,
         message: data.message,
-        data: data.data,
+        updatedOrder: data.data,
       };
     } else if (response.status === 201) {
       // Handle non-confirmed conflict dates (partial update)

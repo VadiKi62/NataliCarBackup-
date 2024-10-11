@@ -22,6 +22,7 @@ export default createTheme({
       main: "	#e7cb75",
       red: "#8A0707",
       green: "#a3c1ad",
+      yellow: "#e7c475",
     },
   },
   components: {

@@ -14,12 +14,21 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DefaultButton from "@app/components/common/DefaultButton";
 import EditOrderModal from "./EditOrderModal";
 
-const CalendarAdmin = ({ isLoading = false, orders }) => {
+import isBetween from "dayjs/plugin/isBetween";
+
+dayjs.extend(isBetween);
+
+const CalendarAdmin = ({
+  isLoading = false,
+  orders,
+  handleOrderUpdate,
+  setCarOrders,
+}) => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null); // To store the selected booking
-  const [open, setOpen] = useState(false); // To control modal visibility
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const unavailable = [];
@@ -46,7 +55,7 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
   }, [orders]);
-  console.log("confirmedDates", confirmedDates);
+
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -54,16 +63,75 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
       const isConfirmed = confirmedDates.includes(dateStr);
       const isUnavailable = unavailableDates.includes(dateStr);
 
+      let isStartDate = false;
+      let isEndDate = false;
+      let overlapOrders = [];
+
+      // Check each order and collect overlaps
+      orders.forEach((order) => {
+        const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+        const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+
+        if (rentalStart === dateStr) {
+          isStartDate = true;
+        }
+        if (rentalEnd === dateStr) {
+          isEndDate = true;
+        }
+
+        // Check if current date falls within the range of an order
+        if (dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]")) {
+          overlapOrders.push(order);
+        }
+      });
+
+      const isOverlapDate = overlapOrders.length > 1; // More than one order overlaps this date
+      const overlapCount = overlapOrders.length;
+
       let backgroundColor = "transparent";
       let color = "inherit";
+      let borderRadius = "1px";
 
       if (isConfirmed) {
         backgroundColor = "primary.red";
         color = "common.white";
       }
-      if (isUnavailable) {
+      if (isUnavailable && !isConfirmed) {
         backgroundColor = "primary.green";
         color = "common.black";
+      }
+
+      if (isStartDate && !isOverlapDate) {
+        borderRadius = "50% 0 0 50%"; // Rounded on the left for start
+        // backgroundColor = "text.green";
+      }
+      if (isEndDate && !isOverlapDate) {
+        borderRadius = "0 50% 50% 0"; // Rounded on the right for end
+        // backgroundColor = "text.green";
+      }
+
+      // Create vertical lines for overlap dates
+      const overlapLines = [];
+      if (isOverlapDate) {
+        backgroundColor = "text.green";
+        color = "common.white";
+
+        // Create 3 or more vertical lines depending on how many overlaps exist
+        for (let i = 0; i < Math.min(overlapCount, 3); i++) {
+          overlapLines.push(
+            <Box
+              key={i}
+              sx={{
+                position: "absolute",
+                height: "100%",
+                width: "2px", // Thickness of each line
+                backgroundColor: "primary.main", // Line color
+                left: `${30 + i * 15}%`, // Spacing lines evenly across the box
+                transform: "translateX(-50%)",
+              }}
+            />
+          );
+        }
       }
 
       const handleDateClick = () => {
@@ -88,7 +156,6 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
             );
           });
 
-          console.log(selectedOrder);
           if (selectedOrder) {
             setSelectedOrder(selectedOrder);
             setOpen(true);
@@ -100,16 +167,18 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
         <Box
           onClick={handleDateClick}
           sx={{
+            position: "relative", // Ensure positioning for ::before
             height: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             backgroundColor,
-            borderRadius: "1px",
+            borderRadius, // Adjust borderRadius for first/last days
             color,
             cursor: "pointer",
           }}
         >
+          {overlapLines}
           {date.date()}
         </Box>
       );
@@ -117,19 +186,146 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
     [confirmedDates, unavailableDates, orders]
   );
 
+  // const renderDateCell = useCallback(
+  //   (date) => {
+  //     const dateStr = date.format("YYYY-MM-DD");
+
+  //     const isConfirmed = confirmedDates.includes(dateStr);
+  //     const isUnavailable = unavailableDates.includes(dateStr);
+
+  //     let isStartDate = false;
+  //     let isEndDate = false;
+  //     let isOverlapDate = false;
+
+  //     orders.forEach((order) => {
+  //       const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+  //       const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+
+  //       if (rentalStart === dateStr) {
+  //         isStartDate = true;
+  //       }
+  //       if (rentalEnd === dateStr) {
+  //         isEndDate = true;
+  //       }
+
+  //       // Check if current date is both the start of one order and the end of another
+  //       orders.forEach((otherOrder) => {
+  //         const otherRentalStart = dayjs(otherOrder.rentalStartDate).format(
+  //           "YYYY-MM-DD"
+  //         );
+  //         const otherRentalEnd = dayjs(otherOrder.rentalEndDate).format(
+  //           "YYYY-MM-DD"
+  //         );
+
+  //         if (rentalEnd === dateStr && otherRentalStart === dateStr) {
+  //           isOverlapDate = true;
+  //         }
+  //       });
+  //     });
+
+  //     let backgroundColor = "transparent";
+  //     let color = "inherit";
+  //     let borderRadius = "1px";
+
+  //     if (isConfirmed) {
+  //       backgroundColor = "primary.red";
+  //       color = "common.white";
+  //     }
+  //     if (isUnavailable && !isConfirmed) {
+  //       backgroundColor = "primary.green";
+  //       color = "common.black";
+  //     }
+
+  //     if (isStartDate && !isOverlapDate) {
+  //       borderRadius = "50% 0 0 50%"; // Rounded on the left for start
+  //       // backgroundColor = "text.green";
+  //     }
+  //     if (isEndDate && !isOverlapDate) {
+  //       borderRadius = "0 50% 50% 0"; // Rounded on the right for end
+  //       // backgroundColor = "text.green";
+  //     }
+
+  //     // Apply specific style for overlap dates with vertical line
+  //     if (isOverlapDate) {
+  //       backgroundColor = "text.green";
+  //       color = "common.white";
+
+  //       // Vertical line in the middle of the box using ::before
+  //     }
+
+  //     const handleDateClick = () => {
+  //       const firstCheck =
+  //         confirmedDates.includes(dateStr) ||
+  //         unavailableDates.includes(dateStr);
+
+  //       if (!firstCheck) {
+  //         setSelectedOrder(null);
+  //       } else {
+  //         const selectedOrder = orders.find((order) => {
+  //           const rentalStart = dayjs(order.rentalStartDate).format(
+  //             "YYYY-MM-DD"
+  //           );
+  //           const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+
+  //           return (
+  //             rentalStart === dateStr ||
+  //             rentalEnd === dateStr ||
+  //             (dayjs(rentalStart).isBefore(dateStr, "day") &&
+  //               dayjs(rentalEnd).isAfter(dateStr, "day"))
+  //           );
+  //         });
+
+  //         if (selectedOrder) {
+  //           setSelectedOrder(selectedOrder);
+  //           setOpen(true);
+  //         }
+  //       }
+  //     };
+
+  //     return (
+  //       <Box
+  //         onClick={handleDateClick}
+  //         sx={{
+  //           position: "relative", // Ensure positioning for ::before
+  //           height: "100%",
+  //           display: "flex",
+  //           alignItems: "center",
+  //           justifyContent: "center",
+  //           backgroundColor,
+  //           borderRadius, // Adjust borderRadius for first/last days
+  //           color,
+  //           cursor: "pointer",
+  //           "::before": isOverlapDate
+  //             ? {
+  //                 content: '""',
+  //                 position: "absolute",
+  //                 height: "90%", // Height of the vertical line
+  //                 width: "1px", // Thickness of the line
+  //                 backgroundColor: "primary.red", // Line color
+  //                 left: "50%", // Center the line horizontally
+  //                 transform: "translateX(-50%)", // Adjust for exact centering
+  //               }
+  //             : {},
+  //         }}
+  //       >
+  //         {date.date()}
+  //       </Box>
+  //     );
+  //   },
+  //   [confirmedDates, unavailableDates, orders]
+  // );
+
   const handleClose = () => setOpen(false);
 
   // Memoize order save handler
-  const handleSaveOrder = useCallback(
-    (updatedOrder) => {
-      console.log("Order updated:", updatedOrder);
-      const updatedOrders = orders.map((order) =>
-        order._id === updatedOrder._id ? updatedOrder : order
-      );
-      // handleClose();
-    },
-    [orders]
-  );
+  const handleSaveOrder = (updatedOrder) => {
+    handleOrderUpdate(updatedOrder);
+    setSelectedOrder(updatedOrder);
+    const updatedOrders = orders.map((order) =>
+      order._id === updatedOrder._id ? updatedOrder : order
+    );
+    setCarOrders(updatedOrders);
+  };
 
   const headerRender = ({ value }) => {
     const current = value.clone();
@@ -222,48 +418,6 @@ const CalendarAdmin = ({ isLoading = false, orders }) => {
         </>
       )}
 
-      {/* Modal for displaying selected booking */}
-
-      {/* <Modal open={open} onClose={handleClose}>
-        <Paper
-          sx={{
-            width: 400,
-            maxWidth: "90%",
-            p: 4,
-            margin: "auto",
-            top: "50%",
-            transform: "translateY(-50%)",
-            position: "relative",
-          }}
-        >
-          {selectedOrder ? (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                Booking Details
-              </Typography>
-              <Typography variant="body2">
-                Customer: {selectedOrder.customerName}
-              </Typography>
-              <Typography variant="body2">
-                Car Model: {selectedOrder.carModel}
-              </Typography>
-              <Typography variant="body2">
-                Rental Start:{" "}
-                {dayjs(selectedOrder.rentalStartDate).format("DD-MM-YYYY")}
-              </Typography>
-              <Typography variant="body2">
-                Rental End:{" "}
-                {dayjs(selectedOrder.rentalEndDate).format("DD-MM-YYYY")}
-              </Typography>
-              <Typography variant="body2">
-                Confirmed: {selectedOrder.confirmed ? "Yes" : "No"}
-              </Typography>
-            </Box>
-          ) : (
-            <Typography>No booking information available.</Typography>
-          )}
-        </Paper>
-      </Modal> */}
       <EditOrderModal
         open={open}
         onClose={handleClose}

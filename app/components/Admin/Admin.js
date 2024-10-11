@@ -49,8 +49,6 @@ function Admin({ session, cars, orders }) {
   if (error) return <div>{error}</div>;
   return (
     <div>
-      {/* <DataGridOrders cars={cars} orders={orders} />
-      <DataGridCars cars={cars} orders={orders} /> */}
       <Grid
         container
         spacing={{ sm: 2, sx: 0.4 }}
