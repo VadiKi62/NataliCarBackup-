@@ -95,18 +95,6 @@ const CarInfo = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const PriceChip = styled(Chip)(({ theme }) => ({
-  marginRight: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-}));
-
-const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
-  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
-
 function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -115,6 +103,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const { ordersByCarId, allOrders } = useMainContext();
+
   const [carOrders, setCarOrders] = useState([]);
   const [updateStatus, setUpdateStatus] = useState(null);
 
@@ -149,11 +138,11 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
     setUpdatedCar((prev) => ({ ...prev, [name]: checked }));
   };
 
-  const handlePricingTierChange = (tier, value) => {
-    setUpdatedCar((prev) => ({
-      ...prev,
-      pricingTiers: { ...prev.pricingTiers, [tier]: Number(value) },
-    }));
+  const handlePricingTierChange = (season, day, newPrice) => {
+    // Find the season and update the price for the specific day
+    const updatedCar = { ...car }; // Assuming `car` is a state object
+    updatedCar.pricingTiers[season].days[day] = parseFloat(newPrice); // Update the price
+    setCar(updatedCar); // Set the updated car state
   };
 
   const handleCarsUpdate = async () => {
@@ -268,11 +257,9 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
       <EditCarModal
         open={modalOpen}
         onClose={handleModalClose}
-        car={car}
         updatedCar={updatedCar}
         handleChange={handleChange}
         handleUpdate={handleCarsUpdate}
-        orders={carOrders}
         handlePricingTierChange={handlePricingTierChange}
         handleCheckboxChange={handleCheckboxChange}
         updateStatus={updateStatus}

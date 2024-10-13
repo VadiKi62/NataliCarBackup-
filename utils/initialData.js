@@ -10,7 +10,43 @@ export const carsData = [
     enginePower: 450,
     fuelType: "petrol",
     seats: 5,
-    pricingTiers: { 3: 200, 6: 170, 10: 120 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM1",
@@ -25,7 +61,43 @@ export const carsData = [
     fueltype: "diesel",
     enginePower: 120,
     fuelType: "petrol",
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "MBUS1",
@@ -40,7 +112,43 @@ export const carsData = [
     fueltype: "diesel",
     enginePower: 120,
     fuelType: "petrol",
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "MBUS2",
@@ -55,7 +163,43 @@ export const carsData = [
     fueltype: "diesel",
     enginePower: 120,
     fuelType: "petrol",
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "CROSS1",
@@ -70,7 +214,43 @@ export const carsData = [
     fueltype: "petrol",
     enginePower: 125,
     fuelType: "petrol",
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP1",
@@ -84,7 +264,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 100,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "CROSS2",
@@ -100,7 +316,43 @@ export const carsData = [
     enginePower: 120,
     fuelType: "petrol",
 
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP2",
@@ -116,7 +368,43 @@ export const carsData = [
     enginePower: 87,
     fuelType: "petrol",
 
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP3",
@@ -132,7 +420,43 @@ export const carsData = [
     enginePower: 87,
     fuelType: "petrol",
 
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP4",
@@ -148,7 +472,43 @@ export const carsData = [
     enginePower: 87,
     fuelType: "petrol",
 
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP5",
@@ -162,7 +522,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 87,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP6",
@@ -176,7 +572,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 71,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM2",
@@ -190,7 +622,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 116,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM3",
@@ -204,7 +672,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 116,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "CROSS3",
@@ -218,7 +722,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "perol",
     enginePower: 120,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM4",
@@ -232,7 +772,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 125,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP7",
@@ -246,7 +822,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 90,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "MBUS3",
@@ -260,7 +872,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 110,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP8",
@@ -274,7 +922,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 75,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP9",
@@ -288,7 +972,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 75,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "CONV1",
@@ -302,7 +1022,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 90,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "CROSS4",
@@ -316,7 +1072,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "natural gas(cng)",
     enginePower: 90,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM5",
@@ -330,7 +1122,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "natural gas(cng)",
     enginePower: 130,
-    pricingTiers: { 3: 35, 6: 30, 10: 25 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "LIM6",
@@ -344,7 +1172,43 @@ export const carsData = [
     airConditioning: true,
     fueltype: "diesel",
     enginePower: 90,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          1: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          1: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
   {
     carNumber: "COMP10",
@@ -358,78 +1222,42 @@ export const carsData = [
     airConditioning: true,
     fueltype: "petrol",
     enginePower: 116,
-    pricingTiers: { 3: 40, 6: 35, 10: 30 },
+    pricingTiers: {
+      NoSeason: {
+        days: {
+          4: 55, // Updated price for 1 day
+          7: 320, // Updated price for 7 days
+          14: 580, // Updated price for 14 days
+        },
+      },
+      LowSeason: {
+        days: {
+          4: 65,
+          7: 370,
+          14: 620,
+        },
+      },
+      LowUpSeason: {
+        days: {
+          1: 70,
+          7: 400,
+          14: 670,
+        },
+      },
+      MiddleSeason: {
+        days: {
+          4: 75,
+          7: 430,
+          14: 750,
+        },
+      },
+      HighSeason: {
+        days: {
+          4: 85,
+          7: 500,
+          14: 850,
+        },
+      },
+    },
   },
 ];
-
-// export const carsData = [
-//   {
-//     carNumber: "PREM123",
-//     model: "Mercedes-Benz S-Class",
-//     photoUrl: "/images/mercedes-s-class.jpg",
-//     class: "Premium",
-//     transmission: "Automatic",
-//     numberOfDoors: 4,
-//     airConditioning: true,
-//     enginePower: 450,
-//     pricingTiers: { 3: 200, 6: 170, 10: 120 },
-//   },
-//   {
-//     carNumber: "ECO456",
-//     model: "Toyota Corolla",
-//     photoUrl: "/images/toyota-corolla.jpg",
-//     class: "Economy",
-//     transmission: "Manual",
-//     numberOfDoors: 4,
-//     airConditioning: true,
-//     enginePower: 130,
-//     pricingTiers: { 3: 50, 6: 40, 10: 35 },
-//     // orders: [
-//     //   {
-//     //     customerName: "Bob Johnson",
-//     //     email: "john@john.com",
-//     //     phone: "123456789",
-//     //     rentalStartDate: new Date("2024-09-20"),
-//     //     rentalEndDate: new Date("2024-09-25"),
-//     //     totalPrice: 250, // 5 days * 50 per day
-//     //   },
-//     //   {
-//     //     customerName: "Alice Brown",
-//     //     email: "john@john.com",
-//     //     phone: "123456789",
-//     //     rentalStartDate: new Date("2024-10-05"),
-//     //     rentalEndDate: new Date("2024-10-07"),
-//     //     totalPrice: 100, // 2 days * 50 per day
-//     //   },
-//     // ],
-//   },
-//   {
-//     carNumber: "MIN789",
-//     model: "Ford Transit",
-//     photoUrl: "/images/ford-transit.jpg",
-//     class: "MiniBus",
-//     transmission: "Automatic",
-//     numberOfDoors: 5,
-//     airConditioning: true,
-//     enginePower: 200,
-//     pricingTiers: { 3: 120, 6: 100, 10: 95 },
-//     // orders: [
-//     //   {
-//     //     customerName: "Charlie Wilson",
-//     //     email: "john@john.com",
-//     //     phone: "123456789",
-//     //     rentalStartDate: new Date("2024-09-15"),
-//     //     rentalEndDate: new Date("2024-09-18"),
-//     //     totalPrice: 360, // 3 days * 120 per day
-//     //   },
-//     //   {
-//     //     customerName: "Diana Lee",
-//     //     email: "john@john.com",
-//     //     phone: "123456789",
-//     //     rentalStartDate: new Date("2024-10-10"),
-//     //     rentalEndDate: new Date("2024-10-14"),
-//     //     totalPrice: 480, // 4 days * 120 per day
-//     //   },
-//     // ],
-//   },
-// ];

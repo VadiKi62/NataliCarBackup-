@@ -18,6 +18,8 @@ import {
 } from "@mui/material";
 import Snackbar from "@app/components/common/Snackbar";
 import { styled } from "@mui/material/styles";
+import PricingTiersTable from "./PricingTiers";
+("./PricingTiers");
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "90%",
@@ -27,11 +29,9 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 const EditCarModal = ({
   open,
   onClose,
-  car,
   updatedCar,
   handleChange,
   handleUpdate,
-  orders,
   handlePricingTierChange,
   handleCheckboxChange,
   updateStatus,
@@ -39,12 +39,6 @@ const EditCarModal = ({
 }) => {
   const handleCloseSnackbar = () => {
     setUpdateStatus(null);
-  };
-
-  const tierStrings = {
-    3: "3-4 days",
-    6: "5-14 days",
-    10: "15 days+",
   };
 
   return (
@@ -69,48 +63,8 @@ const EditCarModal = ({
             value={updatedCar.photoUrl}
             onChange={handleChange}
           />
-          <Select
-            sx={{ mt: 1 }}
-            name="class"
-            label="class"
-            value={updatedCar.class}
-            onChange={handleChange}
-          >
-            {[
-              "Economy",
-              "Premium",
-              "MiniBus",
-              "Crossover",
-              "Limousine",
-              "Compact",
-              "Convertible",
-            ].map((cls) => (
-              <MenuItem key={cls} value={cls}>
-                {cls}
-              </MenuItem>
-            ))}
-          </Select>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <Select
-            sx={{ mt: 1 }}
-            name="Transmission"
-            label="Transmission"
-            value={updatedCar.transmission}
-            onChange={handleChange}
-          >
-            {["Manual", "Automatic"].map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-          <StyledTextField
-            name="fueltype"
-            label="Fuel Type"
-            value={updatedCar.fueltype}
-            onChange={handleChange}
-          />
           <StyledTextField
             name="seats"
             label="Seats"
@@ -125,8 +79,6 @@ const EditCarModal = ({
             value={updatedCar.registration}
             onChange={handleChange}
           />
-        </Grid>
-        <Grid item xs={12} sm={6} md={4}>
           <StyledTextField
             name="regNumber"
             label="Registration Number"
@@ -154,7 +106,8 @@ const EditCarModal = ({
             onChange={handleChange}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6} md={4}>
+          {/* Air Conditioning Checkbox */}
           <FormControlLabel
             control={
               <Checkbox
@@ -164,28 +117,82 @@ const EditCarModal = ({
               />
             }
             label="Air Conditioning"
+            sx={{ mb: 2 }}
           />
+
+          {/* Fuel Type Selector */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Тип топлива
+            </Typography>
+            <Select
+              fullWidth
+              name="fueltype"
+              label="Тип топлива"
+              value={updatedCar.fueltype}
+              onChange={handleChange}
+            >
+              {["Petrol", "Disel", "Gas"].map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+
+          {/* Transmission Selector */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Трансмиссия
+            </Typography>
+            <Select
+              fullWidth
+              name="Transmission"
+              label="Transmission"
+              value={updatedCar.transmission}
+              onChange={handleChange}
+            >
+              {["Manual", "Automatic"].map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+
+          {/* Car Class Selector */}
+          <Box>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Класс автомобиля
+            </Typography>
+            <Select
+              fullWidth
+              name="class"
+              label="class"
+              value={updatedCar.class}
+              onChange={handleChange}
+            >
+              {[
+                "Economy",
+                "Premium",
+                "MiniBus",
+                "Crossover",
+                "Limousine",
+                "Compact",
+                "Convertible",
+              ].map((cls) => (
+                <MenuItem key={cls} value={cls}>
+                  {cls}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6">Pricing Tiers:</Typography>
-          <Grid container spacing={2}>
-            {Object.entries(updatedCar.pricingTiers).map(([tier, price]) => (
-              <Grid item xs={6} sm={4} md={3} key={tier}>
-                <StyledTextField
-                  name={`pricingTiers.${tier}`}
-                  label={tierStrings[`${tier}`]}
-                  type="number"
-                  value={price}
-                  onChange={(e) =>
-                    handlePricingTierChange(tier, e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Grid>
+
+        <PricingTiersTable
+          car={updatedCar}
+          handlePricingTierChange={handlePricingTierChange}
+        />
 
         {/* Display success or error message based on updateStatus */}
         {updateStatus && (

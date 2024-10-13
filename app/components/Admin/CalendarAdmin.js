@@ -8,14 +8,13 @@ import {
   Paper,
 } from "@mui/material";
 import { Calendar } from "antd";
-import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import DefaultButton from "@app/components/common/DefaultButton";
+import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
 import EditOrderModal from "./EditOrderModal";
 
+import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
-
 dayjs.extend(isBetween);
 
 const CalendarAdmin = ({
@@ -55,7 +54,6 @@ const CalendarAdmin = ({
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
   }, [orders]);
-
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -66,6 +64,7 @@ const CalendarAdmin = ({
       let isStartDate = false;
       let isEndDate = false;
       let overlapOrders = [];
+      let isOverlapStartEndOnly = false; // New flag to track start/end overlap without in-between overlap
 
       // Check each order and collect overlaps
       orders.forEach((order) => {
@@ -88,6 +87,15 @@ const CalendarAdmin = ({
       const isOverlapDate = overlapOrders.length > 1; // More than one order overlaps this date
       const overlapCount = overlapOrders.length;
 
+      // New logic: Check if the current date is overlapping but only as start/end
+      if (isOverlapDate) {
+        isOverlapStartEndOnly = overlapOrders.every((order) => {
+          const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+          const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+          return rentalStart === dateStr || rentalEnd === dateStr;
+        });
+      }
+
       let backgroundColor = "transparent";
       let color = "inherit";
       let borderRadius = "1px";
@@ -103,30 +111,44 @@ const CalendarAdmin = ({
 
       if (isStartDate && !isOverlapDate) {
         borderRadius = "50% 0 0 50%"; // Rounded on the left for start
-        // backgroundColor = "text.green";
       }
       if (isEndDate && !isOverlapDate) {
         borderRadius = "0 50% 50% 0"; // Rounded on the right for end
-        // backgroundColor = "text.green";
       }
 
       // Create vertical lines for overlap dates
       const overlapLines = [];
-      if (isOverlapDate) {
+      if (isOverlapStartEndOnly) {
         backgroundColor = "text.green";
+
+        // Dotted vertical line for start/end overlap only
+        overlapLines.push(
+          <Box
+            sx={{
+              position: "absolute",
+              height: "100%",
+              color: "white",
+              left: "50%",
+              transform: "translateX(-50%)",
+              borderRight: "2px dotted",
+            }}
+          />
+        );
+      } else if (isOverlapDate) {
+        backgroundColor = "text.green"; // Color for full range overlap
         color = "common.white";
 
-        // Create 3 or more vertical lines depending on how many overlaps exist
-        for (let i = 0; i < Math.min(overlapCount, 3); i++) {
+        // Create solid vertical lines for full overlap (up to 3 lines)
+        for (let i = 1; i < Math.min(overlapCount, 3); i++) {
           overlapLines.push(
             <Box
               key={i}
               sx={{
                 position: "absolute",
                 height: "100%",
-                width: "2px", // Thickness of each line
-                backgroundColor: "primary.main", // Line color
-                left: `${30 + i * 15}%`, // Spacing lines evenly across the box
+                width: "1px", // Thickness of each line
+                backgroundColor: "primary.main", // Line color for full overlap
+                left: `${35 + i * 15}%`, // Spacing lines evenly across the box
                 transform: "translateX(-50%)",
               }}
             />
@@ -167,7 +189,7 @@ const CalendarAdmin = ({
         <Box
           onClick={handleDateClick}
           sx={{
-            position: "relative", // Ensure positioning for ::before
+            position: "relative", // Ensure positioning for overlap lines
             height: "100%",
             display: "flex",
             alignItems: "center",
@@ -185,135 +207,6 @@ const CalendarAdmin = ({
     },
     [confirmedDates, unavailableDates, orders]
   );
-
-  // const renderDateCell = useCallback(
-  //   (date) => {
-  //     const dateStr = date.format("YYYY-MM-DD");
-
-  //     const isConfirmed = confirmedDates.includes(dateStr);
-  //     const isUnavailable = unavailableDates.includes(dateStr);
-
-  //     let isStartDate = false;
-  //     let isEndDate = false;
-  //     let isOverlapDate = false;
-
-  //     orders.forEach((order) => {
-  //       const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
-  //       const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
-
-  //       if (rentalStart === dateStr) {
-  //         isStartDate = true;
-  //       }
-  //       if (rentalEnd === dateStr) {
-  //         isEndDate = true;
-  //       }
-
-  //       // Check if current date is both the start of one order and the end of another
-  //       orders.forEach((otherOrder) => {
-  //         const otherRentalStart = dayjs(otherOrder.rentalStartDate).format(
-  //           "YYYY-MM-DD"
-  //         );
-  //         const otherRentalEnd = dayjs(otherOrder.rentalEndDate).format(
-  //           "YYYY-MM-DD"
-  //         );
-
-  //         if (rentalEnd === dateStr && otherRentalStart === dateStr) {
-  //           isOverlapDate = true;
-  //         }
-  //       });
-  //     });
-
-  //     let backgroundColor = "transparent";
-  //     let color = "inherit";
-  //     let borderRadius = "1px";
-
-  //     if (isConfirmed) {
-  //       backgroundColor = "primary.red";
-  //       color = "common.white";
-  //     }
-  //     if (isUnavailable && !isConfirmed) {
-  //       backgroundColor = "primary.green";
-  //       color = "common.black";
-  //     }
-
-  //     if (isStartDate && !isOverlapDate) {
-  //       borderRadius = "50% 0 0 50%"; // Rounded on the left for start
-  //       // backgroundColor = "text.green";
-  //     }
-  //     if (isEndDate && !isOverlapDate) {
-  //       borderRadius = "0 50% 50% 0"; // Rounded on the right for end
-  //       // backgroundColor = "text.green";
-  //     }
-
-  //     // Apply specific style for overlap dates with vertical line
-  //     if (isOverlapDate) {
-  //       backgroundColor = "text.green";
-  //       color = "common.white";
-
-  //       // Vertical line in the middle of the box using ::before
-  //     }
-
-  //     const handleDateClick = () => {
-  //       const firstCheck =
-  //         confirmedDates.includes(dateStr) ||
-  //         unavailableDates.includes(dateStr);
-
-  //       if (!firstCheck) {
-  //         setSelectedOrder(null);
-  //       } else {
-  //         const selectedOrder = orders.find((order) => {
-  //           const rentalStart = dayjs(order.rentalStartDate).format(
-  //             "YYYY-MM-DD"
-  //           );
-  //           const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
-
-  //           return (
-  //             rentalStart === dateStr ||
-  //             rentalEnd === dateStr ||
-  //             (dayjs(rentalStart).isBefore(dateStr, "day") &&
-  //               dayjs(rentalEnd).isAfter(dateStr, "day"))
-  //           );
-  //         });
-
-  //         if (selectedOrder) {
-  //           setSelectedOrder(selectedOrder);
-  //           setOpen(true);
-  //         }
-  //       }
-  //     };
-
-  //     return (
-  //       <Box
-  //         onClick={handleDateClick}
-  //         sx={{
-  //           position: "relative", // Ensure positioning for ::before
-  //           height: "100%",
-  //           display: "flex",
-  //           alignItems: "center",
-  //           justifyContent: "center",
-  //           backgroundColor,
-  //           borderRadius, // Adjust borderRadius for first/last days
-  //           color,
-  //           cursor: "pointer",
-  //           "::before": isOverlapDate
-  //             ? {
-  //                 content: '""',
-  //                 position: "absolute",
-  //                 height: "90%", // Height of the vertical line
-  //                 width: "1px", // Thickness of the line
-  //                 backgroundColor: "primary.red", // Line color
-  //                 left: "50%", // Center the line horizontally
-  //                 transform: "translateX(-50%)", // Adjust for exact centering
-  //               }
-  //             : {},
-  //         }}
-  //       >
-  //         {date.date()}
-  //       </Box>
-  //     );
-  //   },
-  //   [confirmedDates, unavailableDates, orders]
-  // );
 
   const handleClose = () => setOpen(false);
 
@@ -365,46 +258,7 @@ const CalendarAdmin = ({
 
   return (
     <Box sx={{ width: "100%", p: "20px" }}>
-      <Box
-        sx={{
-          marginBottom: "10px",
-          justifyContent: "center",
-          display: "flex",
-          alignItems: "center",
-          alignContent: "center",
-        }}
-      >
-        <Box
-          component="span"
-          sx={{
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "primary.red",
-            marginRight: "10px",
-          }}
-        ></Box>
-        <Typography component="span" variant="body2">
-          Confirmed bookings
-        </Typography>
-      </Box>
-      <Box
-        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
-      >
-        <Box
-          component="span"
-          sx={{
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "primary.green",
-            marginRight: "10px",
-          }}
-        ></Box>
-        <Typography component="span" variant="body2">
-          Unconfirmed bookings
-        </Typography>
-      </Box>
+      <LegendCalendarAdmin />
       {isLoading ? (
         <CircularProgress />
       ) : (
