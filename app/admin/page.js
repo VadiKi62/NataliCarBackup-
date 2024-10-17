@@ -23,7 +23,7 @@ export default async function AdminPage() {
 
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
-  console.log("orders from admin/page.js (server) : ", ordersData);
+
   return (
     <ThemeProvider theme={theme}>
       <AdminLayout>

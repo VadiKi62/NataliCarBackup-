@@ -1,14 +1,7 @@
 import React from "react";
 import { Paper, Stack, Typography, Divider } from "@mui/material";
 import dayjs from "dayjs";
-
-const seasons = {
-  NoSeason: { start: "01/10", end: "24/05" },
-  LowSeason: { start: "25/05", end: "30/06" },
-  LowUpSeason: { start: "01/09", end: "30/09" },
-  Middle: { start: "01/07", end: "31/07" },
-  Height: { start: "01/08", end: "31/08" },
-};
+import { seasons } from "@utils/companyData";
 
 // Function to get the current season (same as above)
 const getCurrentSeason = () => {
@@ -30,7 +23,7 @@ const getCurrentSeason = () => {
 // PricingDisplay component to show current season pricing
 const PricingDisplay = ({ prices }) => {
   const currentSeason = getCurrentSeason(); // Get current season
-  const pricingData = prices[currentSeason]?.days || {}; // Get the days and amounts for the current season
+  const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
 
   return (
     <>

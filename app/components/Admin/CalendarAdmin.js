@@ -142,7 +142,7 @@ const CalendarAdmin = ({
         for (let i = 1; i < Math.min(overlapCount, 3); i++) {
           overlapLines.push(
             <Box
-              key={i}
+              key={`overlap-line-${i}`}
               sx={{
                 position: "absolute",
                 height: "100%",

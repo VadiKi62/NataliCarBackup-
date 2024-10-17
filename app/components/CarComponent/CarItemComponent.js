@@ -123,10 +123,6 @@ function CarItemComponent({ car }) {
     setCarOrders(updatedOrders);
   }, [allOrders, car._id, ordersByCarId]);
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-
   const handleBookingComplete = () => {
     setModalOpen(true);
   };
@@ -159,6 +155,7 @@ function CarItemComponent({ car }) {
           </CarImage>
         </Link>
         <CarDetails car={car} />
+        {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
       </Wrapper>
       <CalendarPicker
         isLoading={isLoading}

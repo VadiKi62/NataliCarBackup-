@@ -26,6 +26,8 @@ import CalendarAdmin from "./CalendarAdmin";
 import { updateCar } from "@utils/action";
 import { useMainContext } from "@app/Context";
 import DefaultButton from "../common/DefaultButton";
+import { deleteCar } from "@utils/action";
+import Snackbar from "@app/components/common/Snackbar";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -95,14 +97,20 @@ const CarInfo = styled(Typography)(({ theme }) => ({
   },
 }));
 
-function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
+function CarItemComponent({
+  car,
+  onCarUpdate,
+  onCarDelete,
+  orders,
+  handleOrderUpdate,
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [updatedCar, setUpdatedCar] = useState({ ...car });
   const [imageLoading, setImageLoading] = useState(true);
 
-  const { ordersByCarId, allOrders } = useMainContext();
+  const { ordersByCarId, allOrders, fetchAndUpdateOrders } = useMainContext();
 
   const [carOrders, setCarOrders] = useState([]);
   const [updateStatus, setUpdateStatus] = useState(null);
@@ -131,6 +139,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log("e.target", e.target);
     setUpdatedCar((prev) => ({ ...prev, [name]: value }));
   };
   const handleCheckboxChange = (e) => {
@@ -142,7 +151,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
     // Find the season and update the price for the specific day
     const updatedCar = { ...car }; // Assuming `car` is a state object
     updatedCar.pricingTiers[season].days[day] = parseFloat(newPrice); // Update the price
-    setCar(updatedCar); // Set the updated car state
+    setUpdatedCar(updatedCar); // Set the updated car state
   };
 
   const handleCarsUpdate = async () => {
@@ -158,9 +167,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
         message: "Car updated successfully!",
       });
 
-      if (onCarUpdate) {
-        onCarUpdate(updatedCarData);
-      }
+      onCarUpdate(updatedCarData);
     } catch (error) {
       console.error("Failed to update car:", error);
 
@@ -177,11 +184,28 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
     setUpdateStatus(null);
   };
 
+  const handleDelete = async () => {
+    if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
+      try {
+        const response = await deleteCar(car._id);
+        console.log(response);
+
+        if (response.type === 200) {
+          onCarDelete(response);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        // Set error status and message
+        onCarDelete(error);
+      }
+    }
+  };
+
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
         <CarImage>
-          {imageLoading ? (
+          {imageLoading && car?.photoUrl ? (
             <Box
               display="flex"
               justifyContent="center"
@@ -221,31 +245,17 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
               <SpeedIcon /> Engine Power: {car?.enginePower}
             </CarInfo>
           </Box>
-          {/* <Box mb={2}>
-            {Object.entries(car?.pricingTiers).map(([days, price]) => (
-              <PriceChip
-                key={days}
-                label={`${days}d+ €${price}`}
-                color="primary"
-                variant="outlined"
-              />
-            ))}
-          </Box> */}
-          {/* <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          > */}
-          {/* <Button onClick={handleExpandToggle}>
-              {isExpanded ? "Hide Details" : "Show Full Info"}
-            </Button> */}
-          {/* <DefaultButton relative minWidth="500px" onClick={handleEditToggle}>
-            Edit
-          </DefaultButton> */}
-          {/* </Box> */}
         </CarDetails>
+        <DefaultButton
+          relative
+          minWidth="100%"
+          onClick={handleDelete}
+          sx={{ backgroundColor: "primary.main", color: "white" }}
+        >
+          Удалить эту машину
+        </DefaultButton>
         <DefaultButton relative minWidth="100%" onClick={handleEditToggle}>
-          Edit
+          Редактировать
         </DefaultButton>
       </Wrapper>
 
@@ -265,6 +275,7 @@ function CarItemComponent({ car, onCarUpdate, orders, handleOrderUpdate }) {
         updateStatus={updateStatus}
         setUpdateStatus={setUpdateStatus}
         handleOrderUpdate={handleOrderUpdate}
+        setUpdatedCar={setUpdatedCar}
       />
     </StyledCarItem>
   );

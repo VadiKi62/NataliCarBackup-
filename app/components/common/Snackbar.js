@@ -1,20 +1,20 @@
-import * as React from "react";
+import React, { useEffect } from "react";
+import { Slide, IconButton, Snackbar as MuiSnackbar } from "@mui/material";
+import {
+  Close as CloseIcon,
+  Warning as WarningIcon,
+  Info as InfoIcon,
+} from "@mui/icons-material";
 import PropTypes from "prop-types";
-import { styled } from "@mui/material/styles";
-import MuiSnackbar from "@mui/material/Snackbar";
+import { styled } from "@mui/system";
 import { snackbarContentClasses } from "@mui/material/SnackbarContent";
-import Slide from "@mui/material/Slide";
-import CloseIcon from "@mui/icons-material/Close";
-import InfoIcon from "@mui/icons-material/Info";
-import IconButton from "@mui/material/IconButton";
-import WarningIcon from "@mui/icons-material/Warning";
 
 const styles = ({ theme, isError }) => ({
   [`& .${snackbarContentClasses.root}`]: {
     backgroundColor: isError
       ? theme.palette.primary.red
-      : theme.palette.secondary.background,
-    color: isError ? "white" : theme.palette.text.red,
+      : theme.palette.text.green,
+    color: isError ? "white" : theme.palette.text.dark,
     flexWrap: "inherit",
     [theme.breakpoints.up("md")]: {
       borderTopLeftRadius: 0,
@@ -51,6 +51,18 @@ function Snackbar(props) {
     close: "MuiSnackbarContent-close",
   };
 
+  // Automatically dismiss the Snackbar after 5 seconds (5000ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (closeFunc) {
+        closeFunc(); // Call the close function after 5 seconds
+      }
+    }, 5000); // 5 seconds
+
+    // Cleanup the timer when component unmounts or if Snackbar closes early
+    return () => clearTimeout(timer);
+  }, [closeFunc]);
+
   return (
     <MuiSnackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
@@ -84,6 +96,8 @@ function Snackbar(props) {
 
 Snackbar.propTypes = {
   isError: PropTypes.bool,
+  message: PropTypes.string.isRequired,
+  closeFunc: PropTypes.func.isRequired, // Ensure that the close function is required
 };
 
 export default styled(Snackbar)(styles);

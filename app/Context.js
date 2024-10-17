@@ -26,11 +26,16 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     }
   };
 
-  const fetchAndUpdateCars = async () => {
+  const resubmitCars = async (callback) => {
     try {
       const newCArsData = await reFetchAllOrders();
       setCars(newCArsData);
       console.log("FROM FETCH AND UPDATE newCArsData", newCArsData);
+
+      // If a callback function is passed, call it with the new cars data
+      if (callback && typeof callback === "function") {
+        callback(newCArsData);
+      }
     } catch (error) {
       console.error("Error fetching cars:", error);
     } finally {
@@ -47,10 +52,10 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     allOrders,
     setCars,
     setAllOrders,
-    resubmitOrdersData: fetchAndUpdateOrders,
+    fetchAndUpdateOrders,
     ordersByCarId,
     isLoading,
-    fetchAndUpdateCars,
+    resubmitCars,
   };
 
   return (

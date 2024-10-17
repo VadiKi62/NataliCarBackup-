@@ -350,3 +350,50 @@ export const updateCustomerInfo = async (orderId, updateData) => {
 
   return await response.json();
 };
+
+export const addCar = async (formData) => {
+  console.log("carDae from actions", formData);
+  try {
+    const response = await fetch("/api/car/addOne", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log("Car added successfully:", result.data);
+      return { message: result.message, data: result.data, type: 200 };
+    } else {
+      console.error("Failed to add car:", result.message);
+      return { message: result.message, data: result.data, type: 400 };
+    }
+  } catch (error) {
+    console.error("Error adding car:", error);
+    return { message: error.message, data: error, type: 500 };
+  }
+};
+
+export const deleteCar = async (carId) => {
+  try {
+    const response = await fetch(`api/car/delete/${carId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+
+    return { message: data.message, type: 200, data: carId };
+  } catch (error) {
+    console.error("Error deleting car", error);
+    return {
+      message: error.message || "Error deleting car",
+      data: error,
+      type: 500,
+    };
+  }
+};

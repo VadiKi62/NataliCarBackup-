@@ -5,7 +5,7 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
-import PricingTiers from "./PricingTiers";
+// import PricingTiers from "./PricingTiers";
 import Image from "next/image";
 import CarDetailsModal from "./CarDetailsModal";
 import CarTypography from "../common/CarTypography";
@@ -143,7 +143,7 @@ const CarDetails = ({ car }) => {
           additionalDetails={allDetails}
         />
 
-        <PricingTiers prices={car?.pricingTiers} />
+        {/* <PricingTiers prices={car?.pricingTiers} /> */}
       </Box>
     </>
   );

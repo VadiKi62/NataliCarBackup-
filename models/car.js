@@ -1,8 +1,16 @@
 import { Schema, model, models } from "mongoose";
-
+import { seasons } from "@utils/companyData";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
+
+const pricingTierSchema = new Schema({
+  days: {
+    type: Map,
+    of: Number, // Mapping days to prices (Number)
+    required: true,
+  },
+});
 
 const CarSchema = new Schema({
   carNumber: {
@@ -16,7 +24,6 @@ const CarSchema = new Schema({
   },
   photoUrl: {
     type: String,
-    required: false,
   },
   sort: {
     type: Number,
@@ -42,7 +49,19 @@ const CarSchema = new Schema({
   },
   fueltype: {
     type: String,
-    enum: ["Disel", "Petrol", "Natural Gas"],
+    enum: [
+      "Diesel",
+      "diesel",
+      "Petrol",
+      "petrol",
+      "Natural Gas",
+      "natural gas",
+      "Hybrid Diesel",
+      "hybrid diesel",
+      "Hybrid Petrol",
+      "hybrid petrol",
+      "natural gas(cng)",
+    ],
   },
   seats: {
     type: Number,
@@ -79,13 +98,8 @@ const CarSchema = new Schema({
     default: "1.500",
   },
   pricingTiers: {
-    type: Object,
-    of: {
-      days: {
-        type: Object, // Each season will have an object mapping days to price
-        required: true,
-      },
-    },
+    type: Map,
+    of: pricingTierSchema, // Each season has a pricingTierSchema
     required: true,
   },
   orders: [
@@ -96,63 +110,54 @@ const CarSchema = new Schema({
   ],
 });
 
-// Helper function to determine the season based on the date using dayjs
 CarSchema.methods.getSeason = function (date) {
-  const year = dayjs(date).year();
+  const today = dayjs(date);
+  const currentYear = today.year();
 
-  const noSeason = {
-    start: dayjs(`${year}-10-01`),
-    end: dayjs(`${year + 1}-05-24`),
-  };
-  const lowSeason = {
-    start: dayjs(`${year}-05-25`),
-    end: dayjs(`${year}-06-30`),
-  };
-  const lowUpSeason = {
-    start: dayjs(`${year}-09-01`),
-    end: dayjs(`${year}-09-30`),
-  };
-  const middleSeason = {
-    start: dayjs(`${year}-07-01`),
-    end: dayjs(`${year}-07-31`),
-  };
-  const highSeason = {
-    start: dayjs(`${year}-08-01`),
-    end: dayjs(`${year}-08-31`),
-  };
+  for (const [season, range] of Object.entries(seasons)) {
+    const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
+    const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
 
-  // Use dayjs.isBetween to determine the season
-  if (dayjs(date).isBetween(highSeason.start, highSeason.end, null, "[]")) {
-    return "HighSeason";
+    if (today.isBetween(startDate, endDate, null, "[]")) {
+      return season;
+    }
   }
-  if (dayjs(date).isBetween(middleSeason.start, middleSeason.end, null, "[]")) {
-    return "MiddleSeason";
-  }
-  if (dayjs(date).isBetween(lowUpSeason.start, lowUpSeason.end, null, "[]")) {
-    return "LowUpSeason";
-  }
-  if (dayjs(date).isBetween(lowSeason.start, lowSeason.end, null, "[]")) {
-    return "LowSeason";
-  }
-  return "NoSeason";
+
+  return "NoSeason"; // Default return if no season matches
 };
 
 // Method to calculate price based on days and current season
 CarSchema.methods.calculatePrice = function (days, date = dayjs()) {
   const season = this.getSeason(date); // Determine the current season
-  const tiers = Object.keys(this.pricingTiers[season].days)
-    .map(Number)
-    .sort((a, b) => b - a);
+  console.log("season!!!! is !!!", season);
 
-  for (let tier of tiers) {
+  const pricingTiers = this.pricingTiers.get(season); // Use Map's `get` method
+  console.log("pricingTiers!!!! is !!!", pricingTiers);
+
+  // Ensure the map keys are properly converted to numbers
+  const tiers = Array.from(pricingTiers.days.keys()).map((key) =>
+    parseInt(key, 10)
+  );
+  console.log("TIERS ISSS!!! ", tiers); // Log to see if they are valid numbers
+
+  // Sort the tiers in descending order
+  const sortedTiers = tiers.sort((a, b) => b - a);
+  console.log("Sorted TIERS: ", sortedTiers); // Check if sorting works correctly
+
+  // Find the correct price tier for the number of days
+  for (let tier of sortedTiers) {
     if (days <= tier) {
-      return this.pricingTiers[season].days[tier];
+      console.log(
+        "RETURN ISSS!!!  IS!!! ",
+        pricingTiers.days.get(tier.toString())
+      ); // Map keys are strings
+      return pricingTiers.days.get(tier.toString()); // Use `toString()` for map access
     }
   }
-  // Return the price for the highest tier if no match found
-  return this.pricingTiers[season].days[tiers[tiers.length - 1]];
+
+  // Return the highest tier if no match is found
+  return pricingTiers.days.get(sortedTiers[sortedTiers.length - 1].toString());
 };
 
 const Car = models.Car || model("Car", CarSchema);
-
 export { CarSchema, Car };
