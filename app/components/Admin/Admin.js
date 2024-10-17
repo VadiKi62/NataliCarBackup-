@@ -14,7 +14,8 @@ import Loading from "@app/loading";
 import Error from "@app/error";
 
 function Admin() {
-  const { allOrders, resubmitCars, cars } = useMainContext();
+  const { allOrders, resubmitCars, cars, fetchAndUpdateOrders } =
+    useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
 
   const [carsData, setCars] = useState(cars);

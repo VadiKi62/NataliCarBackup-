@@ -116,13 +116,18 @@ export async function POST(request) {
       timeOut,
       placeIn,
       placeOut,
-      date: dayjs().toDate(),
+      date: dayjs().toDate().format("MMM D HH:mm"),
     });
 
     if (nonConfirmedDates.length > 0) {
-      newOrder.hasConflictDates = conflicOrdersId;
+      newOrder.hasConflictDates = [
+        ...new Set([...newOrder.hasConflictDates, ...conflicOrdersId]),
+      ];
 
       await newOrder.save();
+
+      await updateConflictingOrders(conflicOrdersId, newOrder._id);
+
       return new Response(
         JSON.stringify({
           message: `Даты ${nonConfirmedDates.join(
@@ -153,5 +158,28 @@ export async function POST(request) {
     return new Response(`Failed to add new order: ${error.message}`, {
       status: 500,
     });
+  }
+}
+
+// function that iterates over all conflicting orders adding to them new conflicts orders
+async function updateConflictingOrders(conflicOrdersId, newOrderId) {
+  try {
+    // Iterate over each conflicting order ID
+    for (const conflictOrderId of conflicOrdersId) {
+      // Find the order by its ID
+      const order = await Order.findById(conflictOrderId);
+
+      if (order) {
+        // Add the new order ID to the conflicting order's hasConflictDates array
+        if (!order.hasConflictDates.includes(newOrderId)) {
+          order.hasConflictDates.push(newOrderId);
+          await order.save(); // Save the updated order
+        }
+      }
+    }
+
+    console.log("Conflicting orders updated successfully");
+  } catch (error) {
+    console.error("Error updating conflicting orders:", error);
   }
 }

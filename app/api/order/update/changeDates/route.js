@@ -49,7 +49,19 @@ export const PUT = async (req) => {
 
     const newTimeIn = timeIn ? dayjs(timeIn).utc() : order.timeIn;
     const newTimeOut = timeOut ? dayjs(timeOut).utc() : order.timeOut;
-    // Check for conflicting orders
+
+    // Check if current order already has conflicting dates
+    const { resolvedConflicts, stillConflictingOrders } =
+      await checkForResolvedConflicts(order, newStartDate, newEndDate);
+
+    // Remove resolved conflicts from order
+    if (resolvedConflicts.length > 0) {
+      order.hasConflictDates = order.hasConflictDates.filter(
+        (id) => !resolvedConflicts.includes(id.toString())
+      );
+    }
+
+    // Check for any new conflicting orders with updated dates
     const conflictingOrders = await Order.find({
       car: car._id,
       _id: { $ne: _id }, // Exclude the current order
@@ -159,3 +171,34 @@ export const PUT = async (req) => {
     });
   }
 };
+
+// Function to check if existing conflicts are resolved after changing dates
+async function checkForResolvedConflicts(order, newStartDate, newEndDate) {
+  const existingConflicts = order.hasConflictDates || [];
+
+  const resolvedConflicts = [];
+  const stillConflictingOrders = [];
+
+  // Check each existing conflict
+  for (const conflictId of existingConflicts) {
+    const conflictingOrder = await Order.findById(conflictId);
+
+    if (conflictingOrder) {
+      // Compare conflicting order dates with new start/end dates
+      const conflictStartDate = dayjs(conflictingOrder.rentalStartDate);
+      const conflictEndDate = dayjs(conflictingOrder.rentalEndDate);
+
+      // If the conflicting order no longer overlaps with the new dates
+      if (
+        newEndDate.isBefore(conflictStartDate) ||
+        newStartDate.isAfter(conflictEndDate)
+      ) {
+        resolvedConflicts.push(conflictingOrder._id); // This conflict is resolved
+      } else {
+        stillConflictingOrders.push(conflictingOrder._id); // Still conflicting
+      }
+    }
+  }
+
+  return { resolvedConflicts, stillConflictingOrders };
+}

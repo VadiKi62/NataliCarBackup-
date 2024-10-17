@@ -15,6 +15,7 @@ import timezone from "dayjs/plugin/timezone";
 
 import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
+import { useMainContext } from "@app/Context";
 
 import {
   changeRentalDates,
@@ -31,10 +32,12 @@ const timeZone = "Europe/Athens";
 dayjs.tz.setDefault(timeZone);
 
 const EditOrderModal = ({ open, onClose, order, onSave }) => {
+  const { allOrders } = useMainContext();
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
+  const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
@@ -48,6 +51,16 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
         timeOut: dayjs(order.timeOut).utc(),
       };
       setEditedOrder(adjustedOrder);
+
+      if (order.hasConflictDates.length > 0) {
+        const conflictingOrderIds = new Set(order.hasConflictDates);
+        const conflicts = allOrders.filter((existingOrder) =>
+          conflictingOrderIds.has(existingOrder._id)
+        );
+
+        setConflictMessage3(conflicts); // Set the conflicting orders
+      }
+
       setLoading(false);
     }
   }, [order]);
@@ -410,10 +423,22 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
                   Update Rental Details
                 </Button>
                 {conflictMessage1 && (
-                  <ConflictMessage conflicts={conflictMessage1} type={1} />
+                  <ConflictMessage
+                    initialConflicts={conflictMessage1}
+                    type={1}
+                  />
                 )}
                 {conflictMessage2 && (
-                  <ConflictMessage conflicts={conflictMessage2} type={2} />
+                  <ConflictMessage
+                    initialConflicts={conflictMessage2}
+                    type={2}
+                  />
+                )}
+                {conflictMessage3 && (
+                  <ConflictMessage
+                    initialConflicts={conflictMessage3}
+                    type={3}
+                  />
                 )}
               </Box>
 
