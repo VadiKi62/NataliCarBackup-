@@ -9,10 +9,19 @@ const mappingTypes = {
   3: "У єтого заказа есть конфликтующие бронирования",
 };
 
-export default function ConflictMessage({ initialConflicts, type }) {
+export default function ConflictMessage({
+  initialConflicts,
+  type,
+  setUpdateMessage,
+}) {
   const { fetchAndUpdateOrders } = useMainContext();
   const [loading, setLoading] = useState(false);
   const [conflicts, setConflicts] = useState(initialConflicts);
+
+  // useEffect(() => {
+  //   setConflicts(initialConflicts);
+  // }, [initialConflicts]);
+
   const handleDeleteOrder = async (orderId) => {
     setLoading(true);
     try {
@@ -21,11 +30,12 @@ export default function ConflictMessage({ initialConflicts, type }) {
       });
 
       if (!response.ok) {
+        setUpdateMessage(response.statusText);
         throw new Error(`Error: ${response.statusText}`);
       }
       await fetchAndUpdateOrders();
       setConflicts((prevConflicts) =>
-        prevConflicts.filter((o) => o._id !== orderId)
+        prevConflicts.filter((o) => o.id !== orderId)
       );
     } catch (error) {
       console.error("Failed to delete order:", error);
@@ -33,10 +43,6 @@ export default function ConflictMessage({ initialConflicts, type }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    setConflicts(initialConflicts);
-  }, [initialConflicts]);
 
   if (!conflicts || conflicts.length < 1) return;
   return (
@@ -51,7 +57,7 @@ export default function ConflictMessage({ initialConflicts, type }) {
 
       <Grid container spacing={2}>
         {initialConflicts.map((o) => (
-          <Grid item sx={12} sm={12} md={6} key={o._id}>
+          <Grid item sx={12} sm={12} md={6} key={o.id}>
             <Box border={1} borderColor="grey.300" p={2} borderRadius={2}>
               <Typography variant="body1" fontWeight="bold">
                 {o.customerName}
@@ -71,7 +77,7 @@ export default function ConflictMessage({ initialConflicts, type }) {
               <Button
                 variant="contained"
                 color="error"
-                onClick={() => handleDeleteOrder(o._id)}
+                onClick={() => handleDeleteOrder(o.id)}
                 disabled={loading}
                 sx={{ mt: 2 }}
               >

@@ -113,7 +113,7 @@ function CarItemComponent({ car }) {
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { resubmitOrdersData, isLoading, ordersByCarId, allOrders } =
+  const { fetchAndUpdateOrders, isLoading, ordersByCarId, allOrders } =
     useMainContext();
   const [carOrders, setCarOrders] = useState([]);
 
@@ -164,7 +164,7 @@ function CarItemComponent({ car }) {
         onBookingComplete={handleBookingComplete}
       />
       <BookingModal
-        resubmitOrdersData={resubmitOrdersData}
+        fetchAndUpdateOrders={fetchAndUpdateOrders}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}

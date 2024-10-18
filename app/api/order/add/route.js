@@ -116,7 +116,7 @@ export async function POST(request) {
       timeOut,
       placeIn,
       placeOut,
-      date: dayjs().toDate().format("MMM D HH:mm"),
+      date: dayjs().format("MMM D HH:mm"),
     });
 
     if (nonConfirmedDates.length > 0) {

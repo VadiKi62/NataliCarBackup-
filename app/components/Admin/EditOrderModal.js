@@ -425,18 +425,21 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
                 {conflictMessage1 && (
                   <ConflictMessage
                     initialConflicts={conflictMessage1}
+                    setUpdateMessage={setUpdateMessage}
                     type={1}
                   />
                 )}
                 {conflictMessage2 && (
                   <ConflictMessage
                     initialConflicts={conflictMessage2}
+                    setUpdateMessage={setUpdateMessage}
                     type={2}
                   />
                 )}
                 {conflictMessage3 && (
                   <ConflictMessage
                     initialConflicts={conflictMessage3}
+                    setUpdateMessage={setUpdateMessage}
                     type={3}
                   />
                 )}

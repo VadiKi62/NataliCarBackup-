@@ -54,7 +54,7 @@ const BookingModal = ({
   onClose,
   car,
   presetDates = null,
-  resubmitOrdersData,
+  fetchAndUpdateOrders,
   isLoading,
 }) => {
   const [name, setName] = useState("");
@@ -170,7 +170,7 @@ const BookingModal = ({
           setSubmittedOrder(response.data);
           console.log("Order added successfully:", response.data);
           setIsSubmitted(true);
-          resubmitOrdersData();
+          fetchAndUpdateOrders();
           await sendConfirmationEmail(
             prepareEmailData(response.data, "success")
           );
