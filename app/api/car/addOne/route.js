@@ -16,6 +16,8 @@ export async function POST(req) {
 
     // Extract file and carData
     const file = formData.get("image");
+
+    console.log("Received file:", file);
     const carData = {
       carNumber: formData.get("carNumber"),
       model: formData.get("model"),
@@ -27,6 +29,19 @@ export async function POST(req) {
       enginePower: formData.get("enginePower"),
       pricingTiers: JSON.parse(formData.get("pricingTiers")),
     };
+
+    console.log("checking fomrdata", [...formData.entries()]);
+
+    const allowedMimeTypes = ["image/jpeg", "image/png"];
+    if (!allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid file type. Only JPEG and PNG are allowed",
+        },
+        { status: 400 }
+      );
+    }
 
     try {
       const pricingTiersString = formData.get("pricingTiers");
@@ -163,6 +178,7 @@ export async function POST(req) {
       await fs.writeFile(filePath, buffer);
       console.log("uniqueFilename", uniqueFilename);
       console.log("filePath", filePath);
+      console.log("uploadsDir:", uploadsDir);
 
       imagePath = `/images/${uniqueFilename}`; // Store the image path
     }

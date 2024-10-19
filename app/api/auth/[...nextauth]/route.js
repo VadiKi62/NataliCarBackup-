@@ -8,7 +8,7 @@ const adminUser = {
   id: "admin",
   name: "Admin",
   email: "admin@gmail.com",
-  password: hashedPassword, // Store hashed password here
+  password: hashedPassword,
   isAdmin: true,
 };
 
