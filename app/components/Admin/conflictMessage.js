@@ -18,9 +18,9 @@ export default function ConflictMessage({
   const [loading, setLoading] = useState(false);
   const [conflicts, setConflicts] = useState(initialConflicts);
 
-  // useEffect(() => {
-  //   setConflicts(initialConflicts);
-  // }, [initialConflicts]);
+  useEffect(() => {
+    setConflicts(initialConflicts);
+  }, [initialConflicts]);
 
   const handleDeleteOrder = async (orderId) => {
     setLoading(true);
@@ -35,16 +35,25 @@ export default function ConflictMessage({
       }
       await fetchAndUpdateOrders();
       setConflicts((prevConflicts) =>
-        prevConflicts.filter((o) => o.id !== orderId)
+        prevConflicts.filter((o) => o._id !== orderId)
       );
+      setUpdateMessage(response.message);
     } catch (error) {
       console.error("Failed to delete order:", error);
+      setUpdateMessage(`Failed to delete order: ${error}`);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!conflicts || conflicts.length < 1) return;
+  if (
+    !conflicts ||
+    conflicts.length < 1 ||
+    !initialConflicts ||
+    initialConflicts.length < 1
+  )
+    return;
+
   return (
     <Box width="100%">
       <Typography
@@ -56,8 +65,8 @@ export default function ConflictMessage({
       </Typography>
 
       <Grid container spacing={2}>
-        {initialConflicts.map((o) => (
-          <Grid item sx={12} sm={12} md={6} key={o.id}>
+        {conflicts.map((o) => (
+          <Grid item sx={12} sm={12} md={6} key={o.id || o._id}>
             <Box border={1} borderColor="grey.300" p={2} borderRadius={2}>
               <Typography variant="body1" fontWeight="bold">
                 {o.customerName}
@@ -77,7 +86,7 @@ export default function ConflictMessage({
               <Button
                 variant="contained"
                 color="error"
-                onClick={() => handleDeleteOrder(o.id)}
+                onClick={() => handleDeleteOrder(o.id || o._id)}
                 disabled={loading}
                 sx={{ mt: 2 }}
               >

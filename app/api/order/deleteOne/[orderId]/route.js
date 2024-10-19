@@ -7,6 +7,8 @@ export const DELETE = async (request, { params }) => {
     await connectToDB();
     const { orderId } = params;
 
+    console.log("orderId", orderId);
+
     // Find the order to be deleted
     const orderToDelete = await Order.findById(orderId);
 

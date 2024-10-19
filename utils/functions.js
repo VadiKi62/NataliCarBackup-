@@ -24,3 +24,17 @@ export const processOrders = (orders) => {
 
   return { unavailableDates, confirmedDates };
 };
+
+export const functionToCheckDuplicates = (
+  conflictMessage1 = [],
+  conflictMessage2 = [],
+  conflictMessage3 = []
+) => {
+  const combinedSet = new Set([...conflictMessage1, ...conflictMessage2]);
+
+  const filteredConflictMessage3 = conflictMessage3.filter(
+    (message) => !combinedSet.has(message)
+  );
+
+  return filteredConflictMessage3;
+};

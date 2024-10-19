@@ -16,6 +16,7 @@ import timezone from "dayjs/plugin/timezone";
 import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
 import { useMainContext } from "@app/Context";
+import { functionToCheckDuplicates } from "@utils/functions";
 
 import {
   changeRentalDates,
@@ -111,7 +112,6 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       setIsUpdating(false);
     }
   };
-
   const handleDateUpdate = async () => {
     setIsUpdating(true);
     try {
@@ -150,7 +150,6 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
       setIsUpdating(false);
     }
   };
-
   const handleCustomerUpdate = async () => {
     setIsUpdating(true);
     try {
@@ -220,7 +219,6 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
 
     setEditedOrder({ ...editedOrder, [field]: newValue });
   };
-
   const renderField = (label, field, type = "text") => {
     if (!editedOrder) return null;
 
@@ -436,6 +434,7 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
                     type={2}
                   />
                 )}
+
                 {conflictMessage3 && (
                   <ConflictMessage
                     initialConflicts={conflictMessage3}
