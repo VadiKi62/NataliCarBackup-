@@ -27,6 +27,7 @@ import CalendarPicker from "./CalendarPicker";
 import { useMainContext } from "@app/Context";
 import PricingTiers from "@app/components/CarComponent/PricingTiers";
 import CarDetails from "./CarDetails";
+import { CldImage } from "next-cloudinary";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -144,10 +145,12 @@ function CarItemComponent({ car }) {
                 <CircularProgress sx={{ color: "primary.red" }} />
               </Box>
             ) : (
-              <Image
-                src={car.photoUrl}
-                alt={car.model}
-                fill
+              <CldImage
+                src={car?.photoUrl || "My Brand/favicon_i6jw77"}
+                alt={`Natali-Cars-${car.model}`}
+                width="450"
+                height="300"
+                crop="fill"
                 priority
                 onLoad={() => setImageLoading(false)}
               />
@@ -164,7 +167,7 @@ function CarItemComponent({ car }) {
         onBookingComplete={handleBookingComplete}
       />
       <BookingModal
-        fetchAndUpdateOrders={fetchAndUpdateOrders}
+        resubmitOrdersData={fetchAndUpdateOrders}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}

@@ -29,6 +29,8 @@ import DefaultButton from "../common/DefaultButton";
 import { deleteCar } from "@utils/action";
 import Snackbar from "@app/components/common/Snackbar";
 
+import { CldImage } from "next-cloudinary";
+
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   maxWidth: 400,
@@ -204,28 +206,32 @@ function CarItemComponent({
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
-        <CarImage>
-          {imageLoading && car?.photoUrl ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="100%"
-            >
-              <CircularProgress />
-              <CircularProgress sx={{ color: "primary.green" }} />
-              <CircularProgress sx={{ color: "primary.red" }} />
-            </Box>
-          ) : (
-            <Image
-              src={car.photoUrl}
-              alt={car.model}
-              fill
-              priority
-              onLoad={() => setImageLoading(false)}
-            />
-          )}
-        </CarImage>
+        {car?.photoUrl && (
+          <CarImage>
+            {imageLoading ? (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100%"
+              >
+                <CircularProgress />
+                <CircularProgress sx={{ color: "primary.green" }} />
+                <CircularProgress sx={{ color: "primary.red" }} />
+              </Box>
+            ) : (
+              <CldImage
+                src={car?.photoUrl || "My Brand/favicon_i6jw77"} // Cloudinary image public ID (not full URL)
+                alt={`Natali-Cars-${car.model}`} // Alternative text for the image
+                width="450" // Define image width or use specific dimensions based on your requirements
+                height="300" // Define image height
+                crop="fill" // Adjust cropping behavior if needed, e.g., auto crop to fill the given dimensions
+                priority // Load the image as a priority resource
+                onLoad={() => setImageLoading(false)} // Set the loading state to false once the image is loaded
+              />
+            )}
+          </CarImage>
+        )}
         <CarDetails>
           <CarTitle variant="h5">{car.model}</CarTitle>
           <Box mb={2}>

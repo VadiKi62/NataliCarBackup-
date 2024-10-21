@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import fs from "fs/promises";
 import path from "path";
+import cloudinary from "@utils/cloudinary";
 
 dayjs.extend(isBetween);
 
@@ -16,8 +17,6 @@ export async function POST(req) {
 
     // Extract file and carData
     const file = formData.get("image");
-
-    console.log("Received file:", file);
     const carData = {
       carNumber: formData.get("carNumber"),
       model: formData.get("model"),
@@ -30,27 +29,26 @@ export async function POST(req) {
       pricingTiers: JSON.parse(formData.get("pricingTiers")),
     };
 
-    console.log("checking fomrdata", [...formData.entries()]);
+    console.log("Received file:", file);
 
-    const allowedMimeTypes = ["image/jpeg", "image/png"];
-    if (!allowedMimeTypes.includes(file.type)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid file type. Only JPEG and PNG are allowed",
-        },
-        { status: 400 }
-      );
+    if (file) {
+      const allowedMimeTypes = ["image/jpeg", "image/png"];
+      if (!allowedMimeTypes.includes(file.type)) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid file type. Only JPEG and PNG are allowed",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     try {
       const pricingTiersString = formData.get("pricingTiers");
-      console.log("Received pricingTiers:", pricingTiersString); // Debug log
-
       if (pricingTiersString) {
         carData.pricingTiers = JSON.parse(pricingTiersString);
       } else {
-        // Set default pricing tiers if none provided
         carData.pricingTiers = {
           NoSeason: { days: {} },
           LowSeason: { days: {} },
@@ -161,36 +159,50 @@ export async function POST(req) {
     }
 
     // Process image file upload if file is provided
-    let imagePath = null;
     if (file) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const uploadsDir = path.join(process.cwd(), "public", "images");
-      await fs.mkdir(uploadsDir, { recursive: true });
+      const uploadToCloudinary = () =>
+        new Promise((resolve, reject) => {
+          const stream = require("stream");
+          const passthrough = new stream.PassThrough();
+          passthrough.end(buffer);
 
-      const uniqueFilename = await generateUniqueFilename(
-        uploadsDir,
-        file.name
-      );
-      const filePath = path.join(uploadsDir, uniqueFilename);
+          // Cloudinary upload
+          cloudinary.uploader
+            .upload_stream({ resource_type: "image" }, (error, result) => {
+              if (error) {
+                console.error("Error uploading to Cloudinary:", error);
+                reject(error); // Reject the promise on error
+              } else {
+                console.log("Upload result:", result);
+                resolve(result.public_id); // Resolve the promise with the image URL
+              }
+            })
+            .end(passthrough.read()); // Pipe the file to the Cloudinary uploader
+        });
 
-      await fs.writeFile(filePath, buffer);
-      console.log("uniqueFilename", uniqueFilename);
-      console.log("filePath", filePath);
-      console.log("uploadsDir:", uploadsDir);
-
-      imagePath = `/images/${uniqueFilename}`; // Store the image path
-    }
-
-    // Add image path to carData if image was uploaded
-    if (imagePath) {
-      carData.photoUrl = imagePath;
+      try {
+        // Wait for the Cloudinary upload to complete and get the secure URL
+        const secureUrl = await uploadToCloudinary();
+        carData.photoUrl = secureUrl;
+        console.log("Cloudinary URL:", carData.photoUrl);
+      } catch (uploadError) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Failed to upload image to Cloudinary",
+            error: uploadError.message,
+          },
+          { status: 500 }
+        );
+      }
     }
 
     // Create new car
+    console.log("carData", carData);
     const newCar = new Car(carData);
-
     await newCar.save();
 
     return NextResponse.json(

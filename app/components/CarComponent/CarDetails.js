@@ -105,13 +105,13 @@ const CarDetails = ({ car }) => {
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
-          alignItems: "start",
+          alignItems: "left",
           px: 3,
         }}
       >
         {defaultDetails.map((detail) => (
-          <Grid item key={detail.key} mb={1}>
-            <Grid container alignItems="center" mb={1}>
+          <Grid item key={detail.key} mb={0.4}>
+            <Grid container alignItems="center" mb={0.2}>
               <Grid item mr={1}>
                 <Image
                   src={detail.icon}
