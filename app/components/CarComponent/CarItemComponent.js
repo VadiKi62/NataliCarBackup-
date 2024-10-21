@@ -27,6 +27,7 @@ import CalendarPicker from "./CalendarPicker";
 import { useMainContext } from "@app/Context";
 import PricingTiers from "@app/components/CarComponent/PricingTiers";
 import CarDetails from "./CarDetails";
+
 import { CldImage } from "next-cloudinary";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
@@ -68,8 +69,8 @@ const Wrapper = styled(Box)(({ theme }) => ({
 
 const CarImage = styled(Box)(({ theme }) => ({
   position: "relative",
-  width: 300,
-  height: 200,
+  width: "100%",
+  height: "auto",
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
 
@@ -84,11 +85,6 @@ const CarImage = styled(Box)(({ theme }) => ({
 //   flexDirection: "column",
 //   flexGrow: 1,
 // }));
-
-const PriceChip = styled(Chip)(({ theme }) => ({
-  marginRight: theme.spacing(1),
-  marginBottom: theme.spacing(1),
-}));
 
 const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
@@ -152,6 +148,8 @@ function CarItemComponent({ car }) {
                 height="300"
                 crop="fill"
                 priority
+                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: "contain", width: "100%", height: "auto" }}
                 onLoad={() => setImageLoading(false)}
               />
             )}

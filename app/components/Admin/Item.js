@@ -63,8 +63,8 @@ const Wrapper = styled(Box)(({ theme }) => ({
 
 const CarImage = styled(Box)(({ theme }) => ({
   position: "relative",
-  width: 300,
-  height: 200,
+  width: "100%",
+  height: "auto",
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
 
@@ -221,13 +221,15 @@ function CarItemComponent({
               </Box>
             ) : (
               <CldImage
-                src={car?.photoUrl || "My Brand/favicon_i6jw77"} // Cloudinary image public ID (not full URL)
-                alt={`Natali-Cars-${car.model}`} // Alternative text for the image
-                width="450" // Define image width or use specific dimensions based on your requirements
-                height="300" // Define image height
-                crop="fill" // Adjust cropping behavior if needed, e.g., auto crop to fill the given dimensions
-                priority // Load the image as a priority resource
-                onLoad={() => setImageLoading(false)} // Set the loading state to false once the image is loaded
+                src={car?.photoUrl || "My Brand/favicon_i6jw77"}
+                alt={`Natali-Cars-${car.model}`}
+                width="450"
+                height="300"
+                crop="fill"
+                priority
+                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: "contain", width: "100%", height: "auto" }}
+                onLoad={() => setImageLoading(false)} //
               />
             )}
           </CarImage>
