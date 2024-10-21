@@ -31,7 +31,7 @@ const AddCarModal = ({
     sort: 999,
     class: "",
     transmission: "",
-    fueltype: "",
+    fueltype: "Petrol",
     seats: 5,
     registration: 2016,
     regNumber: "",
@@ -90,8 +90,9 @@ const AddCarModal = ({
       formData.append("fueltype", carData.fueltype || "");
       formData.append("seats", String(carData.seats));
       formData.append("numberOfDoors", String(carData.numberOfDoors));
-      formData.append("airConditioning", String(carData.airConditioning));
+      formData.append("airConditioning", Boolean(carData.airConditioning));
       formData.append("enginePower", String(carData.enginePower));
+      formData.append("color", String(carData.color));
 
       // Append the pricing tiers as a JSON string
       formData.append("pricingTiers", JSON.stringify(carData.pricingTiers));
@@ -168,6 +169,7 @@ const AddCarModal = ({
                   name="sort"
                   value={carData.sort}
                   onChange={handleChange}
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -210,11 +212,11 @@ const AddCarModal = ({
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth required>
                   <InputLabel>Fuel Type</InputLabel>
                   <Select
                     name="fueltype"
-                    value={carData.fueltype}
+                    value={carData.fueltype || ""}
                     onChange={handleChange}
                     label="Fuel Type"
                   >
@@ -224,6 +226,7 @@ const AddCarModal = ({
                       "Natural Gas",
                       "Hybrid Diesel",
                       "Hybrid Petrol",
+                      "Natural Gas(cng)",
                     ].map((fuel) => (
                       <MenuItem key={fuel} value={fuel}>
                         {fuel}
@@ -251,6 +254,7 @@ const AddCarModal = ({
                   name="registration"
                   value={carData.registration}
                   onChange={handleChange}
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -260,6 +264,7 @@ const AddCarModal = ({
                   name="regNumber"
                   value={carData.regNumber}
                   onChange={handleChange}
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -269,6 +274,7 @@ const AddCarModal = ({
                   name="color"
                   value={carData.color}
                   onChange={handleChange}
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -301,6 +307,7 @@ const AddCarModal = ({
                   name="engine"
                   value={carData.engine}
                   onChange={handleChange}
+                  required
                 />
               </Grid>
               {/* Pricing Tiers Table */}

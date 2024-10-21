@@ -61,6 +61,7 @@ const CarSchema = new Schema({
       "Hybrid Petrol",
       "hybrid petrol",
       "natural gas(cng)",
+      "Natural Gas(cng)",
     ],
   },
   seats: {

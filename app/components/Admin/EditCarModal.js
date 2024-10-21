@@ -79,7 +79,7 @@ const EditCarModal = ({
             <StyledTextField
               name="model"
               label="Model"
-              value={updatedCar.model}
+              value={updatedCar.model || ""} // Fallback to an empty string
               onChange={handleChange}
               fullWidth
             />
@@ -87,7 +87,7 @@ const EditCarModal = ({
               name="seats"
               label="Seats"
               type="number"
-              value={updatedCar.seats}
+              value={updatedCar.seats || 0} // Fallback to 0 for number input
               onChange={handleChange}
               fullWidth
             />
@@ -95,14 +95,14 @@ const EditCarModal = ({
               name="numberOfDoors"
               label="Number of Doors"
               type="number"
-              value={updatedCar.numberOfDoors}
+              value={updatedCar.numberOfDoors || 0} // Fallback to 0 for number input
               onChange={handleChange}
               fullWidth
             />
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={updatedCar.airConditioning}
+                  checked={updatedCar.airConditioning || false} // Fallback to false for checkbox
                   onChange={handleCheckboxChange}
                   name="airConditioning"
                 />
@@ -118,14 +118,14 @@ const EditCarModal = ({
               name="registration"
               label="Registration Year"
               type="number"
-              value={updatedCar.registration}
+              value={updatedCar.registration || 0} // Fallback to 0
               onChange={handleChange}
               fullWidth
             />
             <StyledTextField
               name="color"
               label="Color"
-              value={updatedCar.color}
+              value={updatedCar.color || ""} // Fallback to an empty string
               onChange={handleChange}
               fullWidth
             />
@@ -133,7 +133,7 @@ const EditCarModal = ({
               name="enginePower"
               label="Engine Power"
               type="number"
-              value={updatedCar.enginePower}
+              value={updatedCar.enginePower || 0} // Fallback to 0
               onChange={handleChange}
               fullWidth
             />
@@ -144,7 +144,7 @@ const EditCarModal = ({
             <StyledTextField
               name="regNumber"
               label="Registration Number"
-              value={updatedCar.regNumber}
+              value={updatedCar.regNumber || ""} // Fallback to an empty string
               onChange={handleChange}
               fullWidth
             />
@@ -157,7 +157,7 @@ const EditCarModal = ({
               <Select
                 fullWidth
                 name="fueltype"
-                value={updatedCar.fueltype}
+                value={updatedCar.fueltype || ""} // Fallback to an empty string
                 onChange={handleChange}
               >
                 {["Petrol", "Diesel", "Gas", "Hybrid Petrol", "Hybrid Gas"].map(
@@ -178,7 +178,7 @@ const EditCarModal = ({
               <Select
                 fullWidth
                 name="transmission"
-                value={updatedCar.transmission}
+                value={updatedCar.transmission || ""} // Fallback to an empty string
                 onChange={handleChange}
               >
                 {["Manual", "Automatic"].map((type) => (
@@ -197,7 +197,7 @@ const EditCarModal = ({
               <Select
                 fullWidth
                 name="class"
-                value={updatedCar.class}
+                value={updatedCar.class || ""} // Fallback to an empty string
                 onChange={handleChange}
               >
                 {[
@@ -234,7 +234,7 @@ const EditCarModal = ({
             <StyledTextField
               name="photoUrl"
               label="Photo URL"
-              value={updatedCar.photoUrl}
+              value={updatedCar.photoUrl || ""} // Fallback to an empty string
               onChange={handleChange}
               fullWidth
             />
