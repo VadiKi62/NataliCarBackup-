@@ -49,7 +49,7 @@ function Admin() {
     setCars((prevCars) =>
       prevCars.map((car) => (car._id === updatedCar._id ? updatedCar : car))
     );
-    await fetchAndUpdateCars();
+    // await fetchAndUpdateCars();
   };
 
   const handleOrderUpdate = async (updatedOrder) => {

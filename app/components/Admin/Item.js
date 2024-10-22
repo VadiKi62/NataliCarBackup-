@@ -141,7 +141,6 @@ function CarItemComponent({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("e.target", e.target);
     setUpdatedCar((prev) => ({ ...prev, [name]: value }));
   };
   const handleCheckboxChange = (e) => {
@@ -158,21 +157,20 @@ function CarItemComponent({
 
   const handleCarsUpdate = async () => {
     try {
-      console.log(updatedCar);
       const updatedCarData = await updateCar(updatedCar);
+      //set this updated car to the current Item's state
       setUpdatedCar(updatedCarData);
-      setIsEditing(false);
+      // setIsEditing(false);
 
       // Set success status and message
       setUpdateStatus({
         type: 200,
         message: "Car updated successfully!",
       });
-
+      // update state of cars array in Parent component
       onCarUpdate(updatedCarData);
     } catch (error) {
       console.error("Failed to update car:", error);
-
       // Set error status and message
       setUpdateStatus({
         type: 400,
@@ -190,14 +188,12 @@ function CarItemComponent({
     if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
       try {
         const response = await deleteCar(car._id);
-        console.log(response);
 
         if (response.type === 200) {
           onCarDelete(response);
         }
       } catch (error) {
         console.error("Error:", error);
-        // Set error status and message
         onCarDelete(error);
       }
     }

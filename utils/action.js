@@ -79,7 +79,7 @@ export const fetchAllCars = async () => {
 };
 
 export const updateCar = async (updatedCar) => {
-  console.log("updatedCar from action", updatedCar);
+  console.log("updatedCar passing to backend from action", updatedCar);
   try {
     const response = await fetch(`/api/car/update`, {
       method: "PUT",

@@ -40,6 +40,8 @@ export async function POST(req) {
       passthrough.pipe(uploadStream);
     });
 
+    console.log("RESULT", cloudinaryResult);
+
     // Cloudinary upload result
     return NextResponse.json({
       success: true,

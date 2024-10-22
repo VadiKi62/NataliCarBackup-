@@ -15,7 +15,6 @@ import {
 import Snackbar from "@app/components/common/Snackbar";
 import { styled } from "@mui/material/styles";
 import PricingTiersTable from "./PricingTiers";
-("./PricingTiers");
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "90%",
@@ -56,14 +55,16 @@ const EditCarModal = ({
       if (data.success) {
         setUpdatedCar((prevCar) => ({
           ...prevCar,
-          photoUrl: `/images/${data.data}`,
+          photoUrl: data.data,
         }));
-        console.log(data.message);
+        setUpdateStatus({ type: 200, message: data.message });
       } else {
         console.error("Image upload failed:", data.message);
+        setUpdateStatus({ type: 400, message: data.message });
       }
     } catch (error) {
       console.error("Error uploading image:", error);
+      setUpdateStatus({ type: 400, message: error ? error : error?.message });
     }
   };
 
