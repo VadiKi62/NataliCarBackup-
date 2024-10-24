@@ -11,6 +11,7 @@ import Loading from "@app/loading";
 import Admin from "../components/Admin/Admin";
 import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
+import Navbar from "@app/components/Navbar";
 
 export default async function AdminPage() {
   // unstable_noStore();
@@ -29,8 +30,9 @@ export default async function AdminPage() {
       <AdminLayout>
         <MainContextProvider carsData={carsData} ordersData={ordersData}>
           <Suspense fallback={<Loading />}>
-            <div>Hello {session.user.name}</div>
-            <Admin session={session} cars={carsData} orders={ordersData} />
+            {/* <Navbar isAdmin={true} /> */}
+
+            <Admin cars={carsData} orders={ordersData} />
           </Suspense>
         </MainContextProvider>
       </AdminLayout>

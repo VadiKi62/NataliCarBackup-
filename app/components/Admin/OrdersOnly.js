@@ -13,9 +13,7 @@ import Snackbar from "@app/components/common/Snackbar";
 import Loading from "@app/loading";
 import Error from "@app/error";
 import { styled } from "@mui/system";
-import Navbar from "@app/components/Navbar";
-import CarOnlyComponent from "./CarOnlyComponent";
-import CarsOnly from "./CarsOnly";
+
 const StyledBox = styled("div")(({ theme, scrolled }) => ({
   zIndex: 996,
   position: "fixed",
@@ -29,13 +27,12 @@ const StyledBox = styled("div")(({ theme, scrolled }) => ({
   // boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
 }));
 
-function Admin() {
+function OrdersOnly() {
   const { allOrders, resubmitCars, cars, fetchAndUpdateOrders, scrolled } =
     useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
 
   const [carsData, setCars] = useState(cars);
-  const [isCarInfo, setIsCarInfo] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,11 +105,6 @@ function Admin() {
   if (error) return <Error />;
   return (
     <div>
-      <Navbar
-        isAdmin={true}
-        isCarInfo={isCarInfo}
-        setIsCarInfo={setIsCarInfo}
-      />
       <StyledBox scrolled={scrolled}>
         <DefaultButton
           onClick={handleAddOpen}
@@ -123,35 +115,31 @@ function Admin() {
           Добавить машину
         </DefaultButton>
       </StyledBox>
-      {isCarInfo ? (
-        <CarsOnly />
-      ) : (
-        <Grid
-          container
-          spacing={{ sm: 2, sx: 0.4 }}
-          direction="column"
-          sx={{
-            alignItems: "center",
-            alignContent: "center",
-            mt: { xs: 10, md: 18 },
-          }}
-        >
-          {carsData
-            .sort((a, b) => a.sort - b.sort)
-            .map((car) => (
-              <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-                <Item
-                  car={car}
-                  onCarUpdate={handleCarUpdate}
-                  orders={ordersData}
-                  handleOrderUpdate={handleOrderUpdate}
-                  setOrders={setOrders}
-                  onCarDelete={onCarDelete}
-                />
-              </Grid>
-            ))}
-        </Grid>
-      )}
+      <Grid
+        container
+        spacing={{ sm: 2, sx: 0.4 }}
+        direction="column"
+        sx={{
+          alignItems: "center",
+          alignContent: "center",
+          mt: { xs: 10, md: 18 },
+        }}
+      >
+        {carsData
+          .sort((a, b) => a.sort - b.sort)
+          .map((car) => (
+            <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
+              <Item
+                car={car}
+                onCarUpdate={handleCarUpdate}
+                orders={ordersData}
+                handleOrderUpdate={handleOrderUpdate}
+                setOrders={setOrders}
+                onCarDelete={onCarDelete}
+              />
+            </Grid>
+          ))}
+      </Grid>
       {updateStatus && (
         <Snackbar
           message={updateStatus.message}
@@ -171,4 +159,4 @@ function Admin() {
   );
 }
 
-export default Admin;
+export default OrdersOnly;

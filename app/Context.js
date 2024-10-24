@@ -9,6 +9,18 @@ export function useMainContext() {
 }
 
 export const MainContextProvider = ({ carsData, ordersData, children }) => {
+  const [scrolled, setScrolled] = useState(false);
+  const handleScroll = () => {
+    const scrollPosition = window.scrollY;
+    setScrolled(scrollPosition > 80);
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
   const [cars, setCars] = useState(carsData);
   const [allOrders, setAllOrders] = useState(ordersData || []);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +68,7 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     ordersByCarId,
     isLoading,
     resubmitCars,
+    scrolled,
   };
 
   return (

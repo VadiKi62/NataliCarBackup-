@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { animateScroll as scroll } from "react-scroll";
 import { companyData } from "@utils/companyData";
+import { useMainContext } from "@app/Context";
 
 const GradientAppBar = styled(AppBar, {
   shouldForwardProp: (prop) => prop !== "scrolled",
@@ -34,27 +35,12 @@ const GradientAppBar = styled(AppBar, {
   backdropFilter: scrolled ? "blur(10px)" : "none",
 }));
 
-const AppStyling = styled("div")(({ theme }) => ({
-  backgroundColor: theme.palette.secondary.main,
-  fontFamily: theme.typography.h1.fontFamily,
-  zIndex: 996,
-  position: "fixed",
-  top: 0,
-  minWidth: "100%",
-  height: "60px",
-  paddingBottom: "1px",
-}));
-
 const Logo = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.h1?.fontWeight || 400,
   display: "flex",
   fontSize: 29,
   fontFamily: theme.typography.h1.fontFamily,
   color: theme.palette.text.light,
-}));
-
-const LogoImg = styled(Image)(({ theme }) => ({
-  marginLeft: "1rem",
 }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
@@ -68,12 +54,16 @@ const LanguagePopover = styled(Popover)(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
 }));
 
-export default function NavBar() {
+export default function NavBar({
+  isAdmin = false,
+  isCarInfo = false,
+  setIsCarInfo = null,
+}) {
   const headerRef = useRef(null);
-  const [scrolled, setScrolled] = useState(false);
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const { i18n, t } = useTranslation();
   const lang = i18n.language;
+  const { scrolled } = useMainContext();
 
   const handleLanguageClick = (event) => {
     event.preventDefault();
@@ -89,18 +79,6 @@ export default function NavBar() {
     handleLanguageClose();
   };
 
-  const handleScroll = () => {
-    const scrollPosition = window.scrollY;
-    setScrolled(scrollPosition > 80);
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   return (
     <GradientAppBar ref={headerRef} scrolled={scrolled}>
       <Toolbar>
@@ -111,9 +89,18 @@ export default function NavBar() {
           sx={{ width: "100%" }}
         >
           <Link href="/">
-            <Logo>{companyData.name}</Logo>
+            <Logo>
+              {companyData.name}
+              {isAdmin && " ADMIN"}
+            </Logo>
           </Link>
           <Stack direction="row" spacing={2} alignItems="center">
+            {isAdmin && (
+              <ToggleButtons
+                isCarInfo={isCarInfo}
+                setIsCarInfo={setIsCarInfo}
+              />
+            )}
             <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
               {/* <LanguageIcon /> */}
               <Typography
@@ -167,3 +154,24 @@ export default function NavBar() {
     </GradientAppBar>
   );
 }
+
+const ToggleButtons = ({ isCarInfo, setIsCarInfo }) => {
+  return (
+    typeof setIsCarInfo === "function" && (
+      <Stack direction="row" spacing={3} alignItems="center">
+        <Button
+          variant={isCarInfo ? "contained" : "outlined"}
+          onClick={() => setIsCarInfo(true)}
+        >
+          Автопарк
+        </Button>
+        <Button
+          variant={!isCarInfo ? "contained" : "outlined"}
+          onClick={() => setIsCarInfo(false)}
+        >
+          Заказы
+        </Button>
+      </Stack>
+    )
+  );
+};

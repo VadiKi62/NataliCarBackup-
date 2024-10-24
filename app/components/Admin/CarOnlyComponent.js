@@ -36,11 +36,11 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   maxWidth: 400,
   zIndex: 22,
   display: "flex",
-  justifyContent: "center",
+  justifyContent: "space-evenly",
   bgColor: "black",
-  alignItems: "center",
-  alignContent: "center",
-  flexDirection: "column",
+  // alignItems: "center",
+  // alignContent: "center",
+  // flexDirection: "column",
   boxShadow: theme.shadows[4],
   transition: "transform 0.3s",
   "&:hover": {
@@ -56,9 +56,12 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
 }));
 
 const Wrapper = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
+  // display: "flex",
+  justifyContent: "center",
   alignItems: "center",
+  alignContent: "center",
+  width: "50%",
+  margin: 5,
 }));
 
 const CarImage = styled(Box)(({ theme }) => ({
@@ -78,6 +81,9 @@ const CarDetails = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
+  margin: 11,
+  textAlign: "center",
+  // width: "auto",
 }));
 
 const CarTitle = styled(Typography)(({ theme }) => ({
@@ -86,20 +92,16 @@ const CarTitle = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(1),
   marginTop: theme.spacing(1),
 }));
-
-const CarInfo = styled(Typography)(({ theme }) => ({
-  fontSize: "0.9rem",
-  color: theme.palette.text.secondary,
-  display: "flex",
-  alignItems: "center",
-  marginBottom: theme.spacing(0.5),
-  "& svg": {
-    marginRight: theme.spacing(1),
-    fontSize: "1.1rem",
-  },
+const CarReg = styled(Typography)(({ theme }) => ({
+  fontSize: "1.5rem",
+  fontWeight: 700,
+  marginBottom: theme.spacing(1),
+  marginTop: theme.spacing(1),
+  border: "1px solid black",
+  // minWidth: "200px",
 }));
 
-function CarItemComponent({
+function CarOnlyComponent({
   car,
   onCarUpdate,
   onCarDelete,
@@ -204,76 +206,60 @@ function CarItemComponent({
 
   return (
     <StyledCarItem elevation={3}>
+      {car?.photoUrl && (
+        <CarImage>
+          {imageLoading ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100%"
+            >
+              <CircularProgress />
+              <CircularProgress sx={{ color: "primary.green" }} />
+              <CircularProgress sx={{ color: "primary.red" }} />
+            </Box>
+          ) : (
+            <CldImage
+              src={car?.photoUrl || "My Brand/favicon_i6jw77"}
+              alt={`Natali-Cars-${car.model}`}
+              width="450"
+              height="300"
+              crop="fill"
+              priority
+              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              style={{ objectFit: "contain", width: "100%", height: "auto" }}
+              onLoad={() => setImageLoading(false)} //
+            />
+          )}
+        </CarImage>
+      )}
       <Wrapper>
-        {car?.photoUrl && (
-          <CarImage>
-            {imageLoading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-                <CircularProgress sx={{ color: "primary.green" }} />
-                <CircularProgress sx={{ color: "primary.red" }} />
-              </Box>
-            ) : (
-              <CldImage
-                src={car?.photoUrl || "My Brand/favicon_i6jw77"}
-                alt={`Natali-Cars-${car.model}`}
-                width="450"
-                height="300"
-                crop="fill"
-                priority
-                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: "contain", width: "100%", height: "auto" }}
-                onLoad={() => setImageLoading(false)} //
-              />
-            )}
-          </CarImage>
-        )}
-        <CarTitle variant="h5">{car.model}</CarTitle>
-        <CarTitle variant="h5">{car.regNumber}</CarTitle>
-        {/* <CarDetails>
-          <CarTitle variant="h5">{car.model}</CarTitle>
-          <Box mb={2}>
-            <CarInfo>
-              <DirectionsCarIcon /> Class: {car.class}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Transmission: {car.transmission}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Doors: {car?.numberOfDoors}
-            </CarInfo>
-            <CarInfo>
-              <AcUnitIcon /> AC: {car?.airConditioning ? "Yes" : "No"}
-            </CarInfo>
-            <CarInfo>
-              <SpeedIcon /> Engine Power: {car?.enginePower}
-            </CarInfo>
-          </Box>
-        </CarDetails> */}
-        {/* <DefaultButton
-          relative
-          minWidth="100%"
-          onClick={handleDelete}
-          sx={{ backgroundColor: "primary.main", color: "white" }}
-        >
-          Удалить эту машину
-        </DefaultButton>
-        <DefaultButton relative minWidth="100%" onClick={handleEditToggle}>
-          Редактировать
-        </DefaultButton> */}
+        <Stack sx={{ flexDirection: "column" }}>
+          <CarDetails>
+            <CarTitle variant="h5">{car.model}</CarTitle>
+            <CarReg variant="h5">{car.regNumber}</CarReg>
+          </CarDetails>
+          <DefaultButton
+            relative
+            minWidth="100%"
+            onClick={handleDelete}
+            sx={{ backgroundColor: "primary.main", color: "white" }}
+          >
+            Удалить эту машину
+          </DefaultButton>
+          <DefaultButton relative minWidth="100%" onClick={handleEditToggle}>
+            Редактировать
+          </DefaultButton>
+        </Stack>
       </Wrapper>
 
-      <CalendarAdmin
+      {/* <CalendarAdmin
         orders={carOrders}
         handleOrderUpdate={handleOrderUpdate}
         setCarOrders={setCarOrders}
-      />
-      {/* <EditCarModal
+      /> */}
+      <EditCarModal
         open={modalOpen}
         onClose={handleModalClose}
         updatedCar={updatedCar}
@@ -287,9 +273,9 @@ function CarItemComponent({
         setUpdatedCar={setUpdatedCar}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
-      /> */}
+      />
     </StyledCarItem>
   );
 }
 
-export default CarItemComponent;
+export default CarOnlyComponent;
