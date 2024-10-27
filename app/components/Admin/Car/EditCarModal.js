@@ -31,8 +31,9 @@ const EditCarModal = ({
   handleCheckboxChange,
   setUpdatedCar,
 }) => {
-  const { isLoading, setIsLoading, updateCarInContext, setUpdateStatus } =
-    useMainContext();
+  const { updateCarInContext, setUpdateStatus } = useMainContext();
+
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleCloseModal = () => onClose();
@@ -105,6 +106,11 @@ const EditCarModal = ({
     </Box>
   );
 
+  const handleSave = async () => {
+    setIsLoading(true);
+    await handleUpdate();
+    setIsLoading(false);
+  };
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="lg">
       <Box sx={{ p: 3, position: "relative" }}>
@@ -251,7 +257,7 @@ const EditCarModal = ({
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleUpdate}
+                  onClick={handleSave}
                   variant="contained"
                   color="primary"
                   sx={{ ml: 2, p: 3, minWidth: "10rem" }}
