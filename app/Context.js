@@ -1,8 +1,30 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { fetchAllCars, reFetchAllOrders } from "@utils/action";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  fetchAllCars,
+  reFetchAllOrders,
+  updateCar,
+  deleteCar,
+} from "@utils/action";
 
-const MainContext = createContext();
+const MainContext = createContext({
+  cars: [],
+  allOrders: [],
+  setCars: () => {},
+  setAllOrders: () => {},
+  fetchAndUpdateOrders: () => {},
+  ordersByCarId: () => {},
+  isLoading: false,
+  resubmitCars: () => {},
+  scrolled: false,
+});
 
 export function useMainContext() {
   return useContext(MainContext);
@@ -10,27 +32,28 @@ export function useMainContext() {
 
 export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [scrolled, setScrolled] = useState(false);
-  const handleScroll = () => {
+  const [cars, setCars] = useState(carsData || []);
+  const [allOrders, setAllOrders] = useState(ordersData || []);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [updateStatus, setUpdateStatus] = useState(null);
+
+  const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY;
     setScrolled(scrollPosition > 80);
-  };
+  }, []);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-  const [cars, setCars] = useState(carsData);
-  const [allOrders, setAllOrders] = useState(ordersData || []);
-  const [isLoading, setIsLoading] = useState(false);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   const fetchAndUpdateOrders = async () => {
     setIsLoading(true);
     try {
-      const newOrdersData = await reFetchAllOrders(); // Fetch latest orders data
-      setAllOrders(newOrdersData); // Update the state with new data
-      console.log("FROM FETCA AND UPDATE newOrdersData", newOrdersData);
+      const newOrdersData = await reFetchAllOrders();
+      setAllOrders(newOrdersData);
+      console.log("Updated orders data:", newOrdersData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -39,37 +62,91 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   };
 
   const resubmitCars = async (callback) => {
+    setIsLoading(true);
     try {
-      const newCArsData = await reFetchAllOrders();
-      setCars(newCArsData);
-      console.log("FROM FETCH AND UPDATE newCArsData", newCArsData);
+      const newCarsData = await fetchAllCars();
+      setCars(newCarsData);
+      console.log("Updated cars data:", newCarsData);
 
-      // If a callback function is passed, call it with the new cars data
-      if (callback && typeof callback === "function") {
-        callback(newCArsData);
+      if (typeof callback === "function") {
+        callback(newCarsData);
       }
     } catch (error) {
       console.error("Error fetching cars:", error);
+      setError(true);
     } finally {
-      console.log("cars data was updated");
+      setIsLoading(false);
     }
   };
 
-  const ordersByCarId = (carId) => {
-    return allOrders?.filter((order) => order.car === carId);
+  const updateCarInContext = async (updatedCar) => {
+    try {
+      const newCar = await updateCar(updatedCar);
+      setCars((prevCars) =>
+        prevCars.map((car) => (car._id === newCar._id ? newCar : car))
+      );
+      console.log(newCar);
+      setUpdateStatus({ type: 200, message: "Car updated successfully" });
+      return { data: newCar, type: 200, message: "Car updated successfully" };
+    } catch (error) {
+      console.error("Failed to update car:", error);
+      setUpdateStatus({
+        type: 500,
+        message: error.message || "Car WAS NOT successfully",
+      });
+    }
   };
 
-  const contextValue = {
-    cars,
-    allOrders,
-    setCars,
-    setAllOrders,
-    fetchAndUpdateOrders,
-    ordersByCarId,
-    isLoading,
-    resubmitCars,
-    scrolled,
+  const deleteCarInContext = async (carId) => {
+    try {
+      const response = await fetch(`/api/car/delete/${carId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCars((prevCars) => prevCars.filter((car) => car._id !== carId));
+        return { success: true, message: data.message };
+      } else {
+        const errorData = await response.json();
+        return {
+          success: false,
+          errorMessage: errorData.error || "Failed to delete car",
+        };
+      }
+    } catch (error) {
+      console.error("Error deleting car:", error);
+      return {
+        success: false,
+        errorMessage: error.message || "An unexpected error occurred",
+      };
+    }
   };
+  const ordersByCarId = useCallback(
+    (carId) => allOrders?.filter((order) => order.car === carId),
+    [allOrders]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      cars,
+      allOrders,
+      setCars,
+      setAllOrders,
+      fetchAndUpdateOrders,
+      ordersByCarId,
+      isLoading,
+      setIsLoading,
+      resubmitCars,
+      scrolled,
+      updateCarInContext,
+      deleteCarInContext,
+      error,
+      updateStatus,
+      setUpdateStatus,
+    }),
+    [cars, allOrders, isLoading, scrolled]
+  );
 
   return (
     <MainContext.Provider value={contextValue}>{children}</MainContext.Provider>

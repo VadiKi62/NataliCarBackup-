@@ -7,7 +7,7 @@ dayjs.extend(isBetween);
 const pricingTierSchema = new Schema({
   days: {
     type: Map,
-    of: Number, // Mapping days to prices (Number)
+    of: Number,
     required: true,
   },
 });

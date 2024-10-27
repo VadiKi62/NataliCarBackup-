@@ -1,19 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import DataGridOrders from "./DataGridOrders";
-import DataGridCars from "./DataGridCars";
-import Item from "./Item";
+import DataGridOrders from "../DataGridOrders";
+import DataGridCars from "../DataGridCars";
+import Item from "../Item";
 import { Grid, Container, CircularProgress } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
-import DefaultButton from "../common/DefaultButton";
-import AddCarModal from "./AddCarModal";
+import DefaultButton from "../../common/DefaultButton";
+import AddCarModal from "../AddCarModal";
 import { useMainContext } from "@app/Context";
 import Snackbar from "@app/components/common/Snackbar";
 import Loading from "@app/loading";
 import Error from "@app/error";
 import { styled } from "@mui/system";
-import CarOnlyComponent from "./CarOnlyComponent";
 
 const StyledBox = styled("div")(({ theme, scrolled }) => ({
   zIndex: 996,
@@ -28,7 +27,7 @@ const StyledBox = styled("div")(({ theme, scrolled }) => ({
   // boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
 }));
 
-function Admin() {
+function OrdersOnly() {
   const { allOrders, resubmitCars, cars, fetchAndUpdateOrders, scrolled } =
     useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
@@ -106,6 +105,16 @@ function Admin() {
   if (error) return <Error />;
   return (
     <div>
+      <StyledBox scrolled={scrolled}>
+        <DefaultButton
+          onClick={handleAddOpen}
+          minWidth="600px"
+          relative
+          sx={{ width: "100%", margin: 0.5 }}
+        >
+          Добавить машину
+        </DefaultButton>
+      </StyledBox>
       <Grid
         container
         spacing={{ sm: 2, sx: 0.4 }}
@@ -117,10 +126,10 @@ function Admin() {
         }}
       >
         {carsData
-          .sort((a, b) => a.model - b.model)
+          .sort((a, b) => a.sort - b.sort)
           .map((car) => (
             <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-              <CarOnlyComponent
+              <Item
                 car={car}
                 onCarUpdate={handleCarUpdate}
                 orders={ordersData}
@@ -131,8 +140,23 @@ function Admin() {
             </Grid>
           ))}
       </Grid>
+      {updateStatus && (
+        <Snackbar
+          message={updateStatus.message}
+          isError={Boolean(updateStatus?.type !== 200)}
+          closeFunc={handleCloseSnackbar}
+          open={Boolean(updateStatus)}
+        />
+      )}
+      <AddCarModal
+        open={isModalAddCarOpen}
+        onClose={onModalAddCarOpen}
+        car={carsData[0]}
+        setUpdateStatus={setUpdateStatus}
+        fetchAndUpdateCars={fetchAndUpdateCars}
+      />
     </div>
   );
 }
 
-export default Admin;
+export default OrdersOnly;

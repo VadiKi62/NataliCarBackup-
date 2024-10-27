@@ -20,7 +20,7 @@ import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import EditCarModal from "./EditCarModal";
+import EditCarModal from "./Car/EditCarModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CalendarAdmin from "./CalendarAdmin";
 import { updateCar } from "@utils/action";

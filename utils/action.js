@@ -78,28 +78,6 @@ export const fetchAllCars = async () => {
   }
 };
 
-export const updateCar = async (updatedCar) => {
-  console.log("updatedCar passing to backend from action", updatedCar);
-  try {
-    const response = await fetch(`/api/car/update`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedCar),
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to update car");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error updating car:", error);
-    throw error;
-  }
-};
-
 // REFetch all orders using fetch
 export const reFetchAllOrders = async () => {
   try {
@@ -395,5 +373,28 @@ export const deleteCar = async (carId) => {
       data: error,
       type: 500,
     };
+  }
+};
+
+// UPDATE car
+export const updateCar = async (updatedCar) => {
+  console.log("updatedCar passing to backend from action", updatedCar);
+  try {
+    const response = await fetch(`/api/car/update`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedCar),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update car");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating car:", error);
+    throw error;
   }
 };

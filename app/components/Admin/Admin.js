@@ -14,8 +14,8 @@ import Loading from "@app/loading";
 import Error from "@app/error";
 import { styled } from "@mui/system";
 import Navbar from "@app/components/Navbar";
-import CarOnlyComponent from "./CarOnlyComponent";
-import CarsOnly from "./CarsOnly";
+
+import Cars from "./Car/Cars";
 const StyledBox = styled("div")(({ theme, scrolled }) => ({
   zIndex: 996,
   position: "fixed",
@@ -30,44 +30,52 @@ const StyledBox = styled("div")(({ theme, scrolled }) => ({
 }));
 
 function Admin() {
-  const { allOrders, resubmitCars, cars, fetchAndUpdateOrders, scrolled } =
-    useMainContext();
+  const {
+    allOrders,
+    resubmitCars,
+    cars,
+    fetchAndUpdateOrders,
+    deleteCarInContext,
+    scrolled,
+    isLoading,
+    error,
+  } = useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
 
-  const [carsData, setCars] = useState(cars);
+  // const [carsData, setCars] = useState(cars);
   const [isCarInfo, setIsCarInfo] = useState(true);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
 
   const [ordersData, setOrders] = useState(allOrders);
 
-  const fetchAndUpdateCars = async () => {
-    try {
-      setLoading(true);
-      const fetchedCars = await fetchAllCars();
-      await resubmitCars();
-      setCars(fetchedCars);
-      setError(null);
-    } catch (error) {
-      setError("Failed to fetch cars. Please try again later.");
-      console.error("Error fetching cars:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchAndUpdateCars = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const fetchedCars = await fetchAllCars();
+  //     await resubmitCars();
+  //     setCars(fetchedCars);
+  //     setError(null);
+  //   } catch (error) {
+  //     setError("Failed to fetch cars. Please try again later.");
+  //     console.error("Error fetching cars:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchAndUpdateCars();
-  }, []);
+  // useEffect(() => {
+  //   fetchAndUpdateCars();
+  // }, []);
 
-  const handleCarUpdate = async (updatedCar) => {
-    setCars((prevCars) =>
-      prevCars.map((car) => (car._id === updatedCar._id ? updatedCar : car))
-    );
-    // await fetchAndUpdateCars();
-  };
+  // const handleCarUpdate = async (updatedCar) => {
+  //   setCars((prevCars) =>
+  //     prevCars.map((car) => (car._id === updatedCar._id ? updatedCar : car))
+  //   );
+  //   // await fetchAndUpdateCars();
+  // };
 
   const handleOrderUpdate = async (updatedOrder) => {
     setOrders((prevOrders) =>
@@ -78,23 +86,25 @@ function Admin() {
     await fetchAndUpdateOrders();
   };
 
-  const onCarDelete = async (response) => {
-    if (response.type === 200) {
-      await fetchAndUpdateCars();
-      setCars((prevCars) =>
-        prevCars.filter((car) => car._id !== response.data)
-      );
-    }
+  const onCarDelete = async (carId) => {
+    const { success, message, errorMessage } = await deleteCarInContext(carId);
 
-    setUpdateStatus({
-      type: response.type,
-      message: response.message,
-    });
+    if (success) {
+      setUpdateStatus({
+        type: 200,
+        message: message || "Car deleted successfully",
+      });
+    } else {
+      setUpdateStatus({
+        type: 500,
+        message: errorMessage || "Failed to delete the car.",
+      });
+    }
   };
 
   // Openinig/closing handlers
   const handleCloseSnackbar = () => {
-    setUpdateStatus(null);
+    setUpdateStatus({ type: null, message: null });
   };
 
   const handleAddOpen = () => {
@@ -104,7 +114,7 @@ function Admin() {
     setModalAddCar(false);
   };
 
-  if (loading) return <Loading />;
+  if (isLoading) return <Loading />;
   if (error) return <Error />;
   return (
     <div>
@@ -124,7 +134,7 @@ function Admin() {
         </DefaultButton>
       </StyledBox>
       {isCarInfo ? (
-        <CarsOnly />
+        <Cars onCarDelete={onCarDelete} setUpdateStatus={setUpdateStatus} />
       ) : (
         <Grid
           container
@@ -136,17 +146,17 @@ function Admin() {
             mt: { xs: 10, md: 18 },
           }}
         >
-          {carsData
+          {cars
             .sort((a, b) => a.sort - b.sort)
             .map((car) => (
               <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
                   car={car}
-                  onCarUpdate={handleCarUpdate}
+                  // onCarUpdate={handleCarUpdate}
                   orders={ordersData}
                   handleOrderUpdate={handleOrderUpdate}
                   setOrders={setOrders}
-                  onCarDelete={onCarDelete}
+                  // onCarDelete={onCarDelete}
                 />
               </Grid>
             ))}
@@ -160,12 +170,13 @@ function Admin() {
           open={Boolean(updateStatus)}
         />
       )}
+
       <AddCarModal
         open={isModalAddCarOpen}
         onClose={onModalAddCarOpen}
-        car={carsData[0]}
+        car={cars[0]}
         setUpdateStatus={setUpdateStatus}
-        fetchAndUpdateCars={fetchAndUpdateCars}
+        fetchAndUpdateCars={resubmitCars}
       />
     </div>
   );

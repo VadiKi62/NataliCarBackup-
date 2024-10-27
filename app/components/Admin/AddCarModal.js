@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import PricingTiers from "./PricingTiers";
+import PricingTiers from "./Car/PricingTiers";
 import { useMainContext } from "@app/Context";
 
 const AddCarModal = ({

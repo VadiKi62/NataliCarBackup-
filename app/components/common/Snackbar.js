@@ -51,22 +51,24 @@ function Snackbar(props) {
     close: "MuiSnackbarContent-close",
   };
 
-  // Automatically dismiss the Snackbar after 5 seconds (5000ms)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (closeFunc) {
-        closeFunc(); // Call the close function after 5 seconds
-      }
-    }, 5000); // 5 seconds
+  const [open, setOpen] = React.useState(false);
 
-    // Cleanup the timer when component unmounts or if Snackbar closes early
-    return () => clearTimeout(timer);
-  }, [closeFunc]);
+  // // Automatically dismiss the Snackbar after 5 seconds (5000ms)
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     if (closeFunc) {
+  //       closeFunc(); // Call the close function after 5 seconds
+  //     }
+  //   }, 4000);
+
+  //   // Cleanup the timer when component unmounts or if Snackbar closes early
+  //   return () => clearTimeout(timer);
+  // }, [closeFunc]);
 
   return (
     <MuiSnackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      autoHideDuration={6000}
+      autoHideDuration={4000}
       TransitionComponent={Transition}
       message={
         <>
