@@ -1,5 +1,6 @@
 import { Schema, model, models } from "mongoose";
 import { seasons } from "@utils/companyData";
+import { CAR_CLASSES, TRANSMISSION_TYPES, FUEL_TYPES } from "./enums";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 dayjs.extend(isBetween);
@@ -9,6 +10,21 @@ const pricingTierSchema = new Schema({
     type: Map,
     of: Number,
     required: true,
+  },
+});
+
+const createEnumValidator = (enumObject) => ({
+  values: Object.values(enumObject),
+  message: `{VALUE} is not a valid option. Valid options are: ${Object.values(
+    enumObject
+  ).join(", ")}`,
+  validate: {
+    validator: function (v) {
+      return Object.values(enumObject)
+        .map((val) => val.toLowerCase())
+        .includes(v.toLowerCase());
+    },
+    message: (props) => `${props.value} is not a valid option`,
   },
 });
 
@@ -31,38 +47,20 @@ const CarSchema = new Schema({
   },
   class: {
     type: String,
-    enum: [
-      "Economy",
-      "Premium",
-      "MiniBus",
-      "Crossover",
-      "Limousine",
-      "Compact",
-      "Convertible",
-    ],
+    enum: createEnumValidator(CAR_CLASSES),
     required: true,
+    set: (v) => v.toLowerCase(),
   },
   transmission: {
     type: String,
-    enum: ["Automatic", "Manual"],
+    enum: createEnumValidator(TRANSMISSION_TYPES),
     required: true,
+    set: (v) => v.toLowerCase(),
   },
   fueltype: {
     type: String,
-    enum: [
-      "Diesel",
-      "diesel",
-      "Petrol",
-      "petrol",
-      "Natural Gas",
-      "natural gas",
-      "Hybrid Diesel",
-      "hybrid diesel",
-      "Hybrid Petrol",
-      "hybrid petrol",
-      "natural gas(cng)",
-      "Natural Gas(cng)",
-    ],
+    enum: createEnumValidator(FUEL_TYPES),
+    set: (v) => v.toLowerCase(),
   },
   seats: {
     type: Number,

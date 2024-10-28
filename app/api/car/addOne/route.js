@@ -15,6 +15,8 @@ export async function POST(req) {
   try {
     const formData = await req.formData();
 
+    console.log("formDAta", formData);
+
     // Extract file and carData
     const file = formData.get("image");
     const carData = {
@@ -90,45 +92,45 @@ export async function POST(req) {
       }
     }
 
-    // Validate enum fields
-    const enumFields = {
-      class: [
-        "Economy",
-        "Premium",
-        "MiniBus",
-        "Crossover",
-        "Limousine",
-        "Compact",
-        "Convertible",
-      ],
-      transmission: ["Automatic", "Manual"],
-      fueltype: [
-        "Diesel",
-        "Petrol",
-        "Natural Gas",
-        "Hybrid Diesel",
-        "Hybrid Petrol",
-      ],
-    };
+    // // Validate enum fields
+    // const enumFields = {
+    //   class: [
+    //     "Economy",
+    //     "Premium",
+    //     "MiniBus",
+    //     "Crossover",
+    //     "Limousine",
+    //     "Compact",
+    //     "Convertible",
+    //   ],
+    //   transmission: ["Automatic", "Manual"],
+    //   fueltype: [
+    //     "Diesel",
+    //     "Petrol",
+    //     "Natural Gas",
+    //     "Hybrid Diesel",
+    //     "Hybrid Petrol",
+    //   ],
+    // };
 
-    for (const [field, allowedValues] of Object.entries(enumFields)) {
-      if (carData[field] && !allowedValues.includes(carData[field])) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Invalid value for ${field}. Allowed values are: ${allowedValues.join(
-              ", "
-            )}`,
-          },
-          { status: 400 }
-        );
-      }
-    }
+    // for (const [field, allowedValues] of Object.entries(enumFields)) {
+    //   if (carData[field] && !allowedValues.includes(carData[field])) {
+    //     return NextResponse.json(
+    //       {
+    //         success: false,
+    //         message: `Invalid value for ${field}. Allowed values are: ${allowedValues.join(
+    //           ", "
+    //         )}`,
+    //       },
+    //       { status: 400 }
+    //     );
+    //   }
+    // }
 
     // Validate number ranges
-    if (carData.numberOfDoors < 2 || carData.numberOfDoors > 6) {
+    if (carData.numberOfDoors < 2 || carData.numberOfDoors > 10) {
       return NextResponse.json(
-        { success: false, message: "Number of doors must be between 2 and 6" },
+        { success: false, message: "Number of doors must be between 2 and 10" },
         { status: 400 }
       );
     }

@@ -1,0 +1,40 @@
+export const CAR_CLASSES = {
+  ECONOMY: "economy",
+  PREMIUM: "premium",
+  MINIBUS: "minibus",
+  CROSSOVER: "crossover",
+  LIMOUSINE: "limousine",
+  COMPACT: "compact",
+  CONVERTIBLE: "convertible",
+  RACE: "race car",
+  COMBI: "combi",
+};
+
+export const TRANSMISSION_TYPES = {
+  AUTOMATIC: "automatic",
+  MANUAL: "manual",
+};
+
+export const FUEL_TYPES = {
+  DIESEL: "diesel",
+  PETROL: "petrol",
+  NATURAL_GAS: "natural gas",
+  HYBRID_DIESEL: "hybrid diesel",
+  HYBRID_PETROL: "hybrid petrol",
+  NATURAL_GAS_CNG: "natural gas(cng)",
+};
+
+export const PREDEFINED_COLORS = {
+  BLACK: "black",
+  WHITE: "white",
+  SILVER: "silver",
+  GRAY: "gray",
+  RED: "red",
+  BLUE: "blue",
+  GREEN: "green",
+  BROWN: "brown",
+  BEIGE: "beige",
+  GOLD: "gold",
+  ORANGE: "orange",
+  YELLOW: "yellow",
+};

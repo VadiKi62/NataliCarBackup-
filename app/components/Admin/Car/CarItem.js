@@ -15,12 +15,12 @@ import { useMainContext } from "@app/Context";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
-  maxWidth: 400,
+  width: "100%",
   zIndex: 22,
   display: "flex",
+  flexDirection: "column",
   justifyContent: "space-evenly",
   bgColor: "black",
-
   boxShadow: theme.shadows[4],
   transition: "transform 0.3s",
   "&:hover": {
@@ -30,62 +30,86 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 950,
     padding: theme.spacing(5),
+    minWidth: 950,
   },
 }));
+
 const Wrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   alignContent: "center",
-  width: "50%",
-  margin: 5,
+  width: "100%",
+  margin: theme.spacing(1),
+  [theme.breakpoints.up("sm")]: {
+    width: "50%",
+    margin: 5,
+  },
 }));
+
 const CarImage = styled(Box)(({ theme }) => ({
   position: "relative",
   width: "100%",
   height: "auto",
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
-
-  [theme.breakpoints.up("md")]: {
+  marginBottom: theme.spacing(2),
+  "& img": {
+    width: "100%",
+    height: "auto",
+    objectFit: "contain",
+  },
+  [theme.breakpoints.up("sm")]: {
+    marginBottom: 0,
     width: 450,
     height: 300,
   },
 }));
+
 const CarDetails = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   flexGrow: 1,
   margin: 11,
   textAlign: "center",
-  // width: "auto",
 }));
+
 const CarTitle = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
   fontWeight: 700,
   marginBottom: theme.spacing(1),
   marginTop: theme.spacing(1),
 }));
+
 const CarReg = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
   fontWeight: 700,
   marginBottom: theme.spacing(1),
   marginTop: theme.spacing(1),
   border: "1px solid black",
-  // minWidth: "200px",
+}));
+
+const ImageOverlay = styled(Box)(({ theme }) => ({
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  bgcolor: "rgba(0, 0, 0, 0.6)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "column",
 }));
 
 function CarItem({ car, onCarDelete, setUpdateStatus }) {
   const { updateCarInContext, setIsLoading } = useMainContext();
-
   const [modalOpen, setModalOpen] = useState(false);
   const [updatedCar, setUpdatedCar] = useState({ ...car });
   const [previewImage, setPreviewImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Manage image preview and upload
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (file) setPreviewImage(URL.createObjectURL(file));
@@ -112,7 +136,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
           photoUrl: newPhotoUrl,
         });
         setUpdateStatus({ type: response.type, message: response.message });
-        setPreviewImage(null); // Clear preview after successful upload
+        setPreviewImage(null);
       } else {
         setUpdateStatus({
           type: 400,
@@ -126,13 +150,11 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
     }
   };
 
-  // Car details update
   const handleCarsUpdate = async () => {
     const response = await updateCarInContext(updatedCar);
     setUpdateStatus({ type: response.type, message: response.message });
   };
 
-  // Edit and Delete handlers
   const handleEditToggle = () => setModalOpen(true);
   const handleModalClose = () => {
     setModalOpen(false);
@@ -151,14 +173,9 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
         <CarImage
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          style={{ position: "relative" }}
         >
           {previewImage ? (
-            <img
-              src={previewImage}
-              alt="Preview"
-              style={{ objectFit: "contain", width: "100%", height: "auto" }}
-            />
+            <img src={previewImage} alt="Preview" />
           ) : (
             <CldImage
               src={car.photoUrl}
@@ -168,25 +185,10 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
               crop="fill"
               priority
               sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{ objectFit: "contain", width: "100%", height: "auto" }}
             />
           )}
-          {/* Overlay with Upload Button */}
           {hovered && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                bgcolor: "rgba(0, 0, 0, 0.6)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "column",
-              }}
-            >
+            <ImageOverlay>
               <Button
                 variant="contained"
                 onClick={() => fileInputRef.current.click()}
@@ -225,7 +227,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
                   </Button>
                 </Stack>
               )}
-            </Box>
+            </ImageOverlay>
           )}
           <input
             type="file"
@@ -236,7 +238,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
         </CarImage>
       )}
       <Wrapper>
-        <Stack sx={{ flexDirection: "column" }}>
+        <Stack sx={{ flexDirection: "column", width: "100%" }}>
           <CarDetails>
             <CarTitle>{car.model}</CarTitle>
             <CarReg>{car.regNumber}</CarReg>
@@ -244,11 +246,20 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
           <DefaultButton
             onClick={handleDelete}
             relative
-            sx={{ backgroundColor: "primary.main", color: "white" }}
+            sx={{
+              backgroundColor: "primary.main",
+              color: "white",
+              width: "100%",
+              marginBottom: 1,
+            }}
           >
             Удалить эту машину
           </DefaultButton>
-          <DefaultButton relative onClick={handleEditToggle}>
+          <DefaultButton
+            relative
+            onClick={handleEditToggle}
+            sx={{ width: "100%" }}
+          >
             Редактировать
           </DefaultButton>
         </Stack>

@@ -17,6 +17,12 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import PricingTiers from "./Car/PricingTiers";
 import { useMainContext } from "@app/Context";
+import {
+  CAR_CLASSES,
+  TRANSMISSION_TYPES,
+  FUEL_TYPES,
+  PREDEFINED_COLORS,
+} from "@models/enums";
 
 const AddCarModal = ({
   open,
@@ -30,8 +36,9 @@ const AddCarModal = ({
     model: "",
     sort: 999,
     class: "",
-    transmission: "",
-    fueltype: "Petrol",
+    class: CAR_CLASSES.ECONOMY,
+    transmission: TRANSMISSION_TYPES.AUTOMATIC,
+    fueltype: FUEL_TYPES.PETROL,
     seats: 5,
     registration: 2016,
     regNumber: "",
@@ -181,17 +188,9 @@ const AddCarModal = ({
                     onChange={handleChange}
                     label="Class"
                   >
-                    {[
-                      "Economy",
-                      "Premium",
-                      "MiniBus",
-                      "Crossover",
-                      "Limousine",
-                      "Compact",
-                      "Convertible",
-                    ].map((cls) => (
-                      <MenuItem key={cls} value={cls}>
-                        {cls}
+                    {Object.values(CAR_CLASSES).map((carClass) => (
+                      <MenuItem key={carClass} value={carClass}>
+                        {carClass.charAt(0).toUpperCase() + carClass.slice(1)}
                       </MenuItem>
                     ))}
                   </Select>
@@ -206,8 +205,12 @@ const AddCarModal = ({
                     onChange={handleChange}
                     label="Transmission"
                   >
-                    <MenuItem value="Automatic">Automatic</MenuItem>
-                    <MenuItem value="Manual">Manual</MenuItem>
+                    {Object.values(TRANSMISSION_TYPES).map((transmission) => (
+                      <MenuItem key={transmission} value={transmission}>
+                        {transmission.charAt(0).toUpperCase() +
+                          transmission.slice(1)}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
@@ -216,20 +219,13 @@ const AddCarModal = ({
                   <InputLabel>Fuel Type</InputLabel>
                   <Select
                     name="fueltype"
-                    value={carData.fueltype || ""}
+                    value={carData.fueltype}
                     onChange={handleChange}
                     label="Fuel Type"
                   >
-                    {[
-                      "Diesel",
-                      "Petrol",
-                      "Natural Gas",
-                      "Hybrid Diesel",
-                      "Hybrid Petrol",
-                      "Natural Gas(cng)",
-                    ].map((fuel) => (
+                    {Object.values(FUEL_TYPES).map((fuel) => (
                       <MenuItem key={fuel} value={fuel}>
-                        {fuel}
+                        {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
                       </MenuItem>
                     ))}
                   </Select>
