@@ -2,12 +2,14 @@ import React, { useState, useRef } from "react";
 import {
   Dialog,
   Grid,
+  DialogActions,
   MenuItem,
   Button,
   Typography,
   Checkbox,
   FormControlLabel,
   FormControl,
+  DialogTitle,
   InputLabel,
   Select,
   Box,
@@ -15,6 +17,7 @@ import {
   RadioGroup,
   Radio,
   CircularProgress,
+  InputAdornment,
 } from "@mui/material";
 import Snackbar from "@app/components/common/Snackbar";
 import { styled } from "@mui/material/styles";
@@ -83,7 +86,13 @@ const EditCarModal = ({
     }
   };
 
-  const renderTextField = (name, label, type = "text", defaultValue = "") => (
+  const renderTextField = (
+    name,
+    label,
+    type = "text",
+    defaultValue = "",
+    adornment = ""
+  ) => (
     <FormControl fullWidth sx={{ mb: 2 }}>
       <TextField
         name={name}
@@ -95,6 +104,11 @@ const EditCarModal = ({
         size="medium"
         InputLabelProps={{
           shrink: true,
+        }}
+        InputProps={{
+          endAdornment: adornment ? (
+            <InputAdornment position="end">{adornment}</InputAdornment>
+          ) : null,
         }}
       />
     </FormControl>
@@ -125,10 +139,7 @@ const EditCarModal = ({
     await handleUpdate();
     setIsLoading(false);
   };
-  // Helper function to capitalize first letter for display
-  const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  };
+
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="lg">
       <Box sx={{ p: 3, position: "relative" }}>
@@ -153,12 +164,12 @@ const EditCarModal = ({
         )}
 
         <Box sx={{ opacity: isLoading ? 0.3 : 1, transition: "opacity 0.2s" }}>
-          <Typography variant="h5" gutterBottom>
+          <DialogTitle variant="h5" gutterBottom>
             Update Car Details
-          </Typography>
+          </DialogTitle>
           <Grid container spacing={3} sx={{ flexGrow: 1 }}>
             {/* Column 1 */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={4}>
               <Box sx={{ p: 2 }}>
                 {renderTextField("model", "Model")}
                 {renderTextField("seats", "Seats", "number", 2)}
@@ -184,7 +195,7 @@ const EditCarModal = ({
             </Grid>
 
             {/* Column 2 */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={4}>
               <Box sx={{ p: 2 }}>
                 {renderTextField(
                   "registration",
@@ -192,17 +203,19 @@ const EditCarModal = ({
                   "number",
                   2020
                 )}
-                <ColorPicker
-                  value={updatedCar.color || ""}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-                {renderTextField("enginePower", "Engine Power", "number", 1000)}
+                {renderTextField(
+                  "enginePower",
+                  "Engine Power",
+                  "number",
+                  1000,
+                  "bhp"
+                )}
+                {renderTextField("engine", "engine", 122, "c.c.")}
               </Box>
             </Grid>
 
             {/* Column 3 */}
-            <Grid item xs={12} md={4}>
+            <Grid item xs={12} sm={4}>
               <Box sx={{ p: 2 }}>
                 {renderTextField(
                   "regNumber",
@@ -216,6 +229,7 @@ const EditCarModal = ({
                   Object.values(FUEL_TYPES),
                   FUEL_TYPES.PETROL
                 )}
+
                 {renderSelectField(
                   "transmission",
                   "Transmission",
@@ -231,10 +245,14 @@ const EditCarModal = ({
               </Box>
             </Grid>
 
-            <Grid item xs={12}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                  Upload Photo
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ m: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mb: 1.5 }}
+                >
+                  Фото
                 </Typography>
                 <input
                   accept="image/*"
@@ -243,15 +261,26 @@ const EditCarModal = ({
                   onChange={handleImageUpload}
                   disabled={isLoading}
                 />
+                <StyledTextField
+                  sx={{ mt: 2 }}
+                  name="photoUrl"
+                  label="Photo URL"
+                  value={updatedCar.photoUrl || ""}
+                  onChange={handleChange}
+                  fullWidth
+                  disabled={isLoading}
+                />
               </Box>
-              <StyledTextField
-                name="photoUrl"
-                label="Photo URL"
-                value={updatedCar.photoUrl || ""}
-                onChange={handleChange}
-                fullWidth
-                disabled={isLoading}
-              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Box sx={{ m: 2 }}>
+                {" "}
+                <ColorPicker
+                  value={updatedCar.color || ""}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+              </Box>
             </Grid>
 
             {/* Pricing Table */}
@@ -265,7 +294,7 @@ const EditCarModal = ({
             </Grid>
 
             <Grid item xs={12}>
-              <Box
+              <DialogActions
                 sx={{
                   display: "flex",
                   justifyContent: "center",
@@ -293,7 +322,7 @@ const EditCarModal = ({
                 >
                   Save
                 </Button>
-              </Box>
+              </DialogActions>
             </Grid>
           </Grid>
         </Box>
@@ -403,3 +432,8 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
     </Box>
   );
 };
+
+// Helper function to capitalize first letter for display
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

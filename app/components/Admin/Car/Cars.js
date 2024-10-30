@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "../DataGridOrders";
 import DataGridCars from "../DataGridCars";
-import Item from "../Item";
 import { Grid, Container, CircularProgress } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
 import DefaultButton from "../../common/DefaultButton";
@@ -70,7 +69,7 @@ function Cars({ onCarDelete, setUpdateStatus }) {
         }}
       >
         {cars
-          .sort((a, b) => a.model - b.model)
+          .sort((a, b) => a.carNumber - b.carNumber)
           .map((car) => (
             <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
               <CarItem

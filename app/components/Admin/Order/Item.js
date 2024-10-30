@@ -20,12 +20,11 @@ import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-import EditCarModal from "./Car/EditCarModal";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
 import CalendarAdmin from "./CalendarAdmin";
 import { updateCar } from "@utils/action";
 import { useMainContext } from "@app/Context";
-import DefaultButton from "../common/DefaultButton";
+import DefaultButton from "../../common/DefaultButton";
 import { deleteCar } from "@utils/action";
 import Snackbar from "@app/components/common/Snackbar";
 
@@ -72,12 +71,6 @@ const CarImage = styled(Box)(({ theme }) => ({
     width: 450,
     height: 300,
   },
-}));
-
-const CarDetails = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  flexGrow: 1,
 }));
 
 const CarTitle = styled(Typography)(({ theme }) => ({

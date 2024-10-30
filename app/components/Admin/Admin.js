@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
-import Item from "./Item";
+import Item from "./Order/Item";
 import { Grid, Container, CircularProgress } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
 import DefaultButton from "../common/DefaultButton";
@@ -42,16 +42,11 @@ function Admin() {
   } = useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
 
-  // const [carsData, setCars] = useState(cars);
   const [isCarInfo, setIsCarInfo] = useState(true);
-
-  const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
 
   const [ordersData, setOrders] = useState(allOrders);
 
-  // const fetchAndUpdateCars = async () => {
   //   try {
   //     setLoading(true);
   //     const fetchedCars = await fetchAllCars();
@@ -147,16 +142,14 @@ function Admin() {
           }}
         >
           {cars
-            .sort((a, b) => a.sort - b.sort)
+            .sort((a, b) => a.carNumer - b.carNumer)
             .map((car) => (
               <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
                   car={car}
-                  // onCarUpdate={handleCarUpdate}
-                  orders={ordersData}
+                  orders={allOrders}
                   handleOrderUpdate={handleOrderUpdate}
                   setOrders={setOrders}
-                  // onCarDelete={onCarDelete}
                 />
               </Grid>
             ))}

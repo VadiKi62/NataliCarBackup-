@@ -12,7 +12,12 @@ const getSeasonDates = (season) => {
     : `Season "${season}" not found`;
 };
 
-const PricingTiersTable = ({ car, handleChange, disabled }) => {
+const PricingTiersTable = ({
+  car,
+  handleChange,
+  disabled,
+  isAddcar = false,
+}) => {
   const [rows, setRows] = useState([]);
   const [pendingUpdates, setPendingUpdates] = useState({});
 
@@ -72,7 +77,11 @@ const PricingTiersTable = ({ car, handleChange, disabled }) => {
       handleChange({
         target: { name: "pricingTiers", value: updatedCarData.pricingTiers },
       });
-      debouncedUpdate(updatedCarData);
+      if (!isAddcar) {
+        debouncedUpdate(updatedCarData);
+      } else {
+        setPendingUpdates({});
+      }
     },
     [car, debouncedUpdate, handleChange]
   );
