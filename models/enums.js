@@ -38,3 +38,17 @@ export const PREDEFINED_COLORS = {
   ORANGE: "orange",
   YELLOW: "yellow",
 };
+
+export const defaultPrices = {
+  NoSeason: {
+    days: {
+      4: 50,
+      7: 30,
+      14: 20,
+    },
+  },
+  LowSeason: { days: { 4: 50, 7: 30, 14: 20 } },
+  LowUpSeason: { days: { 4: 50, 7: 30, 14: 20 } },
+  MiddleSeason: { days: { 4: 50, 7: 30, 14: 20 } },
+  HighSeason: { days: { 4: 50, 7: 30, 14: 20 } },
+};

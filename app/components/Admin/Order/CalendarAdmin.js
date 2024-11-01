@@ -6,6 +6,7 @@ import {
   CircularProgress,
   Modal,
   Paper,
+  Grid,
 } from "@mui/material";
 import { Calendar } from "antd";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -27,6 +28,7 @@ const CalendarAdmin = ({
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -54,6 +56,7 @@ const CalendarAdmin = ({
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
   }, [orders]);
+
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -64,7 +67,8 @@ const CalendarAdmin = ({
       let isStartDate = false;
       let isEndDate = false;
       let overlapOrders = [];
-      let isOverlapStartEndOnly = false; // New flag to track start/end overlap without in-between overlap
+      let startDates = [];
+      let endDates = [];
 
       // Check each order and collect overlaps
       orders.forEach((order) => {
@@ -73,28 +77,20 @@ const CalendarAdmin = ({
 
         if (rentalStart === dateStr) {
           isStartDate = true;
+          startDates.push(order);
         }
         if (rentalEnd === dateStr) {
           isEndDate = true;
+          endDates.push(order);
         }
 
-        // Check if current date falls within the range of an order
         if (dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]")) {
           overlapOrders.push(order);
         }
       });
 
-      const isOverlapDate = overlapOrders.length > 1; // More than one order overlaps this date
-      const overlapCount = overlapOrders.length;
-
-      // New logic: Check if the current date is overlapping but only as start/end
-      if (isOverlapDate) {
-        isOverlapStartEndOnly = overlapOrders.every((order) => {
-          const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
-          const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
-          return rentalStart === dateStr || rentalEnd === dateStr;
-        });
-      }
+      const isOverlapDate = overlapOrders.length > 1;
+      const isStartEndOverlap = startDates.length > 0 && endDates.length > 0;
 
       let backgroundColor = "transparent";
       let color = "inherit";
@@ -109,98 +105,96 @@ const CalendarAdmin = ({
         color = "common.black";
       }
 
+      // Single order date styling
       if (isStartDate && !isOverlapDate) {
-        borderRadius = "50% 0 0 50%"; // Rounded on the left for start
+        borderRadius = "50% 0 0 50%";
       }
       if (isEndDate && !isOverlapDate) {
-        borderRadius = "0 50% 50% 0"; // Rounded on the right for end
-      }
-
-      // Create vertical lines for overlap dates
-      const overlapLines = [];
-      if (isOverlapStartEndOnly) {
-        backgroundColor = "text.green";
-
-        // Dotted vertical line for start/end overlap only
-        overlapLines.push(
-          <Box
-            sx={{
-              position: "absolute",
-              height: "100%",
-              color: "white",
-              left: "50%",
-              transform: "translateX(-50%)",
-              borderRight: "2px dotted",
-            }}
-          />
-        );
-      } else if (isOverlapDate) {
-        backgroundColor = "text.green"; // Color for full range overlap
-        color = "common.white";
-
-        // Create solid vertical lines for full overlap (up to 3 lines)
-        for (let i = 1; i < Math.min(overlapCount, 3); i++) {
-          overlapLines.push(
-            <Box
-              key={`overlap-line-${i}`}
-              sx={{
-                position: "absolute",
-                height: "100%",
-                width: "1px", // Thickness of each line
-                backgroundColor: "primary.main", // Line color for full overlap
-                left: `${35 + i * 15}%`, // Spacing lines evenly across the box
-                transform: "translateX(-50%)",
-              }}
-            />
-          );
-        }
+        borderRadius = "0 50% 50% 0";
       }
 
       const handleDateClick = () => {
-        const firstCheck =
-          confirmedDates.includes(dateStr) ||
-          unavailableDates.includes(dateStr);
+        const relevantOrders = orders.filter((order) => {
+          const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+          const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
 
-        if (!firstCheck) {
-          setSelectedOrder(null);
-        } else {
-          const selectedOrder = orders.find((order) => {
-            const rentalStart = dayjs(order.rentalStartDate).format(
-              "YYYY-MM-DD"
-            );
-            const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+          return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
+        });
 
-            return (
-              rentalStart === dateStr ||
-              rentalEnd === dateStr ||
-              (dayjs(rentalStart).isBefore(dateStr, "day") &&
-                dayjs(rentalEnd).isAfter(dateStr, "day"))
-            );
-          });
-
-          if (selectedOrder) {
-            setSelectedOrder(selectedOrder);
-            setOpen(true);
-          }
+        if (relevantOrders.length > 0) {
+          setSelectedOrders(relevantOrders); // Always set selectedOrders as an array
+          setOpen(true);
         }
       };
 
+      // For overlapping start/end dates
+      if (isStartEndOverlap) {
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              cursor: "pointer",
+            }}
+          >
+            {/* Start Date Box - Left half */}
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "text.green",
+
+                borderRadius: "0 50% 50% 0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "common.white",
+                borderRight: "1px solid white",
+              }}
+            >
+              {date.date()}
+            </Box>
+
+            {/* End Date Box - Right half */}
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "text.green",
+                borderRadius: "0 50% 50% 0",
+                borderRadius: "50% 0 0 50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "common.white",
+              }}
+            >
+              {date.date()}
+            </Box>
+          </Box>
+        );
+      }
+
+      // Regular cell rendering
       return (
         <Box
           onClick={handleDateClick}
           sx={{
-            position: "relative", // Ensure positioning for overlap lines
+            position: "relative",
             height: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             backgroundColor,
-            borderRadius, // Adjust borderRadius for first/last days
+            borderRadius,
             color,
             cursor: "pointer",
           }}
         >
-          {overlapLines}
           {date.date()}
         </Box>
       );
@@ -212,7 +206,7 @@ const CalendarAdmin = ({
 
   // Memoize order save handler
   const handleSaveOrder = (updatedOrder) => {
-    handleOrderUpdate(updatedOrder);
+    // handleOrderUpdate();
     setSelectedOrder(updatedOrder);
     const updatedOrders = orders.map((order) =>
       order._id === updatedOrder._id ? updatedOrder : order
@@ -272,12 +266,53 @@ const CalendarAdmin = ({
         </>
       )}
 
-      <EditOrderModal
+      <Modal
         open={open}
         onClose={handleClose}
-        order={selectedOrder}
-        onSave={handleSaveOrder}
-      />
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        {/* <Box
+          sx={{
+            width: "80%",
+            backgroundColor: "white",
+            p: 4,
+            borderRadius: 2,
+            display: "flex",
+            justifyContent: "center",
+          }}
+        > */}
+        <Grid
+          container
+          spacing={2}
+          justifyContent={selectedOrders.length === 1 ? "center" : "flex-start"}
+        >
+          {selectedOrders.map((order, index) => (
+            <Grid
+              item
+              key={order._id}
+              xs={12}
+              sm={selectedOrders.length === 1 ? 12 : 6}
+              md={
+                selectedOrders.length === 1
+                  ? 6
+                  : selectedOrders.length === 2
+                  ? 6
+                  : selectedOrders.length >= 3 && selectedOrders.length <= 4
+                  ? 3
+                  : 2
+              }
+            >
+              <EditOrderModal
+                order={order}
+                onClose={handleClose}
+                onSave={handleSaveOrder}
+                setCarOrders={setCarOrders}
+              />
+            </Grid>
+          ))}
+        </Grid>
+        {/* </Box> */}
+      </Modal>
     </Box>
   );
 };

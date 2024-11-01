@@ -92,24 +92,12 @@ const CarInfo = styled(Typography)(({ theme }) => ({
   },
 }));
 
-function CarItemComponent({
-  car,
-  onCarUpdate,
-  onCarDelete,
-  orders,
-  handleOrderUpdate,
-}) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [updatedCar, setUpdatedCar] = useState({ ...car });
+function Item({ car, handleOrderUpdate }) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const { ordersByCarId, allOrders, fetchAndUpdateOrders } = useMainContext();
 
   const [carOrders, setCarOrders] = useState([]);
-  const [updateStatus, setUpdateStatus] = useState(null);
 
   // Update orders when allOrders or car._id changes
   useEffect(() => {
@@ -126,74 +114,6 @@ function CarItemComponent({
     // Cleanup the timer when the component unmounts
     return () => clearTimeout(loadingTimer);
   }, []);
-
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    setIsExpanded(true);
-    setModalOpen(true);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedCar((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setUpdatedCar((prev) => ({ ...prev, [name]: checked }));
-  };
-
-  const handlePricingTierChange = (season, day, newPrice) => {
-    // Find the season and update the price for the specific day
-    const updatedCar = { ...car }; // Assuming `car` is a state object
-    updatedCar.pricingTiers[season].days[day] = parseFloat(newPrice); // Update the price
-    setUpdatedCar(updatedCar); // Set the updated car state
-  };
-
-  const handleCarsUpdate = async () => {
-    try {
-      setIsLoading(true);
-      const updatedCarData = await updateCar(updatedCar);
-      //set this updated car to the current Item's state
-      setUpdatedCar(updatedCarData);
-
-      // Set success status and message
-      setUpdateStatus({
-        type: 200,
-        message: "Car updated successfully!",
-      });
-      // update state of cars array in Parent component
-      onCarUpdate(updatedCarData);
-    } catch (error) {
-      console.error("Failed to update car:", error);
-      // Set error status and message
-      setUpdateStatus({
-        type: 400,
-        message: "Failed to update car. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
-    setUpdateStatus(null);
-  };
-
-  const handleDelete = async () => {
-    if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
-      try {
-        const response = await deleteCar(car._id);
-
-        if (response.type === 200) {
-          onCarDelete(response);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-        onCarDelete(error);
-      }
-    }
-  };
 
   return (
     <StyledCarItem elevation={3}>
@@ -228,61 +148,15 @@ function CarItemComponent({
         )}
         <CarTitle variant="h5">{car.model}</CarTitle>
         <CarTitle variant="h5">{car.regNumber}</CarTitle>
-        {/* <CarDetails>
-          <CarTitle variant="h5">{car.model}</CarTitle>
-          <Box mb={2}>
-            <CarInfo>
-              <DirectionsCarIcon /> Class: {car.class}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Transmission: {car.transmission}
-            </CarInfo>
-            <CarInfo>
-              <TimeToLeaveIcon /> Doors: {car?.numberOfDoors}
-            </CarInfo>
-            <CarInfo>
-              <AcUnitIcon /> AC: {car?.airConditioning ? "Yes" : "No"}
-            </CarInfo>
-            <CarInfo>
-              <SpeedIcon /> Engine Power: {car?.enginePower}
-            </CarInfo>
-          </Box>
-        </CarDetails> */}
-        {/* <DefaultButton
-          relative
-          minWidth="100%"
-          onClick={handleDelete}
-          sx={{ backgroundColor: "primary.main", color: "white" }}
-        >
-          Удалить эту машину
-        </DefaultButton>
-        <DefaultButton relative minWidth="100%" onClick={handleEditToggle}>
-          Редактировать
-        </DefaultButton> */}
       </Wrapper>
 
       <CalendarAdmin
         orders={carOrders}
-        handleOrderUpdate={handleOrderUpdate}
+        handleOrderUpdate={fetchAndUpdateOrders}
         setCarOrders={setCarOrders}
       />
-      {/* <EditCarModal
-        open={modalOpen}
-        onClose={handleModalClose}
-        updatedCar={updatedCar}
-        handleChange={handleChange}
-        handleUpdate={handleCarsUpdate}
-        handlePricingTierChange={handlePricingTierChange}
-        handleCheckboxChange={handleCheckboxChange}
-        updateStatus={updateStatus}
-        setUpdateStatus={setUpdateStatus}
-        handleOrderUpdate={handleOrderUpdate}
-        setUpdatedCar={setUpdatedCar}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-      /> */}
     </StyledCarItem>
   );
 }
 
-export default CarItemComponent;
+export default Item;

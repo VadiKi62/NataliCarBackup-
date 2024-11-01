@@ -32,6 +32,7 @@ const StyledBox = styled("div")(({ theme, scrolled }) => ({
 function Admin() {
   const {
     allOrders,
+    setAllOrders,
     resubmitCars,
     cars,
     fetchAndUpdateOrders,
@@ -99,7 +100,7 @@ function Admin() {
 
   // Openinig/closing handlers
   const handleCloseSnackbar = () => {
-    setUpdateStatus({ type: null, message: null });
+    setUpdateStatus(null);
   };
 
   const handleAddOpen = () => {
@@ -147,9 +148,9 @@ function Admin() {
               <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
                   car={car}
-                  orders={allOrders}
+                  // orders={ordersData}
                   handleOrderUpdate={handleOrderUpdate}
-                  setOrders={setOrders}
+                  // setOrders={setOrders}
                 />
               </Grid>
             ))}
@@ -157,8 +158,9 @@ function Admin() {
       )}
       {updateStatus && (
         <Snackbar
+          key={updateStatus.message + updateStatus.type} // unique key
           message={updateStatus.message}
-          isError={Boolean(updateStatus?.type !== 200)}
+          isError={updateStatus.type !== 200}
           closeFunc={handleCloseSnackbar}
           open={Boolean(updateStatus)}
         />

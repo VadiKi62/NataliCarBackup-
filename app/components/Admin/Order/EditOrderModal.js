@@ -32,14 +32,55 @@ dayjs.extend(timezone);
 const timeZone = "Europe/Athens";
 dayjs.tz.setDefault(timeZone);
 
-const EditOrderModal = ({ open, onClose, order, onSave }) => {
-  const { allOrders } = useMainContext();
+const EditOrderModal = ({
+  open,
+  onClose,
+  order,
+  orders,
+  onSave,
+  setCarOrders,
+}) => {
+  const { allOrders, fetchAndUpdateOrders } = useMainContext();
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const handleDelete = async () => {
+    // Prompt the user for confirmation before deleting
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this order?"
+    );
+    if (!isConfirmed) return;
+
+    setIsUpdating(true);
+    setUpdateMessage(""); // Clear any previous update message
+
+    try {
+      const response = await fetch(`/api/order/deleteOne/${editedOrder._id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: Failed to delete order`);
+      }
+
+      // Update car orders after successful deletion
+      setCarOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== editedOrder._id)
+      );
+
+      showMessage("Order deleted successfully.");
+      onClose(); // Close modal on successful deletion
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      setUpdateMessage("Failed to delete order. Please try again.");
+    } finally {
+      setIsUpdating(false); // Reset updating state
+    }
+  };
 
   useEffect(() => {
     if (order) {
@@ -350,132 +391,145 @@ const EditOrderModal = ({ open, onClose, order, onSave }) => {
 
   return (
     <>
-      <Modal
+      {/* <Modal
         open={open}
         onClose={onClose}
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      > */}
+      <Paper
+        sx={{
+          width: { xs: 500, md: 700 },
+          maxWidth: "90%",
+          p: { xs: 2, md: 4 },
+          maxHeight: "90vh",
+          overflow: "auto",
+        }}
       >
-        <Paper
-          sx={{
-            width: { xs: 500, md: 700 },
-            maxWidth: "90%",
-            p: { xs: 2, md: 4 },
-            maxHeight: "90vh",
-            overflow: "auto",
-          }}
-        >
-          {loading ? (
-            <Box display="flex" justifyContent="center">
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              <Typography variant="h5" gutterBottom>
-                Edit Order for {order?.carModel}
+        {loading ? (
+          <Box display="flex" justifyContent="center">
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Typography variant="h5" gutterBottom>
+              Edit Order for {order?.carModel}
+            </Typography>
+            {/* <Divider sx={{ my: 2 }} /> */}
+            <Box
+              display="flex"
+              alignContent="center"
+              alignItems="center"
+              justifyContent="right"
+            >
+              <Typography variant="body1" sx={{ alignSelf: "center" }}>
+                Total Price: {editedOrder?.totalPrice} | Days:{" "}
+                {editedOrder?.numberOfDays}
               </Typography>
-              {/* <Divider sx={{ my: 2 }} /> */}
-              <Box
-                display="flex"
-                alignContent="center"
-                alignItems="center"
-                justifyContent="right"
+            </Box>
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ mb: 3 }}>
+              <Button
+                variant="contained"
+                onClick={handleConfirmationToggle}
+                disabled={isUpdating}
+                sx={{
+                  width: "100%",
+                  backgroundColor: editedOrder?.confirmed
+                    ? "text.green"
+                    : "text.red",
+                }}
               >
-                <Typography variant="body1" sx={{ alignSelf: "center" }}>
-                  Total Price: {editedOrder?.totalPrice} | Days:{" "}
-                  {editedOrder?.numberOfDays}
-                </Typography>
-              </Box>
-              <Divider sx={{ my: 2 }} />
+                {editedOrder?.confirmed
+                  ? "Заказ подтвержден"
+                  : "Заказ не подтвержден"}
+              </Button>
+            </Box>
 
-              <Box sx={{ mb: 3 }}>
-                <Button
-                  variant="contained"
-                  onClick={handleConfirmationToggle}
-                  disabled={isUpdating}
-                  sx={{
-                    width: "100%",
-                    backgroundColor: editedOrder?.confirmed
-                      ? "text.green"
-                      : "text.red",
-                  }}
-                >
-                  {editedOrder?.confirmed
-                    ? "Заказ подтвержден"
-                    : "Заказ не подтвержден"}
-                </Button>
-              </Box>
-
-              <Box sx={{ mb: 3 }}>
-                {renderField("Rental Start Date", "rentalStartDate", "date")}
-                {renderField("Rental End Date", "rentalEndDate", "date")}
-                {renderField("Time In", "timeIn", "time")}
-                {renderField("Time Out", "timeOut", "time")}
-                {renderField("Place In", "placeIn")}
-                {renderField("Place Out", "placeOut")}
-                <Button
-                  variant="contained"
-                  onClick={handleDateUpdate}
-                  disabled={isUpdating}
-                  sx={{ mt: 2 }}
-                >
-                  Update Rental Details
-                </Button>
-                {conflictMessage1 && (
-                  <ConflictMessage
-                    initialConflicts={conflictMessage1}
-                    setUpdateMessage={setUpdateMessage}
-                    type={1}
-                  />
-                )}
-                {conflictMessage2 && (
-                  <ConflictMessage
-                    initialConflicts={conflictMessage2}
-                    setUpdateMessage={setUpdateMessage}
-                    type={2}
-                  />
-                )}
-
-                {conflictMessage3 && (
-                  <ConflictMessage
-                    initialConflicts={conflictMessage3}
-                    setUpdateMessage={setUpdateMessage}
-                    type={3}
-                  />
-                )}
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  Customer Information
-                </Typography>
-                {renderField("Customer Name", "customerName")}
-                {renderField("Phone", "phone")}
-                {renderField("Email", "email")}
-                <Button
-                  variant="contained"
-                  onClick={handleCustomerUpdate}
-                  disabled={isUpdating}
-                  sx={{ mt: 2 }}
-                >
-                  Update Customer Info
-                </Button>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box
-                sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
+            <Box sx={{ mb: 3 }}>
+              {renderField("Rental Start Date", "rentalStartDate", "date")}
+              {renderField("Rental End Date", "rentalEndDate", "date")}
+              {renderField("Time In", "timeIn", "time")}
+              {renderField("Time Out", "timeOut", "time")}
+              {renderField("Place In", "placeIn")}
+              {renderField("Place Out", "placeOut")}
+              <Button
+                variant="contained"
+                onClick={handleDateUpdate}
+                disabled={isUpdating}
+                sx={{ mt: 2 }}
               >
-                <Button onClick={onCloseModalEdit} variant="outlined">
-                  Cancel
-                </Button>
-              </Box>
-            </>
-          )}
-        </Paper>
-      </Modal>
+                Update Rental Details
+              </Button>
+              {conflictMessage1 && (
+                <ConflictMessage
+                  initialConflicts={conflictMessage1}
+                  setUpdateMessage={setUpdateMessage}
+                  type={1}
+                />
+              )}
+              {conflictMessage2 && (
+                <ConflictMessage
+                  initialConflicts={conflictMessage2}
+                  setUpdateMessage={setUpdateMessage}
+                  type={2}
+                />
+              )}
+
+              {/* {conflictMessage3 && (
+                <ConflictMessage
+                  initialConflicts={conflictMessage3}
+                  setUpdateMessage={setUpdateMessage}
+                  type={3}
+                />
+              )} */}
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Customer Information
+              </Typography>
+              {renderField("Customer Name", "customerName")}
+              {renderField("Phone", "phone")}
+              {renderField("Email", "email")}
+              <Button
+                variant="contained"
+                onClick={handleCustomerUpdate}
+                disabled={isUpdating}
+                sx={{ mt: 2 }}
+              >
+                Update Customer Info
+              </Button>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box
+              sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
+            >
+              <Button onClick={onCloseModalEdit} variant="outlined">
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleDelete}
+                disabled={isUpdating}
+                color="error"
+                sx={{ width: "30%" }}
+              >
+                {isUpdating ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Delete Order"
+                )}
+              </Button>
+            </Box>
+          </>
+        )}
+      </Paper>
+      {/* </Modal> */}
       <Snackbar
         open={snackbarOpen}
         message={updateMessage}

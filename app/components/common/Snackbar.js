@@ -44,54 +44,34 @@ function Transition(props) {
   return <Slide {...props} direction="down" />;
 }
 
-function Snackbar(props) {
-  const { message, closeFunc, isError, ...other } = props;
-  const classes = {
-    info: "MuiSnackbarContent-info",
-    close: "MuiSnackbarContent-close",
+function Snackbar({ message, closeFunc, isError, open }) {
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    if (closeFunc) closeFunc();
   };
-
-  const [open, setOpen] = React.useState(false);
-
-  // // Automatically dismiss the Snackbar after 5 seconds (5000ms)
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     if (closeFunc) {
-  //       closeFunc(); // Call the close function after 5 seconds
-  //     }
-  //   }, 4000);
-
-  //   // Cleanup the timer when component unmounts or if Snackbar closes early
-  //   return () => clearTimeout(timer);
-  // }, [closeFunc]);
 
   return (
     <MuiSnackbar
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      open={open}
+      onClose={handleClose}
       autoHideDuration={4000}
       TransitionComponent={Transition}
       message={
-        <>
+        <span style={{ display: "flex", alignItems: "center" }}>
           {isError ? (
-            <WarningIcon className={classes.info} />
+            <WarningIcon style={{ marginRight: 8, color: "red" }} />
           ) : (
-            <InfoIcon className={classes.info} />
+            <InfoIcon style={{ marginRight: 8, color: "green" }} />
           )}
-          <span>{message}</span>
-        </>
+          {message}
+        </span>
       }
-      action={[
-        <IconButton
-          key="close"
-          aria-label="close"
-          color="inherit"
-          className={classes.close}
-          onClick={() => closeFunc && closeFunc()}
-        >
+      action={
+        <IconButton aria-label="close" color="inherit" onClick={handleClose}>
           <CloseIcon />
-        </IconButton>,
-      ]}
-      {...other}
+        </IconButton>
+      }
     />
   );
 }

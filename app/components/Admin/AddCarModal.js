@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -17,6 +17,7 @@ import {
   Radio,
   RadioGroup,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,6 +28,7 @@ import {
   TRANSMISSION_TYPES,
   FUEL_TYPES,
   PREDEFINED_COLORS,
+  defaultPrices,
 } from "@models/enums";
 
 const AddCarModal = ({
@@ -37,6 +39,7 @@ const AddCarModal = ({
   fetchAndUpdateCars,
 }) => {
   const { resubmitCars } = useMainContext();
+  const [loading, setLoading] = useState(false);
   const [carData, setCarData] = useState({
     carNumber: "",
     model: "",
@@ -53,52 +56,29 @@ const AddCarModal = ({
     airConditioning: true,
     enginePower: "",
     engine: "1.500",
-    pricingTiers: car?.pricingTiers,
+    pricingTiers: defaultPrices,
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value, checked, type } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
     console.log(e.target);
-    setCarData((prevData) => ({
-      ...prevData,
-      [name]: e.target.type === "checkbox" ? checked : value,
-    }));
+
+    if (carData[name] !== newValue) {
+      setCarData((prevData) => ({ ...prevData, [name]: newValue }));
+    }
   };
-
-  const handleImageChange = (e) => {
-    setSelectedImage(e.target.files[0]); // Save the selected image file
-  };
-
-  // const handlePricingTierChange = (season, day, price) => {
-  //   setCarData((prevData) => {
-  //     const updatedPricingTiers = { ...prevData.pricingTiers };
-
-  //     // Update the price for the specific season and day
-  //     updatedPricingTiers[season] = {
-  //       ...updatedPricingTiers[season],
-  //       days: {
-  //         ...updatedPricingTiers[season].days,
-  //         [day]: price,
-  //       },
-  //     };
-
-  //     return {
-  //       ...prevData,
-  //       pricingTiers: updatedPricingTiers,
-  //     };
-  //   });
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(carData);
+    setLoading(true);
+
+    console.log(carData.pricingTiers);
 
     try {
       const formData = new FormData();
-      // Append all the carData fields to formData
-      formData.append("carNumber", carData.carNumber);
       formData.append("model", carData.model);
       formData.append("class", carData.class);
       formData.append("transmission", carData.transmission);
@@ -108,16 +88,8 @@ const AddCarModal = ({
       formData.append("airConditioning", Boolean(carData.airConditioning));
       formData.append("enginePower", String(carData.enginePower));
       formData.append("color", String(carData.color));
-
-      console.log(
-        "PricingTiers coming to carData from handleChange",
-        carData.pricingTiers
-      );
-
-      // Append the pricing tiers as a JSON string
       formData.append("pricingTiers", JSON.stringify(carData.pricingTiers));
 
-      // Append the image file if selected
       if (selectedImage) {
         formData.append("image", selectedImage);
       }
@@ -129,32 +101,52 @@ const AddCarModal = ({
 
       const result = await response.json();
       setUpdateStatus({ message: result.message, type: result.status });
+
       if (result.status === 200) {
-        onClose();
-        await resubmitCars();
+        await resubmitCars(); // Refresh car data
+        onClose(); // Close the modal
+        setCarData({});
+        setSelectedImage(null); // Clear image
       }
     } catch (error) {
       setUpdateStatus({ message: error.message, type: 400 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file !== selectedImage) {
+      setSelectedImage(file);
     }
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+        {loading && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.7)",
+              zIndex: 1,
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
         <DialogTitle>Add New Car</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Car Number"
-                  name="carNumber"
-                  value={carData.carNumber}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
@@ -321,10 +313,10 @@ const AddCarModal = ({
               {/* Pricing Tiers Table */}
               <Grid item xs={12}>
                 <PricingTiers
-                  car={car}
                   handleChange={handleChange}
                   setUpdatedCar={resubmitCars}
                   isAddcar={true}
+                  defaultPrices={defaultPrices}
                 />
               </Grid>
             </Grid>
@@ -343,12 +335,14 @@ const AddCarModal = ({
             >
               <Button
                 onClick={onClose}
+                disabled={loading}
                 sx={{ py: 1.5, px: 4, minWidth: "140px" }}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
+                disabled={loading}
                 variant="contained"
                 color="primary"
                 sx={{ py: 1.5, px: 4, minWidth: "140px" }}

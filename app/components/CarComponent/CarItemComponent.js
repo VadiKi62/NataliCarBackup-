@@ -165,7 +165,7 @@ function CarItemComponent({ car }) {
         onBookingComplete={handleBookingComplete}
       />
       <BookingModal
-        resubmitOrdersData={fetchAndUpdateOrders}
+        fetchAndUpdateOrders={fetchAndUpdateOrders}
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         car={car}

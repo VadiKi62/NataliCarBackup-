@@ -9,247 +9,175 @@ import cloudinary from "@utils/cloudinary";
 
 dayjs.extend(isBetween);
 
+// Main handler function
 export async function POST(req) {
-  await connectToDB();
-
   try {
     const formData = await req.formData();
+    const carData = extractCarData(formData);
 
-    console.log("formDAta", formData);
+    // Generate carNumber by fetching the highest current car number and incrementing it
+    carData.carNumber = await generateCarNumber();
 
-    // Extract file and carData
-    const file = formData.get("image");
-    const carData = {
-      carNumber: formData.get("carNumber"),
-      model: formData.get("model"),
-      class: formData.get("class"),
-      transmission: formData.get("transmission"),
-      seats: formData.get("seats"),
-      numberOfDoors: formData.get("numberOfDoors"),
-      airConditioning: formData.get("airConditioning"),
-      enginePower: formData.get("enginePower"),
-      pricingTiers: JSON.parse(formData.get("pricingTiers")),
-    };
+    await validateRequiredFields(carData);
 
-    console.log("Received file:", file);
-
-    if (file) {
-      const allowedMimeTypes = ["image/jpeg", "image/png"];
-      if (!allowedMimeTypes.includes(file.type)) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Invalid file type. Only JPEG and PNG are allowed",
-          },
-          { status: 400 }
-        );
-      }
+    if (carData.file) {
+      carData.photoUrl = await handleImageUpload(carData.file);
     }
 
-    try {
-      const pricingTiersString = formData.get("pricingTiers");
-      if (pricingTiersString) {
-        carData.pricingTiers = JSON.parse(pricingTiersString);
-      } else {
-        carData.pricingTiers = {
-          NoSeason: { days: {} },
-          LowSeason: { days: {} },
-          LowUpSeason: { days: {} },
-          MiddleSeason: { days: {} },
-          HighSeason: { days: {} },
-        };
-      }
-    } catch (error) {
-      console.error("Error parsing pricingTiers:", error);
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid pricing tiers format",
-          details: error.message,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate required fields
-    const requiredFields = [
-      "carNumber",
-      "model",
-      "class",
-      "transmission",
-      "seats",
-      "numberOfDoors",
-      "airConditioning",
-      "enginePower",
-      "pricingTiers",
-    ];
-    for (const field of requiredFields) {
-      if (!carData[field]) {
-        return NextResponse.json(
-          { success: false, message: `Missing required field: ${field}` },
-          { status: 400 }
-        );
-      }
-    }
-
-    // // Validate enum fields
-    // const enumFields = {
-    //   class: [
-    //     "Economy",
-    //     "Premium",
-    //     "MiniBus",
-    //     "Crossover",
-    //     "Limousine",
-    //     "Compact",
-    //     "Convertible",
-    //   ],
-    //   transmission: ["Automatic", "Manual"],
-    //   fueltype: [
-    //     "Diesel",
-    //     "Petrol",
-    //     "Natural Gas",
-    //     "Hybrid Diesel",
-    //     "Hybrid Petrol",
-    //   ],
-    // };
-
-    // for (const [field, allowedValues] of Object.entries(enumFields)) {
-    //   if (carData[field] && !allowedValues.includes(carData[field])) {
-    //     return NextResponse.json(
-    //       {
-    //         success: false,
-    //         message: `Invalid value for ${field}. Allowed values are: ${allowedValues.join(
-    //           ", "
-    //         )}`,
-    //       },
-    //       { status: 400 }
-    //     );
-    //   }
-    // }
-
-    // Validate number ranges
-    if (carData.numberOfDoors < 2 || carData.numberOfDoors > 10) {
-      return NextResponse.json(
-        { success: false, message: "Number of doors must be between 2 and 10" },
-        { status: 400 }
-      );
-    }
-
-    // Validate pricingTiers
-    const seasons = [
-      "NoSeason",
-      "LowSeason",
-      "LowUpSeason",
-      "MiddleSeason",
-      "HighSeason",
-    ];
-
-    for (const season of seasons) {
-      if (
-        !carData.pricingTiers[season] ||
-        !carData.pricingTiers[season].days ||
-        Object.keys(carData.pricingTiers[season].days).length === 0
-      ) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: `Missing pricing information for ${season}`,
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Process image file upload if file is provided
-    if (file) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const uploadToCloudinary = () =>
-        new Promise((resolve, reject) => {
-          const stream = require("stream");
-          const passthrough = new stream.PassThrough();
-          passthrough.end(buffer);
-
-          // Cloudinary upload
-          cloudinary.uploader
-            .upload_stream({ resource_type: "image" }, (error, result) => {
-              if (error) {
-                console.error("Error uploading to Cloudinary:", error);
-                reject(error); // Reject the promise on error
-              } else {
-                console.log("Upload result:", result);
-                resolve(result.public_id); // Resolve the promise with the image URL
-              }
-            })
-            .end(passthrough.read()); // Pipe the file to the Cloudinary uploader
-        });
-
-      try {
-        // Wait for the Cloudinary upload to complete and get the secure URL
-        const secureUrl = await uploadToCloudinary();
-        carData.photoUrl = secureUrl;
-        console.log("Cloudinary URL:", carData.photoUrl);
-      } catch (uploadError) {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Failed to upload image to Cloudinary",
-            error: uploadError.message,
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // Create new car
-    console.log("carData", carData);
+    // Create and save the car
     const newCar = new Car(carData);
     await newCar.save();
 
     return NextResponse.json(
       {
         success: true,
-        message: `Машина ${newCar.carNumber} добавлена`,
+        message: `Машина ${newCar.model} добавлена`,
         data: newCar,
         status: 200,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error adding car:", error);
-    if (error.code === 11000) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "A car with this car number already exists",
-          status: 409,
-        },
-        { status: 409 }
-      );
-    }
-    return NextResponse.json(
-      { success: false, message: "Failed to add car", error: error.message },
-      { status: 500 }
-    );
+    return handleError(error);
   }
 }
 
-async function generateUniqueFilename(basePath, originalFilename) {
-  const ext = path.extname(originalFilename);
-  const nameWithoutExt = path.basename(originalFilename, ext);
-  let filename = originalFilename;
-  let counter = 1;
+async function generateCarNumber() {
+  // Fetch all car numbers and map them to integers
+  const cars = await Car.find().select("carNumber");
+  const carNumbers = cars
+    .map((car) => parseInt(car.carNumber, 10))
+    .filter((num) => !isNaN(num));
 
-  while (
-    await fs
-      .access(path.join(basePath, filename))
-      .then(() => true)
-      .catch(() => false)
-  ) {
-    filename = `${nameWithoutExt}_${counter}${ext}`;
-    counter++;
+  // Find the highest car number
+  const maxCarNumber = carNumbers.length > 0 ? Math.max(...carNumbers) : 0;
+  const newCarNumber = maxCarNumber + 1;
+
+  // Return as a zero-padded string (e.g., four digits)
+  return newCarNumber.toString().padStart(4, "0");
+}
+// Function to extract data from the form
+function extractCarData(formData) {
+  const file = formData.get("image");
+  return {
+    file,
+    model: formData.get("model"),
+    class: formData.get("class"),
+    transmission: formData.get("transmission"),
+    seats: formData.get("seats"),
+    numberOfDoors: formData.get("numberOfDoors"),
+    airConditioning: formData.get("airConditioning"),
+    enginePower: formData.get("enginePower"),
+    pricingTiers: parsePricingTiers(formData.get("pricingTiers")),
+  };
+}
+
+// Function to validate required fields
+function validateRequiredFields(carData) {
+  const requiredFields = [
+    "carNumber",
+    "model",
+    "class",
+    "transmission",
+    "seats",
+    "numberOfDoors",
+    "airConditioning",
+    "enginePower",
+    "pricingTiers",
+  ];
+  for (const field of requiredFields) {
+    if (!carData[field]) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+  validatePricingTiers(carData.pricingTiers);
+  validateNumberOfDoors(carData.numberOfDoors);
+}
+
+// Function to parse and validate pricing tiers
+function parsePricingTiers(pricingTiersString) {
+  try {
+    return pricingTiersString
+      ? JSON.parse(pricingTiersString)
+      : createEmptyPricingTiers();
+  } catch (error) {
+    throw new Error("Invalid pricing tiers format");
+  }
+}
+
+function createEmptyPricingTiers() {
+  return {
+    NoSeason: { days: {} },
+    LowSeason: { days: {} },
+    LowUpSeason: { days: {} },
+    MiddleSeason: { days: {} },
+    HighSeason: { days: {} },
+  };
+}
+
+function validatePricingTiers(pricingTiers) {
+  const seasons = [
+    "NoSeason",
+    "LowSeason",
+    "LowUpSeason",
+    "MiddleSeason",
+    "HighSeason",
+  ];
+  for (const season of seasons) {
+    if (
+      !pricingTiers[season]?.days ||
+      Object.keys(pricingTiers[season].days).length === 0
+    ) {
+      throw new Error(`Missing pricing information for ${season}`);
+    }
+  }
+}
+
+// Validate number of doors
+function validateNumberOfDoors(numberOfDoors) {
+  if (numberOfDoors < 2 || numberOfDoors > 10) {
+    throw new Error("Number of doors must be between 2 and 10");
+  }
+}
+
+// Function to handle image upload
+async function handleImageUpload(file) {
+  const allowedMimeTypes = ["image/jpeg", "image/png"];
+  if (!allowedMimeTypes.includes(file.type)) {
+    throw new Error("Invalid file type. Only JPEG and PNG are allowed");
   }
 
-  return filename;
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const uploadToCloudinary = () =>
+    new Promise((resolve, reject) => {
+      const stream = require("stream");
+      const passthrough = new stream.PassThrough();
+      passthrough.end(buffer);
+
+      cloudinary.uploader
+        .upload_stream({ resource_type: "image" }, (error, result) => {
+          if (error) {
+            reject(new Error("Failed to upload image to Cloudinary"));
+          } else {
+            resolve(result.public_id);
+          }
+        })
+        .end(passthrough.read());
+    });
+
+  return await uploadToCloudinary();
+}
+
+// Error handling function
+function handleError(error) {
+  console.error("Error:", error);
+  const status = error.code === 11000 ? 409 : 500;
+  const message =
+    error.code === 11000
+      ? "A car with this car number already exists"
+      : "Failed to add car";
+  return NextResponse.json(
+    { success: false, message, details: error.message },
+    { status }
+  );
 }
