@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
-import { Grid, Container, CircularProgress } from "@mui/material";
+import { Grid, Container, CircularProgress, Box } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
 import DefaultButton from "../common/DefaultButton";
 import AddCarModal from "./AddCarModal";
@@ -14,9 +14,10 @@ import Loading from "@app/loading";
 import Error from "@app/error";
 import { styled } from "@mui/system";
 import Navbar from "@app/components/Navbar";
+import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
 
 import Cars from "./Car/Cars";
-const StyledBox = styled("div")(({ theme, scrolled }) => ({
+const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
   zIndex: 996,
   position: "fixed",
   top: scrolled ? 40 : 50,
@@ -25,7 +26,7 @@ const StyledBox = styled("div")(({ theme, scrolled }) => ({
   display: "flex",
   justifyContent: "center",
   padding: theme.spacing(0.5),
-  // backgroundColor: "transparent",
+  backgroundColor: !isCarInfo ? theme.palette.secondary.main : "transparent",
   // boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
 }));
 
@@ -119,15 +120,36 @@ function Admin() {
         isCarInfo={isCarInfo}
         setIsCarInfo={setIsCarInfo}
       />
-      <StyledBox scrolled={scrolled}>
-        <DefaultButton
-          onClick={handleAddOpen}
-          minWidth="600px"
-          relative
-          sx={{ width: "100%", margin: 0.5 }}
+      <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
+        <Box
+          display="flex"
+          alignItems="center"
+          width="100%"
+          justifyContent="center"
         >
-          Добавить машину
-        </DefaultButton>
+          {isCarInfo ? (
+            <DefaultButton
+              onClick={handleAddOpen}
+              minWidth="600px"
+              padding={scrolled ? 0 : 1.5}
+              relative
+              sx={{ width: "100%" }}
+            >
+              Добавить машину
+            </DefaultButton>
+          ) : (
+            <DefaultButton
+              minWidth="600px"
+              padding={scrolled ? 0 : 1.5}
+              relative
+              sx={{ width: "100%" }}
+            >
+              Добавить заказ
+            </DefaultButton>
+          )}
+
+          {!isCarInfo && <LegendCalendarAdmin />}
+        </Box>
       </StyledBox>
       {isCarInfo ? (
         <Cars onCarDelete={onCarDelete} setUpdateStatus={setUpdateStatus} />
@@ -158,7 +180,7 @@ function Admin() {
       )}
       {updateStatus && (
         <Snackbar
-          key={updateStatus.message + updateStatus.type} // unique key
+          key={updateStatus.message + updateStatus.type}
           message={updateStatus.message}
           isError={updateStatus.type !== 200}
           closeFunc={handleCloseSnackbar}

@@ -122,7 +122,7 @@ const CalendarAdmin = ({
         });
 
         if (relevantOrders.length > 0) {
-          setSelectedOrders(relevantOrders); // Always set selectedOrders as an array
+          setSelectedOrders(relevantOrders);
           setOpen(true);
         }
       };
@@ -147,7 +147,6 @@ const CalendarAdmin = ({
                 width: "50%",
                 height: "100%",
                 backgroundColor: "text.green",
-
                 borderRadius: "0 50% 50% 0",
                 display: "flex",
                 alignItems: "center",
@@ -179,6 +178,24 @@ const CalendarAdmin = ({
         );
       }
 
+      if (isOverlapDate)
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              position: "relative",
+              height: "120%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "text.red",
+              backgroundColor: "text.green",
+              cursor: "pointer",
+            }}
+          >
+            {date.date()}
+          </Box>
+        );
       // Regular cell rendering
       return (
         <Box
@@ -207,7 +224,12 @@ const CalendarAdmin = ({
   // Memoize order save handler
   const handleSaveOrder = (updatedOrder) => {
     // handleOrderUpdate();
-    setSelectedOrder(updatedOrder);
+    setSelectedOrders((prevSelectedOrders) =>
+      prevSelectedOrders.map((order) =>
+        order._id === updatedOrder._id ? updatedOrder : order
+      )
+    );
+
     const updatedOrders = orders.map((order) =>
       order._id === updatedOrder._id ? updatedOrder : order
     );
@@ -252,7 +274,7 @@ const CalendarAdmin = ({
 
   return (
     <Box sx={{ width: "100%", p: "20px" }}>
-      <LegendCalendarAdmin />
+      {/* <LegendCalendarAdmin /> */}
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -268,23 +290,23 @@ const CalendarAdmin = ({
 
       <Modal
         open={open}
-        onClose={handleClose}
-        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        onClose={handleClose} // Ensures clicking outside closes the modal
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 4,
+        }}
       >
-        {/* <Box
-          sx={{
-            width: "80%",
-            backgroundColor: "white",
-            p: 4,
-            borderRadius: 2,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        > */}
         <Grid
           container
           spacing={2}
-          justifyContent={selectedOrders.length === 1 ? "center" : "flex-start"}
+          justifyContent="center"
+          sx={{
+            maxWidth: "90vw", // Ensures it fits on smaller screens
+            maxHeight: "90vh", // Adjusts height to avoid overflow on smaller screens
+            overflow: "auto",
+          }}
         >
           {selectedOrders.map((order, index) => (
             <Grid
@@ -294,7 +316,7 @@ const CalendarAdmin = ({
               sm={selectedOrders.length === 1 ? 12 : 6}
               md={
                 selectedOrders.length === 1
-                  ? 6
+                  ? 12
                   : selectedOrders.length === 2
                   ? 6
                   : selectedOrders.length >= 3 && selectedOrders.length <= 4
@@ -304,6 +326,7 @@ const CalendarAdmin = ({
             >
               <EditOrderModal
                 order={order}
+                open={open}
                 onClose={handleClose}
                 onSave={handleSaveOrder}
                 setCarOrders={setCarOrders}
@@ -311,7 +334,6 @@ const CalendarAdmin = ({
             </Grid>
           ))}
         </Grid>
-        {/* </Box> */}
       </Modal>
     </Box>
   );

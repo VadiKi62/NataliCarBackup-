@@ -1,13 +1,12 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Stack } from "@mui/material";
 
 function LegendCalendarAdmin() {
   return (
-    <div>
+    <Stack spacing={2} direction="row" margin={3}>
       {" "}
       <Box
         sx={{
-          marginBottom: "10px",
           justifyContent: "center",
           display: "flex",
           alignItems: "center",
@@ -45,7 +44,7 @@ function LegendCalendarAdmin() {
           Неподтвержденные брони
         </Typography>
       </Box>
-      <Box
+      {/* <Box
         sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
       >
         <Box
@@ -75,9 +74,13 @@ function LegendCalendarAdmin() {
         <Typography component="span" variant="body2">
           Конец аренды и начало новой аренды в один день
         </Typography>
-      </Box>
+      </Box> */}
       <Box
-        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
+        sx={{
+          marginBottom: "10px",
+          justifyContent: "center",
+          display: "flex",
+        }}
       >
         <Box
           component="span"
@@ -85,28 +88,33 @@ function LegendCalendarAdmin() {
             position: "relative",
             display: "inline-block",
             width: "20px",
-            height: "20px",
+            height: "22px",
             backgroundColor: "text.green",
             marginRight: "10px",
+            color: "text.red",
+            justifyContent: "center",
+            alignContent: "center",
+            display: "flex",
           }}
         >
-          <Box
+          1
+          {/* <Box
             sx={{
               position: "absolute",
               height: "100%",
               width: "1px",
               backgroundColor: "primary.main",
-              left: `${35 + 1 * 15}%`, // Spacing lines evenly across the box
-              transform: "translateX(-50%)",
+              // left: `${35 + 1 * 15}%`, // Spacing lines evenly across the box
+              // transform: "translateX(-50%)",
             }}
-          />
+          /> */}
         </Box>
 
         <Typography component="span" variant="body2">
           Конфликтующие даты бронирования
         </Typography>
       </Box>
-    </div>
+    </Stack>
   );
 }
 

@@ -32,14 +32,7 @@ dayjs.extend(timezone);
 const timeZone = "Europe/Athens";
 dayjs.tz.setDefault(timeZone);
 
-const EditOrderModal = ({
-  open,
-  onClose,
-  order,
-  orders,
-  onSave,
-  setCarOrders,
-}) => {
+const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
   const { allOrders, fetchAndUpdateOrders } = useMainContext();
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
