@@ -152,7 +152,10 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
 
   const handleCarsUpdate = async () => {
     const response = await updateCarInContext(updatedCar);
-    setUpdateStatus({ type: response.type, message: response.message });
+    setUpdateStatus({
+      type: response.type || "200",
+      message: response.message,
+    });
   };
 
   const handleEditToggle = () => setModalOpen(true);
@@ -169,74 +172,74 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
 
   return (
     <StyledCarItem elevation={3}>
-      {car?.photoUrl && (
-        <CarImage
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-        >
-          {previewImage ? (
-            <img src={previewImage} alt="Preview" />
-          ) : (
-            <CldImage
-              src={car.photoUrl}
-              alt={`Natali-Cars-${car.model}`}
-              width="450"
-              height="300"
-              crop="fill"
-              priority
-              sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          )}
-          {hovered && (
-            <ImageOverlay>
-              <Button
-                variant="contained"
-                onClick={() => fileInputRef.current.click()}
-                sx={{
-                  color: "white",
-                  backgroundColor: "primary.main",
-                  mb: 1,
-                  p: 1,
-                }}
-              >
-                Select New Photo
-              </Button>
-              {previewImage && (
-                <Stack spacing={1}>
-                  <Button
-                    variant="contained"
-                    onClick={handleImageUpload}
-                    sx={{
-                      color: "white",
-                      backgroundColor: "primary.green",
-                      p: 1,
-                    }}
-                  >
-                    Save Photo
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => setPreviewImage(null)}
-                    sx={{
-                      color: "white",
-                      backgroundColor: "primary.red",
-                      p: 1,
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </Stack>
-              )}
-            </ImageOverlay>
-          )}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageSelect}
-            style={{ display: "none" }}
+      {/* {car?.photoUrl && ( */}
+      <CarImage
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {previewImage ? (
+          <img src={previewImage} alt="Preview" />
+        ) : (
+          <CldImage
+            src={car.photoUrl || "NO_PHOTO_h2klff"}
+            alt={`Natali-Cars-${car.model}`}
+            width="450"
+            height="300"
+            crop="fill"
+            priority
+            sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-        </CarImage>
-      )}
+        )}
+        {hovered && (
+          <ImageOverlay>
+            <Button
+              variant="contained"
+              onClick={() => fileInputRef.current.click()}
+              sx={{
+                color: "white",
+                backgroundColor: "primary.main",
+                mb: 1,
+                p: 1,
+              }}
+            >
+              Select New Photo
+            </Button>
+            {previewImage && (
+              <Stack spacing={1}>
+                <Button
+                  variant="contained"
+                  onClick={handleImageUpload}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "primary.green",
+                    p: 1,
+                  }}
+                >
+                  Save Photo
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => setPreviewImage(null)}
+                  sx={{
+                    color: "white",
+                    backgroundColor: "primary.red",
+                    p: 1,
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Stack>
+            )}
+          </ImageOverlay>
+        )}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageSelect}
+          style={{ display: "none" }}
+        />
+      </CarImage>
+      {/* )} */}
       <Wrapper>
         <Stack sx={{ flexDirection: "column", width: "100%" }}>
           <CarDetails>
@@ -268,6 +271,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
         open={modalOpen}
         onClose={handleModalClose}
         updatedCar={updatedCar}
+        setUpdatedCar={setUpdatedCar}
         handleChange={(e) =>
           setUpdatedCar((prev) => ({
             ...prev,

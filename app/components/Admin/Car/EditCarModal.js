@@ -18,6 +18,7 @@ import {
   Radio,
   CircularProgress,
   InputAdornment,
+  Stack,
 } from "@mui/material";
 import Snackbar from "@app/components/common/Snackbar";
 import { styled } from "@mui/material/styles";
@@ -29,6 +30,11 @@ import {
   FUEL_TYPES,
   PREDEFINED_COLORS,
 } from "@models/enums";
+import {
+  RenderTextField,
+  RenderSelectField,
+} from "@app/components/common/Fields";
+import CarImageUpload from "../AddImageComponent";
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   width: "90%",
@@ -48,35 +54,50 @@ const EditCarModal = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
-
+  const [imagePreview, setImagePreview] = useState(updatedCar.photoUrl || "");
   const handleCloseModal = () => onClose();
 
-  const handleImageUpload = async () => {
-    const file = fileInputRef.current.files[0];
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
     if (!file) return;
 
+    // Показываем превью загружаемого изображения
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result); // Обновляем превью
+    };
+    reader.readAsDataURL(file);
+
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
 
     try {
       setIsLoading(true);
+      // Загружаем изображение на Cloudinary
       const response = await fetch("/api/order/update/image", {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
-      const message = data.success ? data.data : data.message;
+      console.log("data is:", data);
 
       if (data.success) {
+        // если URL был успешно получен
+        const updatedPhotoUrl = data.secure_url; // получаем URL изображения
+
+        // Обновляем машину с новым photoUrl
         const response = await updateCarInContext({
           ...updatedCar,
-          photoUrl: message,
+          photoUrl: updatedPhotoUrl,
         });
-        setUpdateStatus({ type: response.type, message: response.message });
+        setUpdateStatus({
+          type: response.type || "200",
+          message: response.message,
+        });
       } else {
-        console.error("Image upload failed:", message);
-        setUpdateStatus({ type: 400, message });
+        console.error("Image upload failed:", data.message);
+        setUpdateStatus({ type: 400, message: data.message });
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -85,54 +106,6 @@ const EditCarModal = ({
       setIsLoading(false);
     }
   };
-
-  const renderTextField = (
-    name,
-    label,
-    type = "text",
-    defaultValue = "",
-    adornment = ""
-  ) => (
-    <FormControl fullWidth sx={{ mb: 2 }}>
-      <TextField
-        name={name}
-        label={label}
-        type={type}
-        value={updatedCar[name] || defaultValue}
-        onChange={handleChange}
-        disabled={isLoading}
-        size="medium"
-        InputLabelProps={{
-          shrink: true,
-        }}
-        InputProps={{
-          endAdornment: adornment ? (
-            <InputAdornment position="end">{adornment}</InputAdornment>
-          ) : null,
-        }}
-      />
-    </FormControl>
-  );
-
-  const renderSelectField = (name, label, options, defaultValue) => (
-    <FormControl fullWidth sx={{ mb: 2 }} disabled={isLoading}>
-      <InputLabel id={`${name}-label`}>{label}</InputLabel>
-      <Select
-        labelId={`${name}-label`}
-        name={name}
-        value={updatedCar[name] || defaultValue || ""}
-        onChange={handleChange}
-        label={label}
-        size="medium"
-      >
-        {options.map((option) => (
-          <MenuItem key={option} value={option.toLowerCase()}>
-            {capitalizeFirstLetter(option)}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -164,21 +137,38 @@ const EditCarModal = ({
         )}
 
         <Box sx={{ opacity: isLoading ? 0.3 : 1, transition: "opacity 0.2s" }}>
-          <DialogTitle variant="h5" gutterBottom>
-            Update Car Details
-          </DialogTitle>
+          <DialogTitle>Update Car Details</DialogTitle>
           <Grid container spacing={3} sx={{ flexGrow: 1 }}>
             {/* Column 1 */}
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ p: 2 }}>
-                {renderTextField("model", "Model")}
-                {renderTextField("seats", "Seats", "number", 2)}
-                {renderTextField(
-                  "numberOfDoors",
-                  "Number of Doors",
-                  "number",
-                  4
-                )}
+            <Grid item xs={12} sm={3}>
+              <Stack spacing={3}>
+                <RenderTextField
+                  name="model"
+                  label="Model"
+                  defaultValue="Toyota"
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+                <RenderSelectField
+                  name="class"
+                  label="Class"
+                  options={Object.values(CAR_CLASSES)}
+                  required
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+                <RenderSelectField
+                  name="transmission"
+                  label="Transmission"
+                  options={Object.values(TRANSMISSION_TYPES)}
+                  required
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -191,99 +181,116 @@ const EditCarModal = ({
                   label="Air Conditioning"
                   sx={{ my: 2 }}
                 />
-              </Box>
+              </Stack>
             </Grid>
 
-            {/* Column 2 */}
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ p: 2 }}>
-                {renderTextField(
-                  "registration",
-                  "Registration Year",
-                  "number",
-                  2020
-                )}
-                {renderTextField(
-                  "enginePower",
-                  "Engine Power",
-                  "number",
-                  1000,
-                  "bhp"
-                )}
-                {renderTextField("engine", "engine", 122, "c.c.")}
-              </Box>
+            <Grid item xs={12} sm={3}>
+              <Stack spacing={3}>
+                <RenderSelectField
+                  name="fueltype"
+                  label="Fuel Type"
+                  options={Object.values(FUEL_TYPES)}
+                  required
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+                <RenderTextField
+                  name="registration"
+                  label="Registration Year"
+                  defaultValue={updatedCar.registration}
+                  type="number"
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+                <RenderTextField
+                  name="regNumber"
+                  label="Registration Number"
+                  defaultValue={updatedCar.regNumber}
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+              </Stack>
             </Grid>
 
             {/* Column 3 */}
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ p: 2 }}>
-                {renderTextField(
-                  "regNumber",
-                  "Registration Number",
-                  "text",
-                  ""
-                )}
-                {renderSelectField(
-                  "fueltype",
-                  "Fuel Type",
-                  Object.values(FUEL_TYPES),
-                  FUEL_TYPES.PETROL
-                )}
+            <Grid item xs={12} sm={3}>
+              <Stack spacing={3}>
+                <RenderTextField
+                  type="number"
+                  name="numberOfDoors"
+                  label="Number of Doors"
+                  defaultValue={updatedCar.numberOfDoors}
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
 
-                {renderSelectField(
-                  "transmission",
-                  "Transmission",
-                  Object.values(TRANSMISSION_TYPES),
-                  TRANSMISSION_TYPES.AUTOMATIC
-                )}
-                {renderSelectField(
-                  "class",
-                  "Car Class",
-                  Object.values(CAR_CLASSES),
-                  CAR_CLASSES.ECONOMY
-                )}
-              </Box>
+                <RenderTextField
+                  type="number"
+                  name="seats"
+                  label="Seats"
+                  defaultValue={updatedCar.seats}
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                />
+                <RenderTextField
+                  type="number"
+                  name="enginePower"
+                  label="Engine Power"
+                  defaultValue={updatedCar.enginePower}
+                  updatedCar={updatedCar}
+                  handleChange={handleChange}
+                  isLoading={isLoading}
+                  adornment="bhp"
+                />
+              </Stack>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ m: 2 }}>
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  sx={{ mb: 1.5 }}
-                >
-                  Фото
-                </Typography>
-                <input
-                  accept="image/*"
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageUpload}
-                  disabled={isLoading}
-                />
-                <StyledTextField
-                  sx={{ mt: 2 }}
-                  name="photoUrl"
-                  label="Photo URL"
-                  value={updatedCar.photoUrl || ""}
-                  onChange={handleChange}
-                  fullWidth
-                  disabled={isLoading}
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ m: 2 }}>
-                {" "}
-                <ColorPicker
-                  value={updatedCar.color || ""}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-              </Box>
+            <Grid item xs={12} sm={3}>
+              <RenderTextField
+                type="number"
+                name="engine"
+                label="Engine"
+                defaultValue={updatedCar.enginePower}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+                adornment="c.c."
+              />
+              <CarImageUpload
+                photoUrl={updatedCar.photoUrl || ""}
+                handleChange={handleChange}
+                handleImageChange={handleImageUpload}
+                imagePreview={imagePreview}
+              />
+
+              {/* <TextField
+                name="photoUrl"
+                label="Photo URL"
+                value={updatedCar.photoUrl || ""}
+                onChange={handleChange}
+                fullWidth
+                disabled={isLoading}
+              />
+              <input
+                accept="image/*"
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                disabled={isLoading}
+              /> */}
+
+              <ColorPicker
+                value={updatedCar.color || ""}
+                onChange={handleChange}
+                disabled={isLoading}
+              />
             </Grid>
 
-            {/* Pricing Table */}
             <Grid item xs={12}>
               <PricingTiersTable
                 car={updatedCar}
@@ -355,31 +362,7 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
   };
 
   return (
-    <Box sx={{ mb: 2 }}>
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        Цвет
-      </Typography>
-
-      <RadioGroup
-        row
-        value={colorMode}
-        onChange={handleColorModeChange}
-        sx={{ mb: 1 }}
-      >
-        <FormControlLabel
-          value="predefined"
-          control={<Radio size="small" />}
-          label="Выбрать из списка"
-          disabled={disabled}
-        />
-        <FormControlLabel
-          value="custom"
-          control={<Radio size="small" />}
-          label="Свой цвет"
-          disabled={disabled}
-        />
-      </RadioGroup>
-
+    <Box sx={{ mt: 2 }}>
       {colorMode === "predefined" ? (
         <FormControl fullWidth disabled={disabled}>
           <Select
@@ -429,6 +412,25 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
           helperText="Введите цвет"
         />
       )}
+      <RadioGroup
+        row
+        value={colorMode}
+        onChange={handleColorModeChange}
+        sx={{ mb: 1 }}
+      >
+        <FormControlLabel
+          value="predefined"
+          control={<Radio size="small" />}
+          label="Выбрать из списка"
+          disabled={disabled}
+        />
+        <FormControlLabel
+          value="custom"
+          control={<Radio size="small" />}
+          label="Свой цвет"
+          disabled={disabled}
+        />
+      </RadioGroup>
     </Box>
   );
 };

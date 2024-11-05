@@ -1,11 +1,14 @@
 import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
+import dayjs from "dayjs";
 
 export const PUT = async (req) => {
   try {
     await connectToDB();
 
     const { _id, ...updateFields } = await req.json();
+
+    updateFields.dateLastModified = dayjs().toDate();
 
     const updatedCar = await Car.findByIdAndUpdate(_id, updateFields, {
       new: true,

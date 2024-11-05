@@ -7,6 +7,7 @@ import {
   Button,
   TextField,
   Grid,
+  Stack,
   FormControl,
   InputLabel,
   Select,
@@ -17,6 +18,7 @@ import {
   Radio,
   RadioGroup,
   InputAdornment,
+  Checkbox,
   CircularProgress,
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -30,6 +32,8 @@ import {
   PREDEFINED_COLORS,
   defaultPrices,
 } from "@models/enums";
+import { styled } from "@mui/material/styles";
+import CarImageUpload from "./AddImageComponent";
 
 const AddCarModal = ({
   open,
@@ -38,8 +42,10 @@ const AddCarModal = ({
   setUpdateStatus,
   fetchAndUpdateCars,
 }) => {
+  const DEFAULT_IMAGE = "./NO_PHOTO.png";
   const { resubmitCars } = useMainContext();
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(DEFAULT_IMAGE);
   const [carData, setCarData] = useState({
     carNumber: "",
     model: "",
@@ -57,10 +63,10 @@ const AddCarModal = ({
     enginePower: "",
     engine: "1.500",
     pricingTiers: defaultPrices,
+    photoUrl: "NO_PHOTO_h2klff",
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
-
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
     const newValue = type === "checkbox" ? checked : value;
@@ -75,12 +81,11 @@ const AddCarModal = ({
     e.preventDefault();
     setLoading(true);
 
-    console.log(carData.pricingTiers);
-
     try {
       const formData = new FormData();
       formData.append("model", carData.model);
       formData.append("class", carData.class);
+      formData.append("regNumber", carData.regNumber);
       formData.append("transmission", carData.transmission);
       formData.append("fueltype", carData.fueltype || "");
       formData.append("seats", String(carData.seats));
@@ -115,10 +120,17 @@ const AddCarModal = ({
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file && file !== selectedImage) {
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Set preview image and file name
+      setImagePreview(URL.createObjectURL(file));
       setSelectedImage(file);
+      setCarData({ ...carData, photoUrl: file.name });
+    } else {
+      // Reset to default if no file is chosen
+      setImagePreview(DEFAULT_IMAGE);
+      setCarData({ ...carData, photoUrl: "NO_PHOTO_h2klff" });
     }
   };
 
@@ -143,215 +155,216 @@ const AddCarModal = ({
             <CircularProgress />
           </Box>
         )}
-        <DialogTitle>Add New Car</DialogTitle>
-        <form onSubmit={handleSubmit}>
-          <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Model"
-                  name="model"
-                  value={carData.model}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
+        <Box sx={{ opacity: loading ? 0.3 : 1, transition: "opacity 0.2s" }}>
+          <DialogTitle>Add New Car</DialogTitle>
+          <form onSubmit={handleSubmit}>
+            <DialogContent>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Model"
+                      name="model"
+                      value={carData.model}
+                      onChange={handleChange}
+                      required
+                    />
 
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Class</InputLabel>
-                  <Select
-                    name="class"
-                    value={carData.class}
-                    onChange={handleChange}
-                    label="Class"
-                  >
-                    {Object.values(CAR_CLASSES).map((carClass) => (
-                      <MenuItem key={carClass} value={carClass}>
-                        {carClass.charAt(0).toUpperCase() + carClass.slice(1)}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Transmission</InputLabel>
-                  <Select
-                    name="transmission"
-                    value={carData.transmission}
-                    onChange={handleChange}
-                    label="Transmission"
-                  >
-                    {Object.values(TRANSMISSION_TYPES).map((transmission) => (
-                      <MenuItem key={transmission} value={transmission}>
-                        {transmission.charAt(0).toUpperCase() +
-                          transmission.slice(1)}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth required>
-                  <InputLabel>Fuel Type</InputLabel>
-                  <Select
-                    name="fueltype"
-                    value={carData.fueltype}
-                    onChange={handleChange}
-                    label="Fuel Type"
-                  >
-                    {Object.values(FUEL_TYPES).map((fuel) => (
-                      <MenuItem key={fuel} value={fuel}>
-                        {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+                    <FormControl fullWidth required>
+                      <InputLabel>Class</InputLabel>
+                      <Select
+                        name="class"
+                        value={carData.class}
+                        onChange={handleChange}
+                        label="Class"
+                      >
+                        {Object.values(CAR_CLASSES).map((carClass) => (
+                          <MenuItem key={carClass} value={carClass}>
+                            {carClass.charAt(0).toUpperCase() +
+                              carClass.slice(1)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl fullWidth required>
+                      <InputLabel>Transmission</InputLabel>
+                      <Select
+                        name="transmission"
+                        value={carData.transmission}
+                        onChange={handleChange}
+                        label="Transmission"
+                      >
+                        {Object.values(TRANSMISSION_TYPES).map(
+                          (transmission) => (
+                            <MenuItem key={transmission} value={transmission}>
+                              {transmission.charAt(0).toUpperCase() +
+                                transmission.slice(1)}
+                            </MenuItem>
+                          )
+                        )}
+                      </Select>
+                    </FormControl>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={carData.airConditioning || false}
+                          onChange={handleChange}
+                          name="airConditioning"
+                        />
+                      }
+                      label="Air Conditioning"
+                      sx={{ my: 2 }}
+                    />
+                  </Stack>
+                </Grid>
 
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Registration Year"
-                  name="registration"
-                  value={carData.registration}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Registration Number"
-                  name="regNumber"
-                  value={carData.regNumber}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
+                    <FormControl fullWidth required>
+                      <InputLabel>Fuel Type</InputLabel>
+                      <Select
+                        name="fueltype"
+                        value={carData.fueltype}
+                        onChange={handleChange}
+                        label="Fuel Type"
+                      >
+                        {Object.values(FUEL_TYPES).map((fuel) => (
+                          <MenuItem key={fuel} value={fuel}>
+                            {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Registration Year"
+                      name="registration"
+                      value={carData.registration}
+                      onChange={handleChange}
+                      required
+                    />
 
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Number of Doors"
-                  name="numberOfDoors"
-                  value={carData.numberOfDoors}
-                  onChange={handleChange}
-                  required
-                  inputProps={{ min: 2, max: 6 }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Seats"
-                  name="seats"
-                  value={carData.seats}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  type="number"
-                  label="Engine Power"
-                  name="enginePower"
-                  value={carData.enginePower}
-                  onChange={handleChange}
-                  required
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">bhp</InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  fullWidth
-                  label="Engine"
-                  name="engine"
-                  value={carData.engine}
-                  onChange={handleChange}
-                  required
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">c.c.</InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                {/* <Typography> Add image</Typography> */}
-                <TextField
-                  fullWidth
-                  label="Photo URL"
-                  name="photoUrl"
-                  value={carData.photoUrl}
-                  onChange={handleChange}
-                />
+                    <TextField
+                      fullWidth
+                      label="Registration Number"
+                      name="regNumber"
+                      value={carData.regNumber}
+                      onChange={handleChange}
+                      required
+                    />
+                  </Stack>
+                </Grid>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <ColorPicker
-                  value={carData.color || ""}
-                  onChange={handleChange}
-                />
-              </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Number of Doors"
+                      name="numberOfDoors"
+                      value={carData.numberOfDoors}
+                      onChange={handleChange}
+                      required
+                      inputProps={{ min: 2, max: 6 }}
+                    />
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Seats"
+                      name="seats"
+                      value={carData.seats}
+                      onChange={handleChange}
+                      required
+                    />
+                    <TextField
+                      fullWidth
+                      type="number"
+                      label="Engine Power"
+                      name="enginePower"
+                      value={carData.enginePower}
+                      onChange={handleChange}
+                      required
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">bhp</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Engine"
+                      name="engine"
+                      value={carData.engine}
+                      onChange={handleChange}
+                      required
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">c.c.</InputAdornment>
+                        ),
+                      }}
+                    />
+                    <CarImageUpload
+                      photoUrl={carData.photoUrl}
+                      handleChange={handleChange}
+                      handleImageChange={handleImageChange}
+                      imagePreview={imagePreview}
+                    />
+                    <ColorPicker
+                      value={carData.color || ""}
+                      onChange={handleChange}
+                    />
+                  </Stack>
+                </Grid>
 
-              {/* Pricing Tiers Table */}
-              <Grid item xs={12}>
-                <PricingTiers
-                  handleChange={handleChange}
-                  setUpdatedCar={resubmitCars}
-                  isAddcar={true}
-                  defaultPrices={defaultPrices}
-                />
+                {/* Pricing Tiers Table */}
+                <Grid item xs={12}>
+                  <PricingTiers
+                    handleChange={handleChange}
+                    setUpdatedCar={resubmitCars}
+                    isAddcar={true}
+                    defaultPrices={defaultPrices}
+                  />
+                </Grid>
               </Grid>
+            </DialogContent>
+            <Grid item xs={12}>
+              <DialogActions
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 2,
+                  mt: 3,
+                  pt: 2,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
+                <Button
+                  onClick={onClose}
+                  disabled={loading}
+                  sx={{ py: 1.5, px: 4, minWidth: "140px" }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant="contained"
+                  color="primary"
+                  sx={{ py: 1.5, px: 4, minWidth: "140px" }}
+                >
+                  Add Car
+                </Button>
+              </DialogActions>
             </Grid>
-          </DialogContent>
-          <Grid item xs={12}>
-            <DialogActions
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 2,
-                mt: 3,
-                pt: 2,
-                borderTop: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Button
-                onClick={onClose}
-                disabled={loading}
-                sx={{ py: 1.5, px: 4, minWidth: "140px" }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                variant="contained"
-                color="primary"
-                sx={{ py: 1.5, px: 4, minWidth: "140px" }}
-              >
-                Add Car
-              </Button>
-            </DialogActions>
-          </Grid>
-        </form>
+          </form>
+        </Box>
       </Dialog>
     </LocalizationProvider>
   );
@@ -382,30 +395,6 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
 
   return (
     <Box sx={{ mb: 2 }}>
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        Цвет
-      </Typography>
-
-      <RadioGroup
-        row
-        value={colorMode}
-        onChange={handleColorModeChange}
-        sx={{ mb: 1 }}
-      >
-        <FormControlLabel
-          value="predefined"
-          control={<Radio size="small" />}
-          label="Выбрать из списка"
-          disabled={disabled}
-        />
-        <FormControlLabel
-          value="custom"
-          control={<Radio size="small" />}
-          label="Свой цвет"
-          disabled={disabled}
-        />
-      </RadioGroup>
-
       {colorMode === "predefined" ? (
         <FormControl fullWidth disabled={disabled}>
           <Select
@@ -452,9 +441,29 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
           value={value || ""}
           onChange={handleColorChange}
           disabled={disabled}
-          helperText="Введите цвет"
         />
       )}
+      <RadioGroup
+        row
+        value={colorMode}
+        onChange={handleColorModeChange}
+        sx={{ mb: 0.5 }}
+      >
+        <FormControlLabel
+          value="predefined"
+          control={<Radio size="small" />}
+          label="Выбрать из списка"
+          disabled={disabled}
+          sx={{ my: -1 }}
+        />
+        <FormControlLabel
+          value="custom"
+          control={<Radio size="small" />}
+          label="Свой цвет"
+          disabled={disabled}
+          sx={{ my: -1 }}
+        />
+      </RadioGroup>
     </Box>
   );
 };

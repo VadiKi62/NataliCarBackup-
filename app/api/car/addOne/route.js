@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { Car } from "@models/car";
 import { connectToDB } from "@utils/database";
 import dayjs from "dayjs";
@@ -22,8 +23,11 @@ export async function POST(req) {
 
     if (carData.file) {
       carData.photoUrl = await handleImageUpload(carData.file);
+    } else {
+      carData.photoUrl = "NO_PHOTO_h2klff";
     }
 
+    carData.dateAddCar = dayjs().toDate();
     // Create and save the car
     const newCar = new Car(carData);
     await newCar.save();

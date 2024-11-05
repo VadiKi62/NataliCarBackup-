@@ -98,7 +98,7 @@ const CarSchema = new Schema({
   },
   pricingTiers: {
     type: Map,
-    of: pricingTierSchema, // Each season has a pricingTierSchema
+    of: pricingTierSchema,
     required: true,
   },
   orders: [
@@ -107,6 +107,12 @@ const CarSchema = new Schema({
       ref: "Order",
     },
   ],
+  dateAddCar: {
+    type: Date,
+  },
+  dateLastModified: {
+    type: Date,
+  },
 });
 
 CarSchema.methods.getSeason = function (date) {

@@ -24,7 +24,7 @@ const PricingTiersTable = ({
   const prices = isAddcar ? defaultPrices : car?.pricingTiers;
 
   useEffect(() => {
-    console.log("prices :", prices);
+    // console.log("prices :", prices);
 
     if (prices) {
       const data = Object.entries(prices).map(([season, pricing]) => ({
@@ -76,7 +76,7 @@ const PricingTiersTable = ({
           },
         },
       };
-      console.log("UPDATED CARDATA", updatedCarData);
+      // console.log("UPDATED CARDATA", updatedCarData);
       handleChange({
         target: { name: "pricingTiers", value: updatedCarData.pricingTiers },
       });
@@ -89,7 +89,7 @@ const PricingTiersTable = ({
     [car, debouncedUpdate, handleChange]
   );
 
-  console.log("Prices", prices);
+  // console.log("Prices", prices);
   const columns = [
     { field: "season", headerName: "Season", width: 150 },
     { field: "seasonDates", headerName: "Season Dates", width: 200 },
@@ -128,8 +128,6 @@ const PricingTiersTable = ({
       })
     ),
   ];
-
-  console.log("columns", columns);
 
   const handleRowUpdate = (newRow, oldRow) => {
     if (JSON.stringify(newRow) !== JSON.stringify(oldRow)) {

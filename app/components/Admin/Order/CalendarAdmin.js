@@ -106,10 +106,10 @@ const CalendarAdmin = ({
       }
 
       // Single order date styling
-      if (isStartDate && !isOverlapDate) {
+      if (isStartDate) {
         borderRadius = "50% 0 0 50%";
       }
-      if (isEndDate && !isOverlapDate) {
+      if (isEndDate) {
         borderRadius = "0 50% 50% 0";
       }
 

@@ -41,7 +41,7 @@ export async function POST(request) {
     // Calculate the number of rental days using dayjs
     const startDate = dayjs(rentalStartDate);
     const endDate = dayjs(rentalEndDate);
-    const rentalDays = endDate.diff(startDate, "day") + 1; // include both start and end day
+    const rentalDays = endDate.diff(startDate, "day"); // include only start  day
 
     // Check for existing orders
     const existingOrders = await Order.find({

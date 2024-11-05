@@ -18,10 +18,9 @@ export const TRANSMISSION_TYPES = {
 export const FUEL_TYPES = {
   DIESEL: "diesel",
   PETROL: "petrol",
-  NATURAL_GAS: "natural gas",
+  NATURAL_GAS: "gas(lpg)",
   HYBRID_DIESEL: "hybrid diesel",
   HYBRID_PETROL: "hybrid petrol",
-  NATURAL_GAS_CNG: "natural gas(cng)",
 };
 
 export const PREDEFINED_COLORS = {

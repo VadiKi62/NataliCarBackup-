@@ -25,21 +25,40 @@ const CalendarPicker = ({
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
+  const [startEndDates, setStartEndDates] = useState([]);
   const [showBookButton, setShowBookButton] = useState(false);
+  const [selectedTimes, setSelectedTimes] = useState({
+    start: null,
+    end: null,
+  });
 
   useEffect(() => {
     const unavailable = [];
     const confirmed = [];
+    const startEnd = [];
 
     orders.forEach((order) => {
       const startDate = dayjs(order.rentalStartDate);
       const endDate = dayjs(order.rentalEndDate);
+      console.log(order);
 
-      let currentDate = startDate;
-      while (
-        currentDate.isBefore(endDate) ||
-        currentDate.isSame(endDate, "day")
-      ) {
+      // Add start and end dates to special handling array
+      startEnd.push({
+        date: startDate.format("YYYY-MM-DD"),
+        type: "start",
+        time: dayjs(order.timeIn).format("HH:mm"),
+        confirmed: order.confirmed,
+      });
+      startEnd.push({
+        date: endDate.format("YYYY-MM-DD"),
+        type: "end",
+        time: dayjs(order.timeOut).format("HH:mm"),
+        confirmed: order.confirmed,
+      });
+
+      // Handle middle dates
+      let currentDate = startDate.add(1, "day");
+      while (currentDate.isBefore(endDate)) {
         const dateStr = currentDate.format("YYYY-MM-DD");
         unavailable.push(dateStr);
         if (order.confirmed) {
@@ -51,33 +70,19 @@ const CalendarPicker = ({
 
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
+    setStartEndDates(startEnd);
   }, [orders]);
 
   const disabledDate = (current) => {
+    const dateStr = current.format("YYYY-MM-DD");
+    const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
+
     return (
       current &&
-      (current.isBefore(dayjs().startOf("day")) ||
-        unavailableDates?.includes(current.format("YYYY-MM-DD")))
+      current.isBefore(dayjs().startOf("day")) &&
+      !isStartOrEnd &&
+      unavailableDates?.includes(dateStr)
     );
-  };
-
-  const onSelect = (date) => {
-    const [start, end] = selectedRange;
-
-    if (!start || (start && end)) {
-      setSelectedRange([date, null]);
-      setShowBookButton(false);
-    } else {
-      const range = [start, date].sort((a, b) => a - b);
-      setSelectedRange(range);
-      setBookedDates({ start: range[0], end: range[1] });
-      setShowBookButton(true);
-    }
-  };
-
-  const handleBooking = () => {
-    onBookingComplete();
-    setShowBookButton(false);
   };
 
   const renderDateCell = (date) => {
@@ -87,41 +92,159 @@ const CalendarPicker = ({
       (date >= start && date <= end) ||
       date.isSame(start, "day") ||
       date.isSame(end, "day");
+
+    const startEndInfo = startEndDates.find((d) => d.date === dateStr);
+    const isStartOrEnd = !!startEndInfo;
     const isConfirmed = confirmedDates?.includes(dateStr);
     const isUnavailable = unavailableDates?.includes(dateStr);
 
-    let backgroundColor = "transparent";
-    let color = "inherit";
-
-    if (isSelected) {
-      backgroundColor = "primary.dark";
-      color = "white";
-    } else if (isConfirmed) {
-      backgroundColor = "primary.red";
-      color = "common.white";
-    } else if (isUnavailable) {
-      backgroundColor = "primary.green";
-      color = "common.black";
-    }
-
-    return (
+    let content = (
       <Box
         sx={{
+          position: "relative",
           height: "100%",
+          width: "100%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor,
-          borderRadius: "1px",
-          color,
         }}
       >
-        {date.date()}
+        {isStartOrEnd ? (
+          <>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                display: "flex",
+              }}
+            >
+              <Box
+                sx={{
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: isSelected
+                    ? "text.green"
+                    : startEndInfo.type === "end"
+                    ? startEndInfo.confirmed
+                      ? "primary.red"
+                      : "primary.green"
+                    : "transparent",
+                }}
+              />
+              <Box
+                sx={{
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: isSelected
+                    ? "text.green"
+                    : startEndInfo.type === "start"
+                    ? startEndInfo.confirmed
+                      ? "primary.red"
+                      : "primary.green"
+                    : "transparent",
+                }}
+              />
+            </Box>
+            <Typography
+              sx={{
+                position: "relative",
+                zIndex: 1,
+                fontSize: "0.8rem",
+              }}
+            >
+              {date.date()}
+            </Typography>
+            <Typography
+              sx={{
+                position: "relative",
+                zIndex: 1,
+                color: startEndInfo.confirmed ? "primary.green" : "black",
+                fontSize: "0.6rem",
+              }}
+            >
+              {startEndInfo.time}
+            </Typography>
+          </>
+        ) : (
+          <Box
+            sx={{
+              height: "100%",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: isConfirmed ? "white" : "dark",
+              backgroundColor: isSelected
+                ? "text.green"
+                : isConfirmed
+                ? "primary.red"
+                : isUnavailable
+                ? "primary.green"
+                : "transparent",
+              color: isSelected || isConfirmed ? "common.white" : "inherit",
+            }}
+          >
+            {date.date()}
+          </Box>
+        )}
       </Box>
     );
+
+    return content;
   };
 
-  const headerRender = ({ value, type, onChange, onTypeChange }) => {
+  const onSelect = (date) => {
+    const [start, end] = selectedRange;
+    const dateStr = date.format("YYYY-MM-DD");
+
+    // Проверяем, является ли выбранная дата началом или концом существующего заказа
+    const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
+    const timeForDate = existingDateInfo ? existingDateInfo.time : null;
+
+    if (!start || (start && end)) {
+      setSelectedRange([date, null]);
+      setSelectedTimes({
+        start: timeForDate || "12:00",
+        end: null,
+      });
+      setShowBookButton(false);
+    } else {
+      const range = [start, date].sort((a, b) => a - b);
+      const startStr = range[0].format("YYYY-MM-DD");
+      const endStr = range[1].format("YYYY-MM-DD");
+
+      // Получаем информацию о времени для начальной и конечной дат
+      const startDateInfo = startEndDates.find((d) => d.date === startStr);
+      const endDateInfo = startEndDates.find((d) => d.date === endStr);
+
+      setSelectedRange(range);
+      setSelectedTimes({
+        start:
+          selectedTimes.start || (startDateInfo ? startDateInfo.time : "12:00"),
+        end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+      });
+
+      setBookedDates({
+        start: range[0],
+        end: range[1],
+        startTime:
+          selectedTimes.start || (startDateInfo ? startDateInfo.time : "12:00"),
+        endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+      });
+      setShowBookButton(true);
+    }
+  };
+
+  const handleBooking = () => {
+    onBookingComplete();
+    setShowBookButton(false);
+  };
+
+  const headerRender = ({ value }) => {
     const current = value.clone();
     const month = current.format("MMMM");
     const year = current.year();
@@ -177,7 +300,6 @@ const CalendarPicker = ({
           justifyContent: "center",
           display: "flex",
           alignItems: "center",
-          alignContent: "center",
         }}
       >
         <Box
@@ -189,13 +311,18 @@ const CalendarPicker = ({
             backgroundColor: "primary.red",
             marginRight: "10px",
           }}
-        ></Box>
+        />
         <Typography component="span" variant="body2">
           Confirmed bookings
         </Typography>
       </Box>
       <Box
-        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
+        sx={{
+          marginBottom: "10px",
+          justifyContent: "center",
+          display: "flex",
+          alignItems: "center",
+        }}
       >
         <Box
           component="span"
@@ -206,7 +333,7 @@ const CalendarPicker = ({
             backgroundColor: "primary.green",
             marginRight: "10px",
           }}
-        ></Box>
+        />
         <Typography component="span" variant="body2">
           Unconfirmed bookings
         </Typography>
@@ -227,9 +354,9 @@ const CalendarPicker = ({
             <DefaultButton
               onClick={handleBooking}
               blinking={true}
-              label={`Book ${selectedRange[0].format(
-                "MMM D"
-              )} - ${selectedRange[1].format("MMM D")}`}
+              label={`Book ${selectedRange[0].format("MMM D")} ${
+                selectedTimes.start
+              } - ${selectedRange[1].format("MMM D")} ${selectedTimes.end}`}
               relative={true}
             />
           )}
