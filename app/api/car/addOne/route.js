@@ -30,6 +30,7 @@ export async function POST(req) {
     carData.dateAddCar = dayjs().toDate();
     // Create and save the car
     const newCar = new Car(carData);
+    console.log("newCAr", newCar);
     await newCar.save();
 
     return NextResponse.json(
@@ -62,6 +63,7 @@ async function generateCarNumber() {
 }
 // Function to extract data from the form
 function extractCarData(formData) {
+  console.log("formdata from API :", formData);
   const file = formData.get("image");
   return {
     file,
@@ -73,6 +75,7 @@ function extractCarData(formData) {
     airConditioning: formData.get("airConditioning"),
     enginePower: formData.get("enginePower"),
     pricingTiers: parsePricingTiers(formData.get("pricingTiers")),
+    regNumber: formData.get("regNumber"),
   };
 }
 

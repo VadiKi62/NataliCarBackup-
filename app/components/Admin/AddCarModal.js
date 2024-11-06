@@ -73,7 +73,6 @@ const AddCarModal = ({
   const handleChange = (e) => {
     const { name, value, checked, type } = e.target;
     const newValue = type === "checkbox" ? checked : value;
-    console.log(e.target);
 
     if (carData[name] !== newValue) {
       setCarData((prevData) => ({ ...prevData, [name]: newValue }));
@@ -83,7 +82,7 @@ const AddCarModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(carData.model);
+    console.log("??", carData.regNumber);
     try {
       const formData = new FormData();
       formData.append("model", carData.model);
