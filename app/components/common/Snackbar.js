@@ -55,7 +55,7 @@ function Snackbar({ message, closeFunc, isError, open }) {
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       open={open}
       onClose={handleClose}
-      autoHideDuration={4000}
+      autoHideDuration={isError ? 14000 : 4000}
       TransitionComponent={Transition}
       message={
         <span style={{ display: "flex", alignItems: "center" }}>

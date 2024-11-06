@@ -26,10 +26,30 @@ export const PATCH = async (request, { params }) => {
     // Save the updated order
     const updatedOrder = await order.save();
 
+    // Find all conflicting orders
+    const conflictingOrders = await Order.find({
+      _id: { $in: order.hasConflictDates },
+    });
+
+    // Prepare the response
+    let message = `Статус успешно обновлен на ${order.confirmed}`;
+    if (conflictingOrders.length > 0) {
+      message +=
+        ". Внимание, среди конфликтных броней есть подтвержденные, поэтому их необходимо удалить или обновить даты.";
+    }
+
     return new Response(
       JSON.stringify({
         data: updatedOrder,
-        message: ` Статус успешно обновлен на ${order.confirmed} `,
+        message: message,
+        conflicts: conflictingOrders.map((o) => ({
+          id: o._id,
+          start: o.rentalStartDate,
+          end: o.rentalEndDate,
+          phone: o.phone,
+          email: o.email,
+          name: o.customerName,
+        })),
       }),
       {
         success: true,

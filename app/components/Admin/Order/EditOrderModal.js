@@ -22,6 +22,7 @@ import {
   changeRentalDates,
   toggleConfirmedStatus,
   updateCustomerInfo,
+  getConfirmedOrders,
 } from "@utils/action";
 
 // Extend dayjs with plugins
@@ -40,6 +41,21 @@ const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [isConflictOrder, setIsConflictOrder] = useState(false);
+
+  useEffect(() => {
+    if (order?.hasConflictDates) {
+      const ordersIdSet = new Set(order?.hasConflictDates);
+      const checkConflicts = async () => {
+        const isConflict = await getConfirmedOrders([...ordersIdSet]);
+        console.log("isConflict", isConflict);
+        if (isConflict) {
+          setIsConflictOrder(true);
+        }
+      };
+      checkConflicts();
+    }
+  }, [order]);
 
   const handleDelete = async () => {
     // Prompt the user for confirmation before deleting
@@ -396,6 +412,8 @@ const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
           p: { xs: 2, md: 4 },
           maxHeight: "90vh",
           overflow: "auto",
+          border: isConflictOrder ? "4px solid #FF0000" : "none",
+          animation: isConflictOrder ? "pulse 2s infinite" : "none",
         }}
       >
         {loading ? (
@@ -405,7 +423,7 @@ const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
         ) : (
           <>
             <Typography variant="h5" gutterBottom>
-              Edit Order for {order?.carModel}
+              Edit Order # {order?._id.slice(-4)}
             </Typography>
             {/* <Divider sx={{ my: 2 }} /> */}
             <Box

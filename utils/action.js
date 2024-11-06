@@ -398,3 +398,40 @@ export const updateCar = async (updatedCar) => {
     throw error;
   }
 };
+
+export async function getOrderById(orderId) {
+  try {
+    const response = await fetch(`/api/order/refetch/${orderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed toget order");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error getting order:", error);
+    throw error;
+  }
+}
+
+// Пример функции, которая принимает массив ID заказов и возвращает подтвержденные заказы
+export async function getConfirmedOrders(orderIds) {
+  try {
+    const orders = await Promise.all(orderIds.map(getOrderById));
+    console.log("ORDERS", orders);
+    // Фильтруем заказы, оставляя только подтвержденные
+    const confirmedOrders = orders.filter(
+      (order) => order.status === "confirmed"
+    );
+    // Если подтвержденные заказы есть, возвращаем их, иначе возвращаем false
+    return confirmedOrders.length > 0 ? confirmedOrders : false;
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return false; // Возвращаем false в случае ошибки
+  }
+}
