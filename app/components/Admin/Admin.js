@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
-import { Grid, Container, CircularProgress, Box } from "@mui/material";
+import { Grid, Container, CircularProgress, Box, Stack } from "@mui/material";
 import { fetchAllCars } from "@utils/action";
 import DefaultButton from "../common/DefaultButton";
 import AddCarModal from "./AddCarModal";
@@ -138,17 +138,26 @@ function Admin() {
               Добавить машину
             </DefaultButton>
           ) : (
-            <DefaultButton
-              minWidth="600px"
-              padding={scrolled ? 0 : 1.5}
-              relative
-              sx={{ width: "100%" }}
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1, sm: 2 }}
+              alignItems="center"
+              justifyContent="center"
             >
-              Добавить заказ
-            </DefaultButton>
+              <DefaultButton
+                minWidth={{ xs: "100%", sm: "600px" }}
+                padding={scrolled ? 0 : 1.5}
+                relative
+                sx={{ width: "100%" }}
+              >
+                Добавить заказ
+              </DefaultButton>
+
+              <LegendCalendarAdmin />
+            </Stack>
           )}
 
-          {!isCarInfo && <LegendCalendarAdmin />}
+          {/* {!isCarInfo && <LegendCalendarAdmin />} */}
         </Box>
       </StyledBox>
       {isCarInfo ? (

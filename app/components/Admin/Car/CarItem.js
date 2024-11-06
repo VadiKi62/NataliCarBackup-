@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useTransition, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useTransition,
+  useRef,
+  useCallback,
+} from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import {
   Paper,
@@ -110,12 +116,12 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
   const [hovered, setHovered] = useState(false);
   const fileInputRef = useRef(null);
 
-  const handleImageSelect = (event) => {
+  const handleImageSelect = useCallback((event) => {
     const file = event.target.files[0];
     if (file) setPreviewImage(URL.createObjectURL(file));
-  };
+  }, []);
 
-  const handleImageUpload = async () => {
+  const handleImageUpload = useCallback(async () => {
     if (!fileInputRef.current.files[0]) return;
     const file = fileInputRef.current.files[0];
     const formData = new FormData();
@@ -148,7 +154,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [updatedCar, setIsLoading, setUpdateStatus, updateCarInContext]);
 
   const handleCarsUpdate = async () => {
     const response = await updateCarInContext(updatedCar);

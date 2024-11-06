@@ -33,7 +33,15 @@ dayjs.extend(timezone);
 const timeZone = "Europe/Athens";
 dayjs.tz.setDefault(timeZone);
 
-const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
+const EditOrderModal = ({
+  open,
+  onClose,
+  order,
+  onSave,
+  setCarOrders,
+  isConflictOrder,
+  setIsConflictOrder,
+}) => {
   const { allOrders, fetchAndUpdateOrders } = useMainContext();
   const [editedOrder, setEditedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,7 +49,6 @@ const EditOrderModal = ({ open, onClose, order, onSave, setCarOrders }) => {
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [isConflictOrder, setIsConflictOrder] = useState(false);
 
   useEffect(() => {
     if (order?.hasConflictDates) {

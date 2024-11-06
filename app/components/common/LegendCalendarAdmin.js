@@ -3,14 +3,19 @@ import { Box, Typography, Stack } from "@mui/material";
 
 function LegendCalendarAdmin() {
   return (
-    <Stack spacing={2} direction="row" margin={3}>
-      {" "}
+    <Stack
+      spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
+      direction={{ xs: "column", sm: "row" }} // Stack items vertically on small screens, horizontally on larger screens
+      margin={3}
+      justifyContent="center"
+      alignItems="center"
+    >
       <Box
         sx={{
-          justifyContent: "center",
           display: "flex",
           alignItems: "center",
-          alignContent: "center",
+          justifyContent: "center",
+          mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
         }}
       >
         <Box
@@ -22,13 +27,19 @@ function LegendCalendarAdmin() {
             backgroundColor: "primary.red",
             marginRight: "10px",
           }}
-        ></Box>
+        />
         <Typography component="span" variant="body2">
           Подтвержденные брони
         </Typography>
       </Box>
+
       <Box
-        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
+        }}
       >
         <Box
           component="span"
@@ -39,47 +50,18 @@ function LegendCalendarAdmin() {
             backgroundColor: "primary.green",
             marginRight: "10px",
           }}
-        ></Box>
+        />
         <Typography component="span" variant="body2">
           Неподтвержденные брони
         </Typography>
       </Box>
-      {/* <Box
-        sx={{ marginBottom: "10px", justifyContent: "center", display: "flex" }}
-      >
-        <Box
-          component="span"
-          sx={{
-            position: "relative",
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "text.green",
-            marginRight: "10px",
-          }}
-        >
-          {" "}
-          <Box
-            sx={{
-              position: "absolute",
-              height: "100%",
-              //   backgroundColor: "primary.main",
-              left: "50%",
-              color: "white",
-              transform: "translateX(-50%)",
-              borderRight: "2px dotted",
-            }}
-          />
-        </Box>
-        <Typography component="span" variant="body2">
-          Конец аренды и начало новой аренды в один день
-        </Typography>
-      </Box> */}
+
       <Box
         sx={{
-          marginBottom: "10px",
-          justifyContent: "center",
           display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
         }}
       >
         <Box
@@ -93,23 +75,12 @@ function LegendCalendarAdmin() {
             marginRight: "10px",
             color: "text.red",
             justifyContent: "center",
-            alignContent: "center",
+            alignItems: "center",
             display: "flex",
           }}
         >
           1
-          {/* <Box
-            sx={{
-              position: "absolute",
-              height: "100%",
-              width: "1px",
-              backgroundColor: "primary.main",
-              // left: `${35 + 1 * 15}%`, // Spacing lines evenly across the box
-              // transform: "translateX(-50%)",
-            }}
-          /> */}
         </Box>
-
         <Typography component="span" variant="body2">
           Конфликтующие даты бронирования
         </Typography>

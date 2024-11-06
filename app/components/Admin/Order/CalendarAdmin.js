@@ -30,6 +30,7 @@ const CalendarAdmin = ({
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [open, setOpen] = useState(false);
+  const [isConflictOrder, setIsConflictOrder] = useState(false);
 
   useEffect(() => {
     const unavailable = [];
@@ -330,6 +331,8 @@ const CalendarAdmin = ({
                 onClose={handleClose}
                 onSave={handleSaveOrder}
                 setCarOrders={setCarOrders}
+                isConflictOrder={selectedOrders.length > 1 ? true : false}
+                setIsConflictOrder={setIsConflictOrder}
               />
             </Grid>
           ))}
