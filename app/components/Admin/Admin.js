@@ -75,12 +75,12 @@ function Admin() {
   // };
 
   const handleOrderUpdate = async (updatedOrder) => {
-    setOrders((prevOrders) =>
+    setAllOrders((prevOrders) =>
       prevOrders.map((order) =>
         order._id === updatedOrder._id ? updatedOrder : order
       )
     );
-    await fetchAndUpdateOrders();
+    // await fetchAndUpdateOrders();
   };
 
   const onCarDelete = async (carId) => {

@@ -152,6 +152,7 @@ const PricingTiersTable = ({
         processRowUpdate={handleRowUpdate}
         disableRowSelectionOnClick
         loading={disabled}
+        hideFooter
       />
     </Grid>
   );

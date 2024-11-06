@@ -142,7 +142,7 @@ function CarItemComponent({ car }) {
               </Box>
             ) : (
               <CldImage
-                src={car?.photoUrl || "My Brand/favicon_i6jw77"}
+                src={car?.photoUrl || "NO_PHOTO_h2klff"}
                 alt={`Natali-Cars-${car.model}`}
                 width="450"
                 height="300"

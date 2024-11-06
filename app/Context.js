@@ -85,8 +85,12 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
       setCars((prevCars) =>
         prevCars.map((car) => (car._id === newCar._id ? newCar : car))
       );
-      console.log(newCar);
-      setUpdateStatus({ type: 200, message: "Car updated successfully" });
+      console.log("FROM CONTEXT?", newCar.photoUrl);
+      setUpdateStatus({
+        type: 200,
+        message: "Car updated successfully",
+        data: newCar,
+      });
       return { data: newCar, type: 200, message: "Car updated successfully" };
     } catch (error) {
       console.error("Failed to update car:", error);

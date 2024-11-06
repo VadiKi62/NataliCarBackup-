@@ -96,10 +96,13 @@ export default function NavBar({
           </Link>
           <Stack direction="row" spacing={2} alignItems="center">
             {isAdmin && (
-              <ToggleButtons
-                isCarInfo={isCarInfo}
-                setIsCarInfo={setIsCarInfo}
-              />
+              <>
+                <ToggleButtons
+                  isCarInfo={isCarInfo}
+                  setIsCarInfo={setIsCarInfo}
+                />
+                {/* <Link href={"/admin/orders"}>Orders</Link> */}
+              </>
             )}
             <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
               {/* <LanguageIcon /> */}

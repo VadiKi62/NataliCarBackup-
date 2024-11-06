@@ -33,6 +33,10 @@ import {
   defaultPrices,
 } from "@models/enums";
 import { styled } from "@mui/material/styles";
+import {
+  RenderTextField,
+  RenderSelectField,
+} from "@app/components/common/Fields";
 import CarImageUpload from "./AddImageComponent";
 
 const AddCarModal = ({
@@ -48,19 +52,18 @@ const AddCarModal = ({
   const [imagePreview, setImagePreview] = useState(DEFAULT_IMAGE);
   const [carData, setCarData] = useState({
     carNumber: "",
-    model: "",
+    model: "Toyota",
     sort: 999,
-    class: "",
     class: CAR_CLASSES.ECONOMY,
     transmission: TRANSMISSION_TYPES.AUTOMATIC,
     fueltype: FUEL_TYPES.PETROL,
     seats: 5,
     registration: 2016,
-    regNumber: "",
-    color: "",
+    regNumber: "123",
+    color: "white",
     numberOfDoors: 4,
     airConditioning: true,
-    enginePower: "",
+    enginePower: "100",
     engine: "1.500",
     pricingTiers: defaultPrices,
     photoUrl: "NO_PHOTO_h2klff",
@@ -80,7 +83,7 @@ const AddCarModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    console.log(carData.model);
     try {
       const formData = new FormData();
       formData.append("model", carData.model);
@@ -162,16 +165,22 @@ const AddCarModal = ({
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={3}>
                   <Stack spacing={3}>
-                    <TextField
-                      fullWidth
-                      label="Model"
+                    <RenderTextField
                       name="model"
-                      value={carData.model}
-                      onChange={handleChange}
+                      label="Model"
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    <RenderSelectField
+                      name="transmission"
+                      label="Transmission"
+                      options={Object.values(TRANSMISSION_TYPES)}
                       required
+                      updatedCar={carData}
+                      handleChange={handleChange}
                     />
 
-                    <FormControl fullWidth required>
+                    {/* <FormControl fullWidth required>
                       <InputLabel>Class</InputLabel>
                       <Select
                         name="class"
@@ -186,8 +195,16 @@ const AddCarModal = ({
                           </MenuItem>
                         ))}
                       </Select>
-                    </FormControl>
-                    <FormControl fullWidth required>
+                    </FormControl> */}
+                    <RenderTextField
+                      type="number"
+                      name="seats"
+                      label="Seats"
+                      defaultValue="5"
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    {/* <FormControl fullWidth required>
                       <InputLabel>Transmission</InputLabel>
                       <Select
                         name="transmission"
@@ -204,7 +221,7 @@ const AddCarModal = ({
                           )
                         )}
                       </Select>
-                    </FormControl>
+                    </FormControl> */}
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -221,103 +238,85 @@ const AddCarModal = ({
 
                 <Grid item xs={12} sm={3}>
                   <Stack spacing={3}>
-                    <FormControl fullWidth required>
-                      <InputLabel>Fuel Type</InputLabel>
-                      <Select
-                        name="fueltype"
-                        value={carData.fueltype}
-                        onChange={handleChange}
-                        label="Fuel Type"
-                      >
-                        {Object.values(FUEL_TYPES).map((fuel) => (
-                          <MenuItem key={fuel} value={fuel}>
-                            {fuel.charAt(0).toUpperCase() + fuel.slice(1)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="Registration Year"
+                    <RenderTextField
                       name="registration"
-                      value={carData.registration}
-                      onChange={handleChange}
-                      required
-                    />
-
-                    <TextField
-                      fullWidth
-                      label="Registration Number"
-                      name="regNumber"
-                      value={carData.regNumber}
-                      onChange={handleChange}
-                      required
-                    />
-                  </Stack>
-                </Grid>
-
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={3}>
-                    <TextField
-                      fullWidth
+                      label="Registration Year"
+                      defaultValue="2017"
                       type="number"
-                      label="Number of Doors"
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                      required
+                    />
+                    <RenderSelectField
+                      name="fueltype"
+                      label="Fuel Type"
+                      options={Object.values(FUEL_TYPES)}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                      required
+                    />
+                    <RenderTextField
+                      required
+                      type="number"
                       name="numberOfDoors"
-                      value={carData.numberOfDoors}
-                      onChange={handleChange}
-                      required
-                      inputProps={{ min: 2, max: 6 }}
+                      label="Number of Doors"
+                      defaultValue={carData.numberOfDoors}
+                      updatedCar={carData}
+                      handleChange={handleChange}
                     />
-                    <TextField
-                      fullWidth
-                      type="number"
-                      label="Seats"
-                      name="seats"
-                      value={carData.seats}
-                      onChange={handleChange}
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
+                    <RenderTextField
+                      name="regNumber"
+                      label="Registration Number"
+                      updatedCar={carData}
+                      handleChange={handleChange}
                       required
                     />
-                    <TextField
-                      fullWidth
+                    <RenderTextField
                       type="number"
-                      label="Engine Power"
-                      name="enginePower"
-                      value={carData.enginePower}
+                      name="engine"
+                      label="Engine"
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                      adornment="c.c."
+                      required
+                    />
+                    <ColorPicker
+                      value={carData.color || ""}
                       onChange={handleChange}
                       required
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">bhp</InputAdornment>
-                        ),
-                      }}
                     />
                   </Stack>
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <Stack spacing={3}>
-                    <TextField
-                      fullWidth
-                      label="Engine"
-                      name="engine"
-                      value={carData.engine}
-                      onChange={handleChange}
+                    <RenderSelectField
+                      name="class"
+                      label="Class"
+                      options={Object.values(CAR_CLASSES)}
                       required
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">c.c.</InputAdornment>
-                        ),
-                      }}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    <RenderTextField
+                      type="number"
+                      name="enginePower"
+                      label="Engine Power"
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                      adornment="bhp"
+                      required
                     />
                     <CarImageUpload
                       photoUrl={carData.photoUrl}
                       handleChange={handleChange}
                       handleImageChange={handleImageChange}
                       imagePreview={imagePreview}
-                    />
-                    <ColorPicker
-                      value={carData.color || ""}
-                      onChange={handleChange}
+                      required
                     />
                   </Stack>
                 </Grid>

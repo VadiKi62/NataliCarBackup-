@@ -21,6 +21,8 @@ export const FUEL_TYPES = {
   NATURAL_GAS: "gas(lpg)",
   HYBRID_DIESEL: "hybrid diesel",
   HYBRID_PETROL: "hybrid petrol",
+  GAS: "natural gas(cng)",
+  ELECTRIC: "electric",
 };
 
 export const PREDEFINED_COLORS = {

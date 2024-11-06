@@ -36,11 +36,6 @@ import {
 } from "@app/components/common/Fields";
 import CarImageUpload from "../AddImageComponent";
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
-  width: "90%",
-  marginTop: 10,
-}));
-
 const EditCarModal = ({
   open,
   onClose,
@@ -50,50 +45,43 @@ const EditCarModal = ({
   handleCheckboxChange,
   setUpdatedCar,
 }) => {
-  const { updateCarInContext, setUpdateStatus } = useMainContext();
+  const { updateCarInContext, setUpdateStatus, updateStatus } =
+    useMainContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(updatedCar.photoUrl || "");
+  const [photoUrl, setPhotoUrl] = useState(updatedCar.photoUrl || "");
   const handleCloseModal = () => onClose();
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleImageUpload = async () => {
+    const file = fileInputRef.current.files[0];
     if (!file) return;
 
-    // Показываем превью загружаемого изображения
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result); // Обновляем превью
-    };
-    reader.readAsDataURL(file);
-
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("image", file);
 
     try {
       setIsLoading(true);
-      // Загружаем изображение на Cloudinary
       const response = await fetch("/api/order/update/image", {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
-      console.log("data is:", data);
-
       if (data.success) {
-        // если URL был успешно получен
-        const updatedPhotoUrl = data.secure_url; // получаем URL изображения
+        // Update the photoUrl state
+        setPhotoUrl(data.data);
 
-        // Обновляем машину с новым photoUrl
+        // Update the car in the context
         const response = await updateCarInContext({
           ...updatedCar,
-          photoUrl: updatedPhotoUrl,
+          photoUrl: data.data,
         });
         setUpdateStatus({
-          type: response.type || "200",
+          type: response.type,
           message: response.message,
+          data: response.data,
         });
       } else {
         console.error("Image upload failed:", data.message);
@@ -115,142 +103,101 @@ const EditCarModal = ({
 
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="lg">
-      <Box sx={{ p: 3, position: "relative" }}>
-        {/* Loading Overlay */}
-        {isLoading && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(255, 255, 255, 0.7)",
-              zIndex: 1,
-            }}
-          >
-            <CircularProgress />
-          </Box>
-        )}
+      {/* <Box sx={{ p: 3, position: "relative" }}> */}
+      <Box
+        sx={{ opacity: isLoading ? 0.3 : 1, transition: "opacity 0.2s", p: 2 }}
+      >
+        <DialogTitle>Update Car Details</DialogTitle>
+        <Grid container spacing={3} sx={{ flexGrow: 1 }}>
+          {/* Column 1 */}
+          <Grid item xs={12} sm={3}>
+            <Stack spacing={3}>
+              <RenderTextField
+                name="model"
+                label="Model"
+                defaultValue="Toyota"
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+                required
+              />
 
-        <Box sx={{ opacity: isLoading ? 0.3 : 1, transition: "opacity 0.2s" }}>
-          <DialogTitle>Update Car Details</DialogTitle>
-          <Grid container spacing={3} sx={{ flexGrow: 1 }}>
-            {/* Column 1 */}
-            <Grid item xs={12} sm={3}>
-              <Stack spacing={3}>
-                <RenderTextField
-                  name="model"
-                  label="Model"
-                  defaultValue="Toyota"
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-                <RenderSelectField
-                  name="class"
-                  label="Class"
-                  options={Object.values(CAR_CLASSES)}
-                  required
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-                <RenderSelectField
-                  name="transmission"
-                  label="Transmission"
-                  options={Object.values(TRANSMISSION_TYPES)}
-                  required
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
+              <RenderSelectField
+                name="transmission"
+                label="Transmission"
+                options={Object.values(TRANSMISSION_TYPES)}
+                required
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              <RenderTextField
+                type="number"
+                name="seats"
+                label="Seats"
+                defaultValue={updatedCar.seats}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
 
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={updatedCar.airConditioning || false}
-                      onChange={handleCheckboxChange}
-                      name="airConditioning"
-                      disabled={isLoading}
-                    />
-                  }
-                  label="Air Conditioning"
-                  sx={{ my: 2 }}
-                />
-              </Stack>
-            </Grid>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={updatedCar.airConditioning || false}
+                    onChange={handleCheckboxChange}
+                    name="airConditioning"
+                    disabled={isLoading}
+                  />
+                }
+                label="Air Conditioning"
+                sx={{ my: 2 }}
+              />
+            </Stack>
+          </Grid>
 
-            <Grid item xs={12} sm={3}>
-              <Stack spacing={3}>
-                <RenderSelectField
-                  name="fueltype"
-                  label="Fuel Type"
-                  options={Object.values(FUEL_TYPES)}
-                  required
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-                <RenderTextField
-                  name="registration"
-                  label="Registration Year"
-                  defaultValue={updatedCar.registration}
-                  type="number"
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-                <RenderTextField
-                  name="regNumber"
-                  label="Registration Number"
-                  defaultValue={updatedCar.regNumber}
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-              </Stack>
-            </Grid>
+          <Grid item xs={12} sm={3}>
+            <Stack spacing={3}>
+              <RenderTextField
+                name="registration"
+                label="Registration Year"
+                defaultValue={updatedCar.registration}
+                type="number"
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              <RenderSelectField
+                name="fueltype"
+                label="Fuel Type"
+                options={Object.values(FUEL_TYPES)}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              <RenderTextField
+                type="number"
+                name="numberOfDoors"
+                label="Number of Doors"
+                defaultValue={updatedCar.numberOfDoors}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+            </Stack>
+          </Grid>
 
-            {/* Column 3 */}
-            <Grid item xs={12} sm={3}>
-              <Stack spacing={3}>
-                <RenderTextField
-                  type="number"
-                  name="numberOfDoors"
-                  label="Number of Doors"
-                  defaultValue={updatedCar.numberOfDoors}
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-
-                <RenderTextField
-                  type="number"
-                  name="seats"
-                  label="Seats"
-                  defaultValue={updatedCar.seats}
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                />
-                <RenderTextField
-                  type="number"
-                  name="enginePower"
-                  label="Engine Power"
-                  defaultValue={updatedCar.enginePower}
-                  updatedCar={updatedCar}
-                  handleChange={handleChange}
-                  isLoading={isLoading}
-                  adornment="bhp"
-                />
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12} sm={3}>
+          {/* Column 3 */}
+          <Grid item xs={12} sm={3}>
+            <Stack spacing={3}>
+              <RenderTextField
+                name="regNumber"
+                label="Registration Number"
+                defaultValue={updatedCar.regNumber}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
               <RenderTextField
                 type="number"
                 name="engine"
@@ -261,17 +208,39 @@ const EditCarModal = ({
                 isLoading={isLoading}
                 adornment="c.c."
               />
-              <CarImageUpload
-                photoUrl={updatedCar.photoUrl || ""}
-                handleChange={handleChange}
-                handleImageChange={handleImageUpload}
-                imagePreview={imagePreview}
+              <ColorPicker
+                value={updatedCar.color || ""}
+                onChange={handleChange}
+                disabled={isLoading}
               />
+            </Stack>
+          </Grid>
 
-              {/* <TextField
+          <Grid item xs={12} sm={3}>
+            <RenderSelectField
+              name="class"
+              label="Class"
+              options={Object.values(CAR_CLASSES)}
+              required
+              updatedCar={updatedCar}
+              handleChange={handleChange}
+              isLoading={isLoading}
+            />
+            <RenderTextField
+              type="number"
+              name="enginePower"
+              label="Engine Power"
+              defaultValue={updatedCar.enginePower}
+              updatedCar={updatedCar}
+              handleChange={handleChange}
+              isLoading={isLoading}
+              adornment="bhp"
+            />
+
+            {/* <TextField
                 name="photoUrl"
                 label="Photo URL"
-                value={updatedCar.photoUrl || ""}
+                value={photoUrl}
                 onChange={handleChange}
                 fullWidth
                 disabled={isLoading}
@@ -283,57 +252,51 @@ const EditCarModal = ({
                 onChange={handleImageUpload}
                 disabled={isLoading}
               /> */}
-
-              <ColorPicker
-                value={updatedCar.color || ""}
-                onChange={handleChange}
-                disabled={isLoading}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <PricingTiersTable
-                car={updatedCar}
-                disabled={isLoading}
-                handleChange={handleChange}
-                setUpdatedCar={setUpdatedCar}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <DialogActions
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 2,
-                  mt: 3,
-                  pt: 2,
-                  borderTop: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Button
-                  onClick={onClose}
-                  variant="outlined"
-                  disabled={isLoading}
-                  sx={{ py: 1.5, px: 4, minWidth: "140px" }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  variant="contained"
-                  color="primary"
-                  disabled={isLoading}
-                  sx={{ py: 1.5, px: 4, minWidth: "140px" }}
-                >
-                  Save
-                </Button>
-              </DialogActions>
-            </Grid>
           </Grid>
-        </Box>
+
+          <Grid item xs={12}>
+            <PricingTiersTable
+              car={updatedCar}
+              disabled={isLoading}
+              handleChange={handleChange}
+              setUpdatedCar={setUpdatedCar}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <DialogActions
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
+                mt: 3,
+                pt: 2,
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Button
+                onClick={onClose}
+                variant="outlined"
+                disabled={isLoading}
+                sx={{ py: 1.5, px: 4, minWidth: "140px" }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                variant="contained"
+                color="primary"
+                disabled={isLoading}
+                sx={{ py: 1.5, px: 4, minWidth: "140px" }}
+              >
+                Save
+              </Button>
+            </DialogActions>
+          </Grid>
+        </Grid>
       </Box>
+      {/* </Box> */}
     </Dialog>
   );
 };
@@ -362,7 +325,7 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: 1 }}>
       {colorMode === "predefined" ? (
         <FormControl fullWidth disabled={disabled}>
           <Select
@@ -409,22 +372,18 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
           value={value || ""}
           onChange={handleColorChange}
           disabled={disabled}
-          helperText="Введите цвет"
         />
       )}
-      <RadioGroup
-        row
-        value={colorMode}
-        onChange={handleColorModeChange}
-        sx={{ mb: 1 }}
-      >
+      <RadioGroup row value={colorMode} onChange={handleColorModeChange}>
         <FormControlLabel
+          sx={{ my: -0.5 }}
           value="predefined"
           control={<Radio size="small" />}
           label="Выбрать из списка"
           disabled={disabled}
         />
         <FormControlLabel
+          sx={{ my: -1 }}
           value="custom"
           control={<Radio size="small" />}
           label="Свой цвет"
@@ -434,8 +393,3 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
     </Box>
   );
 };
-
-// Helper function to capitalize first letter for display
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}

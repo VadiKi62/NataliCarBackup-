@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { getServerSession } from "next-auth";
 import { unstable_noStore } from "next/cache";
 import { authOptions } from "../api/auth/[...nextauth]/route";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
 
@@ -14,7 +15,6 @@ import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
 
 export default async function AdminPage() {
-  // unstable_noStore();
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.isAdmin) {
@@ -31,8 +31,8 @@ export default async function AdminPage() {
         <MainContextProvider carsData={carsData} ordersData={ordersData}>
           <Suspense fallback={<Loading />}>
             {/* <Navbar isAdmin={true} /> */}
-
             <Admin cars={carsData} orders={ordersData} />
+  
           </Suspense>
         </MainContextProvider>
       </AdminLayout>

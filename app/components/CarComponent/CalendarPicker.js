@@ -40,7 +40,6 @@ const CalendarPicker = ({
     orders.forEach((order) => {
       const startDate = dayjs(order.rentalStartDate);
       const endDate = dayjs(order.rentalEndDate);
-      console.log(order);
 
       // Add start and end dates to special handling array
       startEnd.push({
@@ -78,10 +77,12 @@ const CalendarPicker = ({
     const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
 
     return (
-      current &&
-      current.isBefore(dayjs().startOf("day")) &&
-      !isStartOrEnd &&
-      unavailableDates?.includes(dateStr)
+      (current && current.isBefore(dayjs().startOf("day"))) ||
+      (current &&
+        current.isBefore(dayjs().startOf("day")) &&
+        !isStartOrEnd &&
+        confirmedDates?.includes(dateStr)) ||
+      (!isStartOrEnd && confirmedDates?.includes(dateStr))
     );
   };
 
@@ -95,6 +96,19 @@ const CalendarPicker = ({
 
     const startEndInfo = startEndDates.find((d) => d.date === dateStr);
     const isStartOrEnd = !!startEndInfo;
+
+    // Добавляем проверку на наличие даты с типом "start" и "end"
+    const isStartAndEnd =
+      startEndDates.filter((d) => d.date === dateStr).length === 2;
+
+    // Проверяем, является ли дата внутренней в других бронированиях
+    const isInnerDate = startEndDates.some(
+      (d) =>
+        d.date === dateStr &&
+        d.type === "start" &&
+        startEndDates.some((e) => e.date === dateStr && e.type === "end")
+    );
+
     const isConfirmed = confirmedDates?.includes(dateStr);
     const isUnavailable = unavailableDates?.includes(dateStr);
 
@@ -110,7 +124,7 @@ const CalendarPicker = ({
           justifyContent: "center",
         }}
       >
-        {isStartOrEnd ? (
+        {isStartOrEnd || isStartAndEnd || isInnerDate ? (
           <>
             <Box
               sx={{
@@ -124,10 +138,33 @@ const CalendarPicker = ({
             >
               <Box
                 sx={{
-                  width: "50%",
+                  width:
+                    isStartAndEnd || isInnerDate || isSelected ? "100%" : "50%",
+                  borderRadius: () => {
+                    if (
+                      isStartOrEnd &&
+                      !isInnerDate &&
+                      !isSelected &&
+                      startEndInfo.type === "end"
+                    ) {
+                      return "0 20% 20% 0";
+                    }
+                    if (
+                      startEndInfo.type === "start" &&
+                      !isInnerDate &&
+                      !isSelected
+                    ) {
+                      return "20% 0 0 20%";
+                    }
+                    return undefined;
+                  },
                   height: "100%",
                   backgroundColor: isSelected
                     ? "text.green"
+                    : isStartAndEnd || isInnerDate
+                    ? startEndInfo.confirmed
+                      ? "primary.red"
+                      : "primary.green"
                     : startEndInfo.type === "end"
                     ? startEndInfo.confirmed
                       ? "primary.red"
@@ -135,19 +172,21 @@ const CalendarPicker = ({
                     : "transparent",
                 }}
               />
-              <Box
-                sx={{
-                  width: "50%",
-                  height: "100%",
-                  backgroundColor: isSelected
-                    ? "text.green"
-                    : startEndInfo.type === "start"
-                    ? startEndInfo.confirmed
-                      ? "primary.red"
-                      : "primary.green"
-                    : "transparent",
-                }}
-              />
+              {!isStartAndEnd &&
+                !isInnerDate &&
+                startEndInfo.type === "start" && (
+                  <Box
+                    sx={{
+                      width: "50%",
+                      height: "100%",
+                      backgroundColor: isSelected
+                        ? "text.green"
+                        : startEndInfo.confirmed
+                        ? "primary.red"
+                        : "primary.green",
+                    }}
+                  />
+                )}
             </Box>
             <Typography
               sx={{
@@ -158,7 +197,7 @@ const CalendarPicker = ({
             >
               {date.date()}
             </Typography>
-            <Typography
+            {/* <Typography
               sx={{
                 position: "relative",
                 zIndex: 1,
@@ -167,7 +206,8 @@ const CalendarPicker = ({
               }}
             >
               {startEndInfo.time}
-            </Typography>
+            </Typography>{" "}
+          </> */}
           </>
         ) : (
           <Box
@@ -180,12 +220,19 @@ const CalendarPicker = ({
               color: isConfirmed ? "white" : "dark",
               backgroundColor: isSelected
                 ? "text.green"
+                : isStartAndEnd || isInnerDate
+                ? startEndInfo.confirmed
+                  ? "primary.red"
+                  : "primary.green"
                 : isConfirmed
                 ? "primary.red"
                 : isUnavailable
                 ? "primary.green"
                 : "transparent",
-              color: isSelected || isConfirmed ? "common.white" : "inherit",
+              color:
+                isSelected || isConfirmed || isStartAndEnd || isInnerDate
+                  ? "common.white"
+                  : "inherit",
             }}
           >
             {date.date()}
@@ -208,7 +255,7 @@ const CalendarPicker = ({
     if (!start || (start && end)) {
       setSelectedRange([date, null]);
       setSelectedTimes({
-        start: timeForDate || "12:00",
+        start: timeForDate || "14:00",
         end: null,
       });
       setShowBookButton(false);
@@ -224,7 +271,7 @@ const CalendarPicker = ({
       setSelectedRange(range);
       setSelectedTimes({
         start:
-          selectedTimes.start || (startDateInfo ? startDateInfo.time : "12:00"),
+          selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
         end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
       });
 
@@ -232,7 +279,7 @@ const CalendarPicker = ({
         start: range[0],
         end: range[1],
         startTime:
-          selectedTimes.start || (startDateInfo ? startDateInfo.time : "12:00"),
+          selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
         endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
       });
       setShowBookButton(true);
