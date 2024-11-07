@@ -47,40 +47,13 @@ function Admin() {
   const [isCarInfo, setIsCarInfo] = useState(true);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
 
-  const [ordersData, setOrders] = useState(allOrders);
-
-  //   try {
-  //     setLoading(true);
-  //     const fetchedCars = await fetchAllCars();
-  //     await resubmitCars();
-  //     setCars(fetchedCars);
-  //     setError(null);
-  //   } catch (error) {
-  //     setError("Failed to fetch cars. Please try again later.");
-  //     console.error("Error fetching cars:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchAndUpdateCars();
-  // }, []);
-
-  // const handleCarUpdate = async (updatedCar) => {
-  //   setCars((prevCars) =>
-  //     prevCars.map((car) => (car._id === updatedCar._id ? updatedCar : car))
-  //   );
-  //   // await fetchAndUpdateCars();
-  // };
-
   const handleOrderUpdate = async (updatedOrder) => {
     setAllOrders((prevOrders) =>
       prevOrders.map((order) =>
         order._id === updatedOrder._id ? updatedOrder : order
       )
     );
-    // await fetchAndUpdateOrders();
+    await fetchAndUpdateOrders();
   };
 
   const onCarDelete = async (carId) => {

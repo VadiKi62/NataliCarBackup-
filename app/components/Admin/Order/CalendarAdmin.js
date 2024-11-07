@@ -58,6 +58,17 @@ const CalendarAdmin = ({
     setConfirmedDates(confirmed);
   }, [orders]);
 
+  const disabledDate = (current) => {
+    const dateStr = current.format("YYYY-MM-DD");
+
+    return (
+      (current && current.isBefore(dayjs().startOf("day"))) ||
+      (current &&
+        current.isBefore(dayjs().startOf("day")) &&
+        !isStartOrEnd &&
+        confirmedDates?.includes(dateStr))
+    );
+  };
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -96,6 +107,8 @@ const CalendarAdmin = ({
       let backgroundColor = "transparent";
       let color = "inherit";
       let borderRadius = "1px";
+      let width = "100%";
+      let border = "1px solid green";
 
       if (isConfirmed) {
         backgroundColor = "primary.red";
@@ -107,11 +120,17 @@ const CalendarAdmin = ({
       }
 
       // Single order date styling
-      if (isStartDate) {
+      if (isStartDate && !isEndDate) {
         borderRadius = "50% 0 0 50%";
+        width = "50%";
+        backgroundColor = "primary.green";
+        color = "common.black";
       }
-      if (isEndDate) {
+      if (!isStartDate && isEndDate) {
         borderRadius = "0 50% 50% 0";
+        width = "50%";
+        backgroundColor = "primary.green";
+        color = "common.black";
       }
 
       const handleDateClick = () => {
@@ -127,6 +146,95 @@ const CalendarAdmin = ({
           setOpen(true);
         }
       };
+      //only start date
+      if (isStartDate && !isEndDate)
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              border: border,
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              cursor: "pointer",
+            }}
+          >
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {" "}
+              {date.date()}
+            </Box>
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                borderRadius: "50% 0 0 50%",
+                backgroundColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color,
+              }}
+            >
+              {date.date()}
+            </Box>
+          </Box>
+        );
+
+      if (!isStartDate && isEndDate)
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              border: border,
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              cursor: "pointer",
+              // alignItems: "center",
+              // justifyContent: "center",
+            }}
+          >
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                borderRadius: "0 50% 50% 0",
+                backgroundColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color,
+              }}
+            >
+              {" "}
+              {date.date()}
+            </Box>
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {" "}
+              {date.date()}
+            </Box>
+          </Box>
+        );
 
       // For overlapping start/end dates
       if (isStartEndOverlap) {
@@ -134,6 +242,7 @@ const CalendarAdmin = ({
           <Box
             onClick={handleDateClick}
             sx={{
+              border: border,
               position: "relative",
               width: "100%",
               height: "100%",
@@ -153,7 +262,6 @@ const CalendarAdmin = ({
                 alignItems: "center",
                 justifyContent: "center",
                 color: "common.white",
-                borderRight: "1px solid white",
               }}
             >
               {date.date()}
@@ -184,6 +292,7 @@ const CalendarAdmin = ({
           <Box
             onClick={handleDateClick}
             sx={{
+              border: border,
               position: "relative",
               height: "120%",
               display: "flex",
@@ -211,6 +320,7 @@ const CalendarAdmin = ({
             borderRadius,
             color,
             cursor: "pointer",
+            border: border,
           }}
         >
           {date.date()}
@@ -282,6 +392,7 @@ const CalendarAdmin = ({
         <>
           <Calendar
             fullscreen={false}
+            disabledDate={disabledDate}
             fullCellRender={renderDateCell}
             headerRender={headerRender}
             value={currentDate}
@@ -291,22 +402,31 @@ const CalendarAdmin = ({
 
       <Modal
         open={open}
-        onClose={handleClose} // Ensures clicking outside closes the modal
+        onClose={handleClose}
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          p: 4,
         }}
       >
         <Grid
           container
-          spacing={2}
+          spacing={1}
           justifyContent="center"
           sx={{
-            maxWidth: "90vw", // Ensures it fits on smaller screens
-            maxHeight: "90vh", // Adjusts height to avoid overflow on smaller screens
+            maxWidth: "90vw",
+            maxHeight: "90vh",
             overflow: "auto",
+            "&::-webkit-scrollbar": {
+              width: "4px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "primary.main",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "background.paper",
+            },
           }}
         >
           {selectedOrders.map((order, index) => (

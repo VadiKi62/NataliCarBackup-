@@ -1,29 +1,14 @@
 "use client";
 import React from "react";
 import { Grid, Container, CircularProgress, Box } from "@mui/material";
-import { useMainContext } from "@app/Context";
+import { fetchAllCars, reFetchAllOrders } from "@utils/action";
+
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
 
-function Orders({ params }) {
-  const {
-    allOrders,
-    setAllOrders,
-    resubmitCars,
-    cars,
-    fetchAndUpdateOrders,
-    deleteCarInContext,
-    scrolled,
-    isLoading,
-    error,
-  } = useMainContext();
-  console.log(allOrders);
-  console.log(cars);
-  console.log(params.cars);
-  return (
-    <div>
-      <DataGridOrders cars={cars} orders={allOrders} />
-    </div>
-  );
+async function pageOrders() {
+  const carsData = await fetchAllCars();
+  const ordersData = await reFetchAllOrders();
+  return <DataGridOrders cars={carsData} orders={ordersData} />;
 }
 
-export default Orders;
+export default pageOrders;

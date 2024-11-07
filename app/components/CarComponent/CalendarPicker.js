@@ -89,6 +89,9 @@ const CalendarPicker = ({
   const renderDateCell = (date) => {
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
+    const isConfirmed = confirmedDates?.includes(dateStr);
+    const isUnavailable = unavailableDates?.includes(dateStr);
+
     const isSelected =
       (date >= start && date <= end) ||
       date.isSame(start, "day") ||
@@ -108,9 +111,6 @@ const CalendarPicker = ({
         d.type === "start" &&
         startEndDates.some((e) => e.date === dateStr && e.type === "end")
     );
-
-    const isConfirmed = confirmedDates?.includes(dateStr);
-    const isUnavailable = unavailableDates?.includes(dateStr);
 
     let content = (
       <Box

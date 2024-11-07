@@ -30,7 +30,7 @@ export async function POST(req) {
     carData.dateAddCar = dayjs().toDate();
     // Create and save the car
     const newCar = new Car(carData);
-    console.log("newCAr", newCar);
+
     await newCar.save();
 
     return NextResponse.json(

@@ -34,7 +34,7 @@ import {
   RenderTextField,
   RenderSelectField,
 } from "@app/components/common/Fields";
-import CarImageUpload from "../AddImageComponent";
+import CarImageUpload from "../../common/AddImageComponent";
 
 const EditCarModal = ({
   open,

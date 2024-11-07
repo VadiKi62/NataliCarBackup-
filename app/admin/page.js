@@ -13,8 +13,9 @@ import Admin from "../components/Admin/Admin";
 import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
+import DataGridOrders from "@app/components/Admin/DataGridOrders";
 
-export default async function AdminPage() {
+export default async function AdminPage({ children }) {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user.isAdmin) {
@@ -32,7 +33,8 @@ export default async function AdminPage() {
           <Suspense fallback={<Loading />}>
             {/* <Navbar isAdmin={true} /> */}
             <Admin cars={carsData} orders={ordersData} />
-  
+            {/* <DataGridOrders cars={carsData} orders={ordersData} /> */}
+            {children}
           </Suspense>
         </MainContextProvider>
       </AdminLayout>

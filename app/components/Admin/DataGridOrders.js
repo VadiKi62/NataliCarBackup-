@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
+import { useMainContext } from "@app/Context";
 
-function DataGridOrders({ session, cars, orders }) {
+function DataGridOrders({ cars, orders }) {
   const [carData, setCarData] = useState(
     cars.map((car, index) => ({
       id: index + 1, // unique identifier for DataGrid
@@ -122,7 +123,7 @@ function DataGridOrders({ session, cars, orders }) {
   return (
     <Box>
       {/* DataGrid for Orders with Editable Columns */}
-      <Box mt={5} style={{ height: 400, width: "100%" }}>
+      <Box mt={5} style={{ height: "100vh", width: "100%" }}>
         <Typography variant="h6">Orders</Typography>
         <DataGrid
           rows={orderData}
