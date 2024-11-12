@@ -27,6 +27,7 @@ import { useMainContext } from "@app/Context";
 import DefaultButton from "../../common/DefaultButton";
 import { deleteCar } from "@utils/action";
 import Snackbar from "@app/components/common/Snackbar";
+import AddOrderModal from "./AddOrderModal";
 
 import { CldImage } from "next-cloudinary";
 
@@ -115,6 +116,14 @@ function Item({ car, handleOrderUpdate }) {
     return () => clearTimeout(loadingTimer);
   }, []);
 
+  // opening modal for adding order
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
@@ -132,20 +141,34 @@ function Item({ car, handleOrderUpdate }) {
                 <CircularProgress sx={{ color: "primary.red" }} />
               </Box>
             ) : (
-              <CldImage
-                src={car?.photoUrl || "My Brand/favicon_i6jw77"}
-                alt={`Natali-Cars-${car.model}`}
-                width="450"
-                height="300"
-                crop="fill"
-                priority
-                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: "contain", width: "100%", height: "auto" }}
-                onLoad={() => setImageLoading(false)} //
-              />
+              <>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleOpenModal}
+                >
+                  Add Order
+                </Button>
+                <CldImage
+                  src={car?.photoUrl || "My Brand/favicon_i6jw77"}
+                  alt={`Natali-Cars-${car.model}`}
+                  width="450"
+                  height="300"
+                  crop="fill"
+                  priority
+                  sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{
+                    objectFit: "contain",
+                    width: "100%",
+                    height: "auto",
+                  }}
+                  onLoad={() => setImageLoading(false)} //
+                />
+              </>
             )}
           </CarImage>
         )}
+
         <CarTitle variant="h5">{car.model}</CarTitle>
         <CarTitle variant="h5">{car.regNumber}</CarTitle>
       </Wrapper>
@@ -155,6 +178,8 @@ function Item({ car, handleOrderUpdate }) {
         handleOrderUpdate={fetchAndUpdateOrders}
         setCarOrders={setCarOrders}
       />
+
+      {isModalOpen && <AddOrderModal onClose={handleCloseModal} />}
     </StyledCarItem>
   );
 }

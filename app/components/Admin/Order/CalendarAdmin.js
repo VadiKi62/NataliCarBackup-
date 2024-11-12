@@ -69,6 +69,7 @@ const CalendarAdmin = ({
         confirmedDates?.includes(dateStr))
     );
   };
+
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -110,13 +111,13 @@ const CalendarAdmin = ({
       let width = "100%";
       let border = "1px solid green";
 
+      if (isUnavailable && !isConfirmed) {
+        backgroundColor = "primary.green";
+        color = "text.dark";
+      }
       if (isConfirmed) {
         backgroundColor = "primary.red";
         color = "common.white";
-      }
-      if (isUnavailable && !isConfirmed) {
-        backgroundColor = "primary.green";
-        color = "common.black";
       }
 
       // Single order date styling
@@ -146,8 +147,80 @@ const CalendarAdmin = ({
           setOpen(true);
         }
       };
+
+      if (isOverlapDate && !isStartEndOverlap)
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              border: border,
+              position: "relative",
+              height: "120%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "text.red",
+              backgroundColor: "text.green",
+              cursor: "pointer",
+            }}
+          >
+            {date.date()}
+          </Box>
+        );
+
+      // For overlapping start/end dates
+      if (isStartEndOverlap) {
+        return (
+          <Box
+            onClick={handleDateClick}
+            sx={{
+              border: border,
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              cursor: "pointer",
+            }}
+          >
+            {/* Start Date Box - Left half */}
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor,
+                borderRadius: "0 50% 50% 0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "common.white",
+              }}
+            >
+              {date.date()}
+            </Box>
+
+            {/* End Date Box - Right half */}
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: isConfirmed ? "primary.main" : "primary.green",
+                borderRadius: "0 50% 50% 0",
+                borderRadius: "50% 0 0 50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "common.white",
+              }}
+            >
+              {date.date()}
+            </Box>
+          </Box>
+        );
+      }
+
       //only start date
-      if (isStartDate && !isEndDate)
+      if (isStartDate && !isEndDate && !isOverlapDate)
         return (
           <Box
             onClick={handleDateClick}
@@ -202,8 +275,8 @@ const CalendarAdmin = ({
               display: "flex",
               flexDirection: "row",
               cursor: "pointer",
-              // alignItems: "center",
-              // justifyContent: "center",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Box
@@ -236,76 +309,6 @@ const CalendarAdmin = ({
           </Box>
         );
 
-      // For overlapping start/end dates
-      if (isStartEndOverlap) {
-        return (
-          <Box
-            onClick={handleDateClick}
-            sx={{
-              border: border,
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "row",
-              cursor: "pointer",
-            }}
-          >
-            {/* Start Date Box - Left half */}
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "text.green",
-                borderRadius: "0 50% 50% 0",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "common.white",
-              }}
-            >
-              {date.date()}
-            </Box>
-
-            {/* End Date Box - Right half */}
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "text.green",
-                borderRadius: "0 50% 50% 0",
-                borderRadius: "50% 0 0 50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "common.white",
-              }}
-            >
-              {date.date()}
-            </Box>
-          </Box>
-        );
-      }
-
-      if (isOverlapDate)
-        return (
-          <Box
-            onClick={handleDateClick}
-            sx={{
-              border: border,
-              position: "relative",
-              height: "120%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "text.red",
-              backgroundColor: "text.green",
-              cursor: "pointer",
-            }}
-          >
-            {date.date()}
-          </Box>
-        );
       // Regular cell rendering
       return (
         <Box

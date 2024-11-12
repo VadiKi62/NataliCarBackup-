@@ -38,3 +38,45 @@ export const functionToCheckDuplicates = (
 
   return filteredConflictMessage3;
 };
+
+export const functionToretunrStartEndOverlap = (startEnd) => {
+  const startEndOverlap = [];
+
+  startEnd.forEach((date) => {
+    if (date.type === "start") {
+      const overlappingEndDates = startEnd.filter(
+        (d) => d.date === date.date && d.type === "end"
+      );
+      if (overlappingEndDates.length > 0) {
+        startEndOverlap.push(date.date);
+      }
+    }
+  });
+
+  return startEndOverlap;
+};
+
+export function getConfirmedAndUnavailableStartEndDates(
+  startEnd,
+  confirmedDates,
+  unavailableDates
+) {
+  const confirmedAndStartEnd = [];
+  const unavailableAndStartEnd = [];
+
+  startEnd.forEach((date) => {
+    if (confirmedDates.includes(date.date)) {
+      confirmedAndStartEnd.push(date.date);
+    } else if (unavailableDates.includes(date.date)) {
+      unavailableAndStartEnd.push(date.date);
+    }
+  });
+
+  console.log(confirmedAndStartEnd);
+  console.log(unavailableAndStartEnd);
+
+  return {
+    confirmedAndStartEnd,
+    unavailableAndStartEnd,
+  };
+}

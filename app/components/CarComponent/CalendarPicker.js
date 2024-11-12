@@ -5,6 +5,10 @@ import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import DefaultButton from "../common/DefaultButton";
+import {
+  functionToretunrStartEndOverlap,
+  getConfirmedAndUnavailableStartEndDates,
+} from "@utils/functions";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -20,6 +24,7 @@ const CalendarPicker = ({
   setBookedDates,
   onBookingComplete,
   orders,
+  carId,
 }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -31,6 +36,11 @@ const CalendarPicker = ({
     start: null,
     end: null,
   });
+  const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
+  const [overlapDates, setOverlapDates] = useState(null);
+
+  console.log("carId", carId);
+  console.log("orders", orders);
 
   useEffect(() => {
     const unavailable = [];
@@ -59,14 +69,25 @@ const CalendarPicker = ({
       let currentDate = startDate.add(1, "day");
       while (currentDate.isBefore(endDate)) {
         const dateStr = currentDate.format("YYYY-MM-DD");
-        unavailable.push(dateStr);
         if (order.confirmed) {
           confirmed.push(dateStr);
+        } else {
+          unavailable.push(dateStr);
         }
         currentDate = currentDate.add(1, "day");
       }
     });
 
+    const startEndOverlap = functionToretunrStartEndOverlap(startEnd);
+
+    const { confirmedAndStartEnd, unavailableAndStartEnd } =
+      getConfirmedAndUnavailableStartEndDates(
+        startEnd,
+        confirmedDates,
+        unavailableDates
+      );
+    setOverlapDates([...confirmedAndStartEnd, ...unavailableAndStartEnd]);
+    setStartEndOverlapDates(startEndOverlap);
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
     setStartEndDates(startEnd);
@@ -74,174 +95,251 @@ const CalendarPicker = ({
 
   const disabledDate = (current) => {
     const dateStr = current.format("YYYY-MM-DD");
+    // Проверяем, является ли дата началом или концом существующего бронирования
     const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
-
-    return (
-      (current && current.isBefore(dayjs().startOf("day"))) ||
-      (current &&
-        current.isBefore(dayjs().startOf("day")) &&
-        !isStartOrEnd &&
-        confirmedDates?.includes(dateStr)) ||
-      (!isStartOrEnd && confirmedDates?.includes(dateStr))
-    );
+    const isConfirmed = confirmedDates?.includes(dateStr);
+    // Проверяем, есть ли пересечения бронирований
+    // const hasOverlappingBookings =
+    //   orders.filter((order) => {
+    //     const start = dayjs(order.rentalStartDate);
+    //     const end = dayjs(order.rentalEndDate);
+    //     return current.isBetween(start, end, "day", "[]");
+    //   }).length > 1;
+    return current.isBefore(dayjs().startOf("day")) || isConfirmed;
   };
 
   const renderDateCell = (date) => {
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
-    const isConfirmed = confirmedDates?.includes(dateStr);
-    const isUnavailable = unavailableDates?.includes(dateStr);
-
     const isSelected =
       (date >= start && date <= end) ||
       date.isSame(start, "day") ||
       date.isSame(end, "day");
-
+    const isConfirmed = confirmedDates?.includes(dateStr);
+    const isUnavailable = unavailableDates?.includes(dateStr);
     const startEndInfo = startEndDates.find((d) => d.date === dateStr);
-    const isStartOrEnd = !!startEndInfo;
+    const isStartDate = startEndInfo?.type === "start";
+    const isEndDate = startEndInfo?.type === "end";
 
-    // Добавляем проверку на наличие даты с типом "start" и "end"
-    const isStartAndEnd =
-      startEndDates.filter((d) => d.date === dateStr).length === 2;
+    const isStartAndEndDateOverlap = startEndOverlapDates?.includes(dateStr);
 
-    // Проверяем, является ли дата внутренней в других бронированиях
-    const isInnerDate = startEndDates.some(
-      (d) =>
-        d.date === dateStr &&
-        d.type === "start" &&
-        startEndDates.some((e) => e.date === dateStr && e.type === "end")
-    );
+    if ((carId = "670bb226223dd911f0595287")) {
+      console.log("date is", dateStr);
+      console.log("isUnavailable", isUnavailable);
+      console.log("isStartAndEndDateOverlap", isStartAndEndDateOverlap);
+    }
 
-    let content = (
+    let backgroundColor = "transparent";
+    let color = "inherit";
+    let border = "1px solid grey";
+    let borderRadius;
+    let width;
+
+    if (isSelected) {
+      backgroundColor = "text.green";
+      color = "white";
+      border = "1px solid green";
+    } else if (isConfirmed || isStartAndEndDateOverlap) {
+      backgroundColor = "primary.red";
+      color = "common.white";
+    } else if (isUnavailable) {
+      backgroundColor = "primary.green";
+      color = "common.black";
+    }
+    // if (isStartDate && !isEndDate) {
+    //   borderRadius = "50% 0 0 50%";
+    //   width = "50%";
+    //   // backgroundColor = "primary.green";
+    //   color = "common.black";
+    // }
+    // if (!isStartDate && isEndDate) {
+    //   borderRadius = "0 50% 50% 0";
+    //   width = "50%";
+    //   // backgroundColor = "primary.green";
+    //   color = "common.black";
+    // }
+
+    if (isStartAndEndDateOverlap || isConfirmed || isUnavailable) {
       <Box
         sx={{
-          position: "relative",
           height: "100%",
           width: "100%",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          backgroundColor,
+          borderRadius: "1px",
+          color,
+          border,
         }}
       >
-        {isStartOrEnd || isStartAndEnd || isInnerDate ? (
-          <>
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                display: "flex",
-              }}
-            >
-              <Box
-                sx={{
-                  width:
-                    isStartAndEnd || isInnerDate || isSelected ? "100%" : "50%",
-                  borderRadius: () => {
-                    if (
-                      isStartOrEnd &&
-                      !isInnerDate &&
-                      !isSelected &&
-                      startEndInfo.type === "end"
-                    ) {
-                      return "0 20% 20% 0";
-                    }
-                    if (
-                      startEndInfo.type === "start" &&
-                      !isInnerDate &&
-                      !isSelected
-                    ) {
-                      return "20% 0 0 20%";
-                    }
-                    return undefined;
-                  },
-                  height: "100%",
-                  backgroundColor: isSelected
-                    ? "text.green"
-                    : isStartAndEnd || isInnerDate
-                    ? startEndInfo.confirmed
-                      ? "primary.red"
-                      : "primary.green"
-                    : startEndInfo.type === "end"
-                    ? startEndInfo.confirmed
-                      ? "primary.red"
-                      : "primary.green"
-                    : "transparent",
-                }}
-              />
-              {!isStartAndEnd &&
-                !isInnerDate &&
-                startEndInfo.type === "start" && (
-                  <Box
-                    sx={{
-                      width: "50%",
-                      height: "100%",
-                      backgroundColor: isSelected
-                        ? "text.green"
-                        : startEndInfo.confirmed
-                        ? "primary.red"
-                        : "primary.green",
-                    }}
-                  />
-                )}
-            </Box>
-            <Typography
-              sx={{
-                position: "relative",
-                zIndex: 1,
-                fontSize: "0.8rem",
-              }}
-            >
-              {date.date()}
-            </Typography>
-            {/* <Typography
-              sx={{
-                position: "relative",
-                zIndex: 1,
-                color: startEndInfo.confirmed ? "primary.green" : "black",
-                fontSize: "0.6rem",
-              }}
-            >
-              {startEndInfo.time}
-            </Typography>{" "}
-          </> */}
-          </>
-        ) : (
+        {date.date()}
+      </Box>;
+    }
+
+    if (
+      startEndInfo &&
+      !isEndDate &&
+      !isStartAndEndDateOverlap &&
+      !isConfirmed &&
+      !isUnavailable
+    )
+      return (
+        <Box
+          // onClick={handleDateClick}
+          sx={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "row",
+            cursor: "pointer",
+            border,
+          }}
+        >
           <Box
             sx={{
+              width: "50%",
               height: "100%",
-              width: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: isConfirmed ? "white" : "dark",
-              backgroundColor: isSelected
-                ? "text.green"
-                : isStartAndEnd || isInnerDate
-                ? startEndInfo.confirmed
-                  ? "primary.red"
-                  : "primary.green"
-                : isConfirmed
+            }}
+          >
+            {" "}
+            {date.date()}
+          </Box>
+          <Box
+            sx={{
+              width: "50%",
+              height: "100%",
+              borderRadius: "50% 0 0 50%",
+              backgroundColor: startEndInfo.confirmed
                 ? "primary.red"
-                : isUnavailable
-                ? "primary.green"
-                : "transparent",
-              color:
-                isSelected || isConfirmed || isStartAndEnd || isInnerDate
-                  ? "common.white"
-                  : "inherit",
+                : "primary.green",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: startEndInfo.confirmed ? "common.white" : "common.black",
             }}
           >
             {date.date()}
           </Box>
-        )}
+        </Box>
+      );
+
+    if (
+      !isStartDate &&
+      isEndDate &&
+      !isStartAndEndDateOverlap &&
+      !isConfirmed &&
+      !isUnavailable
+    )
+      return (
+        <Box
+          // onClick={handleDateClick}
+          sx={{
+            border,
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "row",
+            cursor: "pointer",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            sx={{
+              width: "50%",
+              height: "100%",
+              borderRadius: "0 50% 50% 0",
+              backgroundColor: startEndInfo.confirmed
+                ? "primary.red"
+                : "primary.green",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color,
+            }}
+          >
+            {" "}
+            {date.date()}
+          </Box>
+          <Box
+            sx={{
+              width: "50%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {" "}
+            {date.date()}
+          </Box>
+        </Box>
+      );
+
+    return (
+      <Box
+        sx={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor,
+          borderRadius: "1px",
+          color,
+          border,
+        }}
+      >
+        {date.date()}
       </Box>
     );
+  };
 
-    return content;
+  const handleBooking = () => {
+    onBookingComplete();
+    setShowBookButton(false);
+  };
+
+  const headerRender = ({ value }) => {
+    const current = value.clone();
+    const month = current.format("MMMM");
+    const year = current.year();
+
+    const goToNextMonth = () => {
+      setCurrentDate(currentDate.add(1, "month"));
+    };
+
+    const goToPreviousMonth = () => {
+      setCurrentDate(currentDate.subtract(1, "month"));
+    };
+
+    return (
+      <Box
+        sx={{
+          padding: 1,
+          display: "flex",
+          color: "common.black",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <IconButton onClick={goToPreviousMonth} color="inherit">
+          <ArrowBackIosNewIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ margin: 0 }}>
+          {`${month} ${year}`}
+        </Typography>
+        <IconButton onClick={goToNextMonth} color="inherit">
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
+    );
   };
 
   const onSelect = (date) => {
@@ -284,47 +382,6 @@ const CalendarPicker = ({
       });
       setShowBookButton(true);
     }
-  };
-
-  const handleBooking = () => {
-    onBookingComplete();
-    setShowBookButton(false);
-  };
-
-  const headerRender = ({ value }) => {
-    const current = value.clone();
-    const month = current.format("MMMM");
-    const year = current.year();
-
-    const goToNextMonth = () => {
-      setCurrentDate(currentDate.add(1, "month"));
-    };
-
-    const goToPreviousMonth = () => {
-      setCurrentDate(currentDate.subtract(1, "month"));
-    };
-
-    return (
-      <Box
-        sx={{
-          padding: 1,
-          display: "flex",
-          color: "common.black",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <IconButton onClick={goToPreviousMonth} color="inherit">
-          <ArrowBackIosNewIcon />
-        </IconButton>
-        <Typography variant="h6" sx={{ margin: 0 }}>
-          {`${month} ${year}`}
-        </Typography>
-        <IconButton onClick={goToNextMonth} color="inherit">
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
-    );
   };
 
   return (

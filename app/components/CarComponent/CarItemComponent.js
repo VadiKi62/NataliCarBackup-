@@ -159,6 +159,7 @@ function CarItemComponent({ car }) {
         {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
       </Wrapper>
       <CalendarPicker
+        carId={car._id}
         isLoading={isLoading}
         orders={carOrders}
         setBookedDates={setBookedDates}
