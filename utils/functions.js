@@ -72,9 +72,6 @@ export function getConfirmedAndUnavailableStartEndDates(
     }
   });
 
-  console.log(confirmedAndStartEnd);
-  console.log(unavailableAndStartEnd);
-
   return {
     confirmedAndStartEnd,
     unavailableAndStartEnd,

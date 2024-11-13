@@ -120,61 +120,66 @@ const CalendarPicker = ({
     const startEndInfo = startEndDates.find((d) => d.date === dateStr);
     const isStartDate = startEndInfo?.type === "start";
     const isEndDate = startEndInfo?.type === "end";
-
     const isStartAndEndDateOverlap = startEndOverlapDates?.includes(dateStr);
 
-    if ((carId = "670bb226223dd911f0595287")) {
-      console.log("date is", dateStr);
-      console.log("isUnavailable", isUnavailable);
-      console.log("isStartAndEndDateOverlap", isStartAndEndDateOverlap);
+    // If selected, these styles will override everything else
+    if (isSelected) {
+      return (
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "text.green",
+            color: "white",
+            border: "1px solid green",
+            // Add !important to ensure these styles take precedence
+            "& *": {
+              backgroundColor: "text.green !important",
+              color: "white !important",
+              border: "1px solid green !important",
+            },
+          }}
+        >
+          {date.date()}
+        </Box>
+      );
     }
 
+    // Rest of your existing conditions
     let backgroundColor = "transparent";
     let color = "inherit";
     let border = "1px solid grey";
     let borderRadius;
-    let width;
 
-    if (isSelected) {
-      backgroundColor = "text.green";
-      color = "white";
-      border = "1px solid green";
-    } else if (isConfirmed || isStartAndEndDateOverlap) {
+    if (isConfirmed || isStartAndEndDateOverlap) {
       backgroundColor = "primary.red";
       color = "common.white";
     } else if (isUnavailable) {
       backgroundColor = "primary.green";
       color = "common.black";
     }
-    // if (isStartDate && !isEndDate) {
-    //   borderRadius = "50% 0 0 50%";
-    //   width = "50%";
-    //   // backgroundColor = "primary.green";
-    //   color = "common.black";
-    // }
-    // if (!isStartDate && isEndDate) {
-    //   borderRadius = "0 50% 50% 0";
-    //   width = "50%";
-    //   // backgroundColor = "primary.green";
-    //   color = "common.black";
-    // }
 
     if (isStartAndEndDateOverlap || isConfirmed || isUnavailable) {
-      <Box
-        sx={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor,
-          borderRadius: "1px",
-          color,
-          border,
-        }}
-      >
-        {date.date()}
-      </Box>;
+      return (
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor,
+            borderRadius: "1px",
+            color,
+            border,
+          }}
+        >
+          {date.date()}
+        </Box>
+      );
     }
 
     if (
@@ -183,10 +188,9 @@ const CalendarPicker = ({
       !isStartAndEndDateOverlap &&
       !isConfirmed &&
       !isUnavailable
-    )
+    ) {
       return (
         <Box
-          // onClick={handleDateClick}
           sx={{
             position: "relative",
             width: "100%",
@@ -206,7 +210,6 @@ const CalendarPicker = ({
               justifyContent: "center",
             }}
           >
-            {" "}
             {date.date()}
           </Box>
           <Box
@@ -227,6 +230,7 @@ const CalendarPicker = ({
           </Box>
         </Box>
       );
+    }
 
     if (
       !isStartDate &&
@@ -234,10 +238,9 @@ const CalendarPicker = ({
       !isStartAndEndDateOverlap &&
       !isConfirmed &&
       !isUnavailable
-    )
+    ) {
       return (
         <Box
-          // onClick={handleDateClick}
           sx={{
             border,
             position: "relative",
@@ -261,10 +264,9 @@ const CalendarPicker = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color,
+              color: startEndInfo.confirmed ? "common.white" : "common.black",
             }}
           >
-            {" "}
             {date.date()}
           </Box>
           <Box
@@ -276,11 +278,11 @@ const CalendarPicker = ({
               justifyContent: "center",
             }}
           >
-            {" "}
             {date.date()}
           </Box>
         </Box>
       );
+    }
 
     return (
       <Box
@@ -291,7 +293,7 @@ const CalendarPicker = ({
           alignItems: "center",
           justifyContent: "center",
           backgroundColor,
-          borderRadius: "1px",
+          borderRadius,
           color,
           border,
         }}
