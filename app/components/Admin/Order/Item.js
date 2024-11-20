@@ -93,12 +93,16 @@ const CarInfo = styled(Typography)(({ theme }) => ({
   },
 }));
 
-function Item({ car, handleOrderUpdate }) {
+function Item({
+  car,
+  handleOrderUpdate,
+  setIsAddOrderOpen,
+  isAddOrderOpen,
+  setSelectedCar,
+}) {
   const [imageLoading, setImageLoading] = useState(true);
 
   const { ordersByCarId, allOrders, fetchAndUpdateOrders } = useMainContext();
-
-  const [carOrders, setCarOrders] = useState([]);
 
   // Update orders when allOrders or car._id changes
   useEffect(() => {
@@ -116,17 +120,19 @@ function Item({ car, handleOrderUpdate }) {
     return () => clearTimeout(loadingTimer);
   }, []);
 
-  // opening modal for adding order
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  const [carOrders, setCarOrders] = useState([]);
+
+  const handleOpneModal = () => {
+    setSelectedCar(car);
+    setIsAddOrderOpen(true);
   };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
+        <Button variant="contained" color="primary" onClick={handleOpneModal}>
+          Add Order for {car.model}
+        </Button>
         {car?.photoUrl && (
           <CarImage>
             {imageLoading ? (
@@ -142,13 +148,6 @@ function Item({ car, handleOrderUpdate }) {
               </Box>
             ) : (
               <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleOpenModal}
-                >
-                  Add Order
-                </Button>
                 <CldImage
                   src={car?.photoUrl || "My Brand/favicon_i6jw77"}
                   alt={`Natali-Cars-${car.model}`}
@@ -161,6 +160,7 @@ function Item({ car, handleOrderUpdate }) {
                     objectFit: "contain",
                     width: "100%",
                     height: "auto",
+                    marginTop: 10,
                   }}
                   onLoad={() => setImageLoading(false)} //
                 />
@@ -178,8 +178,6 @@ function Item({ car, handleOrderUpdate }) {
         handleOrderUpdate={fetchAndUpdateOrders}
         setCarOrders={setCarOrders}
       />
-
-      {isModalOpen && <AddOrderModal onClose={handleCloseModal} />}
     </StyledCarItem>
   );
 }

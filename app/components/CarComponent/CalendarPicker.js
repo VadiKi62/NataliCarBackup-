@@ -8,7 +8,9 @@ import DefaultButton from "../common/DefaultButton";
 import {
   functionToretunrStartEndOverlap,
   getConfirmedAndUnavailableStartEndDates,
+  extractArraysOfStartEndConfPending,
 } from "@utils/functions";
+import { analyzeDates } from "@utils/analyzeDates";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -37,101 +39,79 @@ const CalendarPicker = ({
     end: null,
   });
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
-  const [overlapDates, setOverlapDates] = useState(null);
-
-  console.log("carId", carId);
-  console.log("orders", orders);
 
   useEffect(() => {
-    const unavailable = [];
-    const confirmed = [];
-    const startEnd = [];
-
-    orders.forEach((order) => {
-      const startDate = dayjs(order.rentalStartDate);
-      const endDate = dayjs(order.rentalEndDate);
-
-      // Add start and end dates to special handling array
-      startEnd.push({
-        date: startDate.format("YYYY-MM-DD"),
-        type: "start",
-        time: dayjs(order.timeIn).format("HH:mm"),
-        confirmed: order.confirmed,
-      });
-      startEnd.push({
-        date: endDate.format("YYYY-MM-DD"),
-        type: "end",
-        time: dayjs(order.timeOut).format("HH:mm"),
-        confirmed: order.confirmed,
-      });
-
-      // Handle middle dates
-      let currentDate = startDate.add(1, "day");
-      while (currentDate.isBefore(endDate)) {
-        const dateStr = currentDate.format("YYYY-MM-DD");
-        if (order.confirmed) {
-          confirmed.push(dateStr);
-        } else {
-          unavailable.push(dateStr);
-        }
-        currentDate = currentDate.add(1, "day");
-      }
-    });
-
-    const startEndOverlap = functionToretunrStartEndOverlap(startEnd);
-
-    const { confirmedAndStartEnd, unavailableAndStartEnd } =
-      getConfirmedAndUnavailableStartEndDates(
-        startEnd,
-        confirmedDates,
-        unavailableDates
-      );
-    setOverlapDates([...confirmedAndStartEnd, ...unavailableAndStartEnd]);
-    setStartEndOverlapDates(startEndOverlap);
+    const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
+      extractArraysOfStartEndConfPending(orders);
+    // тестим в консоли на конкретной машине
+    if (carId === "670bb226223dd911f0595287") {
+      console.log("startEnd DAYS", startEnd);
+      console.log("transformedStartEnd", transformedStartEndOverlap);
+    }
+    setStartEndOverlapDates(transformedStartEndOverlap);
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
     setStartEndDates(startEnd);
   }, [orders]);
 
-  const disabledDate = (current) => {
-    const dateStr = current.format("YYYY-MM-DD");
-    // Проверяем, является ли дата началом или концом существующего бронирования
-    const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
-    const isConfirmed = confirmedDates?.includes(dateStr);
-    // Проверяем, есть ли пересечения бронирований
-    // const hasOverlappingBookings =
-    //   orders.filter((order) => {
-    //     const start = dayjs(order.rentalStartDate);
-    //     const end = dayjs(order.rentalEndDate);
-    //     return current.isBetween(start, end, "day", "[]");
-    //   }).length > 1;
-    return current.isBefore(dayjs().startOf("day")) || isConfirmed;
-  };
-
   const renderDateCell = (date) => {
+    // выбранные даты
     const [start, end] = selectedRange;
-    const dateStr = date.format("YYYY-MM-DD");
     const isSelected =
       (date >= start && date <= end) ||
       date.isSame(start, "day") ||
       date.isSame(end, "day");
+    // текущая дата вокруг которой будет рендер и которая будет сравниваться
+    const dateStr = date.format("YYYY-MM-DD");
+    // проверяем подтвержденная ли єто дата
     const isConfirmed = confirmedDates?.includes(dateStr);
+    // проверяем ожидающая ли єто дата (еще не подтвердженная)
     const isUnavailable = unavailableDates?.includes(dateStr);
+    // проверяем начальная или конечная ли єто дата
     const startEndInfo = startEndDates.find((d) => d.date === dateStr);
+    // проверяем начальная ли єто дата
     const isStartDate = startEndInfo?.type === "start";
+    // проверяем конечная ли єто дата
     const isEndDate = startEndInfo?.type === "end";
-    const isStartAndEndDateOverlap = startEndOverlapDates?.includes(dateStr);
 
+    // проверяем чтобы эта дата не была одновременно начальной и конечной для разных броинрований
+    const isStartAndEndDateOverlapInfo = startEndOverlapDates?.find(
+      (dateObj) => dateObj.date === dateStr
+    );
+    // если предыдущая функция нашла что-то, то эта вернет тру, и если нет таких дат, которые начальные и конечные тогда это будет фолс
+    const isStartAndEndDateOverlap = Boolean(isStartAndEndDateOverlapInfo);
+
+    // тест в консоли для конкретной машины
+    if (carId === "670bb226223dd911f0595287") {
+      console.log("!!!!isStartAndEndDateOverlap", isStartAndEndDateOverlap);
+      console.log("isStartAndEndDateOverlapInfo", isStartAndEndDateOverlapInfo);
+    }
+
+    // ДАЛЬШЕ КОД ВНЕДРЯЕТ СТИЛИ для каждого типа
+
+    // здесь задаем базовые значения для - бекграунд цвета ячейки, цвета таекста, рамки, радиуса рамки
+    // Rest of your existing conditions
+    let backgroundColor = "transparent";
+    let color = "inherit";
+    let border = "1px solid grey";
+    let borderRadius;
+
+    // Общие стили
+    const baseStyles = {
+      height: "100%",
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    };
+
+    //если мы тыкаем в ячейку то все предыдущие стили переписываются
     // If selected, these styles will override everything else
     if (isSelected) {
       return (
         <Box
           sx={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            ...baseStyles,
             backgroundColor: "text.green",
             color: "white",
             border: "1px solid green",
@@ -148,29 +128,27 @@ const CalendarPicker = ({
       );
     }
 
-    // Rest of your existing conditions
-    let backgroundColor = "transparent";
-    let color = "inherit";
-    let border = "1px solid grey";
-    let borderRadius;
-
-    if (isConfirmed || isStartAndEndDateOverlap) {
+    if (
+      isConfirmed ||
+      isStartAndEndDateOverlapInfo?.endConfirmed ||
+      isStartAndEndDateOverlapInfo?.startConfirmed
+    ) {
       backgroundColor = "primary.red";
       color = "common.white";
-    } else if (isUnavailable) {
+    } else if (
+      isUnavailable ||
+      isStartAndEndDateOverlapInfo?.endPending ||
+      isStartAndEndDateOverlapInfo?.startPending
+    ) {
       backgroundColor = "primary.green";
       color = "common.black";
     }
 
-    if (isStartAndEndDateOverlap || isConfirmed || isUnavailable) {
+    if (isConfirmed || isUnavailable) {
       return (
         <Box
           sx={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            ...baseStyles,
             backgroundColor,
             borderRadius: "1px",
             color,
@@ -182,13 +160,8 @@ const CalendarPicker = ({
       );
     }
 
-    if (
-      startEndInfo &&
-      !isEndDate &&
-      !isStartAndEndDateOverlap &&
-      !isConfirmed &&
-      !isUnavailable
-    ) {
+    //
+    if (isStartDate && !isEndDate && !isStartAndEndDateOverlap) {
       return (
         <Box
           sx={{
@@ -232,13 +205,7 @@ const CalendarPicker = ({
       );
     }
 
-    if (
-      !isStartDate &&
-      isEndDate &&
-      !isStartAndEndDateOverlap &&
-      !isConfirmed &&
-      !isUnavailable
-    ) {
+    if (!isStartDate && isEndDate && !isStartAndEndDateOverlap) {
       return (
         <Box
           sx={{
@@ -283,15 +250,11 @@ const CalendarPicker = ({
         </Box>
       );
     }
-
+    //если ничего из меречисленного не работает то рендерить прозрачно
     return (
       <Box
         sx={{
-          height: "100%",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          ...baseStyles,
           backgroundColor,
           borderRadius,
           color,
@@ -384,6 +347,21 @@ const CalendarPicker = ({
       });
       setShowBookButton(true);
     }
+  };
+
+  const disabledDate = (current) => {
+    const dateStr = current.format("YYYY-MM-DD");
+    // Проверяем, является ли дата началом или концом существующего бронирования
+    const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
+    const isConfirmed = confirmedDates?.includes(dateStr);
+    // Проверяем, есть ли пересечения бронирований
+    // const hasOverlappingBookings =
+    //   orders.filter((order) => {
+    //     const start = dayjs(order.rentalStartDate);
+    //     const end = dayjs(order.rentalEndDate);
+    //     return current.isBetween(start, end, "day", "[]");
+    //   }).length > 1;
+    return current.isBefore(dayjs().startOf("day")) || isConfirmed;
   };
 
   return (

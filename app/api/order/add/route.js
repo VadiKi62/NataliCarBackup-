@@ -28,6 +28,7 @@ export async function POST(request) {
       placeIn,
       placeOut,
     } = await request.json();
+    console.log("TIME", timeIn);
 
     // Find the car by its car number
     const existingCar = await Car.findOne({ carNumber: carNumber });

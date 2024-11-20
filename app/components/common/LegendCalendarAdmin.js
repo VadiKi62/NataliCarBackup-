@@ -6,7 +6,6 @@ function LegendCalendarAdmin() {
     <Stack
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
       direction={{ xs: "column", sm: "row" }} // Stack items vertically on small screens, horizontally on larger screens
-      margin={3}
       justifyContent="center"
       alignItems="center"
     >
@@ -16,6 +15,8 @@ function LegendCalendarAdmin() {
           alignItems: "center",
           justifyContent: "center",
           mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
+          padding: 1,
+          margin: 2,
         }}
       >
         <Box

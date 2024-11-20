@@ -13,6 +13,10 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
 import EditOrderModal from "./EditOrderModal";
+import {
+  functionToretunrStartEndOverlap,
+  getConfirmedAndUnavailableStartEndDates,
+} from "@utils/functions";
 
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -31,31 +35,59 @@ const CalendarAdmin = ({
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [open, setOpen] = useState(false);
   const [isConflictOrder, setIsConflictOrder] = useState(false);
+  const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
+  const [overlapDates, setOverlapDates] = useState(null);
+  const [startEndDates, setStartEndDates] = useState([]);
 
   useEffect(() => {
     const unavailable = [];
     const confirmed = [];
+    const startEnd = [];
 
     orders.forEach((order) => {
       const startDate = dayjs(order.rentalStartDate);
       const endDate = dayjs(order.rentalEndDate);
 
-      let currentDate = startDate;
-      while (
-        currentDate.isBefore(endDate) ||
-        currentDate.isSame(endDate, "day")
-      ) {
+      // Add start and end dates to special handling array
+      startEnd.push({
+        date: startDate.format("YYYY-MM-DD"),
+        type: "start",
+        time: dayjs(order.timeIn).format("HH:mm"),
+        confirmed: order.confirmed,
+      });
+      startEnd.push({
+        date: endDate.format("YYYY-MM-DD"),
+        type: "end",
+        time: dayjs(order.timeOut).format("HH:mm"),
+        confirmed: order.confirmed,
+      });
+
+      // Handle middle dates
+      let currentDate = startDate.add(1, "day");
+      while (currentDate.isBefore(endDate)) {
         const dateStr = currentDate.format("YYYY-MM-DD");
-        unavailable.push(dateStr);
         if (order.confirmed) {
           confirmed.push(dateStr);
+        } else {
+          unavailable.push(dateStr);
         }
         currentDate = currentDate.add(1, "day");
       }
     });
+    const startEndOverlap = functionToretunrStartEndOverlap(startEnd);
 
+    const { confirmedAndStartEnd, unavailableAndStartEnd } =
+      getConfirmedAndUnavailableStartEndDates(
+        startEnd,
+        confirmedDates,
+        unavailableDates
+      );
+
+    setOverlapDates([...confirmedAndStartEnd, ...unavailableAndStartEnd]);
+    setStartEndOverlapDates(startEndOverlap);
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
+    setStartEndDates(startEnd);
   }, [orders]);
 
   const disabledDate = (current) => {
@@ -77,8 +109,13 @@ const CalendarAdmin = ({
       const isConfirmed = confirmedDates.includes(dateStr);
       const isUnavailable = unavailableDates.includes(dateStr);
 
-      let isStartDate = false;
-      let isEndDate = false;
+      const startEndInfo = startEndDates.find((d) => d.date === dateStr);
+      const isStartDate = startEndInfo?.type === "start";
+      const isEndDate = startEndInfo?.type === "end";
+      const isStartAndEndDateOverlap = startEndOverlapDates?.includes(dateStr);
+
+      // let isStartDate = false;
+      // let isEndDate = false;
       let overlapOrders = [];
       let startDates = [];
       let endDates = [];
@@ -88,14 +125,14 @@ const CalendarAdmin = ({
         const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
         const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
 
-        if (rentalStart === dateStr) {
-          isStartDate = true;
-          startDates.push(order);
-        }
-        if (rentalEnd === dateStr) {
-          isEndDate = true;
-          endDates.push(order);
-        }
+        // if (rentalStart === dateStr) {
+        //   isStartDate = true;
+        //   startDates.push(order);
+        // }
+        // if (rentalEnd === dateStr) {
+        //   isEndDate = true;
+        //   endDates.push(order);
+        // }
 
         if (dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]")) {
           overlapOrders.push(order);

@@ -15,6 +15,7 @@ import Error from "@app/error";
 import { styled } from "@mui/system";
 import Navbar from "@app/components/Navbar";
 import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
+import AddOrderModal from "./Order/AddOrderModal";
 
 import Cars from "./Car/Cars";
 const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
@@ -46,6 +47,12 @@ function Admin() {
 
   const [isCarInfo, setIsCarInfo] = useState(true);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
+  const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState(null);
+
+  const handleCloseAddOrderModal = () => {
+    setIsAddOrderOpen(false);
+  };
 
   const handleOrderUpdate = async (updatedOrder) => {
     setAllOrders((prevOrders) =>
@@ -117,14 +124,14 @@ function Admin() {
               alignItems="center"
               justifyContent="center"
             >
-              <DefaultButton
+              {/* <DefaultButton
                 minWidth={{ xs: "100%", sm: "600px" }}
                 padding={scrolled ? 0 : 1.5}
                 relative
                 sx={{ width: "100%" }}
               >
                 Добавить заказ
-              </DefaultButton>
+              </DefaultButton> */}
 
               <LegendCalendarAdmin />
             </Stack>
@@ -152,9 +159,10 @@ function Admin() {
               <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
                   car={car}
-                  // orders={ordersData}
+                  isAddOrderOpen={isAddOrderOpen}
+                  setSelectedCar={setSelectedCar}
+                  setIsAddOrderOpen={setIsAddOrderOpen}
                   handleOrderUpdate={handleOrderUpdate}
-                  // setOrders={setOrders}
                 />
               </Grid>
             ))}
@@ -176,6 +184,13 @@ function Admin() {
         car={cars[0]}
         setUpdateStatus={setUpdateStatus}
         fetchAndUpdateCars={resubmitCars}
+      />
+
+      <AddOrderModal
+        open={isAddOrderOpen}
+        onClose={handleCloseAddOrderModal}
+        car={selectedCar}
+        setUpdateStatus={setUpdateStatus}
       />
     </div>
   );

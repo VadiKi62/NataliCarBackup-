@@ -90,6 +90,14 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: dayjs().tz("Europe/Athens").toDate(),
   },
+  placeIn: {
+    type: String,
+    default: "Nea Kalikratia",
+  },
+  placeOut: {
+    type: String,
+    default: "Nea Kalikratia",
+  },
 });
 
 // Pre-save middleware to calculate the number of days and total price

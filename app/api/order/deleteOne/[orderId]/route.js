@@ -41,6 +41,9 @@ export const DELETE = async (request, { params }) => {
         { _id: { $in: orderToDelete.hasConflictDates } },
         { $pull: { hasConflictDates: orderId } } // Remove orderId from hasConflictDates
       );
+      const allOrders = await Order.find({ car: carOfTheOrder._id });
+      console.log("allOrders from delete", allOrders);
+      await removeConflictDates(orderToDelete, allOrders);
     }
 
     // Delete the order
@@ -62,3 +65,46 @@ export const DELETE = async (request, { params }) => {
     });
   }
 };
+
+function removeConflictDates(orderToDelete, allOrders) {
+  if (
+    !orderToDelete?.hasConflictDates ||
+    !Array.isArray(orderToDelete.hasConflictDates)
+  ) {
+    console.error("Invalid input: hasConflictDates is not an array");
+    return;
+  }
+
+  // Пройтись по каждому OrderId из orderToDelete.hasConflictDates
+  orderToDelete.hasConflictDates.forEach(({ OrderId }) => {
+    if (!OrderId) {
+      console.log("No conflicts for this order");
+      return;
+    }
+
+    // Найти заказ по OrderId
+    const targetOrder = allOrders.find((order) => order._id === OrderId);
+
+    if (!targetOrder) {
+      console.warn(`Order with OrderId ${OrderId} not found in allOrders`);
+      return;
+    }
+
+    // Убедимся, что у найденного заказа есть массив hasConflictDates
+    if (!Array.isArray(targetOrder.hasConflictDates)) {
+      console.warn(
+        `OrderId ${OrderId} does not have a valid hasConflictDates array`
+      );
+      return;
+    }
+
+    // Удалить OrderId из targetOrder.hasConflictDates
+    targetOrder.hasConflictDates = targetOrder.hasConflictDates.filter(
+      (conflict) => conflict !== orderToDelete._id
+    );
+
+    console.log(
+      `OrderId ${orderToDelete.OrderId} removed from hasConflictDates of OrderId ${OrderId}`
+    );
+  });
+}

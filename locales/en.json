@@ -1,12 +1,14 @@
 {
-  "menu": {
-    "Menu": "Menu",
-    "call1": "Call the waiter",
-    "call2": "Call the bill",
-    "table": "Table",
-    "run": "The Waiter is running to you!",
-    "About": "About",
-    "close": "close"
+  "statusMesssages": {
+    "pending": "Order created but therer some pending orders that are not confirmed yet:",
+    "conflict": "Order is not created. These dates are already confirmed by other order, try another dates. ",
+    "orderDone": "Order created successfully! \n We will get in touch with you with 48 hours to submit it."
+  },
+  "order": {
+    "chooseDates": "Choose Dates",
+    "notAvailableDate": " not available",
+    "pendingDate": "pending (available for booking)",
+    "sendBooking": "Send booking"
   },
   "hero": {
     "wellcome": "Welcome to",
