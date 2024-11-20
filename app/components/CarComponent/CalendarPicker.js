@@ -41,13 +41,16 @@ const CalendarPicker = ({
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
 
   useEffect(() => {
+    // функция которая возвращает 4 массива дат для удобного рендеринга клиентского календаря
     const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
       extractArraysOfStartEndConfPending(orders);
+
     // тестим в консоли на конкретной машине
     if (carId === "670bb226223dd911f0595287") {
       console.log("startEnd DAYS", startEnd);
       console.log("transformedStartEnd", transformedStartEndOverlap);
     }
+    // задаем єти 4 массива в стейт
     setStartEndOverlapDates(transformedStartEndOverlap);
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);

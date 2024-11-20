@@ -88,7 +88,6 @@ export function extractArraysOfStartEndConfPending(orders) {
   const unavailable = [];
   const confirmed = [];
   const startEnd = [];
-  const startEndOverlap = [];
 
   orders.forEach((order) => {
     const startDate = dayjs(order.rentalStartDate);
@@ -118,17 +117,6 @@ export function extractArraysOfStartEndConfPending(orders) {
         unavailable.push(dateStr);
       }
       currentDate = currentDate.add(1, "day");
-    }
-  });
-  // єта итерация уже не нужна
-  startEnd.forEach((date) => {
-    if (date.type === "start") {
-      const overlappingEndDates = startEnd.filter(
-        (d) => d.date === date.date && d.type === "end"
-      );
-      if (overlappingEndDates.length > 0) {
-        startEndOverlap.push(date.date);
-      }
     }
   });
 
@@ -178,7 +166,6 @@ export function extractArraysOfStartEndConfPending(orders) {
     unavailable,
     confirmed,
     startEnd,
-    startEndOverlap,
     transformedStartEndOverlap,
   };
 }
