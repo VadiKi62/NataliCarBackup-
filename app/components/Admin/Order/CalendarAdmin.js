@@ -16,6 +16,9 @@ import EditOrderModal from "./EditOrderModal";
 import {
   functionToretunrStartEndOverlap,
   getConfirmedAndUnavailableStartEndDates,
+  extractArraysOfStartEndConfPending,
+  returnOverlapOrders,
+  returnOverlapOrdersObjects,
 } from "@utils/functions";
 
 import dayjs from "dayjs";
@@ -38,58 +41,6 @@ const CalendarAdmin = ({
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
   const [overlapDates, setOverlapDates] = useState(null);
   const [startEndDates, setStartEndDates] = useState([]);
-
-  useEffect(() => {
-    const unavailable = [];
-    const confirmed = [];
-    const startEnd = [];
-
-    orders.forEach((order) => {
-      const startDate = dayjs(order.rentalStartDate);
-      const endDate = dayjs(order.rentalEndDate);
-
-      // Add start and end dates to special handling array
-      startEnd.push({
-        date: startDate.format("YYYY-MM-DD"),
-        type: "start",
-        time: dayjs(order.timeIn).format("HH:mm"),
-        confirmed: order.confirmed,
-      });
-      startEnd.push({
-        date: endDate.format("YYYY-MM-DD"),
-        type: "end",
-        time: dayjs(order.timeOut).format("HH:mm"),
-        confirmed: order.confirmed,
-      });
-
-      // Handle middle dates
-      let currentDate = startDate.add(1, "day");
-      while (currentDate.isBefore(endDate)) {
-        const dateStr = currentDate.format("YYYY-MM-DD");
-        if (order.confirmed) {
-          confirmed.push(dateStr);
-        } else {
-          unavailable.push(dateStr);
-        }
-        currentDate = currentDate.add(1, "day");
-      }
-    });
-    const startEndOverlap = functionToretunrStartEndOverlap(startEnd);
-
-    const { confirmedAndStartEnd, unavailableAndStartEnd } =
-      getConfirmedAndUnavailableStartEndDates(
-        startEnd,
-        confirmedDates,
-        unavailableDates
-      );
-
-    setOverlapDates([...confirmedAndStartEnd, ...unavailableAndStartEnd]);
-    setStartEndOverlapDates(startEndOverlap);
-    setUnavailableDates(unavailable);
-    setConfirmedDates(confirmed);
-    setStartEndDates(startEnd);
-  }, [orders]);
-
   const disabledDate = (current) => {
     const dateStr = current.format("YYYY-MM-DD");
 
@@ -102,6 +53,29 @@ const CalendarAdmin = ({
     );
   };
 
+  useEffect(() => {
+    const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
+      extractArraysOfStartEndConfPending(orders);
+
+    const overlap = returnOverlapOrdersObjects(
+      orders,
+      transformedStartEndOverlap
+    );
+
+    if (orders[0]?.car === "670bb226223dd911f0595287") {
+      // console.log("transformedStartEndOverlap ", transformedStartEndOverlap);
+      // console.log(
+      //   "NEW OCCURENCES",
+      //   returnOverlapOrdersObjects(orders, transformedStartEndOverlap)
+      // );
+    }
+    setOverlapDates(overlap);
+    setStartEndOverlapDates(transformedStartEndOverlap);
+    setUnavailableDates(unavailable);
+    setConfirmedDates(confirmed);
+    setStartEndDates(startEnd);
+  }, [orders]);
+
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
@@ -112,43 +86,37 @@ const CalendarAdmin = ({
       const startEndInfo = startEndDates.find((d) => d.date === dateStr);
       const isStartDate = startEndInfo?.type === "start";
       const isEndDate = startEndInfo?.type === "end";
-      const isStartAndEndDateOverlap = startEndOverlapDates?.includes(dateStr);
+      // проверяем чтобы эта дата не была одновременно начальной и конечной для разных броинрований
+      const isStartAndEndDateOverlapInfo = startEndOverlapDates?.find(
+        (dateObj) => dateObj.date === dateStr
+      );
+      // если предыдущая функция нашла что-то, то эта вернет тру, и если нет таких дат, которые начальные и конечные тогда это будет фолс
+      const isStartEndOverlap = Boolean(isStartAndEndDateOverlapInfo);
 
-      // let isStartDate = false;
-      // let isEndDate = false;
-      let overlapOrders = [];
-      let startDates = [];
-      let endDates = [];
+      const overlapOrders = returnOverlapOrders(orders, dateStr);
+      // const isOverlapDate = overlapOrders.length > 1;
+      const isOverlapDateInfo = overlapDates?.find(
+        (dateObj) => dateObj.date === dateStr
+      );
+      const isOverlapDate = Boolean(isOverlapDateInfo);
 
-      // Check each order and collect overlaps
-      orders.forEach((order) => {
-        const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
-        const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
-
-        // if (rentalStart === dateStr) {
-        //   isStartDate = true;
-        //   startDates.push(order);
-        // }
-        // if (rentalEnd === dateStr) {
-        //   isEndDate = true;
-        //   endDates.push(order);
-        // }
-
-        if (dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]")) {
-          overlapOrders.push(order);
-        }
-      });
-
-      const isOverlapDate = overlapOrders.length > 1;
-      const isStartEndOverlap = startDates.length > 0 && endDates.length > 0;
+      if (
+        orders[0]?.car === "670bb226223dd911f0595287" &&
+        overlapOrders.length > 1 &&
+        overlapDates
+      ) {
+        // console.log("" overlapOrders.length > 1);
+        console.log("New : should be true ", isOverlapDate);
+        console.log(isOverlapDateInfo);
+      }
 
       let backgroundColor = "transparent";
       let color = "inherit";
       let borderRadius = "1px";
-      let width = "100%";
       let border = "1px solid green";
+      let width;
 
-      if (isUnavailable && !isConfirmed) {
+      if (isUnavailable) {
         backgroundColor = "primary.green";
         color = "text.dark";
       }
@@ -162,13 +130,13 @@ const CalendarAdmin = ({
         borderRadius = "50% 0 0 50%";
         width = "50%";
         backgroundColor = "primary.green";
-        color = "common.black";
+        color = "common.white";
       }
       if (!isStartDate && isEndDate) {
         borderRadius = "0 50% 50% 0";
         width = "50%";
         backgroundColor = "primary.green";
-        color = "common.black";
+        color = "common.white";
       }
 
       const handleDateClick = () => {
@@ -185,7 +153,10 @@ const CalendarAdmin = ({
         }
       };
 
-      if (isOverlapDate && !isStartEndOverlap)
+      if (isOverlapDate && !isStartEndOverlap) {
+        const circlesPending = isOverlapDateInfo.pending || 0; // Number of yellow circles
+        const circlesConfirmed = isOverlapDateInfo.confirmed || 0; // Number of red circles
+
         return (
           <Box
             onClick={handleDateClick}
@@ -201,9 +172,56 @@ const CalendarAdmin = ({
               cursor: "pointer",
             }}
           >
+            {/* Render red circles based on the number of confirmed */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: 2, // Adjust position to place circles at the top
+                display: "flex",
+                gap: 1, // Spacing between circles
+                justifyContent: "flex-end",
+                width: "100%",
+              }}
+            >
+              {Array.from({ length: circlesConfirmed }).map((_, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: 6, // Adjust circle size
+                    height: 6,
+                    backgroundColor: "primary.red",
+                    borderRadius: "50%",
+                  }}
+                />
+              ))}
+            </Box>
+            {/* Render yellow circles based on the number of confirmed */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: 2, // Adjust position to place circles at the top
+                display: "flex",
+                gap: 1, // Spacing between circles
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
+              {Array.from({ length: circlesPending }).map((_, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: 6, // Adjust circle size
+                    height: 6,
+                    backgroundColor: "primary.green",
+                    borderRadius: "50%",
+                  }}
+                />
+              ))}
+            </Box>
             {date.date()}
           </Box>
         );
+      }
 
       // For overlapping start/end dates
       if (isStartEndOverlap) {
@@ -225,7 +243,9 @@ const CalendarAdmin = ({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor,
+                backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
+                  ? "primary.main"
+                  : "primary.green",
                 borderRadius: "0 50% 50% 0",
                 display: "flex",
                 alignItems: "center",
@@ -241,7 +261,9 @@ const CalendarAdmin = ({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isConfirmed ? "primary.main" : "primary.green",
+                backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
+                  ? "primary.main"
+                  : "primary.green",
                 borderRadius: "0 50% 50% 0",
                 borderRadius: "50% 0 0 50%",
                 display: "flex",
@@ -288,7 +310,9 @@ const CalendarAdmin = ({
                 width: "50%",
                 height: "100%",
                 borderRadius: "50% 0 0 50%",
-                backgroundColor,
+                backgroundColor: startEndInfo.confirmed
+                  ? "primary.main"
+                  : "primary.green",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -321,7 +345,9 @@ const CalendarAdmin = ({
                 width: "50%",
                 height: "100%",
                 borderRadius: "0 50% 50% 0",
-                backgroundColor,
+                backgroundColor: startEndInfo.confirmed
+                  ? "primary.main"
+                  : "primary.green",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
