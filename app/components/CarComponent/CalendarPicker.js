@@ -46,10 +46,10 @@ const CalendarPicker = ({
       extractArraysOfStartEndConfPending(orders);
 
     // тестим в консоли на конкретной машине
-    if (carId === "670bb226223dd911f0595287") {
-      console.log("startEnd DAYS", startEnd);
-      console.log("transformedStartEnd", transformedStartEndOverlap);
-    }
+    // if (carId === "670bb226223dd911f0595287") {
+    //   console.log("startEnd DAYS", startEnd);
+    //   console.log("transformedStartEnd", transformedStartEndOverlap);
+    // }
     // задаем єти 4 массива в стейт
     setStartEndOverlapDates(transformedStartEndOverlap);
     setUnavailableDates(unavailable);
@@ -85,8 +85,7 @@ const CalendarPicker = ({
     const isStartAndEndDateOverlap = Boolean(isStartAndEndDateOverlapInfo);
 
     // тест в консоли для конкретной машины
-    if (carId === "670bb226223dd911f0595287") {
-      console.log("!!!!isStartAndEndDateOverlap", isStartAndEndDateOverlap);
+    if (carId === "670bb226223dd911f0595287" && isStartAndEndDateOverlap) {
       console.log("isStartAndEndDateOverlapInfo", isStartAndEndDateOverlapInfo);
     }
 
@@ -267,12 +266,12 @@ const CalendarPicker = ({
             cursor: "pointer",
           }}
         >
-          {/* Start Date Box - Left half */}
+          {/* End Date Box - Left half */}
           <Box
             sx={{
               width: "50%",
               height: "100%",
-              backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
+              backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
                 ? "primary.main"
                 : "primary.green",
               borderRadius: "0 50% 50% 0",
@@ -285,12 +284,12 @@ const CalendarPicker = ({
             {date.date()}
           </Box>
 
-          {/* End Date Box - Right half */}
+          {/* Start Date Box - Right half */}
           <Box
             sx={{
               width: "50%",
               height: "100%",
-              backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
+              backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
                 ? "primary.main"
                 : "primary.green",
               borderRadius: "0 50% 50% 0",

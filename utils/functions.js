@@ -151,12 +151,14 @@ export function extractArraysOfStartEndConfPending(orders) {
         entry.startExists = true;
       } else if (date.type === "end") {
         if (date.confirmed) {
-          entry.startConfirmed = true;
+          entry.endConfirmed = true;
         } else {
-          entry.startPending = true;
+          entry.endPending = true;
         }
         entry.endExists = true;
       }
+
+      // console.log("ENTRY of dates in reduce function", entry);
 
       return acc;
     }, [])

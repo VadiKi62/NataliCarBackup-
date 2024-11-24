@@ -238,12 +238,12 @@ const CalendarAdmin = ({
               cursor: "pointer",
             }}
           >
-            {/* Start Date Box - Left half */}
+            {/* End Date Box - Left half */}
             <Box
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
+                backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
                   ? "primary.main"
                   : "primary.green",
                 borderRadius: "0 50% 50% 0",
@@ -256,12 +256,12 @@ const CalendarAdmin = ({
               {date.date()}
             </Box>
 
-            {/* End Date Box - Right half */}
+            {/* Start Date Box - Right half */}
             <Box
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
+                backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
                   ? "primary.main"
                   : "primary.green",
                 borderRadius: "0 50% 50% 0",
