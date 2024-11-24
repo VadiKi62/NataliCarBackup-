@@ -163,7 +163,6 @@ const CalendarPicker = ({
       );
     }
 
-    //
     if (isStartDate && !isEndDate && !isStartAndEndDateOverlap) {
       return (
         <Box
@@ -246,6 +245,60 @@ const CalendarPicker = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+            }}
+          >
+            {date.date()}
+          </Box>
+        </Box>
+      );
+    }
+
+    // For overlapping start/end dates
+    if (isStartAndEndDateOverlap) {
+      return (
+        <Box
+          sx={{
+            border: border,
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "row",
+            cursor: "pointer",
+          }}
+        >
+          {/* Start Date Box - Left half */}
+          <Box
+            sx={{
+              width: "50%",
+              height: "100%",
+              backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
+                ? "primary.main"
+                : "primary.green",
+              borderRadius: "0 50% 50% 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "common.white",
+            }}
+          >
+            {date.date()}
+          </Box>
+
+          {/* End Date Box - Right half */}
+          <Box
+            sx={{
+              width: "50%",
+              height: "100%",
+              backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
+                ? "primary.main"
+                : "primary.green",
+              borderRadius: "0 50% 50% 0",
+              borderRadius: "50% 0 0 50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "common.white",
             }}
           >
             {date.date()}
