@@ -1,38 +1,34 @@
 {
+  "basic": {
+    "close": "close",
+    "cancel": "cancel",
+    "from": "from",
+    "to": "to"
+  },
   "statusMesssages": {
-    "pending": "Order created but therer some pending orders that are not confirmed yet:",
-    "conflict": "Order is not created. These dates are already confirmed by other order, try another dates. ",
-    "orderDone": "Order created successfully! \n We will get in touch with you with 48 hours to submit it."
+    "pending": "Order in progress, these dates might not be available : {{dates}} . We will get in touch with you with details. ",
+    "conflict": "Dates {{dates}} are already booked. Time to get creative!",
+    "orderDone": "Order successful! We'll touch base within 48 hours. 🎉"
   },
   "order": {
-    "chooseDates": "Choose Dates",
-    "notAvailableDate": " not available",
-    "pendingDate": "pending (available for booking)",
-    "sendBooking": "Send booking"
+    "chooseDates": "Choose your dates for booking",
+    "notAvailableDate": "Not available",
+    "pendingDate": "Pending (available for booking)",
+    "confirmBooking": "Confirm booking",
+    "book": "Book",
+    "youBook": "You are booking {{model}} from {{date1}} till {{date2}}.",
+    "name": "Name",
+    "phone": "Phone number",
+    "thank": "Thank you for booking with us!",
+    "daysNumber": " Number of days:",
+    "price": "Total price :",
+    "weContact": " We have got your order and we will contact you within 24 hours to finalize the details."
   },
-  "hero": {
-    "wellcome": "Welcome to",
-    "argo": "Αρα...ζω Restaurant",
-    "menu": "Our Menu",
-    "about": "About Us"
-  },
-  "about": {
-    "about": "With exquisite cuisine made from the bounty of the sea and panoramic views of endless blue waters, Ara...zo promises an unforgettable oceanfront dining experience."
-  },
-  "bill": {
-    "payment": "Is the payment with cash?"
-  },
-  "header": {
-    "table": "Your table is",
-    "call": "For calling waiter click the button"
-  },
-  "alert": {
-    "got": "Success! Waiter got it!",
-    "oops": "oooops. Something got wrong. Your message wasn't sent. Please, try again.",
-    "run": " Waiter is already running to you.",
-    "inside": "You need to be inside the restaurant to call the waiter.",
-    "geoError": "GeoLocation Error:",
-    "else": "Do you want to order something more instead of Bill?",
-    "enableLoc": "Please enable location services to be able to call waiter.Our app need to check if you are inside the restaurant, otherwise you won't be able to call the waiter."
+  "car": {
+    "viewDetails": "view more details",
+    "upTo": "Up to {{days}} days",
+    "pricesFor": "Prices for current Season",
+    "fromTo": "from {{date1}} to {{date2}}",
+    "class": "class"
   }
 }

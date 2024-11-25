@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -8,10 +8,8 @@ import isBetween from "dayjs/plugin/isBetween";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
 dayjs.extend(isBetween);
-// dayjs.extend(isSameOrBefore);
-// dayjs.extend(isSame);
+dayjs.tz.setDefault("Europe/Athens");
 
 /**
  * Проверяет, относятся ли две даты к одному дню
@@ -19,7 +17,7 @@ dayjs.extend(isBetween);
  * @param {dayjs.Dayjs} date2
  * @returns {boolean}
  */
-export const isSameDay = (date1, date2) => {
+const isSameDay = (date1, date2) => {
   return date1.format("YYYY-MM-DD") === date2.format("YYYY-MM-DD");
 };
 
@@ -38,7 +36,8 @@ const isSameOrBefore = (date1, date2) => {
  * @param {Array} orders - Массив заказов
  * @returns {Object} Объект с подтвержденными и ожидающими датами
  */
-export function analyzeDates(orders) {
+
+function analyzeDates(orders) {
   const result = {
     confirmed: [],
     pending: [],
@@ -72,11 +71,13 @@ export function analyzeDates(orders) {
       const dateObj = {
         date: currentDate.toDate(),
         dateFormat: currentDate.format("YYYY-MM-DD"),
+        datejs: currentDate,
         isStart: isSameDay(currentDate, startDate),
         isEnd: isSameDay(currentDate, endDate),
         timeStart: isSameDay(currentDate, startDate) ? order.timeIn : null,
         timeEnd: isSameDay(currentDate, endDate) ? order.timeOut : null,
         isOverlapped: dateOccurrences.get(dateStr) - 1,
+        orderId: order._id,
       };
 
       if (order.confirmed) {
@@ -108,7 +109,7 @@ export function analyzeDates(orders) {
   return result;
 }
 
-export function functionPendingDatesInRange(pending, start, end) {
+function functionPendingDatesInRange(pending, start, end) {
   console.log("pending", pending);
   return pending?.filter((bookingDate) => {
     const currentDate = dayjs(bookingDate.date);
@@ -131,3 +132,10 @@ export function functionPendingDatesInRange(pending, start, end) {
     return isStartDate || isEndDate || isWithinRange;
   });
 }
+
+module.exports = {
+  analyzeDates,
+  functionPendingDatesInRange,
+  isSameOrBefore,
+  isSameDay,
+};

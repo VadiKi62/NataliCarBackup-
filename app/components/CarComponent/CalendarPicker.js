@@ -362,15 +362,58 @@ const CalendarPicker = ({
     );
   };
 
+  // const onSelect = (date) => {
+  //   const [start, end] = selectedRange;
+  //   const dateStr = date.format("YYYY-MM-DD");
+
+  //   // Проверяем, является ли выбранная дата началом или концом существующего заказа
+  //   const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
+  //   const timeForDate = existingDateInfo ? existingDateInfo.time : null;
+
+  //   if (!start || (start && end)) {
+  //     setSelectedRange([date, null]);
+  //     setSelectedTimes({
+  //       start: timeForDate || "14:00",
+  //       end: null,
+  //     });
+  //     setShowBookButton(false);
+  //   } else {
+  //     const range = [start, date].sort((a, b) => a - b);
+  //     const startStr = range[0].format("YYYY-MM-DD");
+  //     const endStr = range[1].format("YYYY-MM-DD");
+
+  //     // Получаем информацию о времени для начальной и конечной дат
+  //     const startDateInfo = startEndDates.find((d) => d.date === startStr);
+  //     const endDateInfo = startEndDates.find((d) => d.date === endStr);
+
+  //     setSelectedRange(range);
+  //     setSelectedTimes({
+  //       start:
+  //         selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
+  //       end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+  //     });
+
+  //     setBookedDates({
+  //       start: range[0],
+  //       end: range[1],
+  //       startTime:
+  //         selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
+  //       endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+  //     });
+  //     setShowBookButton(true);
+  //   }
+  // };
+
   const onSelect = (date) => {
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
 
-    // Проверяем, является ли выбранная дата началом или концом существующего заказа
+    // Check if the selected date matches an existing booking date
     const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
     const timeForDate = existingDateInfo ? existingDateInfo.time : null;
 
     if (!start || (start && end)) {
+      // First click or resetting the range
       setSelectedRange([date, null]);
       setSelectedTimes({
         start: timeForDate || "14:00",
@@ -378,28 +421,47 @@ const CalendarPicker = ({
       });
       setShowBookButton(false);
     } else {
-      const range = [start, date].sort((a, b) => a - b);
-      const startStr = range[0].format("YYYY-MM-DD");
-      const endStr = range[1].format("YYYY-MM-DD");
+      // Handle the second click
+      if (date.isBefore(start)) {
+        // If the clicked date is earlier than the start date, update start date
+        setSelectedRange([date, start]);
+        setSelectedTimes({
+          start: timeForDate || "14:00",
+          end: selectedTimes.start || "12:00", // Use existing start time for new end
+        });
+        setBookedDates({
+          start: date,
+          end: start,
+          startTime: timeForDate || "14:00",
+          endTime: selectedTimes.start || "12:00",
+        });
+      } else {
+        // Regular behavior: set range with start and end dates
+        const range = [start, date].sort((a, b) => a - b);
+        const startStr = range[0].format("YYYY-MM-DD");
+        const endStr = range[1].format("YYYY-MM-DD");
 
-      // Получаем информацию о времени для начальной и конечной дат
-      const startDateInfo = startEndDates.find((d) => d.date === startStr);
-      const endDateInfo = startEndDates.find((d) => d.date === endStr);
+        // Retrieve time info for start and end dates
+        const startDateInfo = startEndDates.find((d) => d.date === startStr);
+        const endDateInfo = startEndDates.find((d) => d.date === endStr);
 
-      setSelectedRange(range);
-      setSelectedTimes({
-        start:
-          selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
-        end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
-      });
+        setSelectedRange(range);
+        setSelectedTimes({
+          start:
+            selectedTimes.start ||
+            (startDateInfo ? startDateInfo.time : "14:00"),
+          end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+        });
+        setBookedDates({
+          start: range[0],
+          end: range[1],
+          startTime:
+            selectedTimes.start ||
+            (startDateInfo ? startDateInfo.time : "14:00"),
+          endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+        });
+      }
 
-      setBookedDates({
-        start: range[0],
-        end: range[1],
-        startTime:
-          selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
-        endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
-      });
       setShowBookButton(true);
     }
   };

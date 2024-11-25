@@ -136,7 +136,7 @@ const BookingModal = ({
         let title =
           status === "success"
             ? `Новое бронирование ${orderData.carNumber} ${orderData.carModel}`
-            : `Ожидающее бронирование ${orderData.carNumber} ${orderData.carModel}`;
+            : `Бронирование с неподтвержденными датами ${orderData.carNumber} ${orderData.carModel}`;
 
         let statusMessage =
           status === "success"

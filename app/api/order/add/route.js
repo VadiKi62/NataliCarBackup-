@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import isBetween from "dayjs/plugin/isBetween";
+import { analyzeDates, isSameDay, isSameOrBefore } from "@utils/analyzeDates";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -59,6 +60,27 @@ export async function POST(request) {
       ],
     });
 
+    const result = analyzeDates(existingOrders);
+    console.log(result);
+
+    const resultConfirmedInnerDates = result.confirmed.filter(
+      (item) =>
+        !item.isStart &&
+        !item.isEnd &&
+        item.datejs.isBetween(startDate, endDate, "day", "()")
+    );
+
+    console.log("resultConfirmedInnerDates", resultConfirmedInnerDates);
+
+    const isStartConfirmedeStartBooking = result.confirmed.find((item) => {
+      return item.isStart && item.dateFormat === startDate.format("YYYY-MM-DD");
+    });
+    const isEndConfirmedeEndBooking = result.confirmed.find((item) => {
+      return item.isEnd && item.dateFormat === endDate.format("YYYY-MM-DD");
+    });
+    console.log("isStartConfirmedeStartBooking", isStartConfirmedeStartBooking);
+    console.log("isEndConfirmedeEndBooking", isEndConfirmedeEndBooking);
+
     const confirmedDates = [];
     const nonConfirmedDates = [];
     const conflicOrdersId = [];
@@ -72,7 +94,7 @@ export async function POST(request) {
         d.isBefore(endDate) || d.isSame(endDate);
         d = d.add(1, "day")
       ) {
-        if (d.isBetween(orderStartDate, orderEndDate, null, "[]")) {
+        if (d.isBetween(orderStartDate, orderEndDate, "day", "()")) {
           if (order.confirmed) {
             confirmedDates.push(d.format("MMM D"));
           } else {
@@ -83,12 +105,34 @@ export async function POST(request) {
       }
     }
 
-    if (confirmedDates.length > 0) {
+    console.log("confirmedDates", confirmedDates);
+    let conflictMessage = "";
+    let conflictDates;
+
+    if (
+      // confirmedDates.length > 0 ||
+      isStartConfirmedeStartBooking ||
+      isEndConfirmedeEndBooking ||
+      resultConfirmedInnerDates.length > 0
+    ) {
+      conflictDates = new Set([
+        // ...confirmedDates,
+        ...resultConfirmedInnerDates?.datejs?.format("MMM D"),
+        isStartConfirmedeStartBooking?.datejs?.format("MMM D"),
+        isEndConfirmedeEndBooking?.datejs?.format("MMM D"),
+      ]);
+      conflictMessage =
+        conflictMessage +
+        `Даты ${[...conflictDates].join(
+          ", "
+        )} уже забронированы и не доступны.`;
+      // }
+
+      // if (confirmedDates.length > 0) {
       return new Response(
         JSON.stringify({
-          message: `Даты ${confirmedDates.join(
-            ", "
-          )} уже забронированы и не доступны. Пожалуйста, посмотрите другие даты или другую машину.`,
+          message: conflictMessage,
+          conflictDates: conflictDates,
         }),
         {
           status: 409,
