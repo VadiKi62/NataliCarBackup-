@@ -64,6 +64,7 @@ const BookingModal = ({
   const [totalPrice, setTotalPrice] = useState(0);
   const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [message, setMessage] = useState(null);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
     presetDates?.startDate
@@ -140,7 +141,7 @@ const BookingModal = ({
 
         let statusMessage =
           status === "success"
-            ? "Бронирование cо свободными датами."
+            ? "Создано бронирование в сводобніе даты."
             : "Бронирование в ожидании подтверждения.";
 
         return {
@@ -178,7 +179,11 @@ const BookingModal = ({
 
         case "pending":
           console.warn("Order is pending:", response.message);
-          setErrors({ submit: response.message });
+          setSubmittedOrder(response.data);
+          setMessage(response.message);
+          // setErrors({ submit: response.message });
+          setIsSubmitted(true);
+          fetchAndUpdateOrders();
           await sendConfirmationEmail(
             prepareEmailData(response.data, "pending")
           );
@@ -213,10 +218,12 @@ const BookingModal = ({
     setIsSubmitted(false);
     setSubmittedOrder(null);
     setSuccessfullySent(false);
+    setMessage(null);
   };
 
   const handleModalClose = () => {
     resetForm();
+
     onClose();
   };
 
@@ -237,7 +244,7 @@ const BookingModal = ({
       ) : (
         <>
           <DialogTitle textAlign="center" mt="3">
-            {isSubmitted ? "Booking Confirmed!" : `Book ${car.model}`}
+            {`Book ${car.model}`}
           </DialogTitle>
           <DialogContent>
             {isSubmitted ? (
@@ -246,6 +253,7 @@ const BookingModal = ({
                 presetDates={presetDates}
                 onClose={onClose}
                 emailSent={emailSent}
+                message={message}
               />
             ) : (
               <Box>

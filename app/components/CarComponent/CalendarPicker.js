@@ -11,6 +11,7 @@ import {
   extractArraysOfStartEndConfPending,
 } from "@utils/functions";
 import { analyzeDates } from "@utils/analyzeDates";
+import Tooltip from "@mui/material/Tooltip";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -91,6 +92,17 @@ const CalendarPicker = ({
 
     // ДАЛЬШЕ КОД ВНЕДРЯЕТ СТИЛИ для каждого типа
 
+    const getTooltipMessage = () => {
+      if (isConfirmed) return "This date is unavailable.";
+      if (isUnavailable)
+        return "This date is pending approval. Maybe available but not 100%";
+      if (isStartDate && isEndDate)
+        return "This date overlaps as a start and end.";
+      return null;
+    };
+
+    const tooltipMessage = getTooltipMessage();
+
     // здесь задаем базовые значения для - бекграунд цвета ячейки, цвета таекста, рамки, радиуса рамки
     // Rest of your existing conditions
     let backgroundColor = "transparent";
@@ -148,17 +160,19 @@ const CalendarPicker = ({
 
     if (isConfirmed || isUnavailable) {
       return (
-        <Box
-          sx={{
-            ...baseStyles,
-            backgroundColor,
-            borderRadius: "1px",
-            color,
-            border,
-          }}
-        >
-          {date.date()}
-        </Box>
+        <Tooltip title={tooltipMessage || ""} placement="top" arrow>
+          <Box
+            sx={{
+              ...baseStyles,
+              backgroundColor,
+              borderRadius: "1px",
+              color,
+              border,
+            }}
+          >
+            {date.date()}
+          </Box>
+        </Tooltip>
       );
     }
 
@@ -408,7 +422,7 @@ const CalendarPicker = ({
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
 
-    // Check if the selected date matches an existing booking date
+    // Find time information for the selected date
     const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
     const timeForDate = existingDateInfo ? existingDateInfo.time : null;
 
@@ -421,23 +435,25 @@ const CalendarPicker = ({
       });
       setShowBookButton(false);
     } else {
-      // Handle the second click
       if (date.isBefore(start)) {
-        // If the clicked date is earlier than the start date, update start date
-        setSelectedRange([date, start]);
+        // If the second date is before the first, make it the new start
+        setSelectedRange([date, null]);
         setSelectedTimes({
           start: timeForDate || "14:00",
-          end: selectedTimes.start || "12:00", // Use existing start time for new end
+          end: null,
         });
-        setBookedDates({
-          start: date,
-          end: start,
-          startTime: timeForDate || "14:00",
-          endTime: selectedTimes.start || "12:00",
+        setShowBookButton(false);
+      } else if (date.isSame(start, "day")) {
+        // Prevent selecting the same date as both start and end
+        setSelectedRange([start, null]);
+        setSelectedTimes({
+          start: selectedTimes.start || "14:00",
+          end: null,
         });
+        setShowBookButton(false);
       } else {
         // Regular behavior: set range with start and end dates
-        const range = [start, date].sort((a, b) => a - b);
+        const range = [start, date];
         const startStr = range[0].format("YYYY-MM-DD");
         const endStr = range[1].format("YYYY-MM-DD");
 
@@ -460,9 +476,9 @@ const CalendarPicker = ({
             (startDateInfo ? startDateInfo.time : "14:00"),
           endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
         });
-      }
 
-      setShowBookButton(true);
+        setShowBookButton(true);
+      }
     }
   };
 

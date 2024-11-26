@@ -62,14 +62,12 @@ export async function POST(request) {
 
     const result = analyzeDates(existingOrders);
     console.log(result);
-
     const resultConfirmedInnerDates = result.confirmed.filter(
       (item) =>
         !item.isStart &&
         !item.isEnd &&
         item.datejs.isBetween(startDate, endDate, "day", "()")
     );
-
     console.log("resultConfirmedInnerDates", resultConfirmedInnerDates);
 
     const isStartConfirmedeStartBooking = result.confirmed.find((item) => {

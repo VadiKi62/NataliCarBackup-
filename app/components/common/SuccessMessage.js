@@ -7,17 +7,30 @@ const SuccessMessage = ({
   presetDates,
   onClose,
   emailSent,
+  message = null,
 }) => {
   return (
     <Box>
-      <Typography
-        variant="h6"
-        color="primary"
-        textAlign="center"
-        sx={{ textTransform: "uppercase" }}
-      >
-        Thank you for booking with us!
-      </Typography>
+      {message ? (
+        <Typography
+          textAlign="center"
+          sx={{ mt: 3, letterSpacing: 0.1 }}
+          variant="h5"
+          color="primary.red"
+        >
+          {message}
+        </Typography>
+      ) : (
+        <Typography
+          variant="h6"
+          color="primary"
+          textAlign="center"
+          sx={{ textTransform: "uppercase" }}
+        >
+          Booking Confirmed. Thank you for booking with us!
+        </Typography>
+      )}
+
       <Typography variant="body1" sx={{ mt: 2 }}>
         We have received your booking for the{" "}
         <strong>
@@ -26,6 +39,7 @@ const SuccessMessage = ({
         from <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong>{" "}
         to <strong>{dayjs(presetDates?.endDate).format("MMMM D")}</strong>.
       </Typography>
+
       <Typography
         textAlign="center"
         sx={{ mt: 3, letterSpacing: 0.1 }}
