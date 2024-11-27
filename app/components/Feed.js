@@ -25,11 +25,8 @@ function Feed({ children, ...props }) {
             carsData={props.carsData}
             ordersData={props.ordersData}
           >
-            <Navbar />
-            <Container sx={{ pt: { xs: 8, md: 10 } }}>
-              {props?.carsData ? <CarGrid /> : <CarPage car={props?.car} />}
-              {children}
-            </Container>
+            <Navbar isMain={props.isMain} />
+            <main>{children}</main>
             <Footer />
             <ScrollButton />
           </MainContextProvider>

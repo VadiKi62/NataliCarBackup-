@@ -8,6 +8,12 @@
   --background-end-rgb: 191, 167, 93;
 }
 
+/* :root {
+  --foreground-rgb: 52, 102, 152;
+  --background-start-rgb: 153, 204, 204;
+  --background-end-rgb: 191, 167, 93;
+} */
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 226, 181, 67;

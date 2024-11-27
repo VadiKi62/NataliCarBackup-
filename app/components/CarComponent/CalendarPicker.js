@@ -511,7 +511,7 @@ const CalendarPicker = ({
       >
         Choose your dates for booking
       </Typography>
-      <Box
+      {/* <Box
         sx={{
           marginBottom: "10px",
           justifyContent: "center",
@@ -554,19 +554,11 @@ const CalendarPicker = ({
         <Typography component="span" variant="body2">
           Unconfirmed bookings
         </Typography>
-      </Box>
+      </Box> */}
       {isLoading ? (
         <CircularProgress />
       ) : (
         <>
-          <Calendar
-            fullscreen={false}
-            onSelect={onSelect}
-            disabledDate={disabledDate}
-            fullCellRender={renderDateCell}
-            headerRender={headerRender}
-            value={currentDate}
-          />
           {showBookButton && (
             <DefaultButton
               onClick={handleBooking}
@@ -577,6 +569,14 @@ const CalendarPicker = ({
               relative={true}
             />
           )}
+          <Calendar
+            fullscreen={false}
+            onSelect={onSelect}
+            disabledDate={disabledDate}
+            fullCellRender={renderDateCell}
+            headerRender={headerRender}
+            value={currentDate}
+          />
         </>
       )}
     </Box>

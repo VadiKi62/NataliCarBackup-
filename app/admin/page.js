@@ -14,6 +14,7 @@ import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
+import Feed from "@app/components/Feed";
 
 export default async function AdminPage({ children }) {
   const session = await getServerSession(authOptions);
@@ -27,17 +28,19 @@ export default async function AdminPage({ children }) {
   const ordersData = await reFetchAllOrders();
 
   return (
-    <ThemeProvider theme={theme}>
-      <AdminLayout>
-        <MainContextProvider carsData={carsData} ordersData={ordersData}>
-          <Suspense fallback={<Loading />}>
-            {/* <Navbar isAdmin={true} /> */}
-            <Admin cars={carsData} orders={ordersData} />
-            {/* <DataGridOrders cars={carsData} orders={ordersData} /> */}
-            {children}
-          </Suspense>
-        </MainContextProvider>
-      </AdminLayout>
-    </ThemeProvider>
+    // <ThemeProvider theme={theme}>
+    //   <AdminLayout>
+    //     <MainContextProvider carsData={carsData} ordersData={ordersData}>
+    //       <Suspense fallback={<Loading />}>
+    <Feed carsData={carsData} ordersData={ordersData} isMain={false}>
+      {/* <Navbar isAdmin={true} /> */}
+      <Admin cars={carsData} orders={ordersData} />
+      {/* <DataGridOrders cars={carsData} orders={ordersData} /> */}
+      {children}
+    </Feed>
+    //      </Suspense>
+    //     </MainContextProvider>
+    //   </AdminLayout>
+    // </ThemeProvider>
   );
 }

@@ -26,7 +26,7 @@ const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
   width: "100%",
   display: "flex",
   justifyContent: "center",
-  padding: theme.spacing(0.5),
+  paddingTop: theme.spacing(2),
   backgroundColor: !isCarInfo ? theme.palette.secondary.main : "transparent",
   // boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
 }));

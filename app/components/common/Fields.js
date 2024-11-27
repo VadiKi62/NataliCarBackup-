@@ -46,7 +46,7 @@ const RenderSelectField = ({
   label,
   options,
   required = false,
-  updatedCar,
+  updatedCar = null,
   handleChange,
   isLoading,
 }) => (
@@ -60,7 +60,7 @@ const RenderSelectField = ({
     <Select
       labelId={`${name}-label`}
       name={name}
-      value={updatedCar[name] || ""}
+      value={updatedCar ? updatedCar[name] : ""}
       onChange={handleChange}
       label={label}
     >

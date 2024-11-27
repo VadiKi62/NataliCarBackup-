@@ -18,7 +18,7 @@ import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ScrollingCalendar from "../ScrollingCalendar";
+import ScrollingCalendar from "../Calendars/ScrollingCalendar";
 import { fetchCar } from "@utils/action";
 import { fetchOrdersByCar } from "@utils/action";
 import BookingModal from "./BookingModal";
@@ -156,15 +156,18 @@ function CarItemComponent({ car }) {
           </CarImage>
         </Link>
         <CarDetails car={car} />
-        {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
+        {/* {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />} */}
       </Wrapper>
-      <CalendarPicker
-        carId={car._id}
-        isLoading={isLoading}
-        orders={carOrders}
-        setBookedDates={setBookedDates}
-        onBookingComplete={handleBookingComplete}
-      />
+      <Stack>
+        <CalendarPicker
+          carId={car._id}
+          isLoading={isLoading}
+          orders={carOrders}
+          setBookedDates={setBookedDates}
+          onBookingComplete={handleBookingComplete}
+        />
+        {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
+      </Stack>
       <BookingModal
         fetchAndUpdateOrders={fetchAndUpdateOrders}
         open={modalOpen}

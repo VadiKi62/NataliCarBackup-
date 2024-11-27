@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Paper, Typography, Box, Button, Stack, Divider } from "@mui/material";
 import Image from "next/image";
-import ScrollingCalendar from "./ScrollingCalendar";
+import ScrollingCalendar from "./Calendars/ScrollingCalendar";
 import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa";
 import BookingModal from "./CarComponent/BookingModal";
 import dayjs from "dayjs";

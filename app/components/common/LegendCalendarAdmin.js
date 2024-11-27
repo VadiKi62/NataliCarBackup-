@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
 
-function LegendCalendarAdmin() {
+function LegendCalendarAdmin({ client }) {
   return (
     <Stack
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
@@ -65,26 +65,30 @@ function LegendCalendarAdmin() {
           mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
         }}
       >
-        <Box
-          component="span"
-          sx={{
-            position: "relative",
-            display: "inline-block",
-            width: "20px",
-            height: "22px",
-            backgroundColor: "text.green",
-            marginRight: "10px",
-            color: "text.red",
-            justifyContent: "center",
-            alignItems: "center",
-            display: "flex",
-          }}
-        >
-          1
-        </Box>
-        <Typography component="span" variant="body2">
-          Конфликтующие даты бронирования
-        </Typography>
+        {!client && (
+          <>
+            <Box
+              component="span"
+              sx={{
+                position: "relative",
+                display: "inline-block",
+                width: "20px",
+                height: "22px",
+                backgroundColor: "text.green",
+                marginRight: "10px",
+                color: "text.red",
+                justifyContent: "center",
+                alignItems: "center",
+                display: "flex",
+              }}
+            >
+              1
+            </Box>
+            <Typography component="span" variant="body2">
+              Конфликтующие даты бронирования
+            </Typography>
+          </>
+        )}
       </Box>
     </Stack>
   );

@@ -5,6 +5,7 @@ import {
   AppBar,
   Button,
   Typography,
+  Box,
   Stack,
   Toolbar,
   Container,
@@ -19,6 +20,21 @@ import { useTranslation } from "react-i18next";
 import { animateScroll as scroll } from "react-scroll";
 import { companyData } from "@utils/companyData";
 import { useMainContext } from "@app/Context";
+import LegendCalendarAdmin from "./common/LegendCalendarAdmin";
+import { CAR_CLASSES } from "@models/enums";
+import SelectedFieldClass from "./common/SelectedFieldClass";
+
+const StyledBox = styled(Box)(({ theme }) => ({
+  zIndex: 996,
+  position: "fixed",
+  top: 50,
+  left: 0,
+  width: "100%",
+  display: "flex",
+  justifyContent: "center",
+  padding: theme.spacing(1, 1, 1, 1),
+  backgroundColor: theme.palette.primary.main1,
+}));
 
 const GradientAppBar = styled(AppBar, {
   shouldForwardProp: (prop) => prop !== "scrolled",
@@ -30,17 +46,17 @@ const GradientAppBar = styled(AppBar, {
   }),
   willChange: "height, background-color",
   height: scrolled ? 52 : 60,
-  backgroundColor: theme.palette.secondary.main,
-  boxShadow: scrolled ? theme.shadows[2] : "none",
+  backgroundColor: theme.palette.primary.main1,
+  boxShadow: "none",
   backdropFilter: scrolled ? "blur(10px)" : "none",
 }));
 
 const Logo = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.h1?.fontWeight || 400,
   display: "flex",
-  fontSize: 29,
   fontFamily: theme.typography.h1.fontFamily,
   color: theme.palette.text.light,
+  // lineHeight: { xs: 0.2 },
 }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
@@ -55,6 +71,7 @@ const LanguagePopover = styled(Popover)(({ theme }) => ({
 }));
 
 export default function NavBar({
+  isMain,
   isAdmin = false,
   isCarInfo = false,
   setIsCarInfo = null,
@@ -63,7 +80,12 @@ export default function NavBar({
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const { i18n, t } = useTranslation();
   const lang = i18n.language;
-  const { scrolled } = useMainContext();
+  const { scrolled, setSelectedClass, selectedClass } = useMainContext();
+  const handleCarClassChange = (event) => {
+    console.log("event", event.target.value);
+    setSelectedClass(event.target.value);
+    console.log(selectedClass);
+  };
 
   const handleLanguageClick = (event) => {
     event.preventDefault();
@@ -89,12 +111,37 @@ export default function NavBar({
           sx={{ width: "100%" }}
         >
           <Link href="/">
-            <Logo>
+            <Logo fontSize={{ sm: 10, md: 29 }}>
               {companyData.name}
               {isAdmin && " ADMIN"}
             </Logo>
           </Link>
           <Stack direction="row" spacing={2} alignItems="center">
+            {!isAdmin && (
+              <>
+                {" "}
+                <Link href="/terms">
+                  <Typography
+                    sx={{
+                      fontStretch: "extra-condensed",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Terms
+                  </Typography>{" "}
+                </Link>
+                <Link href="/contacts">
+                  <Typography
+                    sx={{
+                      fontStretch: "extra-condensed",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Contacts
+                  </Typography>
+                </Link>
+              </>
+            )}
             {isAdmin && (
               <>
                 <ToggleButtons
@@ -107,7 +154,6 @@ export default function NavBar({
             <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
               {/* <LanguageIcon /> */}
               <Typography
-                className="language-text"
                 sx={{
                   fontStretch: "extra-condensed",
                   textTransform: "uppercase",
@@ -153,6 +199,27 @@ export default function NavBar({
           </MenuItem>
           <MenuItem onClick={() => handleLanguageSelect("ar")}>Arabic</MenuItem>
         </LanguagePopover>
+
+        {isMain && (
+          <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={{ xs: 1, sm: 10 }}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <LegendCalendarAdmin client={isMain} />
+
+              <SelectedFieldClass
+                name="class"
+                label="Choose Car Class"
+                options={Object.values(CAR_CLASSES)}
+                value={selectedClass}
+                handleChange={handleCarClassChange}
+              />
+            </Stack>
+          </StyledBox>
+        )}
       </Toolbar>
     </GradientAppBar>
   );
