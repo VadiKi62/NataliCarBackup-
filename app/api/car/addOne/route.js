@@ -76,6 +76,10 @@ function extractCarData(formData) {
     enginePower: formData.get("enginePower"),
     pricingTiers: parsePricingTiers(formData.get("pricingTiers")),
     regNumber: formData.get("regNumber"),
+    color: formData.get("color"),
+    engine: formData.get("engine"),
+    fueltype: formData.get("fueltype"),
+    registration: formData.get("registration"),
   };
 }
 
@@ -91,6 +95,7 @@ function validateRequiredFields(carData) {
     "airConditioning",
     "enginePower",
     "pricingTiers",
+    "fueltype",
   ];
   for (const field of requiredFields) {
     if (!carData[field]) {

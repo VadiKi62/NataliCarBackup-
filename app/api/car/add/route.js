@@ -6,7 +6,7 @@ export const POST = async (request) => {
   try {
     await connectToDB();
 
-    // const carsData = await request.json(); // Assuming the cars data is sent in the request body
+    const carsData = await request.json(); // Assuming the cars data is sent in the request body
     let exCars = [];
 
     for (const carData of carsData) {
@@ -32,6 +32,7 @@ export const POST = async (request) => {
     });
   }
 };
+
 //this endpoint delete all old cars and create new ones
 export const GET = async (request) => {
   try {

@@ -17,7 +17,7 @@ const SelectedFieldClass = ({
       mb: 2,
       "& .MuiInputBase-root": {
         color: "white", // Text color inside the input field
-        // width: 200,
+        width: 300,
       },
       "& .MuiInputLabel-root": {
         color: "white", // Label color

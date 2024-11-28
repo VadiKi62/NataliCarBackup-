@@ -82,7 +82,7 @@ const AddCarModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log("??", carData.regNumber);
+    console.log("??", carData);
     try {
       const formData = new FormData();
       formData.append("model", carData.model);
@@ -94,13 +94,18 @@ const AddCarModal = ({
       formData.append("numberOfDoors", String(carData.numberOfDoors));
       formData.append("airConditioning", Boolean(carData.airConditioning));
       formData.append("enginePower", String(carData.enginePower));
+      formData.append("engine", String(carData.engine));
       formData.append("color", String(carData.color));
+      formData.append("registration", String(carData.registration));
       formData.append("pricingTiers", JSON.stringify(carData.pricingTiers));
+
+      console.log("?? FORMDATA", formData);
 
       if (selectedImage) {
         formData.append("image", selectedImage);
       }
 
+      console.log("?? FORMDATA", formData);
       const response = await fetch("/api/car/addOne", {
         method: "POST",
         body: formData,
