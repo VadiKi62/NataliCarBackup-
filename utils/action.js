@@ -165,35 +165,6 @@ export const fetchOrdersByCar = async (carId) => {
   }
 };
 
-// Toggle active status using fetch
-export const toggleIsActive = async (restId, menuNumber) => {
-  try {
-    const apiUrl = `${API_URL}/api/auth/toggleActive`;
-    const response = await fetch(apiUrl, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ restId, menuNumber }),
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        `Failed to toggle isActive status of the menu item with number ${menuNumber}`
-      );
-    }
-
-    const updatedMenu = await response.json();
-    return updatedMenu;
-  } catch (error) {
-    console.error(
-      `Error toggling isActive status with rest ID ${restId} and menu number ${menuNumber}:`,
-      error
-    );
-    throw error;
-  }
-};
-
 // Fetch all orders using fetch
 export const fetchAllOrders = async () => {
   try {
@@ -287,6 +258,7 @@ export const changeRentalDates = async (
 
 // UPDATE 2.  action for switching confirmed status
 export const toggleConfirmedStatus = async (orderId) => {
+  console.log("!!!!!!orderId", orderId);
   try {
     const response = await fetch(`/api/order/update/switchConfirm/${orderId}`, {
       method: "PATCH",

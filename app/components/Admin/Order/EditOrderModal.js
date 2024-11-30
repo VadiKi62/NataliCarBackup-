@@ -150,6 +150,7 @@ const EditOrderModal = ({
   const handleConfirmationToggle = async () => {
     setIsUpdating(true);
     setUpdateMessage(null);
+    console.log("editedOrder", editedOrder);
     try {
       const { updatedOrder, message } = await toggleConfirmedStatus(
         editedOrder._id

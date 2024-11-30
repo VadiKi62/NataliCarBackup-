@@ -159,7 +159,7 @@ function Admin() {
           {cars
             .sort((a, b) => a.class.localeCompare(b.class))
             .map((car) => (
-              <Grid item xs={12} sx={{ padding: 2 }}>
+              <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
                   car={car}
                   isAddOrderOpen={isAddOrderOpen}
