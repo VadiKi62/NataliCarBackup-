@@ -1,10 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
 import { Grid, Container, CircularProgress, Box, Stack } from "@mui/material";
+import { Element, scroller } from "react-scroll";
+
 import { fetchAllCars } from "@utils/action";
 import DefaultButton from "../common/DefaultButton";
 import AddCarModal from "./AddCarModal";
@@ -151,12 +153,13 @@ function Admin() {
             alignItems: "center",
             alignContent: "center",
             mt: { xs: 10, md: 18 },
+            overflow: scroll,
           }}
         >
           {cars
-            .sort((a, b) => a.carNumer - b.carNumer)
+            .sort((a, b) => a.class.localeCompare(b.class))
             .map((car) => (
-              <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
+              <Grid item xs={12} sx={{ padding: 2 }}>
                 <Item
                   car={car}
                   isAddOrderOpen={isAddOrderOpen}

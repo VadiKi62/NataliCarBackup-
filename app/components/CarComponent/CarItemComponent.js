@@ -109,6 +109,10 @@ function CarItemComponent({ car }) {
   const [expanded, setExpanded] = useState(false);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTimes, setSelectedTimes] = useState({
+    start: null,
+    end: null,
+  });
 
   const { fetchAndUpdateOrders, isLoading, ordersByCarId, allOrders } =
     useMainContext();
@@ -165,6 +169,8 @@ function CarItemComponent({ car }) {
           orders={carOrders}
           setBookedDates={setBookedDates}
           onBookingComplete={handleBookingComplete}
+          setSelectedTimes={setSelectedTimes}
+          selectedTimes={selectedTimes}
         />
         {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
       </Stack>
@@ -176,6 +182,7 @@ function CarItemComponent({ car }) {
         orders={carOrders}
         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
         isLoading={isLoading}
+        selectedTimes={selectedTimes}
       />
     </StyledCarItem>
   );

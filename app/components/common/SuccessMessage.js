@@ -9,6 +9,7 @@ const SuccessMessage = ({
   emailSent,
   message = null,
 }) => {
+  console.log("submittedOrder", submittedOrder);
   return (
     <Box>
       {message ? (
@@ -34,7 +35,7 @@ const SuccessMessage = ({
       <Typography variant="body1" sx={{ mt: 2 }}>
         We have received your booking for the{" "}
         <strong>
-          {submittedOrder?.model} {submittedOrder?.carNumber}
+          {submittedOrder?.carModel} {submittedOrder?.carNumber}
         </strong>{" "}
         from <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong>{" "}
         to <strong>{dayjs(presetDates?.endDate).format("MMMM D")}</strong>.

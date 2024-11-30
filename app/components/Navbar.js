@@ -80,11 +80,12 @@ export default function NavBar({
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const { i18n, t } = useTranslation();
   const lang = i18n.language;
-  const { scrolled, setSelectedClass, selectedClass } = useMainContext();
+  const { scrolled, setSelectedClass, selectedClass, arrayOfAvailableClasses } =
+    useMainContext();
   const handleCarClassChange = (event) => {
-    console.log("event", event.target.value);
-    setSelectedClass(event.target.value);
-    console.log(selectedClass);
+    const selectedValue = event.target.value;
+    // If "ALL" is selected, reset to show all cars
+    setSelectedClass(selectedValue === "" ? "" : selectedValue);
   };
 
   const handleLanguageClick = (event) => {
@@ -213,7 +214,7 @@ export default function NavBar({
               <SelectedFieldClass
                 name="class"
                 label="Choose Car Class"
-                options={Object.values(CAR_CLASSES)}
+                options={Object.values(arrayOfAvailableClasses)}
                 value={selectedClass}
                 handleChange={handleCarClassChange}
               />

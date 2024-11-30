@@ -37,10 +37,8 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [updateStatus, setUpdateStatus] = useState(null);
-  const [selectedClass, setSelectedClass] = useState("");
-  useEffect(() => {
-    console.log("Context selectedClass updated:", selectedClass);
-  }, [selectedClass]);
+  const [selectedClass, setSelectedClass] = useState("All");
+  const arrayOfAvailableClasses = [...new Set(cars.map((car) => car.class))];
 
   const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY;
@@ -154,6 +152,7 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
       setUpdateStatus,
       setSelectedClass,
       selectedClass,
+      arrayOfAvailableClasses,
     }),
     [cars, allOrders, isLoading, scrolled, selectedClass]
   );

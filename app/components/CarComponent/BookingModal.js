@@ -13,10 +13,14 @@ import {
 } from "@mui/material";
 import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
+import TimePicker from "@app/components/Calendars/MuiTimePicker";
 import sendEmail from "@utils/sendEmail";
+import { setTimeToDatejs } from "@utils/functions";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 // Extend dayjs with plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -56,7 +60,9 @@ const BookingModal = ({
   presetDates = null,
   fetchAndUpdateOrders,
   isLoading,
+  selectedTimes,
 }) => {
+  // if (presetDates) console.log("presetDates from Fooking Modal ", presetDates);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -75,8 +81,20 @@ const BookingModal = ({
       : null,
   ]);
 
+  const [startTime, setStartTime] = useState(() => {
+    return setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true);
+  });
+  const [endTime, setEndTime] = useState(() => {
+    return setTimeToDatejs(presetDates?.endDate, selectedTimes?.end);
+  });
+
   useEffect(() => {
     if (presetDates?.startDate && presetDates?.endDate && car.pricePerDay) {
+      setStartTime(
+        setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true)
+      );
+      setEndTime(setTimeToDatejs(presetDates?.endDate, selectedTimes?.end));
+
       const days =
         dayjs
           .tz(presetDates.endDate, "Europe/Athens")
@@ -115,10 +133,12 @@ const BookingModal = ({
         customerName: name,
         phone,
         email,
-        rentalStartDate: dayjs
-          .tz(presetDates?.startDate, "Europe/Athens")
-          .toDate(),
-        rentalEndDate: dayjs.tz(presetDates?.endDate, "Europe/Athens").toDate(),
+        // rentalStartDate: dayjs
+        //   .tz(presetDates?.startDate, "Europe/Athens")
+        //   .toDate(),
+        // rentalEndDate: dayjs.tz(presetDates?.endDate, "Europe/Athens").toDate(),
+        rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
+        rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
         totalPrice,
       };
 
@@ -128,10 +148,10 @@ const BookingModal = ({
 
       const prepareEmailData = (orderData, status) => {
         const formattedStartDate = dayjs
-          .tz(orderData.rentalStartDate, "Europe/Athens")
+          .utc(orderData.rentalStartDate)
           .format("DD.MM.YYYY");
         const formattedEndDate = dayjs
-          .tz(orderData.rentalEndDate, "Europe/Athens")
+          .utc(orderData.rentalEndDate)
           .format("DD.MM.YYYY");
 
         let title =
@@ -223,7 +243,6 @@ const BookingModal = ({
 
   const handleModalClose = () => {
     resetForm();
-
     onClose();
   };
 
@@ -279,6 +298,15 @@ const BookingModal = ({
                   component="form"
                   sx={{ "& .MuiTextField-root": { my: 1 } }}
                 >
+                  <TimePicker
+                    startTime={presetDates?.startDate}
+                    endTime={presetDates?.endDate}
+                    setStartTime={setStartTime}
+                    setEndTime={setEndTime}
+                    isRestrictionTimeIn={Boolean(selectedTimes.start)}
+                    isRestrictionTimeOut={Boolean(selectedTimes.end)}
+                  />
+
                   <TextField
                     label="Name"
                     variant="outlined"

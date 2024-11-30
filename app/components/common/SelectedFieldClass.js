@@ -38,10 +38,11 @@ const SelectedFieldClass = ({
     <Select
       labelId={`${name}-label`}
       name={name}
-      value={value || ""}
+      value={value || "All"}
       onChange={handleChange}
       label={label}
     >
+      <MenuItem value="All">All</MenuItem>
       {options.map((option) => (
         <MenuItem key={option} value={option}>
           {option.charAt(0).toUpperCase() + option.slice(1)}

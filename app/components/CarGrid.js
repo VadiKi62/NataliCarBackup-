@@ -18,12 +18,13 @@ function CarGrid() {
 
   // Filter cars by the selected class
   useEffect(() => {
-    console.log("selectedClass", selectedClass);
     const updatedCars = cars
-      .filter((car) => !selectedClass || car.class === selectedClass)
-      .sort((a, b) => a.sort - b.sort); // Sort the filtered cars
+      .filter(
+        (car) => !!(selectedClass == "All") || car.class === selectedClass
+      )
+      .sort((a, b) => a.class.localeCompare(b.class)); // Sort the filtered cars
     setFilteredCars(updatedCars);
-  }, [selectedClass]);
+  }, [selectedClass, cars]);
 
   return (
     <Container sx={{ paddingTop: { xs: 28, md: 20 } }}>

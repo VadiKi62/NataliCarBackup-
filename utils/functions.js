@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { companyData } from "@utils/companyData";
 
 export const processOrders = (orders) => {
   const unavailableDates = [];
@@ -129,6 +130,7 @@ export function extractArraysOfStartEndConfPending(orders) {
 
       if (!entry) {
         // Создаем новую запись, если ее еще нет
+
         entry = {
           date: date.date,
           startConfirmed: false,
@@ -250,4 +252,81 @@ export function returnOverlapOrdersObjects(
     );
 
   return result;
+}
+
+// function to return available start and available end if end  confirmed and start confirmed exist on the date
+export function returnTime(startEndDates, date) {
+  const dateFormat = dayjs(date).format("YYYY-MM-DD");
+  const dateInrange = startEndDates.find(
+    (el) => el.date == dateFormat && el.confirmed
+  );
+
+  if (dateInrange) {
+    return dateInrange;
+  }
+  return;
+}
+
+export function setTimeToDatejs(date, time, isStart = false) {
+  // console.log("DATE", date);
+  // console.log("time", time);
+  if (time) {
+    const hour = Number(time?.slice(0, 2));
+    const minute = Number(time?.slice(-2));
+    const newDateWithTime = dayjs(date).hour(hour).minute(minute);
+
+    return newDateWithTime;
+  } else if (isStart) {
+    // console.log("???? day to retunr for START", dayjs(date).hour(15).minute(0));
+    return dayjs(date).hour(15).minute(0);
+  } else return dayjs(date).hour(10).minute(0);
+}
+
+// returns time is start time of the orders == end time of anothjer order
+//or
+// end time of the orders == start time of anothjer order
+export function calculateAvailableTimes(startEndDates, startStr, endStr) {
+  let availableStart = null;
+  let availableEnd = null;
+
+  // Retrieve time info for start and end dates
+  const timeStart = returnTime(startEndDates, startStr);
+  console.log("timeStart", timeStart);
+  if (timeStart && timeStart.type === "end" && timeStart.confirmed) {
+    availableStart = timeStart.time;
+  }
+
+  const timeEnd = returnTime(startEndDates, endStr);
+  console.log("timeEnd", timeEnd);
+  if (timeEnd && timeEnd.type === "start" && timeEnd.confirmed) {
+    availableEnd = timeEnd.time;
+  }
+
+  const defaultStartHour = companyData.defaultStart.slice(0, 2);
+  const defaultStartMinute = companyData.defaultStart.slice(-2);
+
+  const defaultEndHour = companyData.defaultEnd.slice(0, 2);
+  const defaultEndMinute = companyData.defaultEnd.slice(-2);
+  const diffStart = companyData.hoursDiffForStart;
+  const diffEnd = companyData.hoursDiffForEnd;
+
+  // Parse hours and minutes from the available times
+  const hourStart =
+    Number(timeStart?.time.slice(0, 2)) + diffStart || defaultStartHour; // Default hour is 15
+  const minuteStart =
+    Number(timeStart?.time.slice(-2)) || defaultStartMinute || 0; // Default minute is 0
+
+  const hourEnd = Number(timeEnd?.time.slice(0, 2)) + diffEnd || defaultEndHour; // Default hour is 10
+  const minuteEnd = Number(timeEnd?.time.slice(-2)) || defaultEndMinute || 0; // Default minute is 0
+
+  // console.log("availableStart", availableStart);
+
+  return {
+    availableStart,
+    availableEnd,
+    hourStart,
+    minuteStart,
+    hourEnd,
+    minuteEnd,
+  };
 }

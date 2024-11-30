@@ -9,6 +9,8 @@ import {
   functionToretunrStartEndOverlap,
   getConfirmedAndUnavailableStartEndDates,
   extractArraysOfStartEndConfPending,
+  returnTime,
+  calculateAvailableTimes,
 } from "@utils/functions";
 import { analyzeDates } from "@utils/analyzeDates";
 import Tooltip from "@mui/material/Tooltip";
@@ -28,6 +30,8 @@ const CalendarPicker = ({
   onBookingComplete,
   orders,
   carId,
+  setSelectedTimes,
+  selectedTimes,
 }) => {
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -35,10 +39,10 @@ const CalendarPicker = ({
   const [confirmedDates, setConfirmedDates] = useState([]);
   const [startEndDates, setStartEndDates] = useState([]);
   const [showBookButton, setShowBookButton] = useState(false);
-  const [selectedTimes, setSelectedTimes] = useState({
-    start: null,
-    end: null,
-  });
+  // const [selectedTimes, setSelectedTimes] = useState({
+  //   start: null,
+  //   end: null,
+  // });
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
 
   useEffect(() => {
@@ -86,9 +90,9 @@ const CalendarPicker = ({
     const isStartAndEndDateOverlap = Boolean(isStartAndEndDateOverlapInfo);
 
     // тест в консоли для конкретной машины
-    if (carId === "670bb226223dd911f0595287" && isStartAndEndDateOverlap) {
-      console.log("isStartAndEndDateOverlapInfo", isStartAndEndDateOverlapInfo);
-    }
+    // if (carId === "670bb226223dd911f0595287" && isStartAndEndDateOverlap) {
+    //   console.log("isStartAndEndDateOverlapInfo", isStartAndEndDateOverlapInfo);
+    // }
 
     // ДАЛЬШЕ КОД ВНЕДРЯЕТ СТИЛИ для каждого типа
 
@@ -96,8 +100,10 @@ const CalendarPicker = ({
       if (isConfirmed) return "This date is unavailable.";
       if (isUnavailable)
         return "This date is pending approval. Maybe available but not 100%";
-      if (isStartDate && isEndDate)
-        return "This date overlaps as a start and end.";
+      if (isStartDate && startEndInfo.type == "confirmed")
+        return `Car needs to be returned after ${startEndInfo.time} `;
+      if (isEndDate && startEndInfo.type == "confirmed")
+        return `Car is availabe after ${startEndInfo.time} `;
       return null;
     };
 
@@ -200,22 +206,25 @@ const CalendarPicker = ({
           >
             {date.date()}
           </Box>
-          <Box
-            sx={{
-              width: "50%",
-              height: "100%",
-              borderRadius: "50% 0 0 50%",
-              backgroundColor: startEndInfo.confirmed
-                ? "primary.red"
-                : "primary.green",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: startEndInfo.confirmed ? "common.white" : "common.black",
-            }}
-          >
-            {date.date()}
-          </Box>
+
+          <Tooltip title={tooltipMessage || ""} placement="top" arrow>
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                borderRadius: "50% 0 0 50%",
+                backgroundColor: startEndInfo.confirmed
+                  ? "primary.red"
+                  : "primary.green",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: startEndInfo.confirmed ? "common.white" : "common.black",
+              }}
+            >
+              {date.date()}
+            </Box>
+          </Tooltip>
         </Box>
       );
     }
@@ -235,22 +244,24 @@ const CalendarPicker = ({
             justifyContent: "center",
           }}
         >
-          <Box
-            sx={{
-              width: "50%",
-              height: "100%",
-              borderRadius: "0 50% 50% 0",
-              backgroundColor: startEndInfo.confirmed
-                ? "primary.red"
-                : "primary.green",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: startEndInfo.confirmed ? "common.white" : "common.black",
-            }}
-          >
-            {date.date()}
-          </Box>
+          <Tooltip title={tooltipMessage || ""} placement="top" arrow>
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                borderRadius: "0 50% 50% 0",
+                backgroundColor: startEndInfo.confirmed
+                  ? "primary.red"
+                  : "primary.green",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: startEndInfo.confirmed ? "common.white" : "common.black",
+              }}
+            >
+              {date.date()}
+            </Box>
+          </Tooltip>
           <Box
             sx={{
               width: "50%",
@@ -422,62 +433,46 @@ const CalendarPicker = ({
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
 
-    // Find time information for the selected date
-    const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
-    const timeForDate = existingDateInfo ? existingDateInfo.time : null;
-
     if (!start || (start && end)) {
       // First click or resetting the range
       setSelectedRange([date, null]);
-      setSelectedTimes({
-        start: timeForDate || "14:00",
-        end: null,
-      });
       setShowBookButton(false);
     } else {
       if (date.isBefore(start)) {
         // If the second date is before the first, make it the new start
         setSelectedRange([date, null]);
-        setSelectedTimes({
-          start: timeForDate || "14:00",
-          end: null,
-        });
         setShowBookButton(false);
       } else if (date.isSame(start, "day")) {
         // Prevent selecting the same date as both start and end
         setSelectedRange([start, null]);
-        setSelectedTimes({
-          start: selectedTimes.start || "14:00",
-          end: null,
-        });
         setShowBookButton(false);
       } else {
         // Regular behavior: set range with start and end dates
         const range = [start, date];
-        const startStr = range[0].format("YYYY-MM-DD");
-        const endStr = range[1].format("YYYY-MM-DD");
-
-        // Retrieve time info for start and end dates
-        const startDateInfo = startEndDates.find((d) => d.date === startStr);
-        const endDateInfo = startEndDates.find((d) => d.date === endStr);
-
+        const startStr = range[0];
+        const endStr = range[1];
         setSelectedRange(range);
+
+        const {
+          availableStart,
+          availableEnd,
+          hourStart,
+          minuteStart,
+          hourEnd,
+          minuteEnd,
+        } = calculateAvailableTimes(startEndDates, startStr, endStr);
+
+        // отдельно время забора и отдачи хранится в стринге "hh:mm"
         setSelectedTimes({
-          start:
-            selectedTimes.start ||
-            (startDateInfo ? startDateInfo.time : "14:00"),
-          end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+          start: availableStart,
+          end: availableEnd,
         });
         setBookedDates({
-          start: range[0],
-          end: range[1],
-          startTime:
-            selectedTimes.start ||
-            (startDateInfo ? startDateInfo.time : "14:00"),
-          endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
+          start: dayjs.utc(range[0].hour(hourStart).minute(minuteStart)),
+          end: dayjs.utc(range[1].hour(hourEnd).minute(minuteEnd)),
         });
-
         setShowBookButton(true);
+        console.log("selected time!!!!!!!", selectedTimes);
       }
     }
   };
@@ -563,9 +558,9 @@ const CalendarPicker = ({
             <DefaultButton
               onClick={handleBooking}
               blinking={true}
-              label={`Book ${selectedRange[0].format("MMM D")} ${
-                selectedTimes.start
-              } - ${selectedRange[1].format("MMM D")} ${selectedTimes.end}`}
+              label={`Book ${selectedRange[0].format(
+                "MMM D"
+              )} - ${selectedRange[1].format("MMM D")} `}
               relative={true}
             />
           )}

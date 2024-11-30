@@ -6,6 +6,10 @@ export const companyData = {
   address: "Antonioy Kelesi 12, Nea Kallikratia 630 80",
   slogan: "best rent car online service in CHalkidiki",
   coords: { lat: "40.311273589340836", lon: "23.06426516796098" },
+  hoursDiffForStart: 1,
+  hoursDiffForEnd: -1,
+  defaultStart: "14:00",
+  defaultEnd: "12:00",
 };
 
 export const seasons = {
