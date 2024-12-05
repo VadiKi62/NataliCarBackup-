@@ -5,11 +5,18 @@ import timezone from "dayjs/plugin/timezone";
 // import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 // import isSame from "dayjs/plugin/isSame";
 import isBetween from "dayjs/plugin/isBetween";
+import { companyData } from "@utils/companyData";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isBetween);
 dayjs.tz.setDefault("Europe/Athens");
+
+const defaultStartHour = companyData.defaultStart.slice(0, 2);
+const defaultStartMinute = companyData.defaultStart.slice(-2);
+
+const defaultEndHour = companyData.defaultEnd.slice(0, 2);
+const defaultEndMinute = companyData.defaultEnd.slice(-2);
 
 /**
  * Проверяет, относятся ли две даты к одному дню
@@ -133,9 +140,26 @@ function functionPendingDatesInRange(pending, start, end) {
   });
 }
 
+// пушает фремя в существующий datejs обьект
+function setTimeToDatejs(date, time, isStart = false) {
+  // console.log("DATE", date);
+  // console.log("time", time);
+  if (time) {
+    const hour = Number(time?.slice(0, 2));
+    const minute = Number(time?.slice(-2));
+    const newDateWithTime = dayjs(date).hour(hour).minute(minute);
+
+    return newDateWithTime;
+  } else if (isStart) {
+    // console.log("???? day to retunr for START", dayjs(date).hour(15).minute(0));
+    return dayjs(date).hour(defaultStartHour).minute(defaultStartMinute);
+  } else return dayjs(date).hour(defaultEndHour).minute(defaultEndMinute);
+}
+
 module.exports = {
   analyzeDates,
   functionPendingDatesInRange,
   isSameOrBefore,
   isSameDay,
+  setTimeToDatejs,
 };

@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
-import { Calendar } from "antd";
+import {
+  Box,
+  Typography,
+  IconButton,
+  CircularProgress,
+  useMediaQuery,
+  useTheme,
+  Grid,
+} from "@mui/material";
+import { Calendar, DatePicker } from "antd";
 import dayjs from "dayjs";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -33,6 +41,7 @@ const CalendarPicker = ({
   setSelectedTimes,
   selectedTimes,
 }) => {
+  const theme = useTheme();
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
@@ -44,6 +53,7 @@ const CalendarPicker = ({
   //   end: null,
   // });
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
   useEffect(() => {
     // функция которая возвращает 4 массива дат для удобного рендеринга клиентского календаря
@@ -351,87 +361,13 @@ const CalendarPicker = ({
     setShowBookButton(false);
   };
 
-  const headerRender = ({ value }) => {
-    const current = value.clone();
-    const month = current.format("MMMM");
-    const year = current.year();
-
-    const goToNextMonth = () => {
-      setCurrentDate(currentDate.add(1, "month"));
-    };
-
-    const goToPreviousMonth = () => {
-      setCurrentDate(currentDate.subtract(1, "month"));
-    };
-
-    return (
-      <Box
-        sx={{
-          padding: 1,
-          display: "flex",
-          color: "common.black",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <IconButton onClick={goToPreviousMonth} color="inherit">
-          <ArrowBackIosNewIcon />
-        </IconButton>
-        <Typography variant="h6" sx={{ margin: 0 }}>
-          {`${month} ${year}`}
-        </Typography>
-        <IconButton onClick={goToNextMonth} color="inherit">
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
-    );
-  };
-
-  // const onSelect = (date) => {
-  //   const [start, end] = selectedRange;
-  //   const dateStr = date.format("YYYY-MM-DD");
-
-  //   // Проверяем, является ли выбранная дата началом или концом существующего заказа
-  //   const existingDateInfo = startEndDates.find((d) => d.date === dateStr);
-  //   const timeForDate = existingDateInfo ? existingDateInfo.time : null;
-
-  //   if (!start || (start && end)) {
-  //     setSelectedRange([date, null]);
-  //     setSelectedTimes({
-  //       start: timeForDate || "14:00",
-  //       end: null,
-  //     });
-  //     setShowBookButton(false);
-  //   } else {
-  //     const range = [start, date].sort((a, b) => a - b);
-  //     const startStr = range[0].format("YYYY-MM-DD");
-  //     const endStr = range[1].format("YYYY-MM-DD");
-
-  //     // Получаем информацию о времени для начальной и конечной дат
-  //     const startDateInfo = startEndDates.find((d) => d.date === startStr);
-  //     const endDateInfo = startEndDates.find((d) => d.date === endStr);
-
-  //     setSelectedRange(range);
-  //     setSelectedTimes({
-  //       start:
-  //         selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
-  //       end: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
-  //     });
-
-  //     setBookedDates({
-  //       start: range[0],
-  //       end: range[1],
-  //       startTime:
-  //         selectedTimes.start || (startDateInfo ? startDateInfo.time : "14:00"),
-  //       endTime: timeForDate || (endDateInfo ? endDateInfo.time : "12:00"),
-  //     });
-  //     setShowBookButton(true);
-  //   }
-  // };
-
   const onSelect = (date) => {
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
+
+    if (!date.isSame(currentDate, "month")) {
+      setCurrentDate(date.startOf("month"));
+    }
 
     if (!start || (start && end)) {
       // First click or resetting the range
@@ -491,6 +427,77 @@ const CalendarPicker = ({
     //   }).length > 1;
     return current.isBefore(dayjs().startOf("day")) || isConfirmed;
   };
+  // const headerRender = ({ value }) => {
+  //   const current = value.clone();
+  //   const month = current.format("MMMM");
+  //   const year = current.year();
+
+  //   const goToNextMonth = () => {
+  //     setCurrentDate(currentDate.add(1, "month"));
+  //   };
+
+  //   const goToPreviousMonth = () => {
+  //     setCurrentDate(currentDate.subtract(1, "month"));
+  //   };
+
+  //   return (
+  //     <Box
+  //       sx={{
+  //         padding: 1,
+  //         display: "flex",
+  //         color: "common.black",
+  //         alignItems: "center",
+  //         justifyContent: "space-between",
+  //       }}
+  //     >
+  //       <IconButton onClick={goToPreviousMonth} color="inherit">
+  //         <ArrowBackIosNewIcon />
+  //       </IconButton>
+  //       <Typography variant="h6" sx={{ margin: 0 }}>
+  //         {`${month} ${year}`}
+  //       </Typography>
+  //       <IconButton onClick={goToNextMonth} color="inherit">
+  //         <ArrowForwardIosIcon />
+  //       </IconButton>
+  //     </Box>
+  //   );
+  // };
+
+  const headerRender = ({ value }) => {
+    const current = value.clone();
+    const month = current.format("MMMM");
+    const year = current.year();
+
+    const goToNextMonth = () => {
+      setCurrentDate((prev) => prev.add(1, "month"));
+    };
+
+    const goToPreviousMonth = () => {
+      setCurrentDate((prev) => prev.subtract(1, "month"));
+    };
+
+    return (
+      <Box
+        sx={{
+          padding: 1,
+          display: "flex",
+          color: "common.black",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <IconButton onClick={goToPreviousMonth} color="inherit">
+          <ArrowBackIosNewIcon />
+        </IconButton>
+        <Typography variant="h6" sx={{ margin: 0 }}>
+          {`${month} ${year}`}
+        </Typography>
+        <IconButton onClick={goToNextMonth} color="inherit">
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
+    );
+  };
 
   return (
     <Box sx={{ width: "100%", p: "20px" }}>
@@ -506,50 +513,6 @@ const CalendarPicker = ({
       >
         Choose your dates for booking
       </Typography>
-      {/* <Box
-        sx={{
-          marginBottom: "10px",
-          justifyContent: "center",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Box
-          component="span"
-          sx={{
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "primary.red",
-            marginRight: "10px",
-          }}
-        />
-        <Typography component="span" variant="body2">
-          Confirmed bookings
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          marginBottom: "10px",
-          justifyContent: "center",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Box
-          component="span"
-          sx={{
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "primary.green",
-            marginRight: "10px",
-          }}
-        />
-        <Typography component="span" variant="body2">
-          Unconfirmed bookings
-        </Typography>
-      </Box> */}
       {isLoading ? (
         <CircularProgress />
       ) : (
@@ -558,12 +521,14 @@ const CalendarPicker = ({
             <DefaultButton
               onClick={handleBooking}
               blinking={true}
-              label={`Book ${selectedRange[0].format(
+              label={`Book ${selectedRange[0]?.format(
                 "MMM D"
-              )} - ${selectedRange[1].format("MMM D")} `}
+              )} - ${selectedRange[1]?.format("MMM D")} `}
               relative={true}
             />
           )}
+          {/* <Grid container spacing={2}>
+            <Grid item xs={12} md={6}> */}
           <Calendar
             fullscreen={false}
             onSelect={onSelect}
@@ -572,6 +537,20 @@ const CalendarPicker = ({
             headerRender={headerRender}
             value={currentDate}
           />
+          {/* </Grid>
+            {isMdUp && (
+              <Grid item xs={12} md={6}>
+                <Calendar
+                  fullscreen={false}
+                  onSelect={onSelect}
+                  disabledDate={disabledDate}
+                  fullCellRender={renderDateCell}
+                  headerRender={headerRender}
+                  value={currentDate.add(1, "month")}
+                />
+              </Grid>
+            )}
+          </Grid> */}
         </>
       )}
     </Box>

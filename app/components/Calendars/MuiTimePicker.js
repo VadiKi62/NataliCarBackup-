@@ -12,7 +12,10 @@ export default function Time({
   setEndTime,
   isRestrictionTimeIn = false,
   isRestrictionTimeOut = false,
+  mb = 0,
 }) {
+  console.log("startTime", startTime);
+  console.log("endTime", endTime);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 2 }}>
@@ -29,11 +32,11 @@ export default function Time({
         {isRestrictionTimeIn && (
           <Typography sx={{ color: "primary.main", fontSize: 13 }}>
             {" "}
-            The car is not availbale before {startTime.format("HH:mm")}{" "}
+            The car is not availbale before {isRestrictionTimeIn}{" "}
           </Typography>
         )}
       </Box>
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, mb: mb }}>
         <TimePicker
           label="End Time"
           value={endTime}
@@ -47,7 +50,7 @@ export default function Time({
         {isRestrictionTimeOut && (
           <Typography sx={{ color: "primary.main", fontSize: 13 }}>
             {" "}
-            The car is not availbale after {endTime.format("HH:mm")}{" "}
+            The car is not availbale after {isRestrictionTimeOut}{" "}
           </Typography>
         )}
       </Box>

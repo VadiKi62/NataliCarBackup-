@@ -19,8 +19,7 @@ import { setTimeToDatejs } from "@utils/functions";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 // Extend dayjs with plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -73,12 +72,8 @@ const BookingModal = ({
   const [message, setMessage] = useState(null);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
-    presetDates?.startDate
-      ? dayjs.tz(presetDates.startDate, "Europe/Athens")
-      : null,
-    presetDates?.endDate
-      ? dayjs.tz(presetDates.endDate, "Europe/Athens")
-      : null,
+    presetDates?.startDate ? dayjs(presetDates.startDate).utc() : null,
+    presetDates?.endDate ? dayjs(presetDates.endDate).utc() : null,
   ]);
 
   const [startTime, setStartTime] = useState(() => {
@@ -96,9 +91,8 @@ const BookingModal = ({
       setEndTime(setTimeToDatejs(presetDates?.endDate, selectedTimes?.end));
 
       const days =
-        dayjs
-          .tz(presetDates.endDate, "Europe/Athens")
-          .diff(dayjs.tz(presetDates.startDate, "Europe/Athens"), "day") + 1;
+        dayjs(presetDates.endDate).diff(dayjs(presetDates.startDate), "day") +
+        1;
       setTotalPrice(days * car.pricePerDay);
     }
   }, [presetDates?.startDate, presetDates?.endDate, car.pricePerDay]);
@@ -133,10 +127,8 @@ const BookingModal = ({
         customerName: name,
         phone,
         email,
-        // rentalStartDate: dayjs
-        //   .tz(presetDates?.startDate, "Europe/Athens")
-        //   .toDate(),
-        // rentalEndDate: dayjs.tz(presetDates?.endDate, "Europe/Athens").toDate(),
+        timeIn: dayjs(startTime),
+        timeOut: dayjs(endTime),
         rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
         rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
         totalPrice,
@@ -303,8 +295,8 @@ const BookingModal = ({
                     endTime={presetDates?.endDate}
                     setStartTime={setStartTime}
                     setEndTime={setEndTime}
-                    isRestrictionTimeIn={Boolean(selectedTimes.start)}
-                    isRestrictionTimeOut={Boolean(selectedTimes.end)}
+                    isRestrictionTimeIn={selectedTimes.start}
+                    isRestrictionTimeOut={selectedTimes.end}
                   />
 
                   <TextField

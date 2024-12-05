@@ -6,7 +6,13 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import isBetween from "dayjs/plugin/isBetween";
-import { analyzeDates, isSameDay, isSameOrBefore } from "@utils/analyzeDates";
+import {
+  analyzeDates,
+  isSameDay,
+  isSameOrBefore,
+  calculateAvailableTimes,
+  setTimeToDatejs,
+} from "@utils/analyzeDates";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -30,6 +36,10 @@ export async function POST(request) {
       placeOut,
     } = await request.json();
     console.log("TIME", timeIn);
+
+    // TODO проверить чтобы не было дат в один день
+
+    // TODO проверить конфликты которые возникают именно между последним днем одного бронирования и первым днем другого - дать таким конфликтам другой статус
 
     // Find the car by its car number
     const existingCar = await Car.findOne({ carNumber: carNumber });
@@ -155,8 +165,8 @@ export async function POST(request) {
       carModel: existingCar.model,
       numberOfDays: rentalDays,
       totalPrice,
-      timeIn,
-      timeOut,
+      timeIn: timeIn ? timeIn : setTimeToDatejs(startDate, null, true),
+      timeOut: timeOut ? timeOut : setTimeToDatejs(endDate, null),
       placeIn,
       placeOut,
       date: dayjs().format("MMM D HH:mm"),

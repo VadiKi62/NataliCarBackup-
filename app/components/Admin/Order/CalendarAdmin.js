@@ -34,7 +34,6 @@ const CalendarAdmin = ({
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [open, setOpen] = useState(false);
   const [isConflictOrder, setIsConflictOrder] = useState(false);
@@ -62,13 +61,6 @@ const CalendarAdmin = ({
       transformedStartEndOverlap
     );
 
-    if (orders[0]?.car === "670bb226223dd911f0595287") {
-      // console.log("transformedStartEndOverlap ", transformedStartEndOverlap);
-      // console.log(
-      //   "NEW OCCURENCES",
-      //   returnOverlapOrdersObjects(orders, transformedStartEndOverlap)
-      // );
-    }
     setOverlapDates(overlap);
     setStartEndOverlapDates(transformedStartEndOverlap);
     setUnavailableDates(unavailable);
@@ -100,15 +92,15 @@ const CalendarAdmin = ({
       );
       const isOverlapDate = Boolean(isOverlapDateInfo);
 
-      if (
-        orders[0]?.car === "670bb226223dd911f0595287" &&
-        overlapOrders.length > 1 &&
-        overlapDates
-      ) {
-        // console.log("" overlapOrders.length > 1);
-        console.log("New : should be true ", isOverlapDate);
-        console.log(isOverlapDateInfo);
-      }
+      // if (
+      //   orders[0]?.car === "670bb226223dd911f0595287" &&
+      //   overlapOrders.length > 1 &&
+      //   overlapDates
+      // ) {
+      //   // console.log("" overlapOrders.length > 1);
+      //   console.log("New : should be true ", isOverlapDate);
+      //   console.log(isOverlapDateInfo);
+      // }
 
       let backgroundColor = "transparent";
       let color = "inherit";
@@ -519,6 +511,7 @@ const CalendarAdmin = ({
                 setCarOrders={setCarOrders}
                 isConflictOrder={selectedOrders.length > 1 ? true : false}
                 setIsConflictOrder={setIsConflictOrder}
+                startEndDates={startEndDates}
               />
             </Grid>
           ))}

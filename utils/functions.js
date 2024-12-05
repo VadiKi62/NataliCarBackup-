@@ -65,7 +65,6 @@ export function getConfirmedAndUnavailableStartEndDates(
 
 // ЄТА ФУНКЦИЯ ВОЗВРАЩАЕТ ТОЛЬКО ТЕ ДНИ, В КОТОРЫЕ ПЕРЕСЕЧЕНИЕ НАЧАЛА ОЖНОГО БРОНИРОВАНИЯ И КОНЦА ДРУГОГО БРОНИРОВАНИЯ
 // ДОРАБОТАТЬ : ЧТОБЫ ФУНКЦИЯ ВОЗРАЩАЛА ТАКЖЕ ОБЬЕКТ  C ЭТИМИ ДВУМЯ ДАТАМИ И С обозначение старт или енд каждой из них
-
 export const functionToretunrStartEndOverlap = (startEnd) => {
   const startEndOverlap = [];
 
@@ -84,7 +83,6 @@ export const functionToretunrStartEndOverlap = (startEnd) => {
 };
 
 // функция которая возвращает 4 массива - 1. только старт и енд даты (внутри они обьекты, чтобы выделить отдельно подтвержденные и неподтвержденные) 2. только подтвержденные внутренние даты 3. только неподтвержденные внутренние даты 4. только те стартовые и конечные даты, которые случаются в одни дни
-
 export function extractArraysOfStartEndConfPending(orders) {
   const unavailable = [];
   const confirmed = [];
@@ -267,6 +265,7 @@ export function returnTime(startEndDates, date) {
   return;
 }
 
+// пушает фремя в существующий datejs обьект
 export function setTimeToDatejs(date, time, isStart = false) {
   // console.log("DATE", date);
   // console.log("time", time);
@@ -289,18 +288,23 @@ export function calculateAvailableTimes(startEndDates, startStr, endStr) {
   let availableStart = null;
   let availableEnd = null;
 
+  console.log("startEndDates", startEndDates);
+
   // Retrieve time info for start and end dates
   const timeStart = returnTime(startEndDates, startStr);
-  console.log("timeStart", timeStart);
+  // console.log("timeStart", timeStart);
   if (timeStart && timeStart.type === "end" && timeStart.confirmed) {
     availableStart = timeStart.time;
   }
 
   const timeEnd = returnTime(startEndDates, endStr);
-  console.log("timeEnd", timeEnd);
+  // console.log("timeEnd", timeEnd);
   if (timeEnd && timeEnd.type === "start" && timeEnd.confirmed) {
     availableEnd = timeEnd.time;
   }
+
+  console.log("availableStart", availableStart);
+  console.log("availableEnd", availableEnd);
 
   const defaultStartHour = companyData.defaultStart.slice(0, 2);
   const defaultStartMinute = companyData.defaultStart.slice(-2);
@@ -311,15 +315,12 @@ export function calculateAvailableTimes(startEndDates, startStr, endStr) {
   const diffEnd = companyData.hoursDiffForEnd;
 
   // Parse hours and minutes from the available times
-  const hourStart =
-    Number(timeStart?.time.slice(0, 2)) + diffStart || defaultStartHour; // Default hour is 15
+  const hourStart = Number(timeStart?.time.slice(0, 2)) || defaultStartHour; // Default hour is 15
   const minuteStart =
     Number(timeStart?.time.slice(-2)) || defaultStartMinute || 0; // Default minute is 0
 
-  const hourEnd = Number(timeEnd?.time.slice(0, 2)) + diffEnd || defaultEndHour; // Default hour is 10
+  const hourEnd = Number(timeEnd?.time.slice(0, 2)) || defaultEndHour; // Default hour is 10
   const minuteEnd = Number(timeEnd?.time.slice(-2)) || defaultEndMinute || 0; // Default minute is 0
-
-  // console.log("availableStart", availableStart);
 
   return {
     availableStart,

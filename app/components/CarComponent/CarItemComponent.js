@@ -31,9 +31,9 @@ import CarDetails from "./CarDetails";
 import { CldImage } from "next-cloudinary";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   marginLeft: 2,
-  maxWidth: 350,
+  maxWidth: 400,
   zIndex: 22,
   display: "flex",
   justifyContent: "center",
@@ -50,14 +50,14 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 680,
-    padding: theme.spacing(5),
+    minWidth: 1780,
+    padding: theme.spacing(3),
   },
   [theme.breakpoints.up("md")]: {
     // flexDirection: "row",
     // alignItems: "center",
-    minWidth: 950,
-    padding: theme.spacing(5),
+    minWidth: 980,
+    padding: theme.spacing(3),
   },
 }));
 

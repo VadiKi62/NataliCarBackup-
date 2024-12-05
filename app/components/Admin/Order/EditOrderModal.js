@@ -16,7 +16,21 @@ import timezone from "dayjs/plugin/timezone";
 import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
 import { useMainContext } from "@app/Context";
-import { functionToCheckDuplicates } from "@utils/functions";
+import {
+  calculateAvailableTimes,
+  functionToCheckDuplicates,
+} from "@utils/functions";
+import TimePicker from "@app/components/Calendars/MuiTimePicker";
+import {
+  functionToretunrStartEndOverlap,
+  getConfirmedAndUnavailableStartEndDates,
+  extractArraysOfStartEndConfPending,
+  returnOverlapOrders,
+  returnOverlapOrdersObjects,
+  setTimeToDatejs,
+  returnTime,
+} from "@utils/functions";
+import { companyData } from "@utils/companyData";
 
 import {
   changeRentalDates,
@@ -41,21 +55,96 @@ const EditOrderModal = ({
   setCarOrders,
   isConflictOrder,
   setIsConflictOrder,
+  startEndDates,
 }) => {
   const { allOrders, fetchAndUpdateOrders } = useMainContext();
-  const [editedOrder, setEditedOrder] = useState(null);
+  const [editedOrder, setEditedOrder] = useState(order);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  const [startTime, setStartTime] = useState(editedOrder?.startDate);
+  const [endTime, setEndTime] = useState(editedOrder?.endDate);
+  const [availableTimes, setAvailableTimes] = useState({
+    availableStart: null,
+    availableEnd: null,
+    hourStart: null,
+    minuteStart: null,
+    hourEnd: null,
+    minuteEnd: null,
+  });
+  const {
+    availableStart,
+    availableEnd,
+    hourStart,
+    minuteStart,
+    hourEnd,
+    minuteEnd,
+  } = calculateAvailableTimes(
+    startEndDates,
+    editedOrder?.timeIn,
+    editedOrder?.timeOut
+  );
+
+  useEffect(() => {
+    if (editedOrder?.rentalStartDate) {
+      // Recalculate available times
+      const {
+        availableStart,
+        availableEnd,
+        hourStart,
+        minuteStart,
+        hourEnd,
+        minuteEnd,
+      } = calculateAvailableTimes(
+        startEndDates,
+        editedOrder?.timeIn,
+        editedOrder?.timeOut
+      );
+      console.log("availableStart", availableStart);
+      console.log("availableEnd", availableEnd);
+      setAvailableTimes({
+        availableStart,
+        availableEnd,
+        hourStart,
+        minuteStart,
+        hourEnd,
+        minuteEnd,
+      });
+
+      // Set start and end times based on calculated values
+      if (availableStart) {
+        const newStartTimeDate = setTimeToDatejs(
+          editedOrder?.rentalStartDate,
+          availableStart,
+          true
+        );
+        setStartTime(newStartTimeDate);
+      }
+
+      if (availableEnd) {
+        const newEndTimeDate = setTimeToDatejs(
+          editedOrder?.rentalEndDate,
+          availableEnd
+        );
+        setEndTime(newEndTimeDate);
+      }
+    }
+  }, [
+    editedOrder?.rentalStartDate,
+    startEndDates,
+    editedOrder?.timeIn,
+    editedOrder?.timeOut,
+  ]);
+
   useEffect(() => {
     if (order?.hasConflictDates) {
       const ordersIdSet = new Set(order?.hasConflictDates);
       const checkConflicts = async () => {
         const isConflict = await getConfirmedOrders([...ordersIdSet]);
-        console.log("isConflict", isConflict);
+        // console.log("isConflict", isConflict);
         if (isConflict) {
           setIsConflictOrder(true);
         }
@@ -103,8 +192,8 @@ const EditOrderModal = ({
       // Convert dates to the correct timezone when setting initial state
       const adjustedOrder = {
         ...order,
-        rentalStartDate: dayjs(order.rentalStartDate),
-        rentalEndDate: dayjs(order.rentalEndDate),
+        rentalStartDate: dayjs(order.rentalStartDate).utc(),
+        rentalEndDate: dayjs(order.rentalEndDate).utc(),
         timeIn: dayjs(order.timeIn).utc(),
         timeOut: dayjs(order.timeOut).utc(),
       };
@@ -176,8 +265,8 @@ const EditOrderModal = ({
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
-        timeIn: editedOrder.timeIn,
-        timeOut: editedOrder.timeOut,
+        timeIn: dayjs(startTime).utc(),
+        timeOut: dayjs(endTime).utc(),
       };
 
       const response = await changeRentalDates(
@@ -228,6 +317,11 @@ const EditOrderModal = ({
     }
   };
   const handleChange = (field, value) => {
+    const defaultStartHour = companyData.defaultStart.slice(0, 2);
+    const defaultStartMinute = companyData.defaultStart.slice(-2);
+
+    const defaultEndHour = companyData.defaultEnd.slice(0, 2);
+    const defaultEndMinute = companyData.defaultEnd.slice(-2);
     let newValue = value;
 
     if (field === "rentalStartDate" || field === "rentalEndDate") {
@@ -238,13 +332,9 @@ const EditOrderModal = ({
 
         // Adjust timeIn and timeOut when rentalStartDate or rentalEndDate is changed
         if (field === "rentalStartDate") {
-          newValue = newValue
-            .hour(dayjs(editedOrder?.timeIn).hour())
-            .minute(dayjs(editedOrder?.timeIn).minute());
+          newValue = newValue.hour(defaultStartHour).minute(defaultStartMinute);
         } else if (field === "rentalEndDate") {
-          newValue = newValue
-            .hour(dayjs(editedOrder?.timeOut).hour())
-            .minute(dayjs(editedOrder?.timeOut).minute());
+          newValue = newValue.hour(defaultEndHour).minute(defaultEndMinute);
         }
       } else {
         console.error("Invalid date format");
@@ -252,28 +342,28 @@ const EditOrderModal = ({
       }
     }
 
-    if (field === "timeIn" || field === "timeOut") {
-      // Check if the value is valid and in 'HH:mm' format for times
-      const isValidTime = dayjs(value, "HH:mm", true).isValid();
-      if (isValidTime) {
-        if (field === "timeIn") {
-          // Set timeIn, but apply it to the rentalStartDate
-          newValue = dayjs(editedOrder.rentalStartDate)
-            .utc()
-            .hour(dayjs(value, "HH:mm").hour())
-            .minute(dayjs(value, "HH:mm").minute());
-        } else if (field === "timeOut") {
-          // Set timeOut, but apply it to the rentalEndDate
-          newValue = dayjs(editedOrder.rentalEndDate)
-            .utc()
-            .hour(dayjs(value, "HH:mm").hour())
-            .minute(dayjs(value, "HH:mm").minute());
-        }
-      } else {
-        console.error("Invalid time format");
-        return; // Skip if the time format is invalid
-      }
-    }
+    // if (field === "timeIn" || field === "timeOut") {
+    //   // Check if the value is valid and in 'HH:mm' format for times
+    //   const isValidTime = dayjs(value, "HH:mm", true).isValid();
+    //   if (isValidTime) {
+    //     if (field === "timeIn") {
+    //       // Set timeIn, but apply it to the rentalStartDate
+    //       newValue = dayjs(editedOrder.rentalStartDate)
+    //         .utc()
+    //         .hour(dayjs(value, "HH:mm").hour())
+    //         .minute(dayjs(value, "HH:mm").minute());
+    //     } else if (field === "timeOut") {
+    //       // Set timeOut, but apply it to the rentalEndDate
+    //       newValue = dayjs(editedOrder.rentalEndDate)
+    //         .utc()
+    //         .hour(dayjs(value, "HH:mm").hour())
+    //         .minute(dayjs(value, "HH:mm").minute());
+    //     }
+    //   } else {
+    //     console.error("Invalid time format");
+    //     return; // Skip if the time format is invalid
+    //   }
+    // }
 
     setEditedOrder({ ...editedOrder, [field]: newValue });
   };
@@ -321,90 +411,6 @@ const EditOrderModal = ({
       </Box>
     );
   };
-
-  const renderDateTimeSection = () => (
-    <Box sx={{ mb: 3 }}>
-      <Typography
-        variant="h6"
-        gutterBottom
-        sx={{
-          lineHeight: "1.4rem",
-          fontSize: "1.2rem",
-          backgroundColor: "secondary.light",
-        }}
-      >
-        Время & Дата & Место выдачи/забора
-      </Typography>
-      {renderField("Rental Start Date", "rentalStartDate", "date")}
-      {renderField("Rental End Date", "rentalEndDate", "date")}
-      {renderField("Time In", "timeIn", "time")}
-      {renderField("Time Out", "timeOut", "time")}
-      {renderField("Place In", "placeIn")}
-      {renderField("Place Out", "placeOut")}
-      <Typography variant="body2" sx={{ fontWeight: "bold", mr: 1 }}>
-        Всего цена : {editedOrder?.totalPrice}
-      </Typography>
-      <Typography variant="body2" sx={{ fontWeight: "bold", mr: 1 }}>
-        Кол-во дней : {editedOrder?.numberOfDays}
-      </Typography>
-    </Box>
-  );
-
-  const renderCustomerSection = () => (
-    <Box sx={{ mb: 3 }}>
-      <Typography
-        variant="h6"
-        gutterBottom
-        sx={{
-          lineHeight: "1.4rem",
-          fontSize: "1.2rem",
-          backgroundColor: "secondary.light",
-        }}
-      >
-        Информация о клиенте
-      </Typography>
-      {renderField("Customer Name", "customerName")}
-      {renderField("Phone", "phone")}
-      {renderField("Email", "email")}
-    </Box>
-  );
-
-  const renderConfirmationSection = () => (
-    <Box sx={{ mb: 3 }}>
-      <Button
-        variant="contained"
-        onClick={handleConfirmationToggle}
-        disabled={isUpdating}
-        sx={{
-          width: "100%",
-          backgroundColor: editedOrder?.confirmed
-            ? "text.green"
-            : "primary.main",
-          color: editedOrder?.confirmed ? "black" : "white",
-          "&:hover": {
-            backgroundColor: editedOrder?.confirmed ? "darkgreen" : "darkred",
-            color: "white",
-          },
-        }}
-      >
-        {isUpdating ? (
-          <CircularProgress size={24} color="inherit" />
-        ) : editedOrder?.confirmed ? (
-          "Заказ подтвержден."
-        ) : (
-          "Заказ не подтвержден. "
-        )}
-      </Button>
-      {updateMessage && (
-        <Typography
-          varian="body1"
-          sx={{ mt: 1, color: "primary.main", lineHeight: "1rem" }}
-        >
-          {updateMessage}
-        </Typography>
-      )}
-    </Box>
-  );
 
   return (
     <>
@@ -468,8 +474,18 @@ const EditOrderModal = ({
             <Box sx={{ mb: 3 }}>
               {renderField("Rental Start Date", "rentalStartDate", "date")}
               {renderField("Rental End Date", "rentalEndDate", "date")}
-              {renderField("Time In", "timeIn", "time")}
-              {renderField("Time Out", "timeOut", "time")}
+              <TimePicker
+                mb={2}
+                startTime={editedOrder?.timeIn}
+                endTime={editedOrder?.timeOut}
+                setStartTime={setStartTime}
+                setEndTime={setEndTime}
+                isRestrictionTimeIn={availableTimes.availableStart}
+                isRestrictionTimeOut={availableTimes.availableEnd}
+              />
+
+              {/* {renderField("Time In", "timeIn", "time")}
+              {renderField("Time Out", "timeOut", "time")} */}
               {renderField("Place In", "placeIn")}
               {renderField("Place Out", "placeOut")}
               <Button
