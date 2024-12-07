@@ -22,7 +22,7 @@ function CarGrid() {
       .filter(
         (car) => !!(selectedClass == "All") || car.class === selectedClass
       )
-      .sort((a, b) => a.class.localeCompare(b.class)); // Sort the filtered cars
+      .sort((a, b) => a.model.localeCompare(b.model)); // Sort the filtered cars
     setFilteredCars(updatedCars);
   }, [selectedClass, cars]);
 

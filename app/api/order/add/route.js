@@ -35,9 +35,19 @@ export async function POST(request) {
       placeIn,
       placeOut,
     } = await request.json();
-    console.log("TIME", timeIn);
 
-    // TODO проверить чтобы не было дат в один день
+    // TODO проверить чтобы не было даты rentalStartDate и rentalEndDate в один день
+    if (startDate.isSame(endDate, "day")) {
+      return new Response(
+        JSON.stringify({
+          message: "Дата начала и окончания аренды не могут быть в один день.",
+        }),
+        {
+          status: 405,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     // TODO проверить конфликты которые возникают именно между последним днем одного бронирования и первым днем другого - дать таким конфликтам другой статус
 
@@ -69,6 +79,34 @@ export async function POST(request) {
         { rentalEndDate: { $gte: startDate.toDate(), $lte: endDate.toDate() } },
       ],
     });
+
+    // TODO проверить конфликты которые возникают именно между последним днем одного бронирования и первым днем другого - дать таким конфликтам другой статус
+    const conflictWithAdjacentDates = existingOrders.find((order) => {
+      const orderStartDate = dayjs(order.rentalStartDate);
+      const orderEndDate = dayjs(order.rentalEndDate);
+
+      // Проверяем, есть ли конфликт последнего дня текущего заказа с первым днем нового заказа
+      const isConflictWithLastDay = orderEndDate.isSame(startDate, "day");
+
+      // Проверяем, есть ли конфликт первого дня текущего заказа с последним днем нового заказа
+      const isConflictWithFirstDay = orderStartDate.isSame(endDate, "day");
+
+      return isConflictWithLastDay || isConflictWithFirstDay;
+    });
+
+    if (conflictWithAdjacentDates) {
+      return new Response(
+        JSON.stringify({
+          message: `Даты ${startDate.format("MMM D")} и ${endDate.format(
+            "MMM D"
+          )} конфликтуют с уже существующим бронированием.`,
+        }),
+        {
+          status: 309,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
 
     const result = analyzeDates(existingOrders);
     console.log(result);

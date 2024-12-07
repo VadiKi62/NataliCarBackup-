@@ -157,7 +157,7 @@ function Admin() {
           }}
         >
           {cars
-            .sort((a, b) => a.class.localeCompare(b.class))
+            .sort((a, b) => a.model.localeCompare(b.model))
             .map((car) => (
               <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
                 <Item
