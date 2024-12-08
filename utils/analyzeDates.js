@@ -116,8 +116,123 @@ function analyzeDates(orders) {
   return result;
 }
 
+function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
+  // console.log("IN TIME", dayjs(timeIn));
+  // console.log("OUt Time", dayjs(timeOut));
+
+  const result = analyzeDates(existingOrders);
+
+  // Initialize timeConflicts to track conflicts
+  const timeConflicts = { start: [], end: [] };
+
+  // Check if booking start overlaps with an existing end date's time
+  const isStartTimeConflict = result.confirmed.find((item) => {
+    if (
+      item.isEnd &&
+      item.dateFormat === dayjs(startDate).format("YYYY-MM-DD") &&
+      item.timeEnd && // Ensure there is a timeEnd
+      dayjs(item.timeEnd).isAfter(dayjs(timeIn)) // Check if timeEnd conflicts with timeIn
+    ) {
+      timeConflicts.start.push(item.timeEnd);
+      return true;
+    }
+    return false;
+  });
+
+  // Check if booking end overlaps with an existing start date's time
+  const isEndTimeConflict = result.confirmed.find((item) => {
+    if (
+      item.isStart &&
+      item.dateFormat === dayjs(endDate).format("YYYY-MM-DD") &&
+      item.timeStart && // Ensure there is a timeStart
+      dayjs(item.timeStart).isBefore(dayjs(timeOut)) // Check if timeStart conflicts with timeOut
+    ) {
+      timeConflicts.end.push(item.timeStart);
+      return true;
+    }
+    return false;
+  });
+
+  // Handle general date conflicts
+  const confirmedInnerDates = result.confirmed.filter(
+    (item) =>
+      !item.isStart &&
+      !item.isEnd &&
+      item.datejs.isBetween(startDate, endDate, "day", "()")
+  );
+
+  if (confirmedInnerDates.length > 0) {
+    const conflictDates = new Set(
+      confirmedInnerDates.map((item) => item.datejs.format("MMM D"))
+    );
+
+    const conflictMessage = `Даты ${[...conflictDates].join(
+      ", "
+    )} уже забронированы и не доступны.`;
+
+    return {
+      status: 409,
+      data: {
+        conflictMessage,
+        conflictDates: [...conflictDates],
+      },
+    };
+  }
+
+  // Handle time-specific conflicts
+  if (isStartTimeConflict || isEndTimeConflict) {
+    const conflictMessage = `Время в даты ${
+      timeConflicts.start.length > 0
+        ? `начала бронирования: ${timeConflicts.start.join(", ")} `
+        : ""
+    }${
+      timeConflicts.end.length > 0
+        ? `окончания бронирования: ${timeConflicts.end.join(", ")}`
+        : ""
+    }пересекается с существующими бронированиями.`;
+
+    return {
+      status: 410,
+      data: { conflictMessage, conflictDates: timeConflicts },
+    };
+  }
+
+  // Handle general date pending
+  const pendingInnerDates = result.pending.filter(
+    (item) =>
+      !item.isStart &&
+      !item.isEnd &&
+      item.datejs.isBetween(startDate, endDate, "day", "[]")
+  );
+
+  if (pendingInnerDates.length > 0) {
+    const conflictDates = new Set(
+      pendingInnerDates.map((item) => item.datejs.format("MMM D"))
+    );
+
+    const conflictOrdersIds = new Set(
+      pendingInnerDates.map((item) => item.orderId)
+    );
+
+    const conflictMessage = `Даты ${[...conflictDates].join(
+      ", "
+    )} уже забронированы и не доступны.`;
+
+    return {
+      status: 402,
+      data: {
+        conflictMessage,
+        conflictDates: [...conflictDates],
+        conflictOrdersIds,
+      },
+    };
+  }
+  // No conflicts detected
+  return false;
+}
+
+// returns pendingDates in range between start and end
 function functionPendingDatesInRange(pending, start, end) {
-  console.log("pending", pending);
   return pending?.filter((bookingDate) => {
     const currentDate = dayjs(bookingDate.date);
 
@@ -139,21 +254,33 @@ function functionPendingDatesInRange(pending, start, end) {
     return isStartDate || isEndDate || isWithinRange;
   });
 }
-
 // пушает фремя в существующий datejs обьект
 function setTimeToDatejs(date, time, isStart = false) {
   // console.log("DATE", date);
   // console.log("time", time);
   if (time) {
-    const hour = Number(time?.slice(0, 2));
+    const hour = Number(time?.slice(0, 2)) + 1;
     const minute = Number(time?.slice(-2));
-    const newDateWithTime = dayjs(date).hour(hour).minute(minute);
+    const newDateWithTime = dayjs(date)
+      .hour(hour)
+      .minute(minute)
+      .second(0)
+      .millisecond(0);
 
     return newDateWithTime;
   } else if (isStart) {
     // console.log("???? day to retunr for START", dayjs(date).hour(15).minute(0));
-    return dayjs(date).hour(defaultStartHour).minute(defaultStartMinute);
-  } else return dayjs(date).hour(defaultEndHour).minute(defaultEndMinute);
+    return dayjs(date)
+      .hour(defaultStartHour)
+      .minute(defaultStartMinute)
+      .second(0)
+      .millisecond(0);
+  } else
+    return dayjs(date)
+      .hour(defaultEndHour)
+      .minute(defaultEndMinute)
+      .second(0)
+      .millisecond(0);
 }
 
 module.exports = {
@@ -162,4 +289,5 @@ module.exports = {
   isSameOrBefore,
   isSameDay,
   setTimeToDatejs,
+  checkConflicts,
 };

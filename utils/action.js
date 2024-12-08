@@ -103,8 +103,6 @@ export const reFetchAllOrders = async () => {
 //Adding new order using new order api
 export const addOrderNew = async (orderData) => {
   try {
-    console.log(orderData);
-
     const response = await fetch(`${API_URL}/api/order/add`, {
       method: "POST",
       headers: {
@@ -119,6 +117,20 @@ export const addOrderNew = async (orderData) => {
     if (response.ok) {
       console.log("Order added:", result);
       return { status: "success", data: result };
+    } else if (response.status === 309) {
+      // Non-confirmed dates conflict
+      return {
+        status: "startEndConflict",
+        message: result.message,
+        data: result.data,
+      };
+    } else if (response.status === 308) {
+      // Non-confirmed dates conflict
+      return {
+        status: "startEndNonConflick",
+        message: result.message,
+        data: result.data,
+      };
     } else if (response.status === 402) {
       // Non-confirmed dates conflict
       return { status: "pending", message: result.message, data: result.data };
@@ -126,11 +138,11 @@ export const addOrderNew = async (orderData) => {
       // Confirmed dates conflict
       return { status: "conflict", message: result.message };
     } else {
-      throw new Error(`Unexpected response status: ${response.status}`);
+      return { status: "error", message: result.message };
+      // throw new Error(`Unexpected response status: ${response.status}`);
     }
   } catch (error) {
     console.error("Error occurred:", error.message);
-
     // Handling fetch-specific errors
     if (error.message === "Failed to fetch") {
       return { status: "error", message: "No response received from server." };
@@ -203,7 +215,7 @@ export const changeRentalDates = async (
         _id: orderId,
         rentalStartDate: newStartDate,
         rentalEndDate: newEndDate,
-        timeIn: timeIn || null, // Optional fields
+        timeIn: timeIn || null,
         timeOut: timeOut || null,
         placeIn: placeIn || null,
         placeOut: placeOut || null,
@@ -391,7 +403,7 @@ export async function getOrderById(orderId) {
   }
 }
 
-// Пример функции, которая принимает массив ID заказов и возвращает подтвержденные заказы
+// aункции, которая принимает массив ID заказов и возвращает подтвержденные заказы
 export async function getConfirmedOrders(orderIds) {
   try {
     const orders = await Promise.all(orderIds.map(getOrderById));

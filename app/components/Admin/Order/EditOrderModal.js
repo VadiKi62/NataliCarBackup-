@@ -75,18 +75,6 @@ const EditOrderModal = ({
     hourEnd: null,
     minuteEnd: null,
   });
-  const {
-    availableStart,
-    availableEnd,
-    hourStart,
-    minuteStart,
-    hourEnd,
-    minuteEnd,
-  } = calculateAvailableTimes(
-    startEndDates,
-    editedOrder?.timeIn,
-    editedOrder?.timeOut
-  );
 
   useEffect(() => {
     if (editedOrder?.rentalStartDate) {
@@ -162,6 +150,7 @@ const EditOrderModal = ({
 
     setIsUpdating(true);
     setUpdateMessage(""); // Clear any previous update message
+    setAvailableTimes(null);
 
     try {
       const response = await fetch(`/api/order/deleteOne/${editedOrder._id}`, {
@@ -216,6 +205,7 @@ const EditOrderModal = ({
     onClose();
     setConflictMessage2(null);
     setConflictMessage1(null);
+    setAvailableTimes(null);
   };
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);

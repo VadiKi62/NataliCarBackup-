@@ -4,6 +4,14 @@ import { connectToDB } from "@utils/database";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import {
+  analyzeDates,
+  isSameDay,
+  isSameOrBefore,
+  calculateAvailableTimes,
+  setTimeToDatejs,
+  checkConflicts,
+} from "@utils/analyzeDates";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,19 +44,25 @@ export const PUT = async (req) => {
     // Find the car associated with the order
     const car = order.car;
 
-    // Get the updated start and end dates
-    let newStartDate = rentalStartDate
-      ? new Date(rentalStartDate)
-      : order.rentalStartDate;
-    let newEndDate = rentalEndDate
-      ? new Date(rentalEndDate)
-      : order.rentalEndDate;
+    // Convert input dates and times
+    const newStartDate = rentalStartDate
+      ? dayjs(rentalStartDate).utc()
+      : dayjs(order.rentalStartDate);
+    const newEndDate = rentalEndDate
+      ? dayjs(rentalEndDate).utc()
+      : dayjs(order.rentalEndDate);
+    const newTimeIn = timeIn ? dayjs(timeIn).utc() : dayjs(order.timeIn);
+    const newTimeOut = timeOut ? dayjs(timeOut).utc() : dayjs(order.timeOut);
 
-    newStartDate = dayjs(rentalStartDate).utc();
-    newEndDate = dayjs(rentalEndDate).utc();
-
-    const newTimeIn = timeIn ? dayjs(timeIn).utc() : order.timeIn;
-    const newTimeOut = timeOut ? dayjs(timeOut).utc() : order.timeOut;
+    // Ensure start and end dates are not the same
+    if (newStartDate.isSame(newEndDate, "day")) {
+      return new Response(
+        JSON.stringify({
+          message: "Start and end dates cannot be the same.",
+        }),
+        { status: 405 }
+      );
+    }
 
     // Check if current order already has conflicting dates
     const { resolvedConflicts, stillConflictingOrders } =
@@ -61,67 +75,52 @@ export const PUT = async (req) => {
       );
     }
 
-    // Check for any new conflicting orders with updated dates
-    const conflictingOrders = await Order.find({
+    // Fetch all orders for the car, excluding the current order
+    const allOrders = await Order.find({
       car: car._id,
-      _id: { $ne: _id }, // Exclude the current order
-      $or: [
-        {
-          rentalStartDate: { $lte: newEndDate },
-          rentalEndDate: { $gte: newStartDate },
-        },
-        { rentalStartDate: { $gte: newStartDate, $lte: newEndDate } },
-        { rentalEndDate: { $gte: newStartDate, $lte: newEndDate } },
-      ],
+      _id: { $ne: _id },
     });
 
-    // Separate confirmed and non-confirmed orders
-    const confirmedOrders = [];
-    const nonConfirmedOrders = [];
+    // Transform orders into the required format for `checkConflicts`
+    const existingOrders = allOrders.map((existingOrder) => ({
+      isStart: true,
+      isEnd: true,
+      dateFormat: dayjs(existingOrder.rentalStartDate).format("YYYY-MM-DD"),
+      timeStart: existingOrder.timeIn,
+      timeEnd: existingOrder.timeOut,
+      datejs: dayjs(existingOrder.rentalStartDate),
+      orderId: existingOrder._id.toString(),
+    }));
 
-    for (const conflictingOrder of conflictingOrders) {
-      if (conflictingOrder.confirmed) {
-        confirmedOrders.push({
-          id: conflictingOrder._id,
-          customerName: conflictingOrder.customerName,
-          phone: conflictingOrder.phone,
-          email: conflictingOrder.email,
-          rentalStartDate: conflictingOrder.rentalStartDate,
-          rentalEndDate: conflictingOrder.rentalEndDate,
-          confirmed: conflictingOrder.confirmed,
-        });
-      } else {
-        nonConfirmedOrders.push({
-          id: conflictingOrder._id,
-          rentalStartDate: conflictingOrder.rentalStartDate,
-          rentalEndDate: conflictingOrder.rentalEndDate,
-          phone: conflictingOrder.phone,
-          email: conflictingOrder.email,
-          customerName: conflictingOrder.customerName,
-          confirmed: conflictingOrder.confirmed,
-        });
-      }
-    }
+    // Check for conflicts using `checkConflicts`
+    const conflictCheck = checkConflicts(
+      existingOrders,
+      newStartDate,
+      newEndDate,
+      newTimeIn,
+      newTimeOut
+    );
 
-    // Response 300: Conflicting confirmed orders exist, no update
-    if (confirmedOrders.length > 0) {
+    if (conflictCheck) {
+      // Handle conflicts
+      const { status, data } = conflictCheck;
       return new Response(
         JSON.stringify({
-          message: `Заказ не обновлен, даты уже заняты и подтверждены:`,
-          confirmedOrders: confirmedOrders,
+          message: data.conflictMessage,
+          conflictDates: data.conflictDates || [],
         }),
-        { status: 300, headers: { "Content-Type": "application/json" } }
+        { status, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // If there are no confirmed conflicts, we proceed with recalculation
+    // Recalculate the rental details
     const rentalDays = Math.ceil(
       (newEndDate - newStartDate) / (1000 * 60 * 60 * 24)
     );
     const pricePerDay = car.calculatePrice(rentalDays);
     const totalPrice = pricePerDay * rentalDays;
 
-    // Update the order with the new dates, rental days, total price, and new time/place info
+    // Update the order
     order.rentalStartDate = newStartDate.toDate();
     order.rentalEndDate = newEndDate.toDate();
     order.numberOfDays = rentalDays;
@@ -131,31 +130,7 @@ export const PUT = async (req) => {
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
-    // Response 201: Only non-confirmed conflicts, update and return conflict info
-    if (nonConfirmedOrders.length > 0) {
-      order.hasConflictDates = nonConfirmedOrders.map((order) => order.id);
-      const message =
-        "Конфликт бронирования, заказ создан но возникли брони в одни дни ";
-      const data = {
-        nonConfirmedOrders: nonConfirmedOrders,
-        updatedOrder: order,
-      };
-      await order.save();
-
-      return new Response(
-        JSON.stringify({
-          message,
-          data,
-        }),
-        {
-          status: 201,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    // Response 200: No conflicts, update the order
-    await order.save(); // Save the updated order
+    await order.save();
 
     return new Response(
       JSON.stringify({

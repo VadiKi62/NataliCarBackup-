@@ -134,28 +134,28 @@ CarSchema.methods.getSeason = function (date) {
 // Method to calculate price based on days and current season
 CarSchema.methods.calculatePrice = function (days, date = dayjs()) {
   const season = this.getSeason(date); // Determine the current season
-  console.log("season!!!! is !!!", season);
+  // console.log("season!!!! is !!!", season);
 
   const pricingTiers = this.pricingTiers.get(season); // Use Map's `get` method
-  console.log("pricingTiers!!!! is !!!", pricingTiers);
+  // console.log("pricingTiers!!!! is !!!", pricingTiers);
 
   // Ensure the map keys are properly converted to numbers
   const tiers = Array.from(pricingTiers.days.keys()).map((key) =>
     parseInt(key, 10)
   );
-  console.log("TIERS ISSS!!! ", tiers); // Log to see if they are valid numbers
+  // console.log("TIERS ISSS!!! ", tiers); // Log to see if they are valid numbers
 
   // Sort the tiers in descending order
   const sortedTiers = tiers.sort((a, b) => b - a);
-  console.log("Sorted TIERS: ", sortedTiers); // Check if sorting works correctly
+  // console.log("Sorted TIERS: ", sortedTiers); // Check if sorting works correctly
 
   // Find the correct price tier for the number of days
   for (let tier of sortedTiers) {
     if (days <= tier) {
-      console.log(
-        "RETURN ISSS!!!  IS!!! ",
-        pricingTiers.days.get(tier.toString())
-      ); // Map keys are strings
+      // console.log(
+      //   "RETURN ISSS!!!  IS!!! ",
+      //   pricingTiers.days.get(tier.toString())
+      // ); // Map keys are strings
       return pricingTiers.days.get(tier.toString()); // Use `toString()` for map access
     }
   }

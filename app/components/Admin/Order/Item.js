@@ -101,6 +101,7 @@ function Item({
   setSelectedCar,
 }) {
   const [imageLoading, setImageLoading] = useState(true);
+  const [carOrders, setCarOrders] = useState([]);
 
   const { ordersByCarId, allOrders, fetchAndUpdateOrders } = useMainContext();
 
@@ -119,8 +120,6 @@ function Item({
     // Cleanup the timer when the component unmounts
     return () => clearTimeout(loadingTimer);
   }, []);
-
-  const [carOrders, setCarOrders] = useState([]);
 
   const handleOpneModal = () => {
     setSelectedCar(car);

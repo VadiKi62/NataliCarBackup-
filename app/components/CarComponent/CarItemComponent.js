@@ -50,7 +50,7 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.up("sm")]: {
     flexDirection: "row",
     alignItems: "center",
-    minWidth: 1780,
+    minWidth: 700,
     padding: theme.spacing(3),
   },
   [theme.breakpoints.up("md")]: {

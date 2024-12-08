@@ -12,6 +12,7 @@ import {
   isSameOrBefore,
   calculateAvailableTimes,
   setTimeToDatejs,
+  checkConflicts,
 } from "@utils/analyzeDates";
 
 dayjs.extend(utc);
@@ -36,11 +37,14 @@ export async function POST(request) {
       placeOut,
     } = await request.json();
 
-    // TODO проверить чтобы не было даты rentalStartDate и rentalEndDate в один день
-    if (startDate.isSame(endDate, "day")) {
+    console.log("timeIn IS ", timeIn);
+    console.log("timeOut is ", timeOut);
+
+    // status 405 for startdate = enddate - order NOT created
+    if (dayjs(rentalStartDate).isSame(dayjs(rentalEndDate), "day")) {
       return new Response(
         JSON.stringify({
-          message: "Дата начала и окончания аренды не могут быть в один день.",
+          message: "Start and End dates could't be at the same date",
         }),
         {
           status: 405,
@@ -49,144 +53,72 @@ export async function POST(request) {
       );
     }
 
-    // TODO проверить конфликты которые возникают именно между последним днем одного бронирования и первым днем другого - дать таким конфликтам другой статус
-
     // Find the car by its car number
     const existingCar = await Car.findOne({ carNumber: carNumber });
-
     if (!existingCar) {
-      return new Response(`Car with number ${carNumber} does not exist`, {
-        status: 404,
-      });
+      return new Response(
+        JSON.stringify({
+          message: "Car is not found",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Check for existing orders for this car
+    const existingOrders = await Order.find({
+      car: existingCar._id,
+    });
+
+    let nonConfirmedDates = [];
+    let conflicOrdersId = [];
+
+    const { status, data } = checkConflicts(
+      existingOrders,
+      rentalStartDate,
+      rentalEndDate,
+      timeIn,
+      timeOut
+    );
+
+    console.log("!! - > result1", status);
+    if (status) {
+      switch (status) {
+        case 409:
+          return new Response(
+            JSON.stringify({
+              message: data.conflictMessage,
+              conflictDates: data.conflictDates,
+            }),
+            {
+              status: 409,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+
+        case 410:
+          return new Response(
+            JSON.stringify({
+              message: data.conflictMessage,
+              conflictDates: data.conflictDates,
+            }),
+            {
+              status: 410,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        case 402:
+          conflicOrdersId = data.conflictOrdersIds;
+          nonConfirmedDates = conflictDates;
+      }
     }
 
     // Calculate the number of rental days using dayjs
     const startDate = dayjs(rentalStartDate);
     const endDate = dayjs(rentalEndDate);
     const rentalDays = endDate.diff(startDate, "day"); // include only start  day
-
-    // Check for existing orders
-    const existingOrders = await Order.find({
-      car: existingCar._id,
-      $or: [
-        {
-          rentalStartDate: { $lte: endDate.toDate() },
-          rentalEndDate: { $gte: startDate.toDate() },
-        },
-        {
-          rentalStartDate: { $gte: startDate.toDate(), $lte: endDate.toDate() },
-        },
-        { rentalEndDate: { $gte: startDate.toDate(), $lte: endDate.toDate() } },
-      ],
-    });
-
-    // TODO проверить конфликты которые возникают именно между последним днем одного бронирования и первым днем другого - дать таким конфликтам другой статус
-    const conflictWithAdjacentDates = existingOrders.find((order) => {
-      const orderStartDate = dayjs(order.rentalStartDate);
-      const orderEndDate = dayjs(order.rentalEndDate);
-
-      // Проверяем, есть ли конфликт последнего дня текущего заказа с первым днем нового заказа
-      const isConflictWithLastDay = orderEndDate.isSame(startDate, "day");
-
-      // Проверяем, есть ли конфликт первого дня текущего заказа с последним днем нового заказа
-      const isConflictWithFirstDay = orderStartDate.isSame(endDate, "day");
-
-      return isConflictWithLastDay || isConflictWithFirstDay;
-    });
-
-    if (conflictWithAdjacentDates) {
-      return new Response(
-        JSON.stringify({
-          message: `Даты ${startDate.format("MMM D")} и ${endDate.format(
-            "MMM D"
-          )} конфликтуют с уже существующим бронированием.`,
-        }),
-        {
-          status: 309,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const result = analyzeDates(existingOrders);
-    console.log(result);
-    const resultConfirmedInnerDates = result.confirmed.filter(
-      (item) =>
-        !item.isStart &&
-        !item.isEnd &&
-        item.datejs.isBetween(startDate, endDate, "day", "()")
-    );
-    console.log("resultConfirmedInnerDates", resultConfirmedInnerDates);
-
-    const isStartConfirmedeStartBooking = result.confirmed.find((item) => {
-      return item.isStart && item.dateFormat === startDate.format("YYYY-MM-DD");
-    });
-    const isEndConfirmedeEndBooking = result.confirmed.find((item) => {
-      return item.isEnd && item.dateFormat === endDate.format("YYYY-MM-DD");
-    });
-    console.log("isStartConfirmedeStartBooking", isStartConfirmedeStartBooking);
-    console.log("isEndConfirmedeEndBooking", isEndConfirmedeEndBooking);
-
-    const confirmedDates = [];
-    const nonConfirmedDates = [];
-    const conflicOrdersId = [];
-
-    for (const order of existingOrders) {
-      const orderStartDate = dayjs(order.rentalStartDate);
-      const orderEndDate = dayjs(order.rentalEndDate);
-
-      for (
-        let d = startDate;
-        d.isBefore(endDate) || d.isSame(endDate);
-        d = d.add(1, "day")
-      ) {
-        if (d.isBetween(orderStartDate, orderEndDate, "day", "()")) {
-          if (order.confirmed) {
-            confirmedDates.push(d.format("MMM D"));
-          } else {
-            conflicOrdersId.push(new mongoose.Types.ObjectId(order._id));
-            nonConfirmedDates.push(d.format("MMM D"));
-          }
-        }
-      }
-    }
-
-    console.log("confirmedDates", confirmedDates);
-    let conflictMessage = "";
-    let conflictDates;
-
-    if (
-      // confirmedDates.length > 0 ||
-      isStartConfirmedeStartBooking ||
-      isEndConfirmedeEndBooking ||
-      resultConfirmedInnerDates.length > 0
-    ) {
-      conflictDates = new Set([
-        // ...confirmedDates,
-        ...resultConfirmedInnerDates?.datejs?.format("MMM D"),
-        isStartConfirmedeStartBooking?.datejs?.format("MMM D"),
-        isEndConfirmedeEndBooking?.datejs?.format("MMM D"),
-      ]);
-      conflictMessage =
-        conflictMessage +
-        `Даты ${[...conflictDates].join(
-          ", "
-        )} уже забронированы и не доступны.`;
-      // }
-
-      // if (confirmedDates.length > 0) {
-      return new Response(
-        JSON.stringify({
-          message: conflictMessage,
-          conflictDates: conflictDates,
-        }),
-        {
-          status: 409,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
     // Calculate the price per day using the car's pricing tiers
     const pricePerDay = existingCar.calculatePrice(rentalDays);
     const totalPrice = pricePerDay * rentalDays;

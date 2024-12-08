@@ -66,7 +66,7 @@ const BookingModal = ({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({});
-  const [totalPrice, setTotalPrice] = useState(0);
+  // const [totalPrice, setTotalPrice] = useState(0);
   const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [message, setMessage] = useState(null);
@@ -84,16 +84,11 @@ const BookingModal = ({
   });
 
   useEffect(() => {
-    if (presetDates?.startDate && presetDates?.endDate && car.pricePerDay) {
+    if (presetDates?.startDate && presetDates?.endDate) {
       setStartTime(
         setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true)
       );
       setEndTime(setTimeToDatejs(presetDates?.endDate, selectedTimes?.end));
-
-      const days =
-        dayjs(presetDates.endDate).diff(dayjs(presetDates.startDate), "day") +
-        1;
-      setTotalPrice(days * car.pricePerDay);
     }
   }, [presetDates?.startDate, presetDates?.endDate, car.pricePerDay]);
 
@@ -121,6 +116,8 @@ const BookingModal = ({
       return;
     }
 
+    console.log("startTime before adding ORDER", startTime);
+    console.log("endTime before adding ORDER", endTime);
     try {
       const orderData = {
         carNumber: car.carNumber,
@@ -131,7 +128,7 @@ const BookingModal = ({
         timeOut: dayjs(endTime),
         rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
         rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
-        totalPrice,
+        // totalPrice,
       };
 
       const response = await addOrderNew(orderData);
@@ -159,7 +156,7 @@ const BookingModal = ({
         return {
           email: orderData.email,
           title: title,
-          message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${orderData.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} id : ${orderData.car} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
+          message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${response.data.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} id : ${orderData.car} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
         };
       };
 
@@ -291,8 +288,8 @@ const BookingModal = ({
                   sx={{ "& .MuiTextField-root": { my: 1 } }}
                 >
                   <TimePicker
-                    startTime={presetDates?.startDate}
-                    endTime={presetDates?.endDate}
+                    startTime={startTime}
+                    endTime={endTime}
                     setStartTime={setStartTime}
                     setEndTime={setEndTime}
                     isRestrictionTimeIn={selectedTimes.start}

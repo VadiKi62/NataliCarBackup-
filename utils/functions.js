@@ -1,6 +1,15 @@
 import dayjs from "dayjs";
 import { companyData } from "@utils/companyData";
 
+const defaultStartHour = companyData.defaultStart.slice(0, 2);
+const defaultStartMinute = companyData.defaultStart.slice(-2);
+
+const defaultEndHour = companyData.defaultEnd.slice(0, 2);
+const defaultEndMinute = companyData.defaultEnd.slice(-2);
+
+const diffStart = companyData.hoursDiffForStart;
+const diffEnd = companyData.hoursDiffForEnd;
+
 export const processOrders = (orders) => {
   const unavailableDates = [];
   const confirmedDates = [];
@@ -270,15 +279,28 @@ export function setTimeToDatejs(date, time, isStart = false) {
   // console.log("DATE", date);
   // console.log("time", time);
   if (time) {
-    const hour = Number(time?.slice(0, 2));
+    const hour = Number(time?.slice(0, 2)) + 1;
     const minute = Number(time?.slice(-2));
-    const newDateWithTime = dayjs(date).hour(hour).minute(minute);
+    const newDateWithTime = dayjs(date)
+      .hour(hour)
+      .minute(minute)
+      .second(0)
+      .millisecond(0);
 
     return newDateWithTime;
   } else if (isStart) {
     // console.log("???? day to retunr for START", dayjs(date).hour(15).minute(0));
-    return dayjs(date).hour(15).minute(0);
-  } else return dayjs(date).hour(10).minute(0);
+    return dayjs(date)
+      .hour(defaultStartHour)
+      .minute(defaultStartMinute)
+      .second(0)
+      .millisecond(0);
+  } else
+    return dayjs(date)
+      .hour(defaultEndHour)
+      .minute(defaultEndMinute)
+      .second(0)
+      .millisecond(0);
 }
 
 // returns time is start time of the orders == end time of anothjer order
@@ -305,14 +327,6 @@ export function calculateAvailableTimes(startEndDates, startStr, endStr) {
 
   console.log("availableStart", availableStart);
   console.log("availableEnd", availableEnd);
-
-  const defaultStartHour = companyData.defaultStart.slice(0, 2);
-  const defaultStartMinute = companyData.defaultStart.slice(-2);
-
-  const defaultEndHour = companyData.defaultEnd.slice(0, 2);
-  const defaultEndMinute = companyData.defaultEnd.slice(-2);
-  const diffStart = companyData.hoursDiffForStart;
-  const diffEnd = companyData.hoursDiffForEnd;
 
   // Parse hours and minutes from the available times
   const hourStart = Number(timeStart?.time.slice(0, 2)) || defaultStartHour; // Default hour is 15
