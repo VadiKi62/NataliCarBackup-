@@ -34,6 +34,10 @@ export const PUT = async (req) => {
     // Find the order to update
     const order = await Order.findById(_id).populate("car");
     console.log("order", order);
+    console.log("timeIn", timeIn);
+    console.log("timeOut", timeOut);
+    console.log("rentalStartDate", rentalStartDate);
+    console.log("rentalEndDate", rentalEndDate);
 
     if (!order) {
       return new Response(JSON.stringify({ message: "Order not found" }), {
@@ -46,16 +50,26 @@ export const PUT = async (req) => {
 
     // Convert input dates and times
     const newStartDate = rentalStartDate
-      ? dayjs(rentalStartDate).utc()
+      ? dayjs(rentalStartDate)
       : dayjs(order.rentalStartDate);
     const newEndDate = rentalEndDate
-      ? dayjs(rentalEndDate).utc()
+      ? dayjs(rentalEndDate)
       : dayjs(order.rentalEndDate);
-    const newTimeIn = timeIn ? dayjs(timeIn).utc() : dayjs(order.timeIn);
-    const newTimeOut = timeOut ? dayjs(timeOut).utc() : dayjs(order.timeOut);
+    const newTimeIn = timeIn ? dayjs(timeIn) : dayjs(order.timeIn);
+    const newTimeOut = timeOut ? dayjs(timeOut) : dayjs(order.timeOut);
+
+    const { start, end } = await timeAndDate(
+      newStartDate,
+      newEndDate,
+      newTimeIn,
+      newTimeOut
+    );
+
+    console.log("start before Comparison", start);
+    console.log("end before comparison", end);
 
     // Ensure start and end dates are not the same
-    if (newStartDate.isSame(newEndDate, "day")) {
+    if (dayjs(start).isSame(dayjs(end), "day")) {
       return new Response(
         JSON.stringify({
           message: "Start and end dates cannot be the same.",
@@ -66,7 +80,7 @@ export const PUT = async (req) => {
 
     // Check if current order already has conflicting dates
     const { resolvedConflicts, stillConflictingOrders } =
-      await checkForResolvedConflicts(order, newStartDate, newEndDate);
+      await checkForResolvedConflicts(order, start, end);
 
     // Remove resolved conflicts from order
     if (resolvedConflicts.length > 0) {
@@ -93,13 +107,7 @@ export const PUT = async (req) => {
     }));
 
     // Check for conflicts using `checkConflicts`
-    const conflictCheck = checkConflicts(
-      existingOrders,
-      newStartDate,
-      newEndDate,
-      newTimeIn,
-      newTimeOut
-    );
+    const conflictCheck = checkConflicts(allOrders, start, end, start, end);
 
     if (conflictCheck) {
       // Handle conflicts
@@ -114,19 +122,17 @@ export const PUT = async (req) => {
     }
 
     // Recalculate the rental details
-    const rentalDays = Math.ceil(
-      (newEndDate - newStartDate) / (1000 * 60 * 60 * 24)
-    );
+    const rentalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const pricePerDay = car.calculatePrice(rentalDays);
     const totalPrice = pricePerDay * rentalDays;
 
     // Update the order
-    order.rentalStartDate = newStartDate.toDate();
-    order.rentalEndDate = newEndDate.toDate();
+    order.rentalStartDate = start.toDate();
+    order.rentalEndDate = end.toDate();
     order.numberOfDays = rentalDays;
     order.totalPrice = totalPrice;
-    order.timeIn = newTimeIn;
-    order.timeOut = newTimeOut;
+    order.timeIn = start.toDate();
+    order.timeOut = end.toDate();
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
@@ -176,4 +182,33 @@ async function checkForResolvedConflicts(order, newStartDate, newEndDate) {
   }
 
   return { resolvedConflicts, stillConflictingOrders };
+}
+
+async function timeAndDate(startDate, endDate, startTime, endTime) {
+  const newStartHour = startTime.hour();
+  const newStartMinute = startTime.minute();
+  console.log("endTime", endTime);
+  const newEndHour = endTime.hour();
+  const newEndMinute = endTime.minute();
+
+  const newStartDate = dayjs(startDate)
+    .hour(newStartHour)
+    .minute(newStartMinute);
+
+  console.log("startDate", startDate);
+  console.log("endDate", endDate);
+
+  const newEndDate = dayjs(endDate).hour(newEndHour).minute(newEndMinute);
+
+  console.log("newStartDate", newStartDate);
+  console.log("newEndDate", newEndDate);
+
+  console.log(
+    "CHECK, should be flase because dates are different ",
+    newStartDate.isSame(newEndDate)
+  );
+  return {
+    start: newStartDate,
+    end: newEndDate,
+  };
 }

@@ -107,12 +107,14 @@ export function extractArraysOfStartEndConfPending(orders) {
       type: "start",
       time: dayjs(order.timeIn).format("HH:mm"),
       confirmed: order.confirmed,
+      orderId: order._id,
     });
     startEnd.push({
       date: endDate.format("YYYY-MM-DD"),
       type: "end",
       time: dayjs(order.timeOut).format("HH:mm"),
       confirmed: order.confirmed,
+      orderId: order._id,
     });
 
     // Handle middle dates
@@ -306,21 +308,32 @@ export function setTimeToDatejs(date, time, isStart = false) {
 // returns time is start time of the orders == end time of anothjer order
 //or
 // end time of the orders == start time of anothjer order
-export function calculateAvailableTimes(startEndDates, startStr, endStr) {
+export function calculateAvailableTimes(
+  startEndDates,
+  startStr,
+  endStr,
+  orderId
+) {
   let availableStart = null;
   let availableEnd = null;
 
-  console.log("startEndDates", startEndDates);
+  console.log("!startStr", startStr);
+  console.log("!endStr", endStr);
+  const filteredStartEndDates = startEndDates.filter((dateObj) => {
+    return dateObj.orderId != orderId;
+  });
+
+  console.log("filteredStartEndDates", filteredStartEndDates);
 
   // Retrieve time info for start and end dates
   const timeStart = returnTime(startEndDates, startStr);
-  // console.log("timeStart", timeStart);
+  console.log("!timeStart", timeStart);
   if (timeStart && timeStart.type === "end" && timeStart.confirmed) {
     availableStart = timeStart.time;
   }
 
   const timeEnd = returnTime(startEndDates, endStr);
-  // console.log("timeEnd", timeEnd);
+  console.log("!timeEnd", timeEnd);
   if (timeEnd && timeEnd.type === "start" && timeEnd.confirmed) {
     availableEnd = timeEnd.time;
   }

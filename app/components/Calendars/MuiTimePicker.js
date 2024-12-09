@@ -14,9 +14,6 @@ export default function Time({
   isRestrictionTimeOut = false,
   mb = 0,
 }) {
-  console.log("startTime", startTime);
-  console.log("endTime", endTime);
-  console.log("isRestrictionTimeOut", isRestrictionTimeOut);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 2 }}>

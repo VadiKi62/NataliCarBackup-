@@ -16,10 +16,6 @@ import timezone from "dayjs/plugin/timezone";
 import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
 import { useMainContext } from "@app/Context";
-import {
-  calculateAvailableTimes,
-  functionToCheckDuplicates,
-} from "@utils/functions";
 import TimePicker from "@app/components/Calendars/MuiTimePicker";
 import {
   functionToretunrStartEndOverlap,
@@ -28,6 +24,7 @@ import {
   returnOverlapOrders,
   returnOverlapOrdersObjects,
   setTimeToDatejs,
+  calculateAvailableTimes,
   returnTime,
 } from "@utils/functions";
 import { companyData } from "@utils/companyData";
@@ -65,8 +62,12 @@ const EditOrderModal = ({
   const [conflictMessage3, setConflictMessage3] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const [startTime, setStartTime] = useState(editedOrder?.startDate);
-  const [endTime, setEndTime] = useState(editedOrder?.endDate);
+  const [startTime, setStartTime] = useState(
+    editedOrder?.timeIn || editedOrder.rentalStartDate
+  );
+  const [endTime, setEndTime] = useState(
+    editedOrder?.timeOut || editedOrder.rentalStartDate
+  );
   const [availableTimes, setAvailableTimes] = useState({
     availableStart: null,
     availableEnd: null,
@@ -77,6 +78,7 @@ const EditOrderModal = ({
   });
 
   useEffect(() => {
+    console.log("editedOrder", editedOrder);
     if (editedOrder?.rentalStartDate) {
       // Recalculate available times
       const {
@@ -89,7 +91,8 @@ const EditOrderModal = ({
       } = calculateAvailableTimes(
         startEndDates,
         editedOrder?.timeIn,
-        editedOrder?.timeOut
+        editedOrder?.timeOut,
+        editedOrder?._id
       );
       console.log("availableStart", availableStart);
       console.log("availableEnd", availableEnd);
@@ -117,6 +120,8 @@ const EditOrderModal = ({
           editedOrder?.rentalEndDate,
           availableEnd
         );
+        console.log("__________!!!!________editedOrder", editedOrder);
+        console.log("__________!!!!________newEndTimeDate", newEndTimeDate);
         setEndTime(newEndTimeDate);
       }
     }
@@ -252,12 +257,19 @@ const EditOrderModal = ({
   const handleDateUpdate = async () => {
     setIsUpdating(true);
     try {
+      // WRONG ENDTIME is set to today ???
+
+      console.log("_____startTime before going to back", startTime);
+      console.log("_______endTime before going to back", endTime);
+
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
-        timeIn: dayjs(startTime).utc(),
-        timeOut: dayjs(endTime).utc(),
+        timeIn: dayjs(startTime).toDate(),
+        timeOut: dayjs(endTime).toDate(),
       };
+
+      console.log("datesTO send!", datesToSend);
 
       const response = await changeRentalDates(
         editedOrder._id,
@@ -268,7 +280,7 @@ const EditOrderModal = ({
         editedOrder.placeIn,
         editedOrder.placeOut
       );
-      console.log("RESPONSE", response);
+      console.log("RESPONSE !!!!!", response);
       showMessage(response.message);
       if (response.status == 201) {
         setConflictMessage1(response.conflicts);
@@ -466,8 +478,8 @@ const EditOrderModal = ({
               {renderField("Rental End Date", "rentalEndDate", "date")}
               <TimePicker
                 mb={2}
-                startTime={editedOrder?.timeIn}
-                endTime={editedOrder?.timeOut}
+                startTime={dayjs(startTime)}
+                endTime={dayjs(endTime)}
                 setStartTime={setStartTime}
                 setEndTime={setEndTime}
                 isRestrictionTimeIn={availableTimes.availableStart}

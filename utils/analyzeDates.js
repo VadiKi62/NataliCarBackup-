@@ -166,9 +166,9 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
       confirmedInnerDates.map((item) => item.datejs.format("MMM D"))
     );
 
-    const conflictMessage = `Даты ${[...conflictDates].join(
+    const conflictMessage = `Dates ${[...conflictDates].join(
       ", "
-    )} уже забронированы и не доступны.`;
+    )} have been booked and not available.`;
 
     return {
       status: 409,
@@ -181,15 +181,15 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
 
   // Handle time-specific conflicts
   if (isStartTimeConflict || isEndTimeConflict) {
-    const conflictMessage = `Время в даты ${
+    const conflictMessage = `Times on date ${
       timeConflicts.start.length > 0
-        ? `начала бронирования: ${timeConflicts.start.join(", ")} `
+        ? `has conflict with start booking: ${timeConflicts.start.join(", ")} `
         : ""
     }${
       timeConflicts.end.length > 0
-        ? `окончания бронирования: ${timeConflicts.end.join(", ")}`
+        ? `has conflict with end booking: ${timeConflicts.end.join(", ")}`
         : ""
-    }пересекается с существующими бронированиями.`;
+    } with existingn bookings.`;
 
     return {
       status: 410,
@@ -214,9 +214,9 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
       pendingInnerDates.map((item) => item.orderId)
     );
 
-    const conflictMessage = `Даты ${[...conflictDates].join(
+    const conflictMessage = `Dates ${[...conflictDates].join(
       ", "
-    )} уже забронированы и не доступны.`;
+    )} have been booked and not availabe.`;
 
     return {
       status: 402,
