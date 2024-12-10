@@ -19,7 +19,7 @@ export default createTheme({
     },
     text: {
       light: "white",
-      dark: "white",
+      dark: "#151515",
       main: "	#e7cb75",
       red: "#8A0707",
       green: "#a3c1ad",

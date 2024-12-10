@@ -13,6 +13,7 @@ import {
   updateCar,
   deleteCar,
 } from "@utils/action";
+import { useTranslation } from "react-i18next";
 
 const MainContext = createContext({
   cars: [],
@@ -31,6 +32,9 @@ export function useMainContext() {
 }
 
 export const MainContextProvider = ({ carsData, ordersData, children }) => {
+  const { i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
+
   const [scrolled, setScrolled] = useState(false);
   const [cars, setCars] = useState(carsData || []);
   const [allOrders, setAllOrders] = useState(ordersData || []);
@@ -38,8 +42,9 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
   const [error, setError] = useState(null);
   const [updateStatus, setUpdateStatus] = useState(null);
   const [selectedClass, setSelectedClass] = useState("All");
-  const arrayOfAvailableClasses = [...new Set(cars.map((car) => car.class))];
-
+  const arrayOfAvailableClasses = useMemo(() => {
+    return [...new Set(cars.map((car) => car.class))];
+  }, [cars]);
   const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY;
     setScrolled(scrollPosition > 80);
@@ -153,8 +158,10 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
       setSelectedClass,
       selectedClass,
       arrayOfAvailableClasses,
+      lang,
+      setLang,
     }),
-    [cars, allOrders, isLoading, scrolled, selectedClass]
+    [cars, allOrders, isLoading, scrolled, selectedClass, lang, setLang]
   );
 
   return (

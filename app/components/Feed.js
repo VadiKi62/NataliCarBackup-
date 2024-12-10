@@ -2,17 +2,19 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { I18nextProvider } from "react-i18next";
-import { Grid, CircularProgress, Container } from "@mui/material";
 import { unstable_noStore } from "next/cache";
-import CarPage from "@app/components/CarPage";
+
 import theme from "@theme";
 import Loading from "@app/loading";
-import CarGrid from "./CarGrid";
-import ScrollButton from "./common/ScrollButton";
+
 import i from "@locales/i18n";
+import { MainContextProvider } from "../Context";
+
+import CarGrid from "./CarGrid";
+import CarPage from "@app/components/CarPage";
+import ScrollButton from "./common/ScrollButton";
 import Navbar from "@app/components/Navbar";
 import Footer from "@app/components/Footer";
-import { MainContextProvider } from "../Context";
 
 function Feed({ children, ...props }) {
   unstable_noStore();

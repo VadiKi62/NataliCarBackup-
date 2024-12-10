@@ -78,10 +78,16 @@ export default function NavBar({
 }) {
   const headerRef = useRef(null);
   const [languageAnchor, setLanguageAnchor] = useState(null);
-  const { i18n, t } = useTranslation();
-  const lang = i18n.language;
-  const { scrolled, setSelectedClass, selectedClass, arrayOfAvailableClasses } =
-    useMainContext();
+  // const { i18n, t } = useTranslation();
+  // const lang = i18n.language;
+  const {
+    scrolled,
+    setSelectedClass,
+    selectedClass,
+    arrayOfAvailableClasses,
+    lang,
+    setLang,
+  } = useMainContext();
   const handleCarClassChange = (event) => {
     const selectedValue = event.target.value;
     // If "ALL" is selected, reset to show all cars
@@ -98,7 +104,8 @@ export default function NavBar({
   };
 
   const handleLanguageSelect = (selectedLanguage) => {
-    i18n.changeLanguage(selectedLanguage);
+    setLang(selectedLanguage);
+    // i18n.changeLanguage(selectedLanguage);
     handleLanguageClose();
   };
 
