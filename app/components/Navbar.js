@@ -207,7 +207,6 @@ export default function NavBar({
           </MenuItem>
           <MenuItem onClick={() => handleLanguageSelect("ar")}>Arabic</MenuItem>
         </LanguagePopover>
-
         {isMain && (
           <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
             <Stack
