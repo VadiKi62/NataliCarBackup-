@@ -69,7 +69,8 @@ function Cars({ onCarDelete, setUpdateStatus }) {
         }}
       >
         {cars
-          .sort((a, b) => a.carNumber - b.carNumber)
+          // .sort((a, b) => a.carNumber - b.carNumber)
+          .sort((a, b) => a.model - b.model)
           .map((car) => (
             <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
               <CarItem
