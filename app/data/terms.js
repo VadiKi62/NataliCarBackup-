@@ -1,20 +1,44 @@
 exports.terms = {
   en: {
     title: "TERMS AND CONDITIONS OF THE CAR RENTAL",
-    subtitle1: "GENERAL PROVISIONS",
-    subtitle1bold: "",
+    //  subtitle1: "",
+    subtitle1bold: "GENERAL PROVISIONS",
     text1:
-      " 1. The minimum driver”s age is 23. \n 2. The driver must have a valid driver”s license issued earlier than one year ago. \n 3. All fines and penalties due to driver”s guilt are paid by the driver himself. \n 4. Upon completion of the agreed rental period VERA CAR provides 1 hour to return the car for free. If the customer returns the car later, he will have to pay at least the cost of a full day of rental. \n 5. When you pick up a car, the contract specifies the amount of fuel in the tank of the vehicle, the customer must return the car with the same amount of fuel which is specified in the contract. \n 6. If the vehicle is returned with less amount of fuel, the customer pays the cost of missing liters at current value at the time of rental and 5 euros for refueling. \n 7. Do not use the rented car: \n - for transportation of prohibited and dangerous goods and cargos; \n - for transportation passengers for financial gain; \n - for driver education of others , even free of charge; \n - for towing or moving other vehicles; \n - in the event of any accident or mechanical failure; \n - nfor sporting activities; \n 8. Do not leave Greece boarders or place the car onto the ferry without the written consent of the rental company. \n 9. If the rented car happens to be out of order, the rental company makes the replacement and provides the customer with a vehicle with similar characteristics. \n 10. In case of traffic accident or damage to the vehicle, including theft or vandalism, the customer is obliged to: call the police and the rental company immediately, and get a copy of the police protocol.",
-    subtitle2: "FRANCHISE",
+      "\n 1. The minimum driver”s age is 23. \n 2. The driver must have a valid driver”s license issued earlier than one year ago. \n 3. All fines and penalties due to driver”s guilt are paid by the driver himself. \n 4. Upon completion of the agreed rental period VERA CAR provides 1 hour to return the car for free. If the customer returns the car later, he will have to pay at least the cost of a full day of rental. \n 5. When you pick up a car, the contract specifies the amount of fuel in the tank of the vehicle, the customer must return the car with the same amount of fuel which is specified in the contract. \n 6. If the vehicle is returned with less amount of fuel, the customer pays the cost of missing liters at current value at the time of rental and 5 euros for refueling. \n 7. Do not use the rented car:",
     subtitle2bold: null,
+    ul4: [
+      "for transportation of prohibited and dangerous goods and cargos;",
+      "for transportation passengers for financial gain;",
+      "for driver education of others , even free of charge;",
+      "for towing or moving other vehicles;",
+      "in the event of any accident or mechanical failure;",
+      "nfor sporting activities;",
+    ],
     text2:
-      "Amount deductible for category B, B1, C, C1 300 € \n Amount deductible for category D1, E1, G 400 € \n Amount deductible for category F1 600 € \n Amount deductible for category L 2000 €",
+      " 8. Do not leave Greece boarders or place the car onto the ferry without the written consent of the rental company. \n 9. If the rented car happens to be out of order, the rental company makes the replacement and provides the customer with a vehicle with similar characteristics. \n 10. In case of traffic accident or damage to the vehicle, including theft or vandalism, the customer is obliged to: call the police and the rental company immediately, and get a copy of the police protocol.",
+    subtitle3: "",
+    subtitle3bold: "FRANCHISE",
+    ul5: [
+      "Amount deductible for category B, B1, C, C1 - 300 €",
+      "Amount deductible for category D1, E1, G - 400 €",
+      "Amount deductible for category F1 - 600 €",
+      "Amount deductible for category L - 2000 € ",
+    ],
     text7red:
       "ATTENTION! The insurance does not include the following situations:",
-    subtitle2bold: null,
+    //subtitle4bold: null,
     text3:
-      "You use a road without paving (not a roadway). \n The driver was not specified in the contract. \n The damage / accident was caused due to the use of alcohol, drugs or narcotics. \n The damage to the interior of the vehicle was caused by the following: \n - burning of cigarettes, \n - seats damage, \n - damage from pets, \n - inappropriate use of equipment, \n - excessive dirt. \n In these cases the customer agrees to pay damages.",
-    subtitle4: "If you have any questions, we will be happy to answer them.",
+      "You use a road without paving (not a roadway). \n The driver was not specified in the contract. \n The damage / accident was caused due to the use of alcohol, drugs or narcotics. \n The damage to the interior of the vehicle was caused by the following:",
+    ul6: [
+      "burning of cigarettes,",
+      "seats damage,",
+      "damage from pets,",
+      "inappropriate use of equipment,",
+      "excessive dirt.",
+      "In these cases the customer agrees to pay damages.",
+    ],
+    subtitle4bold:
+      "If you have any questions, we will be happy to answer them.",
   },
   el: {
     title: "Όροι και προϋποθέσεις ενοικίασης αυτοκινήτου",
