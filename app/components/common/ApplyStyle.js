@@ -170,7 +170,8 @@ function ApplyStyle(key, value) {
     case "ul14":
     case "ul15":
     case "ul16":
-      return <ListSimple items={value} icon="/icons/arrow6.png" />;
+      //      return <ListSimple items={value} icon="/icons/arrow6.png" />;
+      return <ListSimple items={value} icon="/icons/arrowv.png" />;
     case "text14bold":
       return (
         <Typography
