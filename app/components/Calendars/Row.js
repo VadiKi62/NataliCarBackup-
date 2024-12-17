@@ -1,18 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
 import {
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
   Box,
-  Typography,
-  IconButton,
-  CircularProgress,
-  Modal,
-  Paper,
-  Grid,
 } from "@mui/material";
-import { Calendar } from "antd";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
-import EditOrderModal from "./EditOrderModal";
+import dayjs from "dayjs";
+import { useMainContext } from "@app/Context";
 import {
   functionToretunrStartEndOverlap,
   getConfirmedAndUnavailableStartEndDates,
@@ -21,56 +18,40 @@ import {
   returnOverlapOrdersObjects,
 } from "@utils/functions";
 
-import dayjs from "dayjs";
-import isBetween from "dayjs/plugin/isBetween";
-dayjs.extend(isBetween);
-
-const CalendarAdmin = ({
-  isLoading = false,
+export default function CarTableRow({
+  car,
+  days,
   orders,
-  handleOrderUpdate,
-  setCarOrders,
-}) => {
-  const [currentDate, setCurrentDate] = useState(dayjs());
+  setSelectedOrders,
+  setOpen,
+}) {
+  //   const { ordersByCarId, ordersByCarIdWithAllorders } = useMainContext();
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
-  const [selectedOrders, setSelectedOrders] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [isConflictOrder, setIsConflictOrder] = useState(false);
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
   const [overlapDates, setOverlapDates] = useState(null);
   const [startEndDates, setStartEndDates] = useState([]);
-  const disabledDate = (current) => {
-    const dateStr = current.format("YYYY-MM-DD");
+  const [carOrders, setCarOrders] = useState(orders);
 
-    return (
-      (current && current.isBefore(dayjs().startOf("day"))) ||
-      (current &&
-        current.isBefore(dayjs().startOf("day")) &&
-        !isStartOrEnd &&
-        confirmedDates?.includes(dateStr))
-    );
-  };
-
+  // Extract and process order data
   useEffect(() => {
     const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
-      extractArraysOfStartEndConfPending(orders);
+      extractArraysOfStartEndConfPending(carOrders);
 
     const overlap = returnOverlapOrdersObjects(
-      orders,
+      carOrders,
       transformedStartEndOverlap
     );
-
     setOverlapDates(overlap);
     setStartEndOverlapDates(transformedStartEndOverlap);
     setUnavailableDates(unavailable);
     setConfirmedDates(confirmed);
     setStartEndDates(startEnd);
-  }, [orders]);
+  }, []);
+
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
-
       const isConfirmed = confirmedDates.includes(dateStr);
       const isUnavailable = unavailableDates.includes(dateStr);
 
@@ -84,7 +65,7 @@ const CalendarAdmin = ({
       // если предыдущая функция нашла что-то, то эта вернет тру, и если нет таких дат, которые начальные и конечные тогда это будет фолс
       const isStartEndOverlap = Boolean(isStartAndEndDateOverlapInfo);
 
-      const overlapOrders = returnOverlapOrders(orders, dateStr);
+      const overlapOrders = returnOverlapOrders(carOrders, dateStr);
       // const isOverlapDate = overlapOrders.length > 1;
       const isOverlapDateInfo = overlapDates?.find(
         (dateObj) => dateObj.date === dateStr
@@ -131,7 +112,7 @@ const CalendarAdmin = ({
       }
 
       const handleDateClick = () => {
-        const relevantOrders = orders.filter((order) => {
+        const relevantOrders = carOrders.filter((order) => {
           const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
           const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
 
@@ -161,6 +142,7 @@ const CalendarAdmin = ({
               color: "text.red",
               backgroundColor: "text.green",
               cursor: "pointer",
+              width: "100%",
             }}
           >
             {/* Render red circles based on the number of confirmed */}
@@ -209,7 +191,6 @@ const CalendarAdmin = ({
                 />
               ))}
             </Box>
-            {date.date()}
           </Box>
         );
       }
@@ -243,9 +224,7 @@ const CalendarAdmin = ({
                 justifyContent: "center",
                 color: "common.white",
               }}
-            >
-              {date.date()}
-            </Box>
+            ></Box>
 
             {/* Start Date Box - Right half */}
             <Box
@@ -262,9 +241,7 @@ const CalendarAdmin = ({
                 justifyContent: "center",
                 color: "common.white",
               }}
-            >
-              {date.date()}
-            </Box>
+            ></Box>
           </Box>
         );
       }
@@ -292,10 +269,7 @@ const CalendarAdmin = ({
                 alignItems: "center",
                 justifyContent: "center",
               }}
-            >
-              {" "}
-              {date.date()}
-            </Box>
+            ></Box>
             <Box
               sx={{
                 width: "50%",
@@ -309,9 +283,7 @@ const CalendarAdmin = ({
                 justifyContent: "center",
                 color,
               }}
-            >
-              {date.date()}
-            </Box>
+            ></Box>
           </Box>
         );
 
@@ -344,10 +316,7 @@ const CalendarAdmin = ({
                 justifyContent: "center",
                 color,
               }}
-            >
-              {" "}
-              {date.date()}
-            </Box>
+            ></Box>
             <Box
               sx={{
                 width: "50%",
@@ -358,7 +327,6 @@ const CalendarAdmin = ({
               }}
             >
               {" "}
-              {date.date()}
             </Box>
           </Box>
         );
@@ -378,143 +346,32 @@ const CalendarAdmin = ({
             color,
             cursor: "pointer",
             border: border,
+            width: "100%",
           }}
-        >
-          {date.date()}
-        </Box>
+        ></Box>
       );
     },
-    [confirmedDates, unavailableDates, orders]
+    [confirmedDates, unavailableDates]
   );
-  const handleClose = () => setOpen(false);
-  // Memoize order save handler
-  const handleSaveOrder = (updatedOrder) => {
-    // handleOrderUpdate();
-    setSelectedOrders((prevSelectedOrders) =>
-      prevSelectedOrders.map((order) =>
-        order._id === updatedOrder._id ? updatedOrder : order
-      )
-    );
-
-    const updatedOrders = orders.map((order) =>
-      order._id === updatedOrder._id ? updatedOrder : order
-    );
-    setCarOrders(updatedOrders);
-  };
-  const headerRender = ({ value }) => {
-    const current = value.clone();
-    const month = current.format("MMMM");
-    const year = current.year();
-
-    const goToNextMonth = () => {
-      setCurrentDate(currentDate.add(1, "month"));
-    };
-
-    const goToPreviousMonth = () => {
-      setCurrentDate(currentDate.subtract(1, "month"));
-    };
-
-    return (
-      <Box
-        sx={{
-          padding: 1,
-          display: "flex",
-          color: "common.black",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <IconButton onClick={goToPreviousMonth} color="inherit">
-          <ArrowBackIosNewIcon />
-        </IconButton>
-        <Typography variant="h6" sx={{ margin: 0 }}>
-          {`${month} ${year}`}
-        </Typography>
-        <IconButton onClick={goToNextMonth} color="inherit">
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </Box>
-    );
-  };
 
   return (
-    <Box sx={{ width: "100%", p: "20px" }}>
-      {/* <LegendCalendarAdmin /> */}
-      {isLoading ? (
-        <CircularProgress />
-      ) : (
-        <>
-          <Calendar
-            fullscreen={false}
-            disabledDate={disabledDate}
-            fullCellRender={renderDateCell}
-            headerRender={headerRender}
-            value={currentDate}
-          />
-        </>
-      )}
-
-      <Modal
-        open={open}
-        onClose={handleClose}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Grid
-          container
-          spacing={1}
-          justifyContent="center"
-          sx={{
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            overflow: "auto",
-            "&::-webkit-scrollbar": {
-              width: "4px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "primary.main",
-              borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "background.paper",
-            },
-          }}
-        >
-          {selectedOrders.map((order, index) => (
-            <Grid
-              item
-              key={order._id}
-              xs={12}
-              sm={selectedOrders.length === 1 ? 12 : 6}
-              md={
-                selectedOrders.length === 1
-                  ? 12
-                  : selectedOrders.length === 2
-                  ? 6
-                  : selectedOrders.length >= 3 && selectedOrders.length <= 4
-                  ? 3
-                  : 2
-              }
-            >
-              <EditOrderModal
-                order={order}
-                open={open}
-                onClose={handleClose}
-                onSave={handleSaveOrder}
-                setCarOrders={setCarOrders}
-                isConflictOrder={selectedOrders.length > 1 ? true : false}
-                setIsConflictOrder={setIsConflictOrder}
-                startEndDates={startEndDates}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </Modal>
-    </Box>
+    <>
+      {days.map((day) => (
+        <TableCell key={day.dayjs.toString()} sx={{ padding: 0 }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: "50px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {renderDateCell(day.dayjs)}
+          </Box>
+        </TableCell>
+      ))}
+    </>
+    // </TableRow>
   );
-};
-
-export default CalendarAdmin;
+}

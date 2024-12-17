@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridOrders from "../DataGridOrders";
 import DataGridCars from "../DataGridCars";
@@ -27,6 +27,10 @@ function Cars({ onCarDelete, setUpdateStatus }) {
   } = useMainContext();
 
   const [carsData, setCars] = useState(cars);
+
+  const sortedCars = useMemo(() => {
+    return carsData.sort((a, b) => a.model.localeCompare(b.model));
+  }, [carsData]);
 
   // const fetchAndUpdateCars = async () => {
   //   try {
@@ -68,17 +72,15 @@ function Cars({ onCarDelete, setUpdateStatus }) {
           mt: { xs: 10, md: 18 },
         }}
       >
-        {cars
-          .sort((a, b) => a.model - b.model)
-          .map((car) => (
-            <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-              <CarItem
-                car={car}
-                onCarDelete={onCarDelete}
-                setUpdateStatus={setUpdateStatus}
-              />
-            </Grid>
-          ))}
+        {sortedCars.map((car) => (
+          <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
+            <CarItem
+              car={car}
+              onCarDelete={onCarDelete}
+              setUpdateStatus={setUpdateStatus}
+            />
+          </Grid>
+        ))}
       </Grid>
     </div>
   );

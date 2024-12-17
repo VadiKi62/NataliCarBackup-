@@ -134,7 +134,9 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
     }
   };
   const ordersByCarId = useCallback(
-    (carId) => allOrders?.filter((order) => order.car === carId),
+    (carId) => {
+      return allOrders?.filter((order) => order.car === carId);
+    },
     [allOrders]
   );
 

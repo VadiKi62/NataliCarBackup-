@@ -54,7 +54,7 @@ function analyzeDates(orders) {
   const dateOccurrences = new Map();
 
   // Первый проход: собираем все даты и подсчитываем их повторения
-  orders.forEach((order) => {
+  orders?.forEach((order) => {
     const startDate = dayjs.utc(order.rentalStartDate).startOf("day");
     const endDate = dayjs.utc(order.rentalEndDate).startOf("day");
     let currentDate = startDate;
@@ -68,7 +68,7 @@ function analyzeDates(orders) {
   });
 
   // Второй проход: формируем результат
-  orders.forEach((order) => {
+  orders?.forEach((order) => {
     const startDate = dayjs.utc(order.rentalStartDate).startOf("day");
     const endDate = dayjs.utc(order.rentalEndDate).startOf("day");
     let currentDate = startDate;

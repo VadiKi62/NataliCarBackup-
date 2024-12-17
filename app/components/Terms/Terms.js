@@ -9,6 +9,8 @@ import { useMainContext } from "@app/Context";
 function Terms() {
   const { lang } = useMainContext();
 
+  console.log(terms);
+
   // Ensure terms and terms[lang] are valid objects
   const termsLang = terms[lang] || terms["en"];
 

@@ -5,7 +5,6 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
-
 import theme from "@theme";
 import AdminLayout from "./layout";
 import Loading from "@app/loading";
@@ -16,31 +15,15 @@ import Navbar from "@app/components/Navbar";
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
 import Feed from "@app/components/Feed";
 
-export default async function AdminPage({ children }) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || !session.user.isAdmin) {
-    redirect("/login?callbackUrl=/admin");
-    return null;
-  }
-
+export default async function OrdersCalendarPage({ children }) {
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
 
+  console.log(" FROM page ADMIN : Orders Data:", ordersData);
+
   return (
-    // <ThemeProvider theme={theme}>
-    //   <AdminLayout>
-    //     <MainContextProvider carsData={carsData} ordersData={ordersData}>
-    //       <Suspense fallback={<Loading />}>
     <Feed carsData={carsData} ordersData={ordersData} isMain={false}>
-      {/* <Navbar isAdmin={true} /> */}
-      <Admin cars={carsData} orders={ordersData} />
-      {/* <DataGridOrders cars={carsData} orders={ordersData} /> */}
-      {children}
+      <Admin carsData={carsData} ordersData={ordersData} />
     </Feed>
-    //      </Suspense>
-    //     </MainContextProvider>
-    //   </AdminLayout>
-    // </ThemeProvider>
   );
 }

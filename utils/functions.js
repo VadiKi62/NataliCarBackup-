@@ -97,7 +97,7 @@ export function extractArraysOfStartEndConfPending(orders) {
   const confirmed = [];
   const startEnd = [];
 
-  orders.forEach((order) => {
+  orders?.forEach((order) => {
     const startDate = dayjs(order.rentalStartDate);
     const endDate = dayjs(order.rentalEndDate);
 
@@ -196,7 +196,7 @@ export function extractArraysOfStartEndConfPending(orders) {
 
 export function returnOverlapOrders(orders, dateStr) {
   let overlapOrders = [];
-  orders.forEach((order) => {
+  orders?.forEach((order) => {
     const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
     const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
 
@@ -216,7 +216,7 @@ export function returnOverlapOrdersObjects(
   const dateOccurrences = new Map();
 
   // Первый проход: собираем все даты и подсчитываем их повторения
-  orders.forEach((order) => {
+  orders?.forEach((order) => {
     const rentalStart = dayjs(order.rentalStartDate);
     const rentalEnd = dayjs(order.rentalEndDate);
     let currentDate = rentalStart;
@@ -266,7 +266,7 @@ export function returnOverlapOrdersObjects(
 // function to return available start and available end if end  confirmed and start confirmed exist on the date
 export function returnTime(startEndDates, date) {
   const dateFormat = dayjs(date).format("YYYY-MM-DD");
-  const dateInrange = startEndDates.find(
+  const dateInrange = startEndDates?.find(
     (el) => el.date == dateFormat && el.confirmed
   );
 
@@ -319,7 +319,7 @@ export function calculateAvailableTimes(
 
   console.log("!startStr", startStr);
   console.log("!endStr", endStr);
-  const filteredStartEndDates = startEndDates.filter((dateObj) => {
+  const filteredStartEndDates = startEndDates?.filter((dateObj) => {
     return dateObj.orderId != orderId;
   });
 
