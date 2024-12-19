@@ -36,7 +36,10 @@ function ListSimple({ items = [], icon = null, fontSize = null }) {
           <ListItemIcon sx={{ pl: 2 }}>
             <Icon src={iconUrl} alt="icon" />
           </ListItemIcon>
-          <ListItemText primary={item} sx={{ fontSize: fontSize || "1rem" }} />
+          <ListItemText
+            primary={item}
+            sx={{ fontSize: fontSize || "1rem", color: "text.dark" }}
+          />
         </ListItem>
       ))}
     </MuiList>

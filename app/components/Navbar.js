@@ -56,6 +56,7 @@ const Logo = styled(Typography)(({ theme }) => ({
   display: "flex",
   fontFamily: theme.typography.h1.fontFamily,
   color: theme.palette.text.light,
+  fontSize: { xs: 5, md: 15 },
   // lineHeight: { xs: 0.2 },
 }));
 
@@ -128,6 +129,16 @@ export default function NavBar({
             {!isAdmin && (
               <>
                 {" "}
+                <Link href="/">
+                  <Typography
+                    sx={{
+                      fontStretch: "extra-condensed",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Main
+                  </Typography>
+                </Link>
                 <Link href="/terms">
                   <Typography
                     sx={{
@@ -152,10 +163,55 @@ export default function NavBar({
             )}
             {isAdmin && (
               <>
-                <ToggleButtons
+                {/* <ToggleButtons
                   isCarInfo={isCarInfo}
                   setIsCarInfo={setIsCarInfo}
-                />
+                /> */}
+                <Link href="/admin/cars">
+                  <Typography
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 6, md: 15 },
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Автопарк
+                  </Typography>
+                </Link>
+                <Link href="/admin/orders">
+                  <Typography
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 6, md: 15 },
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Календари
+                  </Typography>
+                </Link>
+                <Link href="/admin/orders-calendar">
+                  <Typography
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 6, md: 15 },
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Таблица заказов
+                  </Typography>
+                </Link>
+                <Link href="/admin/orders-calendar">
+                  <Typography
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 6, md: 15 },
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Календарь заказов
+                  </Typography>
+                </Link>
+
                 {/* <Link href={"/admin/orders"}>Orders</Link> */}
               </>
             )}
@@ -216,7 +272,6 @@ export default function NavBar({
               justifyContent="center"
             >
               <LegendCalendarAdmin client={isMain} />
-
               <SelectedFieldClass
                 name="class"
                 label="Choose Car Class"
@@ -234,21 +289,31 @@ export default function NavBar({
 
 const ToggleButtons = ({ isCarInfo, setIsCarInfo }) => {
   return (
-    typeof setIsCarInfo === "function" && (
-      <Stack direction="row" spacing={3} alignItems="center">
-        <Button
-          variant={isCarInfo ? "contained" : "outlined"}
-          onClick={() => setIsCarInfo(true)}
-        >
-          Автопарк
-        </Button>
-        <Button
-          variant={!isCarInfo ? "contained" : "outlined"}
-          onClick={() => setIsCarInfo(false)}
-        >
-          Заказы
-        </Button>
-      </Stack>
-    )
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={{ xs: 0.3, md: 3 }}
+      alignItems="center"
+    >
+      <Button
+        variant={isCarInfo ? "contained" : "outlined"}
+        sx={{
+          px: { xs: 0.5, md: 3 },
+          fontSize: { xs: 6, md: 15 },
+        }}
+        onClick={() => setIsCarInfo(true)}
+      >
+        Автопарк
+      </Button>
+      <Button
+        variant={!isCarInfo ? "contained" : "outlined"}
+        sx={{
+          px: { xs: 0.5, md: 3 },
+          fontSize: { xs: 6, md: 15 },
+        }}
+        onClick={() => setIsCarInfo(false)}
+      >
+        Заказы
+      </Button>
+    </Stack>
   );
 };

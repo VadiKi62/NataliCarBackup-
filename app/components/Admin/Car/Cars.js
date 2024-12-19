@@ -28,6 +28,9 @@ function Cars({ onCarDelete, setUpdateStatus }) {
 
   const [carsData, setCars] = useState(cars);
 
+  console.log("cars", cars);
+  console.log("carsData", carsData);
+
   const sortedCars = useMemo(() => {
     return carsData.sort((a, b) => a.model.localeCompare(b.model));
   }, [carsData]);

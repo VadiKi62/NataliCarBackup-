@@ -9,7 +9,7 @@
 } */
 
 :root {
-  --foreground-rgb: 51, 204, 204;
+  --foreground-rgb: 153, 204, 204;
   --background-start-rgb: 153, 204, 204;
   --background-end-rgb: 153, 204, 204;
   --foreground-rgb-bright: 255, 102, 51;
@@ -28,9 +28,9 @@ body {
   color: rgb(255, 255, 255);
   background: -webkit-linear-gradient(
     left,
-    /* transparent, */ rgb(var(--background-end-rgb), 0.3),
-    rgb(var(--background-start-rgb), 0.3),
-    rgb(var(--foreground-rgb), 0.2)
+    /* transparent, */ rgb(var(--background-end-rgb), 0.1),
+    rgb(var(--background-start-rgb), 0.1),
+    rgb(var(--foreground-rgb), 0.1)
   );
 }
 

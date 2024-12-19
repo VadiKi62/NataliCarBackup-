@@ -20,8 +20,8 @@ export default createTheme({
     text: {
       light: "white",
       dark: "#151515",
-      main: "	#e7cb75",
-      red: "#8A0707",
+      main: "rgba(255, 102, 51)",
+      red: "rgba(255, 102, 51)",
       green: "#a3c1ad",
       yellow: "#e7c475",
     },

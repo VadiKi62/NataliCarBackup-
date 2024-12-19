@@ -19,11 +19,9 @@ export default async function OrdersCalendarPage({ children }) {
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
 
-  console.log(" FROM page ADMIN : Orders Data:", ordersData);
-
   return (
-    <Feed carsData={carsData} ordersData={ordersData} isMain={false}>
-      <Admin carsData={carsData} ordersData={ordersData} />
+    <Feed cars={carsData} order={ordersData} isMain={false} isAdmin={true}>
+      <Admin isCars={true} />
     </Feed>
   );
 }

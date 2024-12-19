@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import DataGridOrders from "./DataGridOrders";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
 import { Grid, Container, CircularProgress, Box, Stack } from "@mui/material";
@@ -18,8 +17,10 @@ import { styled } from "@mui/system";
 import Navbar from "@app/components/Navbar";
 import LegendCalendarAdmin from "@app/components/common/LegendCalendarAdmin";
 import AddOrderModal from "./Order/AddOrderModal";
-
 import Cars from "./Car/Cars";
+import DataGridOrders from "@app/components/Admin/DataGridOrders";
+import BigCalendar from "@app/components/Calendars/BigCalendar";
+
 const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
   zIndex: 996,
   position: "fixed",
@@ -33,7 +34,7 @@ const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
   // boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
 }));
 
-function Admin() {
+function Admin({ children, ...props }) {
   const {
     allOrders,
     setAllOrders,
@@ -46,7 +47,6 @@ function Admin() {
     error,
   } = useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
-
   const [isCarInfo, setIsCarInfo] = useState(true);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
@@ -93,23 +93,29 @@ function Admin() {
     setModalAddCar(false);
   };
 
+  const isOrdersTable = props.isOrdersTable || false;
+  const isOrdersBigCalendar = props.isOrdersBigCalendar || false;
+  const isCars = props.isCars || false;
+  const isOrdersCalendars = props.isOrdersCalendars || false;
+
   if (isLoading) return <Loading />;
   if (error) return <Error />;
+
   return (
     <div>
-      <Navbar
+      {/* <Navbar
         isAdmin={true}
         isCarInfo={isCarInfo}
         setIsCarInfo={setIsCarInfo}
-      />
-      <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
+      /> */}
+      <StyledBox scrolled={scrolled} isCarInfo={isCars}>
         <Box
           display="flex"
           alignItems="center"
           width="100%"
           justifyContent="center"
         >
-          {isCarInfo ? (
+          {isCars && (
             <DefaultButton
               onClick={handleAddOpen}
               minWidth="600px"
@@ -119,30 +125,53 @@ function Admin() {
             >
               Добавить машину
             </DefaultButton>
-          ) : (
+          )}
+          {(isOrdersCalendars || isOrdersBigCalendar) && (
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={{ xs: 1, sm: 2 }}
               alignItems="center"
               justifyContent="center"
             >
-              {/* <DefaultButton
-                minWidth={{ xs: "100%", sm: "600px" }}
-                padding={scrolled ? 0 : 1.5}
-                relative
-                sx={{ width: "100%" }}
-              >
-                Добавить заказ
-              </DefaultButton> */}
-
               <LegendCalendarAdmin />
             </Stack>
           )}
-
-          {/* {!isCarInfo && <LegendCalendarAdmin />} */}
         </Box>
       </StyledBox>
-      {isCarInfo ? (
+      {children}
+      {isCars && (
+        <Cars onCarDelete={onCarDelete} setUpdateStatus={setUpdateStatus} />
+      )}
+      {isOrdersCalendars && (
+        <Grid
+          container
+          spacing={{ sm: 2, sx: 0.4 }}
+          direction="column"
+          sx={{
+            alignItems: "center",
+            alignContent: "center",
+            mt: { xs: 10, md: 18 },
+            overflow: scroll,
+          }}
+        >
+          {cars
+            .sort((a, b) => a.model.localeCompare(b.model))
+            .map((car) => (
+              <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
+                <Item
+                  car={car}
+                  isAddOrderOpen={isAddOrderOpen}
+                  setSelectedCar={setSelectedCar}
+                  setIsAddOrderOpen={setIsAddOrderOpen}
+                  handleOrderUpdate={handleOrderUpdate}
+                />
+              </Grid>
+            ))}
+        </Grid>
+      )}
+      {isOrdersTable && <DataGridOrders cars={cars} orders={allOrders} />}
+      {isOrdersBigCalendar && <BigCalendar cars={cars} orders={allOrders} />}
+      {/* {isCarInfo ? (
         <Cars onCarDelete={onCarDelete} setUpdateStatus={setUpdateStatus} />
       ) : (
         <Grid
@@ -179,8 +208,7 @@ function Admin() {
           closeFunc={handleCloseSnackbar}
           open={Boolean(updateStatus)}
         />
-      )}
-
+      )} */}
       <AddCarModal
         open={isModalAddCarOpen}
         onClose={onModalAddCarOpen}
@@ -188,7 +216,6 @@ function Admin() {
         setUpdateStatus={setUpdateStatus}
         fetchAndUpdateCars={resubmitCars}
       />
-
       <AddOrderModal
         open={isAddOrderOpen}
         onClose={handleCloseAddOrderModal}

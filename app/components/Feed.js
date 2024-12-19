@@ -18,16 +18,14 @@ import Footer from "@app/components/Footer";
 
 function Feed({ children, ...props }) {
   unstable_noStore();
+  console.log("props", props);
 
   return (
     <Suspense fallback={<Loading />}>
       <ThemeProvider theme={theme}>
         <I18nextProvider i18n={i}>
-          <MainContextProvider
-            carsData={props.carsData}
-            ordersData={props.ordersData}
-          >
-            <Navbar isMain={props.isMain} />
+          <MainContextProvider carsData={props.cars} ordersData={props.orders}>
+            <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
             <main>{children}</main>
             <Footer />
             <ScrollButton />
