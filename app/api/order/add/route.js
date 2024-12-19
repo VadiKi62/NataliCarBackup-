@@ -61,7 +61,7 @@ export async function POST(request) {
           message: "Car is not found",
         }),
         {
-          status: 401,
+          status: 404,
           headers: { "Content-Type": "application/json" },
         }
       );
@@ -84,34 +84,35 @@ export async function POST(request) {
     );
 
     console.log("!! - > result1", status);
+    console.log("!! - > result1", data);
     if (status) {
       switch (status) {
         case 409:
           return new Response(
             JSON.stringify({
-              message: data.conflictMessage,
-              conflictDates: data.conflictDates,
+              message: data?.conflictMessage,
+              conflictDates: data?.conflictDates,
             }),
             {
               status: 409,
               headers: { "Content-Type": "application/json" },
             }
           );
-
-        case 410:
+        //// TODO CREATE ORDERS FOR CASE 200
+        case 200:
           return new Response(
             JSON.stringify({
               message: data.conflictMessage,
               conflictDates: data.conflictDates,
             }),
             {
-              status: 410,
+              status: 200,
               headers: { "Content-Type": "application/json" },
             }
           );
-        case 402:
+        case 202:
           conflicOrdersId = data.conflictOrdersIds;
-          nonConfirmedDates = conflictDates;
+          nonConfirmedDates = data.conflictDates;
       }
     }
 
@@ -159,7 +160,7 @@ export async function POST(request) {
           data: newOrder,
         }),
         {
-          status: 402,
+          status: 202,
           headers: { "Content-Type": "application/json" },
         }
       );
@@ -173,7 +174,7 @@ export async function POST(request) {
     await existingCar.save();
 
     return new Response(JSON.stringify(newOrder), {
-      status: 200,
+      status: 201,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {

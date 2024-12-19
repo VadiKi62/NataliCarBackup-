@@ -116,6 +116,7 @@ function analyzeDates(orders) {
   return result;
 }
 
+/// ПРОВЕРИТЬ - ОШБИКА в ЭТОЙ ФУНКЦИИ
 function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
   // console.log("IN TIME", dayjs(timeIn));
   // console.log("OUt Time", dayjs(timeOut));
@@ -153,7 +154,7 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
     return false;
   });
 
-  // Handle general date conflicts
+  // Handle general date conflicts status 409 - order is not created
   const confirmedInnerDates = result.confirmed.filter(
     (item) =>
       !item.isStart &&
@@ -179,7 +180,7 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
     };
   }
 
-  // Handle time-specific conflicts
+  // Handle time-specific conflicts - order created but with notice - status 200
   if (isStartTimeConflict || isEndTimeConflict) {
     const conflictMessage = `Times on date ${
       timeConflicts.start.length > 0
@@ -192,12 +193,12 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
     } with existingn bookings.`;
 
     return {
-      status: 410,
+      status: 200,
       data: { conflictMessage, conflictDates: timeConflicts },
     };
   }
 
-  // Handle general date pending
+  // Handle general date pending - status 202 - orders is created but with warning 
   const pendingInnerDates = result.pending.filter(
     (item) =>
       !item.isStart &&
@@ -219,7 +220,7 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
     )} have been booked and not availabe.`;
 
     return {
-      status: 402,
+      status: 202,
       data: {
         conflictMessage,
         conflictDates: [...conflictDates],
@@ -231,7 +232,7 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
   return false;
 }
 
-// returns pendingDates in range between start and end
+// returns pendingDates in range between start and end 
 function functionPendingDatesInRange(pending, start, end) {
   return pending?.filter((bookingDate) => {
     const currentDate = dayjs(bookingDate.date);

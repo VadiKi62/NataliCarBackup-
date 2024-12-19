@@ -114,26 +114,23 @@ export const addOrderNew = async (orderData) => {
     const result = await response.json();
     console.log("ADDING ORDER RESULT", result);
 
-    if (response.ok) {
+    if (response.status === 201) {
       console.log("Order added:", result);
       return { status: "success", data: result };
-    } else if (response.status === 309) {
+    } else if (response.status === 200) {
       // Non-confirmed dates conflict
       return {
         status: "startEndConflict",
         message: result.message,
         data: result.data,
       };
-    } else if (response.status === 308) {
+    } else if (response.status === 202) {
       // Non-confirmed dates conflict
       return {
-        status: "startEndNonConflick",
+        status: "pending",
         message: result.message,
         data: result.data,
       };
-    } else if (response.status === 402) {
-      // Non-confirmed dates conflict
-      return { status: "pending", message: result.message, data: result.data };
     } else if (response.status === 409) {
       // Confirmed dates conflict
       return { status: "conflict", message: result.message };
@@ -224,28 +221,37 @@ export const changeRentalDates = async (
 
     const data = await response.json();
 
-    if (response.status === 200) {
+    if (response.status === 201) {
       // Handle success, no conflicts
       console.log("Заказ обновлен!:", data.message);
       return {
-        status: 200,
+        status: 201,
         message: data.message,
         updatedOrder: data.data,
       };
-    } else if (response.status === 201) {
+    } else if (response.status === 202) {
       // Handle non-confirmed conflict dates (partial update)
-      console.log("Заказ обновлен но с non-confirmed conflicts:", data);
+      console.log("Заказ обновлен но есть pending conflicts:", data);
       return {
-        status: 201,
+        status: 202,
         message: data.message,
         conflicts: data.data.nonConfirmedOrders,
         updatedOrder: data.data.updatedOrder,
       };
-    } else if (response.status === 300) {
+    } else if (response.status === 200) {
+      // Handle non-confirmed conflict dates (partial update)
+      console.log("Заказ обновлен но есть time-conflicts:", data);
+      return {
+        status: 200,
+        message: data.message,
+        conflicts: data.data.nonConfirmedOrders,
+        updatedOrder: data.data.updatedOrder,
+      };
+    } else if (response.status === 409) {
       // Handle confirmed conflict dates (no update)
       console.log("Confirmed conflicting dates:", data);
       return {
-        status: 300,
+        status: 409,
         message: data.message,
         conflicts: data.confirmedOrders,
       };

@@ -18,7 +18,6 @@ import Footer from "@app/components/Footer";
 
 function Feed({ children, ...props }) {
   unstable_noStore();
-  console.log("props", props);
 
   return (
     <Suspense fallback={<Loading />}>

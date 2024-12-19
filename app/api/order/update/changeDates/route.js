@@ -65,9 +65,6 @@ export const PUT = async (req) => {
       newTimeOut
     );
 
-    console.log("start before Comparison", start);
-    console.log("end before comparison", end);
-
     // Ensure start and end dates are not the same
     if (dayjs(start).isSame(dayjs(end), "day")) {
       return new Response(
@@ -108,7 +105,7 @@ export const PUT = async (req) => {
 
     // Check for conflicts using `checkConflicts`
     const conflictCheck = checkConflicts(allOrders, start, end, start, end);
-
+    // TODO CREATE ORDERS FOR CASE 200 and 202
     if (conflictCheck) {
       // Handle conflicts
       const { status, data } = conflictCheck;
@@ -143,7 +140,7 @@ export const PUT = async (req) => {
         message: `ВСЕ ОТЛИЧНО! Даты изменены.`,
         data: order,
       }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 201, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Error updating order:", error);

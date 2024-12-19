@@ -282,14 +282,15 @@ const EditOrderModal = ({
       );
       console.log("RESPONSE !!!!!", response);
       showMessage(response.message);
-      if (response.status == 201) {
+      if (response.status == 200) {
         setConflictMessage1(response.conflicts);
         onSave(response.updatedOrder);
       }
-      if (response.status == 300) {
+      if (response.status == 202) {
         setConflictMessage2(response.conflicts);
+        onSave(response.updatedOrder);
       }
-      if (response.status == 200) {
+      if (response.status == 201) {
         onSave(response.updatedOrder);
       }
     } catch (error) {
@@ -482,8 +483,8 @@ const EditOrderModal = ({
                 endTime={dayjs(endTime)}
                 setStartTime={setStartTime}
                 setEndTime={setEndTime}
-                isRestrictionTimeIn={availableTimes.availableStart}
-                isRestrictionTimeOut={availableTimes.availableEnd}
+                isRestrictionTimeIn={availableTimes?.availableStart}
+                isRestrictionTimeOut={availableTimes?.availableEnd}
               />
 
               {/* {renderField("Time In", "timeIn", "time")}
