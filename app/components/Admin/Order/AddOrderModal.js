@@ -25,7 +25,10 @@ import { functionToCheckDuplicates } from "@utils/functions";
 import CalendarPicker from "@app/components/CarComponent/CalendarPicker";
 import RenderConflictMessage from "@app/components/Admin/Order/RenderConflictInAddOrder";
 
-import { analyzeDates, functionPendingDatesInRange } from "@utils/analyzeDates";
+import {
+  analyzeDates,
+  functionPendingOrConfirmedDatesInRange,
+} from "@utils/analyzeDates";
 import MuiTimePicker from "@app/components/Calendars/MuiTimePicker";
 
 import {
@@ -50,6 +53,7 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
   const carOrders = ordersByCarId(car?._id);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [pendingDatesInRange, setPendingDatesInRange] = useState([]);
+  const [confirmedDatesInRange, setConfirmedDatesInRange] = useState([]);
   const [startTime, setStartTime] = useState(dayjs());
   const [endTime, setEndTime] = useState(dayjs());
 
@@ -85,18 +89,32 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
     }));
   };
 
-  // Мемоизируем функцию проверки конфликтов
-  const checkConflicts = useCallback(
+  // Мемоизируем функцию проверки конфликтов pending
+  const checkConflictsPending = useCallback(
     (startDate, endDate) => {
       if (!startDate || !endDate || !pending) return [];
 
-      return functionPendingDatesInRange(
+      return functionPendingOrConfirmedDatesInRange(
         pending,
-        dayjs(startDate),
-        dayjs(endDate)
+        startDate,
+        endDate
       );
     },
     [pending]
+  );
+
+  // Мемоизируем функцию проверки конфликтов confirmed
+  const checkConflictsConfirmed = useCallback(
+    (startDate, endDate) => {
+      if (!startDate || !endDate || !confirmed) return [];
+
+      return functionPendingOrConfirmedDatesInRange(
+        confirmed,
+        startDate,
+        endDate
+      );
+    },
+    [confirmed]
   );
 
   const handleSetBookedDates = useCallback(
@@ -115,8 +133,14 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
         end: endDate,
       });
 
-      // Проверяем конфликты перед установкой дат
-      const conflicts = checkConflicts(dates.start, dates.end);
+      // Проверяем конфликты pendoing перед установкой дат
+      const conflicts = checkConflictsPending(dates.start, dates.end);
+
+      // Проверяем конфликты pendoing перед установкой дат
+      const conflictsConfirmed = checkConflictsConfirmed(
+        dates.start,
+        dates.end
+      );
 
       // Обновляем оба состояния вместе
       setBookedDates({
@@ -124,6 +148,7 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
         end: endDate,
       });
       setPendingDatesInRange(conflicts);
+      setConfirmedDatesInRange(conflictsConfirmed);
 
       if (conflicts?.length > 0) {
         console.warn(
@@ -131,8 +156,14 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
           conflicts.map((d) => dayjs(d.date).format("YYYY-MM-DD"))
         );
       }
+      if (conflictsConfirmed?.length > 0) {
+        console.warn(
+          "В выбранном диапазоне есть уже недоступные даті:",
+          conflictsConfirmed.map((d) => dayjs(d.date).format("MMM DD"))
+        );
+      }
     },
-    [checkConflicts]
+    [checkConflictsPending, checkConflictsConfirmed]
   );
 
   const handleBookingComplete = async () => {
@@ -164,13 +195,12 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
         message: response.data.message || "Order added",
       });
 
-      setLoadingState(false);
-
       // Закрыть модальное окно после успешной отправки
       onClose();
     } catch (error) {
       console.error("Ошибка при отправке данных:", error);
       setUpdateStatus({ type: 400, message: response.message });
+    } finally {
       setLoadingState(false);
     }
   };
@@ -194,6 +224,16 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
             endDate={bookDates.end}
           />
         )}
+        {bookDates.start &&
+          bookDates.end &&
+          confirmedDatesInRange.length > 0 && (
+            <RenderConflictMessage
+              pendingDatesInRange={confirmedDatesInRange}
+              startDate={bookDates.start}
+              endDate={bookDates.end}
+              confirmed={true}
+            />
+          )}
         <MuiTimePicker
           startTime={startTime}
           endTime={endTime}

@@ -15,13 +15,16 @@ import Navbar from "@app/components/Navbar";
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
 import Feed from "@app/components/Feed";
 
-export default async function OrdersCalendarPage({ children }) {
+export default async function PageOrdersCalendar({ children }) {
+  unstable_noStore();
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
 
   return (
-    <Feed cars={carsData} order={ordersData} isMain={false} isAdmin={true}>
-      <Admin isCars={true} />
-    </Feed>
+    <Suspense fallback={<Loading />}>
+      <Feed cars={carsData} order={ordersData} isMain={false} isAdmin={true}>
+        <Admin isCars={true} />
+      </Feed>
+    </Suspense>
   );
 }

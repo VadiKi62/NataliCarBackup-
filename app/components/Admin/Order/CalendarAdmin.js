@@ -395,7 +395,6 @@ const CalendarAdmin = ({
         order._id === updatedOrder._id ? updatedOrder : order
       )
     );
-
     const updatedOrders = orders.map((order) =>
       order._id === updatedOrder._id ? updatedOrder : order
     );

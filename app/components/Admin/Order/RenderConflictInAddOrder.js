@@ -26,17 +26,18 @@ const isDateInRange = (date, startDate, endDate) => {
 };
 
 export default function RenderConflictMessage({
-  pendingDatesInRange,
+  datesInRange,
   startDate,
   endDate,
+  confirmed = false,
 }) {
-  if (!pendingDatesInRange?.length || !startDate || !endDate) return null;
+  if (!datesInRange?.length || !startDate || !endDate) return null;
 
   const currentBookingStart = dayjs(startDate);
   const currentBookingEnd = dayjs(endDate);
 
   // 1. Конфликты с началом бронирования (когда начало новой брони совпадает с концом существующей)
-  const startConflicts = pendingDatesInRange.filter(
+  const startConflicts = datesInRange.filter(
     (pending) =>
       pending.isEnd &&
       dayjs(pending.date).format("YYYY-MM-DD") ===
@@ -44,7 +45,7 @@ export default function RenderConflictMessage({
   );
 
   // 2. Конфликты с концом бронирования (когда конец новой брони совпадает с началом существующей)
-  const endConflicts = pendingDatesInRange.filter(
+  const endConflicts = datesInRange.filter(
     (pending) =>
       pending.isStart &&
       dayjs(pending.date).format("YYYY-MM-DD") ===
@@ -52,7 +53,7 @@ export default function RenderConflictMessage({
   );
 
   // 3. Внутренние конфликты (когда даты существующего бронирования находятся внутри нового диапазона)
-  const internalConflicts = pendingDatesInRange.filter((pending) => {
+  const internalConflicts = datesInRange.filter((pending) => {
     const pendingDate = dayjs(pending.date);
     // Исключаем те даты, которые уже учтены в startConflicts и endConflicts
     const isAlreadyCounted =
@@ -68,7 +69,7 @@ export default function RenderConflictMessage({
     <Box sx={{ mt: 2 }}>
       {startConflicts.length > 0 && (
         <Typography variant="body1" color="error" sx={{ mb: 1 }}>
-          Конфликт с началом бронирования:
+          {confirmed && "Confirmed"} Конфликт с началом бронирования:
           {startConflicts.map((conflict, index) => (
             <span key={index}>
               {formatDateTime(conflict.date, conflict.timeEnd)}
@@ -80,7 +81,7 @@ export default function RenderConflictMessage({
 
       {endConflicts.length > 0 && (
         <Typography variant="body1" color="error" sx={{ mb: 1 }}>
-          Конфликт с окончанием бронирования:
+          {confirmed && "Confirmed"} Конфликт с окончанием бронирования:
           {endConflicts.map((conflict, index) => (
             <span key={index}>
               {formatDateTime(conflict.date, conflict.timeStart)}
@@ -92,7 +93,8 @@ export default function RenderConflictMessage({
 
       {internalConflicts.length > 0 && (
         <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-          В выбранном диапазоне есть существующие бронирования:
+          {confirmed && "Confirmed"} В выбранном диапазоне есть существующие
+          бронирования:
           {internalConflicts.map((conflict, index) => (
             <span key={index}>
               {formatDateTime(conflict.date)}

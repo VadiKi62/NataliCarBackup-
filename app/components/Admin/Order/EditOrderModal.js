@@ -35,6 +35,7 @@ import {
   updateCustomerInfo,
   getConfirmedOrders,
 } from "@utils/action";
+import { Mms } from "@node_modules/@mui/icons-material";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -60,13 +61,15 @@ const EditOrderModal = ({
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
   const [conflictMessage3, setConflictMessage3] = useState(null);
+  const [timeInMessage, setTimeInMessage] = useState(null);
+  const [timeOutMessage, setTimeOutMessage] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const [startTime, setStartTime] = useState(
     editedOrder?.timeIn || editedOrder.rentalStartDate
   );
   const [endTime, setEndTime] = useState(
-    editedOrder?.timeOut || editedOrder.rentalStartDate
+    editedOrder?.timeOut || editedOrder.rentalEndDate
   );
   const [availableTimes, setAvailableTimes] = useState({
     availableStart: null,
@@ -78,7 +81,6 @@ const EditOrderModal = ({
   });
 
   useEffect(() => {
-    console.log("editedOrder", editedOrder);
     if (editedOrder?.rentalStartDate) {
       // Recalculate available times
       const {
@@ -94,8 +96,6 @@ const EditOrderModal = ({
         editedOrder?.timeOut,
         editedOrder?._id
       );
-      console.log("availableStart", availableStart);
-      console.log("availableEnd", availableEnd);
       setAvailableTimes({
         availableStart,
         availableEnd,
@@ -106,24 +106,22 @@ const EditOrderModal = ({
       });
 
       // Set start and end times based on calculated values
-      if (availableStart) {
-        const newStartTimeDate = setTimeToDatejs(
-          editedOrder?.rentalStartDate,
-          availableStart,
-          true
-        );
-        setStartTime(newStartTimeDate);
-      }
+      // if (availableStart) {
+      //   const newStartTimeDate = setTimeToDatejs(
+      //     editedOrder?.rentalStartDate,
+      //     availableStart,
+      //     true
+      //   );
+      //   setStartTime(newStartTimeDate);
+      // }
 
-      if (availableEnd) {
-        const newEndTimeDate = setTimeToDatejs(
-          editedOrder?.rentalEndDate,
-          availableEnd
-        );
-        console.log("__________!!!!________editedOrder", editedOrder);
-        console.log("__________!!!!________newEndTimeDate", newEndTimeDate);
-        setEndTime(newEndTimeDate);
-      }
+      // if (availableEnd) {
+      //   const newEndTimeDate = setTimeToDatejs(
+      //     editedOrder?.rentalEndDate,
+      //     availableEnd
+      //   );
+      //   setEndTime(newEndTimeDate);
+      // }
     }
   }, [
     editedOrder?.rentalStartDate,
@@ -257,11 +255,6 @@ const EditOrderModal = ({
   const handleDateUpdate = async () => {
     setIsUpdating(true);
     try {
-      // WRONG ENDTIME is set to today ???
-
-      console.log("_____startTime before going to back", startTime);
-      console.log("_______endTime before going to back", endTime);
-
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
@@ -282,20 +275,31 @@ const EditOrderModal = ({
       );
       console.log("RESPONSE !!!!!", response);
       showMessage(response.message);
-      if (response.status == 200) {
-        setConflictMessage1(response.conflicts);
-        onSave(response.updatedOrder);
-      }
       if (response.status == 202) {
-        setConflictMessage2(response.conflicts);
+        setConflictMessage1(response.conflicts);
         onSave(response.updatedOrder);
       }
       if (response.status == 201) {
         onSave(response.updatedOrder);
       }
+      if (response.status == 408) {
+        // setConflictMessage1(response.conflicts);
+        const isStartConflict = response.conflicts.start;
+        const isEndConflict = response.conflicts.end;
+        isStartConflict &&
+          setTimeInMessage(
+            `Car is Not available before ${dayjs(isStartConflict).format(
+              "HH:MM"
+            )}`
+          );
+        isEndConflict &&
+          setTimeOutMessage(
+            `Car is Not available after ${dayjs(isEndConflict).format("HH:MM")}`
+          );
+      }
     } catch (error) {
       console.error("Error updating dates:", error);
-      setUpdateMessage("Failed to update date details.");
+      setUpdateMessage(error?.message);
     } finally {
       setIsUpdating(false);
     }
@@ -485,6 +489,8 @@ const EditOrderModal = ({
                 setEndTime={setEndTime}
                 isRestrictionTimeIn={availableTimes?.availableStart}
                 isRestrictionTimeOut={availableTimes?.availableEnd}
+                timeInMessage={timeInMessage}
+                timeOutMessage={timeOutMessage}
               />
 
               {/* {renderField("Time In", "timeIn", "time")}

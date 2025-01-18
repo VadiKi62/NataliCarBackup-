@@ -19,12 +19,16 @@ const options = {
   },
 };
 
-const sendEmail = async (formData) => {
+const sendEmail = async (formData, companyEmail, isUsingCompanyEmail) => {
+  let emails = ["nataliakireewa@gmail.com", "ntf_elcor@gmail.com"];
+  if (isUsingCompanyEmail) {
+    emails = [...emails, companyEmail];
+  }
   emailjs.init(options);
   const params = {
     from_name: "RentCarsAdmins",
     from_email: formData.email,
-    to_email: ["nataliakireewa@gmail.com", "ntf_elcor@gmail.com"],
+    to_email: emails,
     title: formData.title,
     message: formData.message,
     reply_to: "ntf_elcor@gmail.com",

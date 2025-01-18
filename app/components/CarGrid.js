@@ -13,7 +13,7 @@ const Section = styled("section")(({ theme }) => ({
 }));
 
 function CarGrid() {
-  const { cars, selectedClass } = useMainContext();
+  const { cars, company, selectedClass } = useMainContext();
   const [filteredCars, setFilteredCars] = useState(cars);
 
   // Filter cars by the selected class

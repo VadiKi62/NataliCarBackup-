@@ -8,12 +8,12 @@ import dayjs from "dayjs";
 const CustomCalendarPicker = ({ orders, setBookedDates }) => {
   const { confirmed, pending } = analyzeDates(orders);
 
-  const isDateUnavailable = (date) => {
-    const filteredConfirmed = confirmed.filter((item) => {
-      return !item.isStart && !item.isEnd;
-    });
+  const isConfirmedDate = (date) => {
+    // const filteredConfirmed = confirmed.filter((item) => {
+    //   return !item.isStart && !item.isEnd;
+    // });
 
-    return filteredConfirmed.some(
+    return confirmed.some(
       (booking) =>
         dayjs(booking.date).format("YYYY-MM-DD") === date.format("YYYY-MM-DD")
     );
@@ -67,10 +67,10 @@ const CustomCalendarPicker = ({ orders, setBookedDates }) => {
     let disabled = false;
     let tooltipText = "";
 
-    if (isDateUnavailable(day)) {
+    if (isConfirmedDate(day)) {
       customSx = {
         backgroundColor: "#ffebee",
-        color: "#d32f2f",
+        color: "primary.red",
         "&:hover": {
           backgroundColor: "#ffcdd2",
         },
@@ -80,31 +80,36 @@ const CustomCalendarPicker = ({ orders, setBookedDates }) => {
     } else if (isDatePending(day)) {
       customSx = {
         backgroundColor: "#fff3e0",
-        color: "#f57c00",
+        color: "primary.green",
         "&:hover": {
           backgroundColor: "#ffe0b2",
         },
       };
       tooltipText = "Ожидает подтверждения";
-    } else if (isStartDate(day)) {
+    } else if (
+      (isStartDate(day) && isConfirmedDate(day)) ||
+      (isEndDate(day) && isConfirmedDate(day))
+    ) {
       customSx = {
         backgroundColor: "#e3f2fd",
-        color: "#1976d2",
+        color: "primary.red",
         "&:hover": {
-          backgroundColor: "#bbdefb",
+          backgroundColor: "#ffe0b2",
         },
       };
-      disabled = true;
       tooltipText = "Начало другого бронирования";
-    } else if (isEndDate(day)) {
+    } else if (
+      (isStartDate(day) && isDatePending(day)) ||
+      (isEndDate(day) && isDatePending(day))
+    ) {
       customSx = {
         backgroundColor: "#e8f5e9",
-        color: "#2e7d32",
+        color: "primary.green",
         "&:hover": {
           backgroundColor: "#c8e6c9",
         },
       };
-      disabled = true;
+
       tooltipText = "Окончание другого бронирования";
     }
 

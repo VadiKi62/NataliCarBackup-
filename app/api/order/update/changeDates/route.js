@@ -30,14 +30,8 @@ export const PUT = async (req) => {
       placeIn,
       placeOut,
     } = await req.json();
-
     // Find the order to update
     const order = await Order.findById(_id).populate("car");
-    console.log("order", order);
-    console.log("timeIn", timeIn);
-    console.log("timeOut", timeOut);
-    console.log("rentalStartDate", rentalStartDate);
-    console.log("rentalEndDate", rentalEndDate);
 
     if (!order) {
       return new Response(JSON.stringify({ message: "Order not found" }), {
@@ -92,30 +86,67 @@ export const PUT = async (req) => {
       _id: { $ne: _id },
     });
 
-    // Transform orders into the required format for `checkConflicts`
-    const existingOrders = allOrders.map((existingOrder) => ({
-      isStart: true,
-      isEnd: true,
-      dateFormat: dayjs(existingOrder.rentalStartDate).format("YYYY-MM-DD"),
-      timeStart: existingOrder.timeIn,
-      timeEnd: existingOrder.timeOut,
-      datejs: dayjs(existingOrder.rentalStartDate),
-      orderId: existingOrder._id.toString(),
-    }));
+    const { status, data } = checkConflicts(allOrders, start, end, start, end);
 
-    // Check for conflicts using `checkConflicts`
-    const conflictCheck = checkConflicts(allOrders, start, end, start, end);
-    // TODO CREATE ORDERS FOR CASE 200 and 202
-    if (conflictCheck) {
-      // Handle conflicts
-      const { status, data } = conflictCheck;
-      return new Response(
-        JSON.stringify({
-          message: data.conflictMessage,
-          conflictDates: data.conflictDates || [],
-        }),
-        { status, headers: { "Content-Type": "application/json" } }
-      );
+    console.log("!! - > result1", status);
+    console.log("!! - > result1", data);
+    if (status) {
+      switch (status) {
+        case 409:
+          return new Response(
+            JSON.stringify({
+              message: data?.conflictMessage,
+              conflictDates: data?.conflictDates,
+            }),
+            {
+              status: 409,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        case 408:
+          // time-conflict, return conflictDates.start (means the conflict is within current start time) or conflictDates.end - means  error with end , and time restriction
+          return new Response(
+            JSON.stringify({
+              message: data.conflictMessage,
+              conflictDates: data.conflictDates,
+            }),
+            {
+              status: 408,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+        case 202:
+          // Update the order and add new pending orderConflicts
+          order.rentalStartDate = start.toDate();
+          order.rentalEndDate = end.toDate();
+          order.numberOfDays = rentalDays;
+          order.totalPrice = totalPrice;
+          order.timeIn = start.toDate();
+          order.timeOut = end.toDate();
+          order.placeIn = placeIn || order.placeIn;
+          order.placeOut = placeOut || order.placeOut;
+          order.hasConflictDates = [
+            ...new Set([
+              ...order.hasConflictDates,
+              ...data.conflictOrdersIds,
+              ...stillConflictingOrders,
+            ]),
+          ];
+
+          const updatedOrder = await order.save();
+
+          return new Response(
+            JSON.stringify({
+              message: data.conflictMessage,
+              conflicts: data.conflictDates,
+              updatedOrder: updatedOrder,
+            }),
+            {
+              status: 202,
+              headers: { "Content-Type": "application/json" },
+            }
+          );
+      }
     }
 
     // Recalculate the rental details
@@ -184,7 +215,7 @@ async function checkForResolvedConflicts(order, newStartDate, newEndDate) {
 async function timeAndDate(startDate, endDate, startTime, endTime) {
   const newStartHour = startTime.hour();
   const newStartMinute = startTime.minute();
-  console.log("endTime", endTime);
+  // console.log("endTime", endTime);
   const newEndHour = endTime.hour();
   const newEndMinute = endTime.minute();
 
@@ -192,18 +223,18 @@ async function timeAndDate(startDate, endDate, startTime, endTime) {
     .hour(newStartHour)
     .minute(newStartMinute);
 
-  console.log("startDate", startDate);
-  console.log("endDate", endDate);
+  // console.log("startDate", startDate);
+  // console.log("endDate", endDate);
 
   const newEndDate = dayjs(endDate).hour(newEndHour).minute(newEndMinute);
 
-  console.log("newStartDate", newStartDate);
-  console.log("newEndDate", newEndDate);
+  // console.log("newStartDate", newStartDate);
+  // console.log("newEndDate", newEndDate);
 
-  console.log(
-    "CHECK, should be flase because dates are different ",
-    newStartDate.isSame(newEndDate)
-  );
+  // console.log(
+  //   "CHECK, should be flase because dates are different ",
+  //   newStartDate.isSame(newEndDate)
+  // );
   return {
     start: newStartDate,
     end: newEndDate,

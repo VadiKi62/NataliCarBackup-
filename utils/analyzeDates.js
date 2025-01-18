@@ -116,50 +116,15 @@ function analyzeDates(orders) {
   return result;
 }
 
-/// ПРОВЕРИТЬ - ОШБИКА в ЭТОЙ ФУНКЦИИ
 function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
-  // console.log("IN TIME", dayjs(timeIn));
-  // console.log("OUt Time", dayjs(timeOut));
-
   const result = analyzeDates(existingOrders);
-
-  // Initialize timeConflicts to track conflicts
-  const timeConflicts = { start: [], end: [] };
-
-  // Check if booking start overlaps with an existing end date's time
-  const isStartTimeConflict = result.confirmed.find((item) => {
-    if (
-      item.isEnd &&
-      item.dateFormat === dayjs(startDate).format("YYYY-MM-DD") &&
-      item.timeEnd && // Ensure there is a timeEnd
-      dayjs(item.timeEnd).isAfter(dayjs(timeIn)) // Check if timeEnd conflicts with timeIn
-    ) {
-      timeConflicts.start.push(item.timeEnd);
-      return true;
-    }
-    return false;
-  });
-
-  // Check if booking end overlaps with an existing start date's time
-  const isEndTimeConflict = result.confirmed.find((item) => {
-    if (
-      item.isStart &&
-      item.dateFormat === dayjs(endDate).format("YYYY-MM-DD") &&
-      item.timeStart && // Ensure there is a timeStart
-      dayjs(item.timeStart).isBefore(dayjs(timeOut)) // Check if timeStart conflicts with timeOut
-    ) {
-      timeConflicts.end.push(item.timeStart);
-      return true;
-    }
-    return false;
-  });
 
   // Handle general date conflicts status 409 - order is not created
   const confirmedInnerDates = result.confirmed.filter(
     (item) =>
       !item.isStart &&
       !item.isEnd &&
-      item.datejs.isBetween(startDate, endDate, "day", "()")
+      item.datejs.isBetween(startDate, endDate, "day", "[]")
   );
 
   if (confirmedInnerDates.length > 0) {
@@ -180,25 +145,65 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
     };
   }
 
+  // Initialize timeConflicts to track conflicts
+  const timeConflicts = { start: null, end: null };
+
+  // Check if booking start overlaps with an existing end date's time
+  const isStartTimeConflict = result.confirmed.find((item) => {
+    if (
+      item.isEnd &&
+      item.dateFormat === dayjs(startDate).format("YYYY-MM-DD") &&
+      item.timeEnd && // Ensure there is a timeEnd
+      dayjs(item.timeEnd).isAfter(dayjs(timeIn)) // Check if timeEnd conflicts with timeIn
+    ) {
+      console.log("item is", item);
+      console.log("timeIn", timeIn);
+      timeConflicts.start = item.timeEnd;
+      return true;
+    }
+    return false;
+  });
+
+  // Check if booking end overlaps with an existing start date's time
+  const isEndTimeConflict = result.confirmed.find((item) => {
+    if (
+      item.isStart &&
+      item.dateFormat === dayjs(endDate).format("YYYY-MM-DD") &&
+      item.timeStart && // Ensure there is a timeStart
+      dayjs(item.timeStart).isBefore(dayjs(timeOut)) // Check if timeStart conflicts with timeOut
+    ) {
+      console.log("item out is", item.timeStart);
+      console.log("timeOut", timeOut);
+      console.log(
+        "boolean check if  item out  is before timeOut==>",
+        dayjs(item.timeStart).isBefore(dayjs(timeOut))
+      );
+
+      timeConflicts.end = item.timeStart;
+      return true;
+    }
+    return false;
+  });
+
   // Handle time-specific conflicts - order created but with notice - status 200
   if (isStartTimeConflict || isEndTimeConflict) {
-    const conflictMessage = `Times on date ${
-      timeConflicts.start.length > 0
-        ? `has conflict with start booking: ${timeConflicts.start.join(", ")} `
+    const conflictMessage = `Time ${
+      timeConflicts.start
+        ? `has conflict with start booking: ${timeConflicts.start} `
         : ""
     }${
-      timeConflicts.end.length > 0
-        ? `has conflict with end booking: ${timeConflicts.end.join(", ")}`
+      timeConflicts.end
+        ? `has conflict with end booking: ${timeConflicts.end}`
         : ""
     } with existingn bookings.`;
 
     return {
-      status: 200,
+      status: 408,
       data: { conflictMessage, conflictDates: timeConflicts },
     };
   }
 
-  // Handle general date pending - status 202 - orders is created but with warning 
+  // Handle general date pending - status 202 - orders is created but with warning
   const pendingInnerDates = result.pending.filter(
     (item) =>
       !item.isStart &&
@@ -232,8 +237,8 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
   return false;
 }
 
-// returns pendingDates in range between start and end 
-function functionPendingDatesInRange(pending, start, end) {
+// returns dates in range between start and end
+function functionPendingOrConfirmedDatesInRange(pending, start, end) {
   return pending?.filter((bookingDate) => {
     const currentDate = dayjs(bookingDate.date);
 
@@ -286,7 +291,7 @@ function setTimeToDatejs(date, time, isStart = false) {
 
 module.exports = {
   analyzeDates,
-  functionPendingDatesInRange,
+  functionPendingOrConfirmedDatesInRange,
   isSameOrBefore,
   isSameDay,
   setTimeToDatejs,

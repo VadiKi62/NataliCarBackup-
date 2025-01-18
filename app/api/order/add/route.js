@@ -35,6 +35,7 @@ export async function POST(request) {
       timeOut,
       placeIn,
       placeOut,
+      confirmed,
     } = await request.json();
 
     console.log("timeIn IS ", timeIn);
@@ -100,6 +101,7 @@ export async function POST(request) {
           );
         //// TODO CREATE ORDERS FOR CASE 200
         case 200:
+          console.log(data);
           return new Response(
             JSON.stringify({
               message: data.conflictMessage,
@@ -141,6 +143,7 @@ export async function POST(request) {
       placeIn,
       placeOut,
       date: dayjs().format("MMM D HH:mm"),
+      confirmed: confirmed,
     });
 
     if (nonConfirmedDates.length > 0) {

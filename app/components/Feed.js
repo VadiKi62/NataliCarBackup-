@@ -23,7 +23,11 @@ function Feed({ children, ...props }) {
     <Suspense fallback={<Loading />}>
       <ThemeProvider theme={theme}>
         <I18nextProvider i18n={i}>
-          <MainContextProvider carsData={props.cars} ordersData={props.orders}>
+          <MainContextProvider
+            carsData={props.cars}
+            ordersData={props.orders}
+            companyData={props.company}
+          >
             <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
             <main>{children}</main>
             <Footer />

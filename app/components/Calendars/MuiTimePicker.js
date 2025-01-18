@@ -13,6 +13,8 @@ export default function Time({
   isRestrictionTimeIn = false,
   isRestrictionTimeOut = false,
   mb = 0,
+  timeInMessage = null,
+  timeOutMessage = null,
 }) {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -33,6 +35,13 @@ export default function Time({
             The car is not availbale before {isRestrictionTimeIn}{" "}
           </Typography>
         )}
+
+        {timeInMessage && (
+          <Typography sx={{ color: "primary.main", fontSize: 13 }}>
+            {" "}
+            {timeInMessage}
+          </Typography>
+        )}
       </Box>
       <Box sx={{ mt: 2, mb: mb }}>
         <TimePicker
@@ -49,6 +58,12 @@ export default function Time({
           <Typography sx={{ color: "primary.main", fontSize: 13 }}>
             {" "}
             The car is not availbale after {isRestrictionTimeOut}{" "}
+          </Typography>
+        )}
+        {timeOutMessage && (
+          <Typography sx={{ color: "primary.main", fontSize: 13 }}>
+            {" "}
+            {timeOutMessage}
           </Typography>
         )}
       </Box>

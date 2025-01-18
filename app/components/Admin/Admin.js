@@ -47,7 +47,6 @@ function Admin({ children, ...props }) {
     error,
   } = useMainContext();
   const [updateStatus, setUpdateStatus] = useState(null);
-  const [isCarInfo, setIsCarInfo] = useState(true);
   const [isModalAddCarOpen, setModalAddCar] = useState(false);
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
   const [selectedCar, setSelectedCar] = useState(null);
@@ -151,7 +150,7 @@ function Admin({ children, ...props }) {
             alignItems: "center",
             alignContent: "center",
             mt: { xs: 10, md: 18 },
-            overflow: scroll,
+            // overflow: scroll,
           }}
         >
           {cars

@@ -25,16 +25,23 @@ const MainContext = createContext({
   isLoading: false,
   resubmitCars: () => {},
   scrolled: false,
+  company: {},
 });
 
 export function useMainContext() {
   return useContext(MainContext);
 }
 
-export const MainContextProvider = ({ carsData, ordersData, children }) => {
+export const MainContextProvider = ({
+  carsData,
+  ordersData,
+  companyData,
+  children,
+}) => {
   const { i18n } = useTranslation();
   const [lang, setLang] = useState(i18n.language);
 
+  const [company, setCompany] = useState(companyData);
   const [scrolled, setScrolled] = useState(false);
   const [cars, setCars] = useState(carsData || []);
   const [allOrders, setAllOrders] = useState(ordersData || []);
@@ -162,8 +169,18 @@ export const MainContextProvider = ({ carsData, ordersData, children }) => {
       arrayOfAvailableClasses,
       lang,
       setLang,
+      company,
     }),
-    [cars, allOrders, isLoading, scrolled, selectedClass, lang, setLang]
+    [
+      cars,
+      allOrders,
+      isLoading,
+      scrolled,
+      selectedClass,
+      lang,
+      setLang,
+      company,
+    ]
   );
 
   return (

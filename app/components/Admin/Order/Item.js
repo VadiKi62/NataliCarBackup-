@@ -108,6 +108,9 @@ function Item({
   // Update orders when allOrders or car._id changes
   useEffect(() => {
     const updatedOrders = ordersByCarId(car._id);
+    if (car._id == "67486efa4b275f66b785c53f")
+      console.log("updatedOrders", updatedOrders);
+
     setCarOrders(updatedOrders);
   }, [allOrders, car._id, ordersByCarId]);
 

@@ -238,14 +238,13 @@ export const changeRentalDates = async (
         conflicts: data.data.nonConfirmedOrders,
         updatedOrder: data.data.updatedOrder,
       };
-    } else if (response.status === 200) {
+    } else if (response.status === 408) {
       // Handle non-confirmed conflict dates (partial update)
-      console.log("Заказ обновлен но есть time-conflicts:", data);
+      console.log("Заказ не обновлен - time-conflicts:", data);
       return {
-        status: 200,
+        status: 408,
         message: data.message,
-        conflicts: data.data.nonConfirmedOrders,
-        updatedOrder: data.data.updatedOrder,
+        conflicts: data.conflictDates,
       };
     } else if (response.status === 409) {
       // Handle confirmed conflict dates (no update)
@@ -413,7 +412,6 @@ export async function getOrderById(orderId) {
 export async function getConfirmedOrders(orderIds) {
   try {
     const orders = await Promise.all(orderIds.map(getOrderById));
-    console.log("ORDERS", orders);
     // Фильтруем заказы, оставляя только подтвержденные
     const confirmedOrders = orders.filter(
       (order) => order.status === "confirmed"
@@ -423,5 +421,27 @@ export async function getConfirmedOrders(orderIds) {
   } catch (error) {
     console.error("Error fetching orders:", error);
     return false; // Возвращаем false в случае ошибки
+  }
+}
+
+export async function fetchCompany(companyId) {
+  try {
+    const response = await fetch(`${API_URL}/api/company/${companyId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 404) {
+      throw new Error("Company not found");
+    }
+
+    const data = await response.json();
+    console.log("Fetched Company:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching company:", error.message);
+    throw error;
   }
 }

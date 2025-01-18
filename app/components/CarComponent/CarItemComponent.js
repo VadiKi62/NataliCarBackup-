@@ -106,7 +106,7 @@ function CarItemComponent({ car }) {
   }, []);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [expanded, setExpanded] = useState(false);
+
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState({

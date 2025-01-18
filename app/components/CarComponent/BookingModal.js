@@ -19,6 +19,7 @@ import { setTimeToDatejs } from "@utils/functions";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { useMainContext } from "../../Context";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -62,6 +63,8 @@ const BookingModal = ({
   selectedTimes,
 }) => {
   // if (presetDates) console.log("presetDates from Fooking Modal ", presetDates);
+  const { company } = useMainContext();
+  console.log("COMPANY IS", company);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -162,7 +165,11 @@ const BookingModal = ({
 
       const sendConfirmationEmail = async (formData) => {
         try {
-          const emailResponse = await sendEmail(formData);
+          const emailResponse = await sendEmail(
+            formData,
+            company.email,
+            company.useEmail
+          );
           if (emailResponse.status === 200) {
             setSuccessfullySent(true);
           } else {

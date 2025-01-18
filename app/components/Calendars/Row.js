@@ -25,13 +25,19 @@ export default function CarTableRow({
   setSelectedOrders,
   setOpen,
 }) {
-  //   const { ordersByCarId, ordersByCarIdWithAllorders } = useMainContext();
+  const { ordersByCarId } = useMainContext();
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
   const [overlapDates, setOverlapDates] = useState(null);
   const [startEndDates, setStartEndDates] = useState([]);
   const [carOrders, setCarOrders] = useState(orders);
+
+  // Update orders when allOrders or car._id changes
+  useEffect(() => {
+    const updatedOrders = ordersByCarId(car._id);
+    setCarOrders(updatedOrders);
+  }, [car._id, ordersByCarId]);
 
   // Extract and process order data
   useEffect(() => {
