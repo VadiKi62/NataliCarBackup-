@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Container, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
+
 import { useMainContext } from "../Context";
 import Feed from "./Feed";
-
 import CarItemComponent from "./CarComponent/CarItemComponent";
 
 const Section = styled("section")(({ theme }) => ({

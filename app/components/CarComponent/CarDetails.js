@@ -9,6 +9,7 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import Image from "next/image";
 import CarDetailsModal from "./CarDetailsModal";
 import CarTypography from "../common/CarTypography";
+import { useTranslation } from "@node_modules/react-i18next";
 
 const CarTitle = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
@@ -18,82 +19,83 @@ const CarTitle = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(2.5),
 }));
 
-const additionalDetails = [
-  {
-    key: "registration",
-    label: "Registration Year",
-    icon: "/icons/registration.png",
-    getValue: (car) => car.registration,
-  },
-  {
-    key: "regNumber",
-    label: "Registration Number",
-    icon: "/icons/regnumber.png",
-    getValue: (car) => car.regNumber,
-  },
-  {
-    key: "color",
-    label: "Color",
-    icon: "/icons/color.png",
-    getValue: (car) => car.color,
-  },
-  {
-    key: "numberOfDoors",
-    label: "Number of Doors",
-    icon: "/icons/doors2.png",
-    getValue: (car) => car.numberOfDoors,
-  },
-  {
-    key: "enginePower",
-    label: "Engine Power",
-    icon: "/icons/engine_power.png",
-    getValue: (car) => `${car.enginePower} HP`,
-  },
-  {
-    key: "engine",
-    label: "Engine",
-    icon: "/icons/engine.png",
-    getValue: (car) => car.engine,
-  },
-];
-
-const defaultDetails = [
-  {
-    key: "class",
-    label: "Class",
-    icon: "/icons/klass.png",
-    getValue: (car) => car.class,
-  },
-  {
-    key: "transmission",
-    label: "Transmission",
-    icon: "/icons/transmission.png",
-    getValue: (car) => car.transmission,
-  },
-  {
-    key: "fueltype",
-    label: "Fuel Type",
-    icon: "/icons/fuel.png",
-    getValue: (car) => car.fueltype,
-  },
-  {
-    key: "seats",
-    label: "Seats",
-    icon: "/icons/seat.png",
-    getValue: (car) => car.seats,
-  },
-  {
-    key: "airConditioning",
-    label: "Air Conditioning",
-    icon: "/icons/ac.png",
-    getValue: (car) => (car.airConditioning ? "Yes" : "No"),
-  },
-];
-
-const allDetails = [...additionalDetails, ...defaultDetails];
-
 const CarDetails = ({ car }) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const { t } = useTranslation();
+
+  const additionalDetails = [
+    {
+      key: "registration",
+      label: t("car.reg-year"),
+      icon: "/icons/registration.png",
+      getValue: (car) => car.registration,
+    },
+    {
+      key: "regNumber",
+      label: t("car.reg-numb"),
+      icon: "/icons/regnumber.png",
+      getValue: (car) => car.regNumber,
+    },
+    {
+      key: "color",
+      label: t("car.color"),
+      icon: "/icons/color.png",
+      getValue: (car) => car.color,
+    },
+    {
+      key: "numberOfDoors",
+      label: t("car.doors"),
+      icon: "/icons/doors2.png",
+      getValue: (car) => car.numberOfDoors,
+    },
+    {
+      key: "enginePower",
+      label: t("car.engine-pow"),
+      icon: "/icons/engine_power.png",
+      getValue: (car) => `${car.enginePower} HP`,
+    },
+    {
+      key: "engine",
+      label: t("car.engine"),
+      icon: "/icons/engine.png",
+      getValue: (car) => car.engine,
+    },
+  ];
+
+  const defaultDetails = [
+    {
+      key: "class",
+      label: t("car.class"),
+      icon: "/icons/klass.png",
+      getValue: (car) => car.class,
+    },
+    {
+      key: "transmission",
+      label: t("car.transmission"),
+      icon: "/icons/transmission.png",
+      getValue: (car) => car.transmission,
+    },
+    {
+      key: "fueltype",
+      label: t("car.fuel"),
+      icon: "/icons/fuel.png",
+      getValue: (car) => car.fueltype,
+    },
+    {
+      key: "seats",
+      label: t("car.seats"),
+      icon: "/icons/seat.png",
+      getValue: (car) => car.seats,
+    },
+    {
+      key: "airConditioning",
+      label: t("car.air"),
+      icon: "/icons/ac.png",
+      getValue: (car) => (car.airConditioning ? "Yes" : "No"),
+    },
+  ];
+
+  const allDetails = [...additionalDetails, ...defaultDetails];
 
   return (
     <>
@@ -133,7 +135,7 @@ const CarDetails = ({ car }) => {
           variant="outlined"
           sx={{ mt: 2, mb: 1 }}
         >
-          View More Details
+          {t("car.viewDetails")}
         </Button>
 
         <CarDetailsModal

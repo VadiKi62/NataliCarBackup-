@@ -2,15 +2,12 @@ import React from "react";
 import { Modal, Box, Typography, Button, Grid } from "@mui/material";
 import Image from "next/image";
 import CarTypography from "../common/CarTypography";
+import { useTranslation } from "@node_modules/react-i18next";
 
 const CarDetailsModal = ({ open, onClose, car, additionalDetails }) => {
+  const { t } = useTranslation();
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      sx={{ textAlign: "center" }}
-      aria-labelledby="car-details-modal-title"
-    >
+    <Modal open={open} onClose={onClose} sx={{ textAlign: "center" }}>
       <Box
         sx={{
           position: "absolute",
@@ -25,14 +22,9 @@ const CarDetailsModal = ({ open, onClose, car, additionalDetails }) => {
           overflowY: "auto",
         }}
       >
-        <Typography
-          id="car-details-modal-title"
-          variant="h6"
-          component="h2"
-          gutterBottom
-        >
+        {/* <Typography variant="h6" component="h2" gutterBottom>
           Additional Car Details
-        </Typography>
+        </Typography> */}
         <Grid container direction="column" spacing={2}>
           {additionalDetails.map((detail) => (
             <Grid item key={detail.key}>
@@ -55,7 +47,7 @@ const CarDetailsModal = ({ open, onClose, car, additionalDetails }) => {
           ))}
         </Grid>
         <Button onClick={onClose} variant="contained" sx={{ mt: 3 }}>
-          Close
+          {t("basic.close")}
         </Button>
       </Box>
     </Modal>

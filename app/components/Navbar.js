@@ -1,6 +1,9 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { styled } from "@mui/system";
+import Image from "next/image";
+import Link from "next/link";
+import { animateScroll as scroll } from "react-scroll";
 import {
   AppBar,
   Button,
@@ -13,11 +16,9 @@ import {
   Popover,
   MenuItem,
 } from "@mui/material";
-import LanguageIcon from "@mui/icons-material/Language";
-import Image from "next/image";
-import Link from "next/link";
 import { useTranslation } from "react-i18next";
-import { animateScroll as scroll } from "react-scroll";
+
+import LanguageIcon from "@mui/icons-material/Language";
 import { companyData } from "@utils/companyData";
 import { useMainContext } from "@app/Context";
 import LegendCalendarAdmin from "./common/LegendCalendarAdmin";
@@ -79,7 +80,7 @@ export default function NavBar({
 }) {
   const headerRef = useRef(null);
   const [languageAnchor, setLanguageAnchor] = useState(null);
-  // const { i18n, t } = useTranslation();
+  const { i18n, t } = useTranslation();
   // const lang = i18n.language;
   const {
     scrolled,
@@ -136,7 +137,7 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Main
+                    {t("header.main")}
                   </Typography>
                 </Link>
                 <Link href="/terms">
@@ -146,7 +147,7 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Terms
+                    {t("header.terms")}
                   </Typography>{" "}
                 </Link>
                 <Link href="/contacts">
@@ -156,7 +157,7 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Contacts
+                    {t("header.contacts")}
                   </Typography>
                 </Link>
               </>
@@ -175,7 +176,7 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Автопарк
+                    {t("header.cars")}
                   </Typography>
                 </Link>
                 <Link href="/admin/orders">
@@ -186,7 +187,18 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Календари
+                    {t("header.calendars")}
+                  </Typography>
+                </Link>
+                <Link href="/admin/orders-table">
+                  <Typography
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 6, md: 15 },
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {t("header.table")}
                   </Typography>
                 </Link>
                 <Link href="/admin/orders-calendar">
@@ -197,18 +209,7 @@ export default function NavBar({
                       textTransform: "uppercase",
                     }}
                   >
-                    Таблица заказов
-                  </Typography>
-                </Link>
-                <Link href="/admin/orders-calendar">
-                  <Typography
-                    sx={{
-                      px: { xs: 0.5, md: 3 },
-                      fontSize: { xs: 6, md: 15 },
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Календарь заказов
+                    {t("header.calendar")}
                   </Typography>
                 </Link>
 
@@ -250,18 +251,6 @@ export default function NavBar({
           <MenuItem onClick={() => handleLanguageSelect("ru")}>
             Русский
           </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("de")}>
-            Deutsch
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("ro")}>Română</MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("sr")}>Српски</MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("bg")}>
-            Български
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("fr")}>
-            Française
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageSelect("ar")}>Arabic</MenuItem>
         </LanguagePopover>
         {isMain && (
           <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { unstable_noStore } from "next/cache";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
@@ -35,6 +36,7 @@ const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
 }));
 
 function Admin({ children, ...props }) {
+  unstable_noStore();
   const {
     allOrders,
     setAllOrders,
@@ -101,7 +103,7 @@ function Admin({ children, ...props }) {
   if (error) return <Error />;
 
   return (
-    <div>
+    <Suspense fallback={<Loading />}>
       {/* <Navbar
         isAdmin={true}
         isCarInfo={isCarInfo}
@@ -221,7 +223,7 @@ function Admin({ children, ...props }) {
         car={selectedCar}
         setUpdateStatus={setUpdateStatus}
       />
-    </div>
+    </Suspense>
   );
 }
 

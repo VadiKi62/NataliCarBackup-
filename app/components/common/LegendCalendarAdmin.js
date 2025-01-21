@@ -1,7 +1,9 @@
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
+import { useTranslation } from "@node_modules/react-i18next";
 
 function LegendCalendarAdmin({ client }) {
+  const { t } = useTranslation();
   return (
     <Stack
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
@@ -30,7 +32,7 @@ function LegendCalendarAdmin({ client }) {
           }}
         />
         <Typography component="span" variant="body2">
-          Подтвержденные брони
+          {t("order.confirmed")}
         </Typography>
       </Box>
 
@@ -53,7 +55,7 @@ function LegendCalendarAdmin({ client }) {
           }}
         />
         <Typography component="span" variant="body2">
-          Неподтвержденные брони
+          {t("order.not-confirmed")}
         </Typography>
       </Box>
 
@@ -85,7 +87,7 @@ function LegendCalendarAdmin({ client }) {
               1
             </Box>
             <Typography component="span" variant="body2">
-              Конфликтующие даты бронирования
+              {t("order.conflict")}
             </Typography>
           </>
         )}

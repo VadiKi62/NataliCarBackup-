@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { Box } from "@mui/material";
 import Feed from "@app/components/Feed";
 import Admin from "@app/components/Admin/Admin";
@@ -11,11 +11,13 @@ async function pageOrders() {
   const ordersData = await reFetchAllOrders();
 
   return (
-    <Feed cars={carsData} orders={ordersData} isAdmin={true} isMain={false}>
-      <Box sx={{ my: 3 }}>
-        <Admin isOrdersTable={true} />
-      </Box>
-    </Feed>
+    <Suspense>
+      <Feed cars={carsData} orders={ordersData} isAdmin={true} isMain={false}>
+        <Box sx={{ my: 3 }}>
+          <Admin isOrdersTable={true} />
+        </Box>
+      </Feed>
+    </Suspense>
   );
 }
 

@@ -22,6 +22,7 @@ import {
 } from "@utils/functions";
 import { analyzeDates } from "@utils/analyzeDates";
 import Tooltip from "@mui/material/Tooltip";
+import { useTranslation } from "@node_modules/react-i18next";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -42,6 +43,7 @@ const CalendarPicker = ({
   selectedTimes,
 }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);
@@ -81,6 +83,26 @@ const CalendarPicker = ({
       date.isSame(end, "day");
     // текущая дата вокруг которой будет рендер и которая будет сравниваться
     const dateStr = date.format("YYYY-MM-DD");
+
+    const isDisabled = disabledDate(date);
+
+    // If the date is disabled, return it with no styles (transparent background)
+    if (isDisabled) {
+      return (
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {date.date()}
+        </Box>
+      );
+    }
+
     // проверяем подтвержденная ли єто дата
     const isConfirmed = confirmedDates?.includes(dateStr);
     // проверяем ожидающая ли єто дата (еще не подтвердженная)
@@ -415,6 +437,7 @@ const CalendarPicker = ({
 
   const disabledDate = (current) => {
     const dateStr = current.format("YYYY-MM-DD");
+
     // Проверяем, является ли дата началом или концом существующего бронирования
     const isStartOrEnd = startEndDates.some((d) => d.date === dateStr);
     const isConfirmed = confirmedDates?.includes(dateStr);
@@ -425,43 +448,8 @@ const CalendarPicker = ({
     //     const end = dayjs(order.rentalEndDate);
     //     return current.isBetween(start, end, "day", "[]");
     //   }).length > 1;
-    return current.isBefore(dayjs().startOf("day")) || isConfirmed;
+    return current.isBefore(dayjs().startOf("day"));
   };
-  // const headerRender = ({ value }) => {
-  //   const current = value.clone();
-  //   const month = current.format("MMMM");
-  //   const year = current.year();
-
-  //   const goToNextMonth = () => {
-  //     setCurrentDate(currentDate.add(1, "month"));
-  //   };
-
-  //   const goToPreviousMonth = () => {
-  //     setCurrentDate(currentDate.subtract(1, "month"));
-  //   };
-
-  //   return (
-  //     <Box
-  //       sx={{
-  //         padding: 1,
-  //         display: "flex",
-  //         color: "common.black",
-  //         alignItems: "center",
-  //         justifyContent: "space-between",
-  //       }}
-  //     >
-  //       <IconButton onClick={goToPreviousMonth} color="inherit">
-  //         <ArrowBackIosNewIcon />
-  //       </IconButton>
-  //       <Typography variant="h6" sx={{ margin: 0 }}>
-  //         {`${month} ${year}`}
-  //       </Typography>
-  //       <IconButton onClick={goToNextMonth} color="inherit">
-  //         <ArrowForwardIosIcon />
-  //       </IconButton>
-  //     </Box>
-  //   );
-  // };
 
   const headerRender = ({ value }) => {
     const current = value.clone();
@@ -511,7 +499,7 @@ const CalendarPicker = ({
           color: "primary.main",
         }}
       >
-        Choose your dates for booking
+        {t("order.chooseDates")}
       </Typography>
       {isLoading ? (
         <CircularProgress />
@@ -532,10 +520,10 @@ const CalendarPicker = ({
           <Calendar
             fullscreen={false}
             onSelect={onSelect}
-            disabledDate={disabledDate}
             fullCellRender={renderDateCell}
             headerRender={headerRender}
             value={currentDate}
+            disabledDate={disabledDate}
           />
           {/* </Grid>
             {isMdUp && (

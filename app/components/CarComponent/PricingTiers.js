@@ -2,6 +2,7 @@ import React from "react";
 import { Paper, Stack, Typography, Divider } from "@mui/material";
 import dayjs from "dayjs";
 import { seasons } from "@utils/companyData";
+import { useTranslation } from "@node_modules/react-i18next";
 
 // Function to get the current season (same as above)
 const getCurrentSeason = () => {
@@ -22,6 +23,7 @@ const getCurrentSeason = () => {
 
 // PricingDisplay component to show current season pricing
 const PricingDisplay = ({ prices }) => {
+  const { t } = useTranslation();
   const currentSeason = getCurrentSeason(); // Get current season
   const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
 
@@ -29,8 +31,9 @@ const PricingDisplay = ({ prices }) => {
     <>
       {" "}
       <Typography>
-        Prices for current Season - {currentSeason} (from{" "}
-        {seasons[currentSeason].start} till {seasons[currentSeason].end} )
+        {t("car.pricesFor")} - {currentSeason} ({t("basic.from")}{" "}
+        {seasons[currentSeason].start} {t("basic.till")}{" "}
+        {seasons[currentSeason].end})
       </Typography>
       <Paper
         elevation={0}
@@ -63,7 +66,7 @@ const PricingDisplay = ({ prices }) => {
                     mb: 1,
                   }}
                 >
-                  Up to {days} days
+                  {t("car.upTo", { days: days })}
                 </Typography>
 
                 <Typography

@@ -11,9 +11,8 @@
   "basic": {
     "close": "close",
     "cancel": "cancel",
-    "from": "from ",
-    "to": "to",
-    "till": "till "
+    "from": "from",
+    "to": "to"
   },
   "statusMesssages": {
     "pending": "Order in progress, these dates might not be available : {{dates}} . We will get in touch with you with details. ",
@@ -25,34 +24,20 @@
     "notAvailableDate": "Not available",
     "pendingDate": "Pending (available for booking)",
     "confirmBooking": "Confirm booking",
-    "book": "Book {{model}}",
-    "youBook": "You are booking {{model}} from ",
-    "till": "till ",
+    "book": "Book",
+    "youBook": "You are booking {{model}} from {{date1}} till {{date2}}.",
     "name": "Name",
     "phone": "Phone number",
     "thank": "Thank you for booking with us!",
     "daysNumber": " Number of days:",
     "price": "Total price :",
-    "weContact": " We have got your order and we will contact you within 24 hours to finalize the details.",
-    "confirmed": "Confirmed orders",
-    "not-confirmed": "Non-confirmed orders",
-    "conflict": "Conflict orders"
+    "weContact": " We have got your order and we will contact you within 24 hours to finalize the details."
   },
   "car": {
-    "viewDetails": "View more details",
+    "viewDetails": "view more details",
     "upTo": "Up to {{days}} days",
     "pricesFor": "Prices for current Season",
     "fromTo": "from {{date1}} to {{date2}}",
-    "class": "Class",
-    "transmission": "Transmission",
-    "fuel": "Fuel type",
-    "seats": "Seats",
-    "air": "Air Conditioning",
-    "reg-year": "Registration Year",
-    "reg-numb": "Registration Number",
-    "color": "Color",
-    "doors": "Number of Doors",
-    "engine-pow": "Engine Power",
-    "engine": "Engine"
+    "class": "class"
   }
 }

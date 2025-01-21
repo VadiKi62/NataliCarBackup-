@@ -1,12 +1,16 @@
 "use client";
+// ЭТА СТРАНИЦА НЕ ИСПОЛЬЗУЕТСЯ
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import { Paper, Typography, Box, Button, Stack, Divider } from "@mui/material";
 import Image from "next/image";
-import ScrollingCalendar from "./Calendars/ScrollingCalendar";
-import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa";
-import BookingModal from "./CarComponent/BookingModal";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import { FaCarSide, FaGasPump, FaDoorOpen, FaSnowflake } from "react-icons/fa";
+
+import ScrollingCalendar from "./Calendars/ScrollingCalendar";
+import BookingModal from "./CarComponent/BookingModal";
+
 // import BookingModal from "./BookingModal";
 
 // Full-screen container for the car page

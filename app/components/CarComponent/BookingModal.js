@@ -11,6 +11,7 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 import { addOrder, addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
 import TimePicker from "@app/components/Calendars/MuiTimePicker";
@@ -63,8 +64,8 @@ const BookingModal = ({
   selectedTimes,
 }) => {
   // if (presetDates) console.log("presetDates from Fooking Modal ", presetDates);
+  const { t } = useTranslation();
   const { company } = useMainContext();
-  console.log("COMPANY IS", company);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -153,10 +154,11 @@ const BookingModal = ({
 
         let statusMessage =
           status === "success"
-            ? "Создано бронирование в сводобніе даты."
+            ? "Создано бронирование в сводобные даты."
             : "Бронирование в ожидании подтверждения.";
 
         return {
+          emailCompany: company.email,
           email: orderData.email,
           title: title,
           message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${response.data.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} id : ${orderData.car} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
@@ -259,7 +261,7 @@ const BookingModal = ({
       ) : (
         <>
           <DialogTitle textAlign="center" mt="3">
-            {`Book ${car.model}`}
+            {t("order.book", { model: car.model })}
           </DialogTitle>
           <DialogContent>
             {isSubmitted ? (
@@ -273,14 +275,14 @@ const BookingModal = ({
             ) : (
               <Box>
                 <Typography variant="body1">
-                  You are booking {car.model} from{" "}
+                  {t("order.youBook", { model: car.model })}
                   <Box
                     component="span"
                     sx={{ fontWeight: "bold", color: "primary.main" }}
                   >
                     {dayjs(presetDates?.startDate).format("MMMM D")}
                   </Box>{" "}
-                  till{" "}
+                  {t("order.till")}
                   <Box
                     component="span"
                     sx={{ fontWeight: "bold", color: "primary.main" }}
@@ -345,7 +347,7 @@ const BookingModal = ({
           </DialogContent>
           <DialogActions>
             <Button onClick={handleModalClose}>
-              {isSubmitted ? "OK" : "Cancel"}
+              {isSubmitted ? "OK" : t("basic.cancel")}
             </Button>
 
             {!isSubmitted && (
@@ -361,7 +363,7 @@ const BookingModal = ({
                   !presetDates?.endDate
                 }
               >
-                Confirm Booking
+                {t("order.confirmBooking")}
               </Button>
             )}
           </DialogActions>
