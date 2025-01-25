@@ -46,6 +46,7 @@ export const PUT = async (req) => {
     const newStartDate = rentalStartDate
       ? dayjs(rentalStartDate)
       : dayjs(order.rentalStartDate);
+
     const newEndDate = rentalEndDate
       ? dayjs(rentalEndDate)
       : dayjs(order.rentalEndDate);
@@ -58,6 +59,8 @@ export const PUT = async (req) => {
       newTimeIn,
       newTimeOut
     );
+
+    console.log("from API start", start.local());
 
     // Ensure start and end dates are not the same
     if (dayjs(start).isSame(dayjs(end), "day")) {
@@ -121,8 +124,8 @@ export const PUT = async (req) => {
           order.rentalEndDate = end.toDate();
           order.numberOfDays = rentalDays;
           order.totalPrice = totalPrice;
-          order.timeIn = start.toDate();
-          order.timeOut = end.toDate();
+          order.timeIn = toParseTime(order.rentalStartDate, start);
+          order.timeOut = toParseTime(order.rentalEndDate, end);
           order.placeIn = placeIn || order.placeIn;
           order.placeOut = placeOut || order.placeOut;
           order.hasConflictDates = [
@@ -134,6 +137,8 @@ export const PUT = async (req) => {
           ];
 
           const updatedOrder = await order.save();
+
+          console.log("updatedOrder", updatedOrder);
 
           return new Response(
             JSON.stringify({
@@ -159,10 +164,12 @@ export const PUT = async (req) => {
     order.rentalEndDate = end.toDate();
     order.numberOfDays = rentalDays;
     order.totalPrice = totalPrice;
-    order.timeIn = start.toDate();
-    order.timeOut = end.toDate();
+    order.timeIn = toParseTime(order.rentalStartDate, start);
+    order.timeOut = toParseTime(order.rentalEndDate, end);
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
+
+    console.log("updatedOrder", order);
 
     await order.save();
 
@@ -239,4 +246,12 @@ async function timeAndDate(startDate, endDate, startTime, endTime) {
     start: newStartDate,
     end: newEndDate,
   };
+}
+
+function toParseTime(rentalDate, day) {
+  const hour = day.hour();
+  const minute = day.minute();
+
+  const toReturn = dayjs(rentalDate).hour(hour).minute(minute);
+  return toReturn;
 }

@@ -9,7 +9,7 @@ import theme from "@theme";
 import AdminLayout from "./layout";
 import Loading from "@app/loading";
 import Admin from "../components/Admin/Admin";
-import { fetchAllCars, reFetchAllOrders } from "@utils/action";
+import { fetchAllCars, reFetchAllOrders, fetchCompany } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
@@ -19,10 +19,18 @@ export default async function PageOrdersCalendar({ children }) {
   unstable_noStore();
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
+  const companyId = "676440c79775c7ee203e4e0e";
+  const company = await fetchCompany(companyId);
 
   return (
     <Suspense fallback={<Loading />}>
-      <Feed cars={carsData} order={ordersData} isMain={false} isAdmin={true}>
+      <Feed
+        cars={carsData}
+        order={ordersData}
+        company={company}
+        isMain={false}
+        isAdmin={true}
+      >
         <Admin isCars={true} />
       </Feed>
     </Suspense>

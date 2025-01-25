@@ -24,7 +24,7 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: function () {
       if (this.rentalStartDate) {
-        return dayjs(this.rentalStartDate).hour(15).minute(0).utc().toDate();
+        return dayjs(this.rentalStartDate).hour(12).minute(0).utc().toDate();
       }
       return null;
     },

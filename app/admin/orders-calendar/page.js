@@ -3,6 +3,7 @@ import { unstable_noStore } from "next/cache";
 import { Box } from "@mui/material";
 import { fetchAllCars, reFetchAllOrders } from "@utils/action";
 import Feed from "@app/components/Feed";
+import Loading from "@app/loading";
 
 import BigCalendar from "@app/components/Calendars/BigCalendar";
 import Admin from "@app/components/Admin/Admin";
@@ -12,7 +13,7 @@ export default async function PageOrdersCalendar() {
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
   return (
-    <Suspense>
+    <Suspense fallback={<Loading/>}>
       <Feed cars={carsData} orders={ordersData} isAdmin={true} isMain={false}>
         <Box sx={{ my: 3 }}>
           <Admin isOrdersBigCalendar={true} />

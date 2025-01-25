@@ -10,6 +10,20 @@ const defaultEndMinute = companyData.defaultEnd.slice(-2);
 const diffStart = companyData.hoursDiffForStart;
 const diffEnd = companyData.hoursDiffForEnd;
 
+export function returnHoursToParseToDayjs(company) {
+  const defaultStartHour = company.defaultStart.slice(0, 2);
+  const defaultStartMinute = company.defaultStart.slice(-2);
+
+  const defaultEndHour = company.defaultEnd.slice(0, 2);
+  const defaultEndMinute = company.defaultEnd.slice(-2);
+  return {
+    defaultStartHour,
+    defaultStartMinute,
+    defaultEndHour,
+    defaultEndMinute,
+  };
+}
+
 export const processOrders = (orders) => {
   const unavailableDates = [];
   const confirmedDates = [];
@@ -357,4 +371,10 @@ export function calculateAvailableTimes(
     hourEnd,
     minuteEnd,
   };
+}
+export function toParseTime(rentalDate, day) {
+  const hour = day.hour();
+  const minute = day.minute();
+
+  return dayjs(rentalDate).hour(hour).minute(minute);
 }

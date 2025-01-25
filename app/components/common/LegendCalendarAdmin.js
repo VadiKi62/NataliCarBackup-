@@ -7,9 +7,10 @@ function LegendCalendarAdmin({ client }) {
   return (
     <Stack
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
-      direction={{ xs: "column", sm: "row" }} // Stack items vertically on small screens, horizontally on larger screens
+      direction={"row"} // Stack items vertically on small screens, horizontally on larger screens
       justifyContent="center"
       alignItems="center"
+      display={{ xs: "none", sm: "flex" }}
     >
       <Box
         sx={{
@@ -31,7 +32,13 @@ function LegendCalendarAdmin({ client }) {
             marginRight: "10px",
           }}
         />
-        <Typography component="span" variant="body2">
+        <Typography
+          component="span"
+          variant="body2"
+          sx={{
+            fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+          }}
+        >
           {t("order.confirmed")}
         </Typography>
       </Box>
@@ -54,7 +61,13 @@ function LegendCalendarAdmin({ client }) {
             marginRight: "10px",
           }}
         />
-        <Typography component="span" variant="body2">
+        <Typography
+          component="span"
+          variant="body2"
+          sx={{
+            fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+          }}
+        >
           {t("order.not-confirmed")}
         </Typography>
       </Box>
@@ -86,7 +99,13 @@ function LegendCalendarAdmin({ client }) {
             >
               1
             </Box>
-            <Typography component="span" variant="body2">
+            <Typography
+              component="span"
+              variant="body2"
+              sx={{
+                fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+              }}
+            >
               {t("order.conflict")}
             </Typography>
           </>

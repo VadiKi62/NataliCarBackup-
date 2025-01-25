@@ -6,7 +6,8 @@
     "cars": "Автопарк",
     "calendars": "Календари",
     "table": "Таблица заказов",
-    "calendar": "Календарь заказов"
+    "calendar": "Календарь",
+    "orders": "Заказы"
   },
   "basic": {
     "close": "close",

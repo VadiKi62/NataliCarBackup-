@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -23,6 +23,7 @@ import {
 import { analyzeDates } from "@utils/analyzeDates";
 import Tooltip from "@mui/material/Tooltip";
 import { useTranslation } from "@node_modules/react-i18next";
+import ClearIcon from "@mui/icons-material/Clear";
 
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -42,7 +43,6 @@ const CalendarPicker = ({
   setSelectedTimes,
   selectedTimes,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -50,12 +50,84 @@ const CalendarPicker = ({
   const [confirmedDates, setConfirmedDates] = useState([]);
   const [startEndDates, setStartEndDates] = useState([]);
   const [showBookButton, setShowBookButton] = useState(false);
-  // const [selectedTimes, setSelectedTimes] = useState({
-  //   start: null,
-  //   end: null,
-  // });
   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
-  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+  // Add refs for the calendar container and tracking clicks
+  const lastClickTimeRef = useRef(0);
+  const clickCountRef = useRef(0);
+
+  // Modified onSelect to handle double clicks
+  // const onSelect = (date) => {
+  //   const now = Date.now();
+  //   const timeSinceLastClick = now - lastClickTimeRef.current;
+
+  //   // Reset click count if it's been too long since the last click
+  //   if (timeSinceLastClick > 300) {
+  //     clickCountRef.current = 0;
+  //   }
+
+  //   clickCountRef.current += 1;
+  //   lastClickTimeRef.current = now;
+
+  //   // Handle double click
+  //   if (clickCountRef.current === 2 && timeSinceLastClick < 300) {
+  //     handleClearSelection();
+  //     clickCountRef.current = 0;
+  //     return;
+  //   }
+
+  //   // Regular single click handling
+  //   const [start, end] = selectedRange;
+  //   const dateStr = date.format("YYYY-MM-DD");
+
+  //   if (!date.isSame(currentDate, "month")) {
+  //     setCurrentDate(date.startOf("month"));
+  //   }
+
+  //   if (!start || (start && end)) {
+  //     setSelectedRange([date, null]);
+  //     setShowBookButton(false);
+  //   } else {
+  //     if (date.isBefore(start)) {
+  //       setSelectedRange([date, null]);
+  //       setShowBookButton(false);
+  //     } else if (date.isSame(start, "day")) {
+  //       setSelectedRange([start, null]);
+  //       setShowBookButton(false);
+  //     } else {
+  //       const range = [start, date];
+  //       const startStr = range[0];
+  //       const endStr = range[1];
+  //       setSelectedRange(range);
+
+  //       const {
+  //         availableStart,
+  //         availableEnd,
+  //         hourStart,
+  //         minuteStart,
+  //         hourEnd,
+  //         minuteEnd,
+  //       } = calculateAvailableTimes(startEndDates, startStr, endStr);
+
+  //       setSelectedTimes({
+  //         start: availableStart,
+  //         end: availableEnd,
+  //       });
+  //       setBookedDates({
+  //         start: dayjs.utc(range[0].hour(hourStart).minute(minuteStart)),
+  //         end: dayjs.utc(range[1].hour(hourEnd).minute(minuteEnd)),
+  //       });
+  //       setShowBookButton(true);
+  //     }
+  //   }
+  // };
+
+  // Add a clear selection handler
+  const handleClearSelection = () => {
+    setSelectedRange([null, null]);
+    setShowBookButton(false);
+    setSelectedTimes({ start: null, end: null });
+    setBookedDates({ start: null, end: null });
+  };
 
   useEffect(() => {
     // функция которая возвращает 4 массива дат для удобного рендеринга клиентского календаря
@@ -384,6 +456,23 @@ const CalendarPicker = ({
   };
 
   const onSelect = (date) => {
+    const now = Date.now();
+    const timeSinceLastClick = now - lastClickTimeRef.current;
+
+    // Reset click count if it's been too long since the last click
+    if (timeSinceLastClick > 300) {
+      clickCountRef.current = 0;
+    }
+
+    clickCountRef.current += 1;
+    lastClickTimeRef.current = now;
+
+    // Handle double click
+    if (clickCountRef.current === 2 && timeSinceLastClick < 300) {
+      handleClearSelection();
+      clickCountRef.current = 0;
+      return;
+    }
     const [start, end] = selectedRange;
     const dateStr = date.format("YYYY-MM-DD");
 
@@ -480,9 +569,27 @@ const CalendarPicker = ({
         <Typography variant="h6" sx={{ margin: 0 }}>
           {`${month} ${year}`}
         </Typography>
-        <IconButton onClick={goToNextMonth} color="inherit">
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {selectedRange[0] && (
+            <IconButton
+              onClick={handleClearSelection}
+              color="inherit"
+              size="small"
+              sx={{
+                backgroundColor: "rgba(0,0,0,0.05)",
+                "&:hover": { backgroundColor: "rgba(0,0,0,0.1)" },
+              }}
+            >
+              <ClearIcon />
+            </IconButton>
+          )}
+          <IconButton onClick={goToNextMonth} color="inherit">
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </Box>
+        {/* <IconButton onClick={goToNextMonth} color="inherit">
           <ArrowForwardIosIcon />
-        </IconButton>
+        </IconButton> */}
       </Box>
     );
   };
@@ -515,8 +622,7 @@ const CalendarPicker = ({
               relative={true}
             />
           )}
-          {/* <Grid container spacing={2}>
-            <Grid item xs={12} md={6}> */}
+
           <Calendar
             fullscreen={false}
             onSelect={onSelect}
@@ -525,20 +631,6 @@ const CalendarPicker = ({
             value={currentDate}
             disabledDate={disabledDate}
           />
-          {/* </Grid>
-            {isMdUp && (
-              <Grid item xs={12} md={6}>
-                <Calendar
-                  fullscreen={false}
-                  onSelect={onSelect}
-                  disabledDate={disabledDate}
-                  fullCellRender={renderDateCell}
-                  headerRender={headerRender}
-                  value={currentDate.add(1, "month")}
-                />
-              </Grid>
-            )}
-          </Grid> */}
         </>
       )}
     </Box>

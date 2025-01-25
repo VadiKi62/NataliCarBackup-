@@ -121,7 +121,15 @@ export default function NavBar({
           sx={{ width: "100%" }}
         >
           <Link href="/">
-            <Logo fontSize={{ sm: 10, md: 29 }}>
+            <Logo
+              sx={{
+                fontSize: "clamp(16px, calc(1rem + 2vw), 32px)",
+                // This ensures:
+                // - Minimum size: 16px
+                // - Scales fluidly with viewport
+                // - Maximum size: 32px
+              }}
+            >
               {companyData.name}
               {isAdmin && " ADMIN"}
             </Logo>
@@ -172,7 +180,7 @@ export default function NavBar({
                   <Typography
                     sx={{
                       px: { xs: 0.5, md: 3 },
-                      fontSize: { xs: 6, md: 15 },
+                      fontSize: { xs: 11, md: 15 },
                       textTransform: "uppercase",
                     }}
                   >
@@ -183,14 +191,14 @@ export default function NavBar({
                   <Typography
                     sx={{
                       px: { xs: 0.5, md: 3 },
-                      fontSize: { xs: 6, md: 15 },
+                      fontSize: { xs: 11, md: 15 },
                       textTransform: "uppercase",
                     }}
                   >
-                    {t("header.calendars")}
+                    {t("header.orders")}
                   </Typography>
                 </Link>
-                <Link href="/admin/orders-table">
+                {/* <Link href="/admin/orders-table">
                   <Typography
                     sx={{
                       px: { xs: 0.5, md: 3 },
@@ -200,12 +208,12 @@ export default function NavBar({
                   >
                     {t("header.table")}
                   </Typography>
-                </Link>
+                </Link> */}
                 <Link href="/admin/orders-calendar">
                   <Typography
                     sx={{
                       px: { xs: 0.5, md: 3 },
-                      fontSize: { xs: 6, md: 15 },
+                      fontSize: { xs: 11, md: 15 },
                       textTransform: "uppercase",
                     }}
                   >

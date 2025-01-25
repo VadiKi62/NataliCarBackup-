@@ -21,7 +21,11 @@ import MuiCalendar from "@app/components/Calendars/MuiCalendar";
 import ConflictMessage from "./conflictMessage";
 import Snackbar from "@app/components/common/Snackbar";
 import { useMainContext } from "@app/Context";
-import { functionToCheckDuplicates } from "@utils/functions";
+import {
+  functionToCheckDuplicates,
+  returnHoursToParseToDayjs,
+  toParseTime,
+} from "@utils/functions";
 import CalendarPicker from "@app/components/CarComponent/CalendarPicker";
 import RenderConflictMessage from "@app/components/Admin/Order/RenderConflictInAddOrder";
 
@@ -44,25 +48,39 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 // Set the default timezone
-const timeZone = "Europe/Athens";
-dayjs.tz.setDefault(timeZone);
+// const timeZone = "Europe/Athens";
+// dayjs.tz.setDefault(timeZone);
 
 const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
-  const { fetchAndUpdateOrders, isLoading, ordersByCarId, allOrders } =
+  const { fetchAndUpdateOrders, isLoading, ordersByCarId, company } =
     useMainContext();
+
+  const {
+    defaultStartHour,
+    defaultStartMinute,
+    defaultEndHour,
+    defaultEndMinute,
+  } = returnHoursToParseToDayjs(company);
+
   const carOrders = ordersByCarId(car?._id);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [pendingDatesInRange, setPendingDatesInRange] = useState([]);
   const [confirmedDatesInRange, setConfirmedDatesInRange] = useState([]);
-  const [startTime, setStartTime] = useState(dayjs());
-  const [endTime, setEndTime] = useState(dayjs());
+  const [startTime, setStartTime] = useState(
+    dayjs().hour(defaultStartHour).minute(defaultStartMinute)
+  );
+  const [endTime, setEndTime] = useState(
+    dayjs().hour(defaultEndHour).minute(defaultEndMinute)
+  );
 
-  const [loadingState, setLoadingState] = useState(false); // Loading state for booking process
-  const [statusMessage, setStatusMessage] = useState("");
+  const [loadingState, setLoadingState] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({
+    type: null,
+    message: "",
+  });
 
   const { confirmed, pending } = analyzeDates(carOrders);
 
-  // Добавляем состояния для новых полей
   const [orderDetails, setOrderDetails] = useState({
     placeIn: "",
     placeOut: "",
@@ -74,22 +92,22 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
     confirmed: false,
   });
 
-  // Обработчик изменения полей
-  const handleFieldChange = (field, value) => {
+  // Оптимизированный обработчик изменения полей
+  const handleFieldChange = useCallback((field, value) => {
     setOrderDetails((prev) => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
-  const toggleConfirmedStatus = () => {
+  const toggleConfirmedStatus = useCallback(() => {
     setOrderDetails((prev) => ({
       ...prev,
       confirmed: !prev.confirmed,
     }));
-  };
+  }, []);
 
-  // Мемоизируем функцию проверки конфликтов pending
+  // Мемоизированные функции проверки конфликтов
   const checkConflictsPending = useCallback(
     (startDate, endDate) => {
       if (!startDate || !endDate || !pending) return [];
@@ -103,7 +121,6 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
     [pending]
   );
 
-  // Мемоизируем функцию проверки конфликтов confirmed
   const checkConflictsConfirmed = useCallback(
     (startDate, endDate) => {
       if (!startDate || !endDate || !confirmed) return [];
@@ -125,24 +142,15 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
         return;
       }
 
-      const startDate = dayjs(dates.start).format("YYYY-MM-DD");
-      const endDate = dayjs(dates.end).format("YYYY-MM-DD");
+      const startDate = dayjs(dates.start).utc().format("YYYY-MM-DD");
+      const endDate = dayjs(dates.end).utc().format("YYYY-MM-DD");
 
-      console.log("Updating dates:", {
-        start: startDate,
-        end: endDate,
-      });
-
-      // Проверяем конфликты pendoing перед установкой дат
       const conflicts = checkConflictsPending(dates.start, dates.end);
-
-      // Проверяем конфликты pendoing перед установкой дат
       const conflictsConfirmed = checkConflictsConfirmed(
         dates.start,
         dates.end
       );
 
-      // Обновляем оба состояния вместе
       setBookedDates({
         start: startDate,
         end: endDate,
@@ -150,59 +158,114 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
       setPendingDatesInRange(conflicts);
       setConfirmedDatesInRange(conflictsConfirmed);
 
+      // Улучшенное логирование конфликтов
       if (conflicts?.length > 0) {
-        console.warn(
-          "В выбранном диапазоне есть уже забронированные даты ожидающие подтверждения:",
-          conflicts.map((d) => dayjs(d.date).format("YYYY-MM-DD"))
-        );
+        setStatusMessage({
+          type: "warning",
+          message: `Внимание: В выбранном диапазоне есть ${conflicts.length} ожидающих подтверждения бронирований`,
+        });
       }
       if (conflictsConfirmed?.length > 0) {
-        console.warn(
-          "В выбранном диапазоне есть уже недоступные даті:",
-          conflictsConfirmed.map((d) => dayjs(d.date).format("MMM DD"))
-        );
+        setStatusMessage({
+          type: "error",
+          message: `Ошибка: В выбранном диапазоне есть ${conflictsConfirmed.length} уже подтвержденных бронирований`,
+        });
       }
     },
     [checkConflictsPending, checkConflictsConfirmed]
   );
 
   const handleBookingComplete = async () => {
-    // Собираем данные для отправки
+    setLoadingState(true);
+    setStatusMessage({ type: null, message: "" });
+
     const data = {
       carNumber: car?.carNumber,
       customerName: orderDetails.customerName,
       phone: orderDetails.phone,
       email: orderDetails.email,
-      rentalStartDate: new Date(bookDates.start).toISOString(),
-      rentalEndDate: new Date(bookDates.end).toISOString(),
-      timeIn: startTime,
-      timeOut: endTime,
+      rentalStartDate: dayjs(bookDates.start)
+        .utc()
+        .hour(startTime.hour())
+        .minute(startTime.minute()),
+      rentalEndDate: dayjs(bookDates.end)
+        .utc()
+        .hour(endTime.hour())
+        .minute(endTime.minute()),
+      timeIn: dayjs(bookDates.start)
+        .utc()
+        .hour(startTime.hour())
+        .minute(startTime.minute()),
+      timeOut: dayjs(bookDates.end)
+        .utc()
+        .hour(endTime.hour())
+        .minute(endTime.minute()),
       placeIn: orderDetails.placeIn,
       placeOut: orderDetails.placeOut,
       confirmed: orderDetails.confirmed,
     };
 
     try {
-      // Пример отправки данных на сервер (например, через fetch)
       const response = await addOrderNew(data);
 
-      console.log(response);
+      // await fetchAndUpdateOrders();
 
-      await fetchAndUpdateOrders();
+      setStatusMessage({
+        type: "success",
+        message: response.data.message || "Заказ успешно добавлен",
+      });
 
       setUpdateStatus({
         type: 200,
-        message: response.data.message || "Order added",
+        message: response.data.message || "Заказ добавлен",
       });
 
-      // Закрыть модальное окно после успешной отправки
-      onClose();
+      // Закрываем модальное окно с небольшой задержкой для отображения сообщения
+      setTimeout(() => {
+        setStatusMessage({ type: null, message: "" });
+        onClose();
+      }, 5000);
     } catch (error) {
       console.error("Ошибка при отправке данных:", error);
-      setUpdateStatus({ type: 400, message: response.message });
+
+      setStatusMessage({
+        type: "error",
+        message:
+          error.message ||
+          "Не удалось добавить заказ. Пожалуйста, проверьте данные.",
+      });
+
+      setUpdateStatus({
+        type: 400,
+        message: error?.message || "Ошибка сервера",
+      });
     } finally {
       setLoadingState(false);
     }
+  };
+
+  // Отрисовка статусного сообщения
+  const renderStatusMessage = () => {
+    if (!statusMessage.message) return null;
+
+    const colorMap = {
+      success: "green",
+      error: "red",
+      warning: "orange",
+    };
+
+    return (
+      <Typography
+        variant="body2"
+        sx={{
+          color: colorMap[statusMessage.type] || "inherit",
+          textAlign: "center",
+          mt: 2,
+        }}
+      >
+        {statusMessage.message}
+      </Typography>
+    );
   };
 
   const renderDateTimeSection = () => (
@@ -322,16 +385,46 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
           overflow: "auto",
         }}
       >
+        {loadingState && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              bgcolor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              sx={{
+                textAlign: "center",
+                color: "white",
+              }}
+            >
+              <CircularProgress color="inherit" />
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Отправка заказа...
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Typography variant="h6" color="primary.main">
-          Add Order for {car?.model}
+          Добавить заказ для {car?.model}
         </Typography>
         <Typography variant="body2" color="primary.main">
-          Reg. Number: {car?.regNumber}
+          Регистрационный номер: {car?.regNumber}
         </Typography>
 
         {renderConfirmationButton()}
         {renderDateTimeSection()}
         {renderCustomerSection()}
+
+        {renderStatusMessage()}
 
         <Box sx={{ mt: 3 }}>
           <Button
@@ -340,14 +433,15 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
             disabled={
               !bookDates.start ||
               !bookDates.end ||
-              !startTime ||
+              !startTime.utc() ||
               !endTime ||
               !orderDetails.customerName ||
-              !orderDetails.phone
+              !orderDetails.phone ||
+              loadingState
             }
             sx={{ width: "100%" }}
           >
-            Complete Booking
+            Завершить бронирование
           </Button>
         </Box>
       </Box>

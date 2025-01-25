@@ -258,8 +258,8 @@ const EditOrderModal = ({
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
-        timeIn: dayjs(startTime).toDate(),
-        timeOut: dayjs(endTime).toDate(),
+        timeIn: dayjs(startTime).utc().toDate(),
+        timeOut: dayjs(endTime).utc().toDate(),
       };
 
       console.log("datesTO send!", datesToSend);
@@ -483,8 +483,8 @@ const EditOrderModal = ({
               {renderField("Rental End Date", "rentalEndDate", "date")}
               <TimePicker
                 mb={2}
-                startTime={dayjs(startTime)}
-                endTime={dayjs(endTime)}
+                startTime={dayjs(startTime).utc()}
+                endTime={dayjs(endTime).utc()}
                 setStartTime={setStartTime}
                 setEndTime={setEndTime}
                 isRestrictionTimeIn={availableTimes?.availableStart}

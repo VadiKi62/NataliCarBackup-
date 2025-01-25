@@ -200,7 +200,7 @@ function Admin({ children, ...props }) {
               </Grid>
             ))}
         </Grid>
-      )}
+      )} */}
       {updateStatus && (
         <Snackbar
           key={updateStatus.message + updateStatus.type}
@@ -209,7 +209,7 @@ function Admin({ children, ...props }) {
           closeFunc={handleCloseSnackbar}
           open={Boolean(updateStatus)}
         />
-      )} */}
+      )}
       <AddCarModal
         open={isModalAddCarOpen}
         onClose={onModalAddCarOpen}

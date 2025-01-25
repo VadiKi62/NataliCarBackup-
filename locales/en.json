@@ -6,7 +6,8 @@
     "cars": "Cars",
     "calendars": "Calendars",
     "table": "Orders table",
-    "calendar": "Order Calendar"
+    "calendar": "Calendar",
+    "orders": "Orders"
   },
   "basic": {
     "close": "close",

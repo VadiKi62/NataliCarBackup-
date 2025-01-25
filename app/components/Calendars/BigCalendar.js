@@ -32,15 +32,38 @@ import EditOrderModal from "@app/components/Admin/Order/EditOrderModal";
 
 export default function BigCalendar({ cars, orders }) {
   const [selectedOrders, setSelectedOrders] = useState([]);
+  const [startEndDates, setStartEndDates] = useState([]);
+  const [isConflictOrder, setIsConflictOrder] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleClose = () => setOpen(false);
 
-  const { ordersByCarId, fetchAndUpdateOrders } = useMainContext();
+  const { ordersByCarId, fetchAndUpdateOrders, allOrders } = useMainContext();
 
   const ordersByCarIdWithAllorders = useCallback((carId, orders) => {
     return orders?.filter((order) => order.car === carId);
   }, []);
+
+  useEffect(() => {
+    const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
+      extractArraysOfStartEndConfPending(allOrders);
+
+    const overlap = returnOverlapOrdersObjects(
+      allOrders,
+      transformedStartEndOverlap
+    );
+
+    setStartEndDates(startEnd);
+  }, [orders]);
+
+  const handleSaveOrder = async (updatedOrder) => {
+    setSelectedOrders((prevSelectedOrders) =>
+      prevSelectedOrders.map((order) =>
+        order._id === updatedOrder._id ? updatedOrder : order
+      )
+    );
+    await fetchAndUpdateOrders();
+  };
 
   const [month, setMonth] = useState(dayjs().month()); // Initial month state (current month)
   const monthName = useMemo(() => dayjs().month(month).format("MMMM"), [month]);
@@ -130,6 +153,7 @@ export default function BigCalendar({ cars, orders }) {
                     color: "text.light",
                     zIndex: 2,
                     fontWeight: "bold",
+                    padding: "7px",
                   }}
                 >
                   {car.model} {car.regNumber}{" "}
@@ -198,11 +222,11 @@ export default function BigCalendar({ cars, orders }) {
                 order={order}
                 open={open}
                 onClose={handleClose}
-                // onSave={handleSaveOrder}
+                onSave={handleSaveOrder}
                 // setCarOrders={setCarOrders}
-                // isConflictOrder={selectedOrders.length > 1 ? true : false}
-                // setIsConflictOrder={setIsConflictOrder}
-                // startEndDates={startEndDates}
+                isConflictOrder={selectedOrders.length > 1 ? true : false}
+                setIsConflictOrder={setIsConflictOrder}
+                startEndDates={startEndDates}
               />
             </Grid>
           ))}

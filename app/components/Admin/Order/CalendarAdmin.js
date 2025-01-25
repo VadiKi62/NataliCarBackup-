@@ -387,7 +387,7 @@ const CalendarAdmin = ({
     [confirmedDates, unavailableDates, orders]
   );
   const handleClose = () => setOpen(false);
-  // Memoize order save handler
+
   const handleSaveOrder = (updatedOrder) => {
     // handleOrderUpdate();
     setSelectedOrders((prevSelectedOrders) =>

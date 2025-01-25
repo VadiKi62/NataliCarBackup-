@@ -18,7 +18,6 @@ import {
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isBetween);
-dayjs.tz.setDefault("Europe/Athens");
 
 export async function POST(request) {
   try {
