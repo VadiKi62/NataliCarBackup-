@@ -11,11 +11,10 @@ const diffStart = companyData.hoursDiffForStart;
 const diffEnd = companyData.hoursDiffForEnd;
 
 export function returnHoursToParseToDayjs(company) {
-  const defaultStartHour = company.defaultStart.slice(0, 2);
-  const defaultStartMinute = company.defaultStart.slice(-2);
-
-  const defaultEndHour = company.defaultEnd.slice(0, 2);
-  const defaultEndMinute = company.defaultEnd.slice(-2);
+  const defaultStartHour = company?.defaultStart?.slice(0, 2);
+  const defaultStartMinute = company?.defaultStart?.slice(-2);
+  const defaultEndHour = company?.defaultEnd?.slice(0, 2);
+  const defaultEndMinute = company?.defaultEnd?.slice(-2);
   return {
     defaultStartHour,
     defaultStartMinute,
@@ -115,18 +114,22 @@ export function extractArraysOfStartEndConfPending(orders) {
     const startDate = dayjs(order.rentalStartDate);
     const endDate = dayjs(order.rentalEndDate);
 
+    const timeStart = order.timeIn.toString().slice(11, 16);
+
+    const timeEnd = order.timeOut.toString().slice(11, 16);
+
     // Add start and end dates to special handling array
     startEnd.push({
       date: startDate.format("YYYY-MM-DD"),
       type: "start",
-      time: dayjs(order.timeIn).format("HH:mm"),
+      time: timeStart,
       confirmed: order.confirmed,
       orderId: order._id,
     });
     startEnd.push({
       date: endDate.format("YYYY-MM-DD"),
       type: "end",
-      time: dayjs(order.timeOut).format("HH:mm"),
+      time: timeEnd,
       confirmed: order.confirmed,
       orderId: order._id,
     });
@@ -354,6 +357,9 @@ export function calculateAvailableTimes(
 
   console.log("availableStart", availableStart);
   console.log("availableEnd", availableEnd);
+
+  console.log("timeStart", timeStart);
+  console.log("timeEnd", timeEnd);
 
   // Parse hours and minutes from the available times
   const hourStart = Number(timeStart?.time.slice(0, 2)) || defaultStartHour; // Default hour is 15

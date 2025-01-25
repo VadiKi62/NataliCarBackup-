@@ -10,7 +10,7 @@ import { companyData } from "@utils/companyData";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isBetween);
-dayjs.tz.setDefault("Europe/Athens");
+// dayjs.tz.setDefault("Europe/Athens");
 
 const defaultStartHour = companyData.defaultStart.slice(0, 2);
 const defaultStartMinute = companyData.defaultStart.slice(-2);
@@ -189,11 +189,11 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
   if (isStartTimeConflict || isEndTimeConflict) {
     const conflictMessage = `Time ${
       timeConflicts.start
-        ? `has conflict with start booking: ${timeConflicts.start} `
+        ? `has conflict with start booking: ${timeConflicts.start.utc()} `
         : ""
     }${
       timeConflicts.end
-        ? `has conflict with end booking: ${timeConflicts.end}`
+        ? `has conflict with end booking: ${timeConflicts.end.utc()}`
         : ""
     } with existingn bookings.`;
 

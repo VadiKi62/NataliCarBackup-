@@ -284,8 +284,8 @@ const EditOrderModal = ({
       }
       if (response.status == 408) {
         // setConflictMessage1(response.conflicts);
-        const isStartConflict = response.conflicts.start;
-        const isEndConflict = response.conflicts.end;
+        const isStartConflict = response.conflicts.start.utc();
+        const isEndConflict = response.conflicts.end.utc();
         isStartConflict &&
           setTimeInMessage(
             `Car is Not available before ${dayjs(isStartConflict).format(

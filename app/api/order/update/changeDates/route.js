@@ -14,8 +14,8 @@ import {
 } from "@utils/analyzeDates";
 
 dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.tz.setDefault("Europe/Athens");
+// dayjs.extend(timezone);
+// dayjs.tz.setDefault("Europe/Athens");
 
 export const PUT = async (req) => {
   try {
@@ -60,7 +60,7 @@ export const PUT = async (req) => {
       newTimeOut
     );
 
-    console.log("from API start", start.local());
+    console.log("from API start", start);
 
     // Ensure start and end dates are not the same
     if (dayjs(start).isSame(dayjs(end), "day")) {
@@ -89,7 +89,7 @@ export const PUT = async (req) => {
       _id: { $ne: _id },
     });
 
-    const { status, data } = checkConflicts(allOrders, start, end, start, end);
+    const { status, data } = checkConflicts(allOrders, start, end);
 
     console.log("!! - > result1", status);
     console.log("!! - > result1", data);
@@ -107,6 +107,7 @@ export const PUT = async (req) => {
             }
           );
         case 408:
+          console.log(data);
           // time-conflict, return conflictDates.start (means the conflict is within current start time) or conflictDates.end - means  error with end , and time restriction
           return new Response(
             JSON.stringify({

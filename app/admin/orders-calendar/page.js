@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { unstable_noStore } from "next/cache";
 import { Box } from "@mui/material";
-import { fetchAllCars, reFetchAllOrders } from "@utils/action";
+import { fetchAllCars, reFetchAllOrders, fetchCompany } from "@utils/action";
 import Feed from "@app/components/Feed";
 import Loading from "@app/loading";
 
@@ -12,9 +12,17 @@ export default async function PageOrdersCalendar() {
   unstable_noStore();
   const carsData = await fetchAllCars();
   const ordersData = await reFetchAllOrders();
+  const companyId = "676440c79775c7ee203e4e0e";
+  const company = await fetchCompany(companyId);
   return (
-    <Suspense fallback={<Loading/>}>
-      <Feed cars={carsData} orders={ordersData} isAdmin={true} isMain={false}>
+    <Suspense fallback={<Loading />}>
+      <Feed
+        cars={carsData}
+        orders={ordersData}
+        company={company}
+        isAdmin={true}
+        isMain={false}
+      >
         <Box sx={{ my: 3 }}>
           <Admin isOrdersBigCalendar={true} />
         </Box>

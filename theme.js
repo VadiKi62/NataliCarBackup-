@@ -5,14 +5,16 @@ export default createTheme({
   palette: {
     primary: {
       main: "#990606",
-      green: "#e7cb75",
+      // green: "#e7cb75",
+      green: "#c2d1e0",
       fiolet: "#bfa70d",
       red: "#8A0707",
       main1: "#346698",
     },
     secondary: {
       main: "#151515",
-      light: "rgba(231,203,117, 0.70)",
+      // light: "rgba(231,203,117, 0.70)",
+      light: "#c2d1e0",
       beige: "#fceee9",
       background: "rgba(191,167,93,1)",
       complement: "#8A0707",
