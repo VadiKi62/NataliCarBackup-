@@ -3,10 +3,11 @@ import sendEmail from "./sendEmail";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { companyData } from "./companyData";
 
 dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.tz.setDefault("Europe/Athens");
+// dayjs.extend(timezone);
+// dayjs.tz.setDefault("Europe/Athens");
 
 export const API_URL =
   process.env.NODE_ENV === "development"
@@ -434,7 +435,8 @@ export async function fetchCompany(companyId) {
     });
 
     if (response.status === 404) {
-      throw new Error("Company not found");
+      return companyData;
+      // throw new Error("Company not found");
     }
 
     const data = await response.json();

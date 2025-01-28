@@ -48,6 +48,7 @@ const AddCarModal = ({
 }) => {
   const DEFAULT_IMAGE = "./NO_PHOTO.png";
   const { resubmitCars } = useMainContext();
+
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(DEFAULT_IMAGE);
   const [carData, setCarData] = useState({

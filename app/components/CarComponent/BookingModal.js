@@ -24,10 +24,6 @@ import { useMainContext } from "../../Context";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
-dayjs.extend(timezone);
-
-// Set the default timezone
-dayjs.tz.setDefault("Europe/Athens");
 
 // const { RangePicker } = DatePicker;
 
@@ -66,6 +62,7 @@ const BookingModal = ({
   // if (presetDates) console.log("presetDates from Fooking Modal ", presetDates);
   const { t } = useTranslation();
   const { company } = useMainContext();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -161,7 +158,7 @@ const BookingModal = ({
           emailCompany: company.email,
           email: orderData.email,
           title: title,
-          message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${response.data.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} id : ${orderData.car} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
+          message: `${statusMessage}\nБронь с ${formattedStartDate} по ${formattedEndDate}. \n Кол-во дней : ${orderData.numberOfDays}  \n Сумма : ${response.data.totalPrice} евро. \n \n Данные машины :   ${orderData.carNumber} ${orderData.carModel} regNumber : ${orderData.regNumber} \n \n Данные клиента : \n  Мейл : ${orderData.email}, \n Тел : ${orderData.phone} \n имя: ${orderData.customerName}`,
         };
       };
 

@@ -19,4 +19,8 @@ export const companyData = {
   defaultStart: "14:00",
   defaultEnd: "12:00",
   seasons: seasons,
+  locations: [
+    { name: "Nea Kalikratia", coords: { lat: "40.31", lon: "23.06" } },
+    { name: "Airport", coords: { lat: "40.31", lon: "23.06" } },
+  ],
 };

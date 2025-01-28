@@ -35,7 +35,7 @@ import {
   updateCustomerInfo,
   getConfirmedOrders,
 } from "@utils/action";
-import { Mms } from "@node_modules/@mui/icons-material";
+import { RenderSelectField } from "@app/components/common/Fields";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -55,7 +55,8 @@ const EditOrderModal = ({
   setIsConflictOrder,
   startEndDates,
 }) => {
-  const { allOrders, fetchAndUpdateOrders } = useMainContext();
+  const { allOrders, fetchAndUpdateOrders, company } = useMainContext();
+  const locations = company.locations.map((loc) => loc.name);
   const [editedOrder, setEditedOrder] = useState(order);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
@@ -323,6 +324,14 @@ const EditOrderModal = ({
       setIsUpdating(false);
     }
   };
+
+  const handleChangeSelectedBox = (e) => {
+    const { name, value } = e.target;
+    console.log(e.target);
+    const newValue = value;
+
+    setEditedOrder({ ...editedOrder, [name]: newValue });
+  };
   const handleChange = (field, value) => {
     const defaultStartHour = companyData.defaultStart.slice(0, 2);
     const defaultStartMinute = companyData.defaultStart.slice(-2);
@@ -444,7 +453,7 @@ const EditOrderModal = ({
         ) : (
           <>
             <Typography variant="h5" gutterBottom>
-              Edit Order # {order?._id.slice(-4)}
+              Редактировать заказ # {order?._id.slice(-4)}
             </Typography>
             {/* <Divider sx={{ my: 2 }} /> */}
             <Box
@@ -454,7 +463,7 @@ const EditOrderModal = ({
               justifyContent="right"
             >
               <Typography variant="body1" sx={{ alignSelf: "center" }}>
-                Total Price: {editedOrder?.totalPrice} | Days:{" "}
+                Всего цена: {editedOrder?.totalPrice} | Дней:{" "}
                 {editedOrder?.numberOfDays}
               </Typography>
             </Box>
@@ -493,17 +502,31 @@ const EditOrderModal = ({
                 timeOutMessage={timeOutMessage}
               />
 
-              {/* {renderField("Time In", "timeIn", "time")}
-              {renderField("Time Out", "timeOut", "time")} */}
-              {renderField("Place In", "placeIn")}
-              {renderField("Place Out", "placeOut")}
+              {/* {renderField("Place In", "placeIn")}
+              {renderField("Place Out", "placeOut")} */}
+              <RenderSelectField
+                name="placeIn"
+                label="Место выдачи"
+                options={locations}
+                updatedCar={editedOrder}
+                handleChange={handleChangeSelectedBox}
+                required
+              />
+              <RenderSelectField
+                name="placeOut"
+                label="Место возврата"
+                updatedCar={editedOrder}
+                options={locations}
+                handleChange={handleChangeSelectedBox}
+                required
+              />
               <Button
                 variant="contained"
                 onClick={handleDateUpdate}
                 disabled={isUpdating}
                 sx={{ mt: 2 }}
               >
-                Update Rental Details
+                Обновить данные заказа
               </Button>
               {conflictMessage1 && (
                 <ConflictMessage
@@ -519,7 +542,6 @@ const EditOrderModal = ({
                   type={2}
                 />
               )}
-
               {/* {conflictMessage3 && (
                 <ConflictMessage
                   initialConflicts={conflictMessage3}
@@ -533,7 +555,7 @@ const EditOrderModal = ({
 
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Customer Information
+                Инфо клиента
               </Typography>
               {renderField("Customer Name", "customerName")}
               {renderField("Phone", "phone")}
@@ -544,7 +566,7 @@ const EditOrderModal = ({
                 disabled={isUpdating}
                 sx={{ mt: 2 }}
               >
-                Update Customer Info
+                Обновить инфо клиента
               </Button>
             </Box>
 
@@ -554,7 +576,7 @@ const EditOrderModal = ({
               sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
             >
               <Button onClick={onCloseModalEdit} variant="outlined">
-                Cancel
+                Отмена
               </Button>
               <Button
                 variant="contained"
@@ -566,7 +588,7 @@ const EditOrderModal = ({
                 {isUpdating ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
-                  "Delete Order"
+                  "Удалить заказ"
                 )}
               </Button>
             </Box>

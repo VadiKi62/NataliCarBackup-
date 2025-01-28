@@ -34,6 +34,7 @@ import {
   functionPendingOrConfirmedDatesInRange,
 } from "@utils/analyzeDates";
 import MuiTimePicker from "@app/components/Calendars/MuiTimePicker";
+import { RenderSelectField } from "@app/components/common/Fields";
 
 import {
   changeRentalDates,
@@ -54,6 +55,8 @@ dayjs.extend(timezone);
 const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
   const { fetchAndUpdateOrders, isLoading, ordersByCarId, company } =
     useMainContext();
+
+  const locations = company.locations.map((loc) => loc.name);
 
   const {
     defaultStartHour,
@@ -305,19 +308,22 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
         />
       </LocalizationProvider>
 
-      <TextField
-        fullWidth
-        margin="normal"
+      <RenderSelectField
+        mt={2}
+        name="placeIn"
         label="Место выдачи"
-        value={orderDetails.placeIn}
-        onChange={(e) => handleFieldChange("placeIn", e.target.value)}
+        options={locations}
+        updatedCar={orderDetails}
+        handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
+        required
       />
-      <TextField
-        fullWidth
-        margin="normal"
+      <RenderSelectField
+        name="placeOut"
         label="Место возврата"
-        value={orderDetails.placeOut}
-        onChange={(e) => handleFieldChange("placeOut", e.target.value)}
+        updatedCar={orderDetails}
+        options={locations}
+        handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
+        required
       />
 
       {/* <Box sx={{ mt: 2 }}>

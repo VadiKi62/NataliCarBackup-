@@ -49,11 +49,12 @@ const RenderSelectField = ({
   updatedCar = null,
   handleChange,
   isLoading,
+  mt = 0,
 }) => (
   <FormControl
     fullWidth
     required={required}
-    sx={{ mb: 2 }}
+    sx={{ mb: 2, mt: mt }}
     disabled={isLoading}
   >
     <InputLabel id={`${name}-label`}>{label}</InputLabel>

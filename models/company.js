@@ -11,6 +11,10 @@ const CoordsSchema = new Schema({
   lon: { type: String, required: true },
 });
 
+const locationsSchema = new Schema({
+  name: { type: String },
+  coords: CoordsSchema,
+});
 const CompanySchema = new Schema({
   name: { type: String, required: true },
   tel: { type: String, required: true },
@@ -32,6 +36,7 @@ const CompanySchema = new Schema({
     HighSeason: { type: SeasonSchema, required: true },
   },
   useEmail: { type: Boolean, default: false, required: true },
+  locations: [locationsSchema],
 });
 
 const Company = models.Company || model("Company", CompanySchema);

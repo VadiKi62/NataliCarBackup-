@@ -230,7 +230,9 @@ export default function CarTableRow({
                 justifyContent: "center",
                 color: "common.white",
               }}
-            ></Box>
+            >
+              {order.timeEnd}
+            </Box>
 
             {/* Start Date Box - Right half */}
             <Box
