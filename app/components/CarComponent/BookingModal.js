@@ -154,6 +154,7 @@ const BookingModal = ({
             ? "Создано бронирование в сводобные даты."
             : "Бронирование в ожидании подтверждения.";
 
+        console.log("company", company);
         return {
           emailCompany: company.email,
           email: orderData.email,

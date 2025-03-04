@@ -19,9 +19,11 @@ const options = {
   },
 };
 
-const sendEmail = async (formData, companyEmail, isUsingCompanyEmail) => {
-  let emails = ["nataliakireewa@gmail.com", "ntf_elcor@gmail.com"];
-
+const sendEmail = async (
+  formData,
+  companyEmail,
+  isUsingCompanyEmail = true
+) => {
   const emailCompany = isUsingCompanyEmail
     ? companyEmail
     : "ntf_elcor@gmail.com";
@@ -30,7 +32,7 @@ const sendEmail = async (formData, companyEmail, isUsingCompanyEmail) => {
   const params = {
     from_name: "RentCarsAdmins",
     from_email: formData.email,
-    to_email: companyEmail,
+    to_email: emailCompany,
     title: formData.title,
     message: formData.message,
     emailCompany: emailCompany,

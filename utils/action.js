@@ -435,8 +435,8 @@ export async function fetchCompany(companyId) {
     });
 
     if (response.status === 404) {
-      return companyData;
-      // throw new Error("Company not found");
+      // return companyData;
+      throw new Error("Company not found");
     }
 
     const data = await response.json();
