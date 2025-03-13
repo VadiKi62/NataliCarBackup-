@@ -22,7 +22,7 @@ import {
 } from "@utils/functions";
 import { analyzeDates } from "@utils/analyzeDates";
 import Tooltip from "@mui/material/Tooltip";
-import { useTranslation } from "@node_modules/react-i18next";
+import { useTranslation } from "react-i18next";
 import ClearIcon from "@mui/icons-material/Clear";
 
 import utc from "dayjs/plugin/utc";
@@ -44,6 +44,7 @@ const CalendarPicker = ({
   selectedTimes,
 }) => {
   const { t } = useTranslation();
+  console.log(t("order.chooseDates"));
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);

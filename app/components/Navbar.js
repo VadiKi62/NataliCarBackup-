@@ -107,7 +107,7 @@ export default function NavBar({
 
   const handleLanguageSelect = (selectedLanguage) => {
     setLang(selectedLanguage);
-    // i18n.changeLanguage(selectedLanguage);
+    i18n.changeLanguage(selectedLanguage);
     handleLanguageClose();
   };
 
