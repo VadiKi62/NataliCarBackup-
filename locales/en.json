@@ -19,7 +19,7 @@
   "statusMesssages": {
     "pending": "Order in progress, these dates might not be available : {{dates}} . We will get in touch with you with details. ",
     "conflict": "Dates {{dates}} are already booked. Time to get creative!",
-    "orderDone": "Order successful! We'll touch base within 48 hours. 🎉"
+    "orderDone": "Order successful! We will contact you shortly. 🎉"
   },
   "order": {
     "chooseDates": "Choose your dates for booking",
@@ -34,7 +34,7 @@
     "thank": "Thank you for booking with us!",
     "daysNumber": " Number of days:",
     "price": "Total price :",
-    "weContact": " We have got your order and we will contact you within 24 hours to finalize the details.",
+    "weContact": "We have got your order and we will contact you shortly to finalize the details.",
     "confirmed": "Confirmed orders",
     "not-confirmed": "Non-confirmed orders",
     "conflict": "Conflict orders"
@@ -55,5 +55,12 @@
     "doors": "Number of Doors",
     "engine-pow": "Engine Power",
     "engine": "Engine"
+  },
+  "bookMesssages": {
+    "bookOK": "Booking Confirmed. Thank you for booking with us!",
+    "bookReceive": "We have received your booking for the",
+    "bookDays": "Number of days:",
+    "bookPrice": "Total price :",
+    "bookFinalize": "We have got your order and we will contact you shortly to finalize the details."
   }
 }
