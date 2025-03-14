@@ -62,5 +62,26 @@
     "bookDays": "Number of days:",
     "bookPrice": "Total price :",
     "bookFinalize": "We have got your order and we will contact you shortly to finalize the details."
+  },
+  "carPark": {
+    "carNewPhoto": "Select New Photo",
+    "savePhoto": "Save Photo",
+    "addCar": "ADD CAR",
+    "delCar": "DELETE CAR",
+    "editCar": "EDIT CAR",
+    "addNewCar": "Add New Car",
+    "addPhoto": "Add Photo",
+    "selectFile": "Select File",
+    "noFileSel": "No files selected",
+    "selList": "Select from the list",
+    "season": "Season",
+    "seasonDat": "Season Dates",
+    "NoSeason": "NoSeason",
+    "LowSeason": "LowSeason",
+    "LowUpSeason": "LowUpSeason",
+    "MiddleSeason": "MiddleSeason",
+    "HighSeason": "HighSeason",
+    "days": "days",
+    "updateCar": "Update Car Details"
   }
 }
