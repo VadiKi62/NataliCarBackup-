@@ -173,6 +173,10 @@ export const MainContextProvider = ({
     }),
     [
       cars,
+      arrayOfAvailableClasses,
+      error,
+      ordersByCarId,
+      updateStatus,
       allOrders,
       isLoading,
       scrolled,

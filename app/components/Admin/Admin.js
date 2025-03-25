@@ -95,6 +95,8 @@ function Admin({ children, ...props }) {
     setModalAddCar(false);
   };
 
+  const { t } = useTranslation();
+
   const isOrdersTable = props.isOrdersTable || false;
   const isOrdersBigCalendar = props.isOrdersBigCalendar || false;
   const isCars = props.isCars || false;
@@ -102,7 +104,7 @@ function Admin({ children, ...props }) {
 
   if (isLoading) return <Loading />;
   if (error) return <Error />;
-  const { t } = useTranslation();
+
   return (
     <Suspense fallback={<Loading />}>
       {/* <Navbar
