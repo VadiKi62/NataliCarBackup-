@@ -1,6 +1,7 @@
 import React from "react";
 import { Typography, Box, Button } from "@mui/material";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 const SuccessMessage = ({
   submittedOrder,
@@ -9,6 +10,7 @@ const SuccessMessage = ({
   emailSent,
   message = null,
 }) => {
+  const { t } = useTranslation();
   console.log("submittedOrder", submittedOrder);
   return (
     <Box>
@@ -28,14 +30,15 @@ const SuccessMessage = ({
           textAlign="center"
           sx={{ textTransform: "uppercase" }}
         >
-          Booking Confirmed. Thank you for booking with us!
+          {t("bookMesssages.bookOK")}
         </Typography>
       )}
 
       <Typography variant="body1" sx={{ mt: 2 }}>
-        We have received your booking for the{" "}
-        <strong>{submittedOrder?.carModel}</strong> from{" "}
-        <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong> to{" "}
+        {t("bookMesssages.bookReceive")}{" "}
+        <strong>{submittedOrder?.carModel}</strong> {t("basic.from")}{" "}
+        <strong>{dayjs(presetDates?.startDate).format("MMMM D")}</strong>{" "}
+        {t("basic.to")}{" "}
         <strong>{dayjs(presetDates?.endDate).format("MMMM D")}</strong>.
       </Typography>
 
@@ -45,7 +48,7 @@ const SuccessMessage = ({
         variant="h5"
         color="primary.red"
       >
-        Number of days: {submittedOrder.numberOfDays}{" "}
+        {t("bookMesssages.bookDays")}: {submittedOrder.numberOfDays}{" "}
       </Typography>
       <Typography
         textAlign="center"
@@ -53,12 +56,11 @@ const SuccessMessage = ({
         variant="h5"
         color="primary.red"
       >
-        Total price : €{submittedOrder.totalPrice}{" "}
+        {t("bookMesssages.bookPrice")} : €{submittedOrder.totalPrice}{" "}
       </Typography>
       {emailSent && (
         <Typography variant="body1" sx={{ mt: 1 }}>
-          We have got your order and we will contact you shortly to finalize the
-          details.
+          {t("bookMesssages.bookFinalize")}
         </Typography>
       )}
     </Box>

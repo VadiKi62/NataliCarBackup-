@@ -35,6 +35,7 @@ import {
   RenderSelectField,
 } from "@app/components/common/Fields";
 import CarImageUpload from "../../common/AddImageComponent";
+import { useTranslation } from "react-i18next";
 
 const EditCarModal = ({
   open,
@@ -100,21 +101,21 @@ const EditCarModal = ({
     await handleUpdate();
     setIsLoading(false);
   };
-
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onClose={handleCloseModal} fullWidth maxWidth="lg">
       {/* <Box sx={{ p: 3, position: "relative" }}> */}
       <Box
         sx={{ opacity: isLoading ? 0.3 : 1, transition: "opacity 0.2s", p: 2 }}
       >
-        <DialogTitle>Update Car Details</DialogTitle>
+        <DialogTitle>{t("carPark.updateCar")}</DialogTitle>
         <Grid container spacing={3} sx={{ flexGrow: 1 }}>
           {/* Column 1 */}
           <Grid item xs={12} sm={3}>
             <Stack spacing={3}>
               <RenderTextField
                 name="model"
-                label="Model"
+                label={t("car.model")}
                 defaultValue="Toyota"
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -124,7 +125,7 @@ const EditCarModal = ({
 
               <RenderSelectField
                 name="transmission"
-                label="Transmission"
+                label={t("car.transmission")}
                 options={Object.values(TRANSMISSION_TYPES)}
                 required
                 updatedCar={updatedCar}
@@ -134,7 +135,7 @@ const EditCarModal = ({
               <RenderTextField
                 type="number"
                 name="seats"
-                label="Seats"
+                label={t("car.seats")}
                 defaultValue={updatedCar.seats}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -150,7 +151,7 @@ const EditCarModal = ({
                     disabled={isLoading}
                   />
                 }
-                label="Air Conditioning"
+                label={t("car.air")}
                 sx={{ my: 2 }}
               />
             </Stack>
@@ -160,7 +161,7 @@ const EditCarModal = ({
             <Stack spacing={3}>
               <RenderTextField
                 name="registration"
-                label="Registration Year"
+                label={t("car.reg-year")}
                 defaultValue={updatedCar.registration}
                 type="number"
                 updatedCar={updatedCar}
@@ -169,7 +170,7 @@ const EditCarModal = ({
               />
               <RenderSelectField
                 name="fueltype"
-                label="Fuel Type"
+                label={t("car.fuel")}
                 options={Object.values(FUEL_TYPES)}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -178,7 +179,7 @@ const EditCarModal = ({
               <RenderTextField
                 type="number"
                 name="numberOfDoors"
-                label="Number of Doors"
+                label={t("car.doors")}
                 defaultValue={updatedCar.numberOfDoors}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -192,7 +193,7 @@ const EditCarModal = ({
             <Stack spacing={3}>
               <RenderTextField
                 name="regNumber"
-                label="Registration Number"
+                label={t("car.reg-numb")}
                 defaultValue={updatedCar.regNumber}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -201,7 +202,7 @@ const EditCarModal = ({
               <RenderTextField
                 type="number"
                 name="engine"
-                label="Engine"
+                label={t("car.engine")}
                 defaultValue={updatedCar.enginePower}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
@@ -219,7 +220,7 @@ const EditCarModal = ({
           <Grid item xs={12} sm={3}>
             <RenderSelectField
               name="class"
-              label="Class"
+              label={t("car.class")}
               options={Object.values(CAR_CLASSES)}
               required
               updatedCar={updatedCar}
@@ -229,7 +230,7 @@ const EditCarModal = ({
             <RenderTextField
               type="number"
               name="enginePower"
-              label="Engine Power"
+              label={t("car.engine-pow")}
               defaultValue={updatedCar.enginePower}
               updatedCar={updatedCar}
               handleChange={handleChange}
@@ -281,7 +282,7 @@ const EditCarModal = ({
                 disabled={isLoading}
                 sx={{ py: 1.5, px: 4, minWidth: "140px" }}
               >
-                Cancel
+                {t("basic.cancel")}
               </Button>
               <Button
                 onClick={handleSave}
@@ -290,7 +291,7 @@ const EditCarModal = ({
                 disabled={isLoading}
                 sx={{ py: 1.5, px: 4, minWidth: "140px" }}
               >
-                Save
+                {t("basic.save")}
               </Button>
             </DialogActions>
           </Grid>
@@ -323,7 +324,7 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
       target: { name: "color", value: event.target.value.toLowerCase() },
     });
   };
-
+  const { t } = useTranslation();
   return (
     <Box sx={{ mt: 1 }}>
       {colorMode === "predefined" ? (
@@ -379,14 +380,14 @@ const ColorPicker = ({ value, onChange, disabled = false }) => {
           sx={{ my: -0.5 }}
           value="predefined"
           control={<Radio size="small" />}
-          label="Выбрать из списка"
+          label={t("carPark.selList")}
           disabled={disabled}
         />
         <FormControlLabel
           sx={{ my: -1 }}
           value="custom"
           control={<Radio size="small" />}
-          label="Свой цвет"
+          label={t("carPark.myColor")}
           disabled={disabled}
         />
       </RadioGroup>

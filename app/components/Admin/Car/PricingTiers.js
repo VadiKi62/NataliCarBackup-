@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import debounce from "lodash/debounce";
 import { seasons } from "@utils/companyData";
 import { updateCar } from "@utils/action";
+import { useTranslation } from "react-i18next";
 
 const getSeasonDates = (season) => {
   const dates = seasons[season];
@@ -89,15 +90,21 @@ const PricingTiersTable = ({
     [car, debouncedUpdate, handleChange]
   );
 
+  const { t } = useTranslation();
+
   // console.log("Prices", prices);
   const columns = [
-    { field: "season", headerName: "Season", width: 150 },
-    { field: "seasonDates", headerName: "Season Dates", width: 200 },
+    { field: "season", headerName: t("carPark.season"), width: 150 },
+    { field: "seasonDates", headerName: t("carPark.seasonDat"), width: 200 },
     ...Object.keys(prices?.[Object.keys(prices)[0]]?.days || {}).map(
       (dayKey) => ({
         field: `days${dayKey}`,
         headerName:
-          dayKey <= 5 ? "1-4 days" : dayKey <= 7 ? "7-14 days" : "14+ days",
+          dayKey <= 5
+            ? t("carPark.1-4days")
+            : dayKey <= 7
+            ? t("carPark.5-14days")
+            : t("carPark.14+days"),
         type: "number",
         width: 120,
         editable: true,
@@ -144,7 +151,7 @@ const PricingTiersTable = ({
   return (
     <Grid item xs={12}>
       <Typography variant="h6" gutterBottom>
-        Цены:
+        {t("carPark.prices")}
       </Typography>
       <DataGrid
         rows={rows}

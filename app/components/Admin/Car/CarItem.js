@@ -18,6 +18,7 @@ import EditCarModal from "./EditCarModal";
 import DefaultButton from "../../common/DefaultButton";
 import { CldImage } from "next-cloudinary";
 import { useMainContext } from "@app/Context";
+import { useTranslation } from "react-i18next";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -169,13 +170,14 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
     setModalOpen(false);
     setUpdateStatus(null);
   };
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
       onCarDelete(car._id);
     }
   };
-
+  /* const { t } = useTranslation(); */
   return (
     <StyledCarItem elevation={3}>
       {/* {car?.photoUrl && ( */}
@@ -208,7 +210,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
                 p: 1,
               }}
             >
-              Select New Photo
+              {t("carPark.carNewPhoto")}
             </Button>
             {previewImage && (
               <Stack spacing={1}>
@@ -221,7 +223,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
                     p: 1,
                   }}
                 >
-                  Save Photo
+                  {t("carPark.savePhoto")}
                 </Button>
                 <Button
                   variant="contained"
@@ -232,7 +234,7 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
                     p: 1,
                   }}
                 >
-                  Cancel
+                  {t("basic.cancel")}
                 </Button>
               </Stack>
             )}
@@ -262,14 +264,14 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
               marginBottom: 1,
             }}
           >
-            Удалить эту машину
+            {t("carPark.delCar")}
           </DefaultButton>
           <DefaultButton
             relative
             onClick={handleEditToggle}
             sx={{ width: "100%" }}
           >
-            Редактировать
+            {t("carPark.editCar")}
           </DefaultButton>
         </Stack>
       </Wrapper>

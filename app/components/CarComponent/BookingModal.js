@@ -304,7 +304,7 @@ const BookingModal = ({
                   />
 
                   <TextField
-                    label="Name"
+                    label={t("order.name")}
                     variant="outlined"
                     fullWidth
                     value={name}
@@ -314,7 +314,7 @@ const BookingModal = ({
                     helperText={errors.name}
                   />
                   <TextField
-                    label="Email"
+                    label={t("order.email")}
                     variant="outlined"
                     fullWidth
                     value={email}
@@ -325,7 +325,7 @@ const BookingModal = ({
                     helperText={errors.email}
                   />
                   <TextField
-                    label="Phone Number"
+                    label={t("order.phone")}
                     variant="outlined"
                     fullWidth
                     value={phone}

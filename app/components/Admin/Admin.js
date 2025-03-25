@@ -21,6 +21,7 @@ import AddOrderModal from "./Order/AddOrderModal";
 import Cars from "./Car/Cars";
 import DataGridOrders from "@app/components/Admin/DataGridOrders";
 import BigCalendar from "@app/components/Calendars/BigCalendar";
+import { useTranslation } from "react-i18next";
 
 const StyledBox = styled("div")(({ theme, scrolled, isCarInfo }) => ({
   zIndex: 996,
@@ -101,7 +102,7 @@ function Admin({ children, ...props }) {
 
   if (isLoading) return <Loading />;
   if (error) return <Error />;
-
+  const { t } = useTranslation();
   return (
     <Suspense fallback={<Loading />}>
       {/* <Navbar
@@ -124,7 +125,7 @@ function Admin({ children, ...props }) {
               relative
               sx={{ width: "100%" }}
             >
-              Добавить машину
+              {t("carPark.addCar")}
             </DefaultButton>
           )}
           {(isOrdersCalendars || isOrdersBigCalendar) && (

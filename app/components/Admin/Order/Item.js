@@ -30,6 +30,7 @@ import Snackbar from "@app/components/common/Snackbar";
 import AddOrderModal from "./AddOrderModal";
 
 import { CldImage } from "next-cloudinary";
+import { useTranslation } from "react-i18next";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -128,12 +129,13 @@ function Item({
     setSelectedCar(car);
     setIsAddOrderOpen(true);
   };
+  const { t } = useTranslation();
 
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
         <Button variant="contained" color="primary" onClick={handleOpneModal}>
-          Add Order for {car.model}
+          {t("order.addOrder")} {car.model}
         </Button>
         {car?.photoUrl && (
           <CarImage>

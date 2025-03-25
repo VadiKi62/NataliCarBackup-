@@ -43,6 +43,7 @@ import {
   getConfirmedOrders,
   addOrderNew,
 } from "@utils/action";
+import { useTranslation } from "react-i18next";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -311,7 +312,7 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
       <RenderSelectField
         mt={2}
         name="placeIn"
-        label="Место выдачи"
+        label={t("order.pickupLocation")}
         options={locations}
         updatedCar={orderDetails}
         handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
@@ -319,7 +320,7 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
       />
       <RenderSelectField
         name="placeOut"
-        label="Место возврата"
+        label={t("order.returnLocation")}
         updatedCar={orderDetails}
         options={locations}
         handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
@@ -341,26 +342,28 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
       <TextField
         fullWidth
         margin="normal"
-        label="Имя клиента"
+        label={t("order.clientName")}
         value={orderDetails.customerName}
         onChange={(e) => handleFieldChange("customerName", e.target.value)}
       />
       <TextField
         fullWidth
         margin="normal"
-        label="Телефон"
+        label={t("order.phone")}
         value={orderDetails.phone}
         onChange={(e) => handleFieldChange("phone", e.target.value)}
       />
       <TextField
         fullWidth
         margin="normal"
-        label="Email"
+        label={t("order.email")}
         value={orderDetails.email}
         onChange={(e) => handleFieldChange("email", e.target.value)}
       />
     </Box>
   );
+
+  const { t } = useTranslation();
 
   const renderConfirmationButton = () => (
     <Button
@@ -370,8 +373,8 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
       sx={{ width: "100%", mb: 2 }}
     >
       {orderDetails.confirmed
-        ? "Бронирование подтверждено"
-        : "Подтвердить бронирование"}
+        ? t("order.bookingConfirmed")
+        : t("order.confirmBooking")}
     </Button>
   );
 
@@ -420,10 +423,10 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
           </Box>
         )}
         <Typography variant="h6" color="primary.main">
-          Добавить заказ для {car?.model}
+          {t("order.addOrder")} {car?.model}
         </Typography>
         <Typography variant="body2" color="primary.main">
-          Регистрационный номер: {car?.regNumber}
+          {t("car.reg-numb")}: {car?.regNumber}
         </Typography>
 
         {renderConfirmationButton()}
@@ -447,7 +450,7 @@ const AddOrder = ({ open, onClose, car, setUpdateStatus }) => {
             }
             sx={{ width: "100%" }}
           >
-            Завершить бронирование
+            {t("order.CompleteBook")}
           </Button>
         </Box>
       </Box>

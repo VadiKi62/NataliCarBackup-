@@ -36,6 +36,7 @@ import {
   getConfirmedOrders,
 } from "@utils/action";
 import { RenderSelectField } from "@app/components/common/Fields";
+import { useTranslation } from "react-i18next";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -147,9 +148,7 @@ const EditOrderModal = ({
 
   const handleDelete = async () => {
     // Prompt the user for confirmation before deleting
-    const isConfirmed = window.confirm(
-      "Are you sure you want to delete this order?"
-    );
+    const isConfirmed = window.confirm(t("order.sureDelOrder"));
     if (!isConfirmed) return;
 
     setIsUpdating(true);
@@ -427,7 +426,7 @@ const EditOrderModal = ({
       </Box>
     );
   };
-
+  const { t } = useTranslation();
   return (
     <>
       {/* <Modal
@@ -453,7 +452,7 @@ const EditOrderModal = ({
         ) : (
           <>
             <Typography variant="h5" gutterBottom>
-              Редактировать заказ # {order?._id.slice(-4)}
+              {t("order.editOrder")} # {order?._id.slice(-4)}
             </Typography>
             {/* <Divider sx={{ my: 2 }} /> */}
             <Box
@@ -463,8 +462,8 @@ const EditOrderModal = ({
               justifyContent="right"
             >
               <Typography variant="body1" sx={{ alignSelf: "center" }}>
-                Всего цена: {editedOrder?.totalPrice} | Дней:{" "}
-                {editedOrder?.numberOfDays}
+                {t("order.price")} {editedOrder?.totalPrice}€ |{" "}
+                {t("order.daysNumber")} {editedOrder?.numberOfDays}
               </Typography>
             </Box>
             <Divider sx={{ my: 2 }} />
@@ -482,14 +481,14 @@ const EditOrderModal = ({
                 }}
               >
                 {editedOrder?.confirmed
-                  ? "Заказ подтвержден"
-                  : "Заказ не подтвержден"}
+                  ? t("order.orderConfirmed")
+                  : t("order.orderNotConfirmed")}
               </Button>
             </Box>
 
             <Box sx={{ mb: 3 }}>
-              {renderField("Rental Start Date", "rentalStartDate", "date")}
-              {renderField("Rental End Date", "rentalEndDate", "date")}
+              {renderField(t("order.pickupDate"), "rentalStartDate", "date")}
+              {renderField(t("order.returnDate"), "rentalEndDate", "date")}
               <TimePicker
                 mb={2}
                 startTime={dayjs(startTime).utc()}
@@ -506,7 +505,7 @@ const EditOrderModal = ({
               {renderField("Place Out", "placeOut")} */}
               <RenderSelectField
                 name="placeIn"
-                label="Место выдачи"
+                label={t("order.pickupLocation")}
                 options={locations}
                 updatedCar={editedOrder}
                 handleChange={handleChangeSelectedBox}
@@ -514,7 +513,7 @@ const EditOrderModal = ({
               />
               <RenderSelectField
                 name="placeOut"
-                label="Место возврата"
+                label={t("order.returnLocation")}
                 updatedCar={editedOrder}
                 options={locations}
                 handleChange={handleChangeSelectedBox}
@@ -526,7 +525,7 @@ const EditOrderModal = ({
                 disabled={isUpdating}
                 sx={{ mt: 2 }}
               >
-                Обновить данные заказа
+                {t("order.updateOrder")}
               </Button>
               {conflictMessage1 && (
                 <ConflictMessage
@@ -555,18 +554,18 @@ const EditOrderModal = ({
 
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Инфо клиента
+                {t("order.clientInfo")}
               </Typography>
-              {renderField("Customer Name", "customerName")}
-              {renderField("Phone", "phone")}
-              {renderField("Email", "email")}
+              {renderField(t("order.clientName"), "customerName")}
+              {renderField(t("order.phone"), "phone")}
+              {renderField(t("order.email"), "email")}
               <Button
                 variant="contained"
                 onClick={handleCustomerUpdate}
                 disabled={isUpdating}
                 sx={{ mt: 2 }}
               >
-                Обновить инфо клиента
+                {t("order.updateClientInfo")}
               </Button>
             </Box>
 
@@ -576,7 +575,7 @@ const EditOrderModal = ({
               sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
             >
               <Button onClick={onCloseModalEdit} variant="outlined">
-                Отмена
+                {t("basic.cancel")}
               </Button>
               <Button
                 variant="contained"
@@ -588,7 +587,7 @@ const EditOrderModal = ({
                 {isUpdating ? (
                   <CircularProgress size={24} color="inherit" />
                 ) : (
-                  "Удалить заказ"
+                  t("order.deleteOrder")
                 )}
               </Button>
             </Box>
