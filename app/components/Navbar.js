@@ -271,7 +271,7 @@ export default function NavBar({
               <LegendCalendarAdmin client={isMain} />
               <SelectedFieldClass
                 name="class"
-                label="Choose Car Class"
+                label={t("header.carClass")}
                 options={Object.values(arrayOfAvailableClasses)}
                 value={selectedClass}
                 handleChange={handleCarClassChange}

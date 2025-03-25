@@ -4,6 +4,7 @@ import { Chip, Box, Typography } from "@mui/material";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import { analyzeDates } from "@utils/analyzeDates";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 
 const CustomCalendarPicker = ({ orders, setBookedDates }) => {
   const { confirmed, pending } = analyzeDates(orders);
@@ -137,15 +138,19 @@ const CustomCalendarPicker = ({ orders, setBookedDates }) => {
       });
     }
   };
+
+  const { t } = useTranslation();
+
   return (
     <Box sx={{ maxWidth: 400, p: 2 }}>
       <DateRangePicker
         value={value}
-        localeText={{ start: "Start", end: "End" }}
-        onChange={handleDateChange}
-        slots={{
-          day: ServerDay,
+        localeText={{
+          start: t("order.pickupDate"),
+          end: t("order.returnDate"),
         }}
+        onChange={handleDateChange}
+        slots={{ day: ServerDay }}
         disablePast // Отключаем выбор прошедших дат
       />
     </Box>

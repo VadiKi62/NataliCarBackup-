@@ -4,6 +4,7 @@ import { Box, TextField, Typography } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { useTranslation } from "react-i18next";
 
 export default function Time({
   startTime,
@@ -16,11 +17,12 @@ export default function Time({
   timeInMessage = null,
   timeOutMessage = null,
 }) {
+  const { t } = useTranslation();
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 2 }}>
         <TimePicker
-          label="Start Time"
+          label={t("order.pickupTime")}
           value={startTime}
           minTime={isRestrictionTimeIn ? startTime : null}
           format="HH:mm"
@@ -45,7 +47,7 @@ export default function Time({
       </Box>
       <Box sx={{ mt: 2, mb: mb }}>
         <TimePicker
-          label="End Time"
+          label={t("order.returnTime")}
           value={endTime}
           maxTime={isRestrictionTimeOut ? endTime : null}
           onChange={(newValue) => setEndTime(newValue)}
