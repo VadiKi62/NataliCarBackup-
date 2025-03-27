@@ -10,6 +10,8 @@ import {
   TableContainer,
   Select,
   MenuItem,
+  Modal,
+  Grid,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useMainContext } from "@app/Context";
@@ -21,6 +23,7 @@ import {
   returnOverlapOrders,
   returnOverlapOrdersObjects,
 } from "@utils/functions";
+import EditOrderModal from "@app/components/Admin/Order/EditOrderModal";
 
 export default function BigCalendar({ cars, orders }) {
   const { ordersByCarId, fetchAndUpdateOrders, allOrders } = useMainContext();
@@ -172,21 +175,75 @@ export default function BigCalendar({ cars, orders }) {
                   car={car}
                   orders={ordersByCarIdWithAllorders(car._id, orders)}
                   days={days}
-                  handleSaveOrder={handleSaveOrder}
-                  selectedOrders={selectedOrders}
+                  ordersByCarId={ordersByCarId}
                   setSelectedOrders={setSelectedOrders}
-                  startEndDates={startEndDates}
-                  isConflictOrder={isConflictOrder}
-                  setIsConflictOrder={setIsConflictOrder}
-                  open={open}
                   setOpen={setOpen}
-                  handleClose={handleClose}
                 />
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Grid
+          container
+          spacing={1}
+          justifyContent="center"
+          sx={{
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+            overflow: "auto",
+            "&::-webkit-scrollbar": {
+              width: "4px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "primary.main",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "background.paper",
+            },
+          }}
+        >
+          {selectedOrders.map((order, index) => (
+            <Grid
+              item
+              key={order._id}
+              xs={12}
+              sm={selectedOrders.length === 1 ? 12 : 6}
+              md={
+                selectedOrders.length === 1
+                  ? 12
+                  : selectedOrders.length === 2
+                  ? 6
+                  : selectedOrders.length >= 3 && selectedOrders.length <= 4
+                  ? 3
+                  : 2
+              }
+            >
+              <EditOrderModal
+                order={order}
+                open={open}
+                onClose={handleClose}
+                onSave={handleSaveOrder}
+                // setCarOrders={setCarOrders}
+                isConflictOrder={selectedOrders.length > 1 ? true : false}
+                setIsConflictOrder={setIsConflictOrder}
+                startEndDates={startEndDates}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      </Modal>
     </Box>
   );
 }
