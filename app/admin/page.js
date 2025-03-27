@@ -12,7 +12,7 @@ import Admin from "../components/Admin/Admin";
 import { fetchAllCars, reFetchAllOrders, fetchCompany } from "@utils/action";
 import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
-import DataGridOrders from "@app/components/Admin/DataGridOrders";
+
 import Feed from "@app/components/Feed";
 
 export default async function PageOrdersCalendar({ children }) {

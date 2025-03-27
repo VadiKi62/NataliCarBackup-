@@ -30,7 +30,7 @@ function Feed({ children, ...props }) {
           >
             <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
             <main>{children}</main>
-            <Footer />
+            {props.isMain && <Footer />}
             <ScrollButton />
           </MainContextProvider>
         </I18nextProvider>

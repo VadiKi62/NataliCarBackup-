@@ -11,13 +11,14 @@ function LegendCalendarAdmin({ client }) {
       justifyContent="center"
       alignItems="center"
       display={{ xs: "none", sm: "flex" }}
+      width={"100%"}
     >
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
+          mb: { xs: 11, sm: 0 }, // Adjust bottom margin on small screens
           padding: 1,
           margin: 2,
         }}
