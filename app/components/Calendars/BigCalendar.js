@@ -51,7 +51,8 @@ export default function BigCalendar({ cars, orders }) {
       return {
         dayjs: date,
         date: date.date(),
-        weekday: date.format("ddd"), // Shortened weekday names
+        weekday: date.format("dd"), // Shortened weekday names
+        isSunday: date.day() === 0, // Добавляем флаг для воскресенья
       };
     });
   }, [month, year, daysInMonth]);
@@ -143,13 +144,18 @@ export default function BigCalendar({ cars, orders }) {
                     top: 0,
                     backgroundColor: "white",
                     zIndex: 4,
-                    fontSize: "12px", // Smaller text
+                    fontSize: "16px", // Smaller text
                     padding: "6px", // Reduce padding
                     minWidth: 40,
+                    fontWeight: "bold",
                   }}
                 >
-                  <div>{day.date}</div>
-                  <div>{day.weekday}</div>
+                  <div style={{ color: day.isSunday ? "red" : "inherit" }}>
+                    {day.date}
+                  </div>
+                  <div style={{ color: day.isSunday ? "red" : "inherit" }}>
+                    {day.weekday}
+                  </div>
                 </TableCell>
               ))}
             </TableRow>
