@@ -63,7 +63,7 @@ const GradientAppBar = styled(AppBar, {
 const Logo = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.h1?.fontWeight || 400,
   fontFamily: theme.typography.h1.fontFamily,
-  color: theme.palette.text.light,
+  color: theme.palette.text.red,
 }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
