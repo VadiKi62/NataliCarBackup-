@@ -110,7 +110,7 @@ const ImageOverlay = styled(Box)(({ theme }) => ({
 }));
 
 function CarItem({ car, onCarDelete, setUpdateStatus }) {
-  const { updateCarInContext, setIsLoading } = useMainContext();
+  const { updateCarInContext, setIsLoading, resubmitCars } = useMainContext();
   const [modalOpen, setModalOpen] = useState(false);
   const [updatedCar, setUpdatedCar] = useState({ ...car });
   const [previewImage, setPreviewImage] = useState(null);
@@ -158,13 +158,37 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
   }, [updatedCar, setIsLoading, setUpdateStatus, updateCarInContext]);
 
   const handleCarsUpdate = async () => {
-    const response = await updateCarInContext(updatedCar);
-    setUpdateStatus({
-      type: response.type || "200",
-      message: response.message,
-    });
-  };
+    try {
+      // Reset any previous status
+      setUpdateStatus(null);
 
+      // Attempt to update car in context
+      const response = await updateCarInContext(updatedCar);
+
+      setUpdatedCar(response.data);
+
+      // Resubmit cars after successful update
+      await resubmitCars();
+
+      // Set success status
+      setUpdateStatus({
+        type: Number(response.type),
+        message: response.message || "Car updated successfully",
+      });
+    } catch (error) {
+      // Log the error for debugging
+      console.error("Car update error:", error);
+
+      // Set error status
+      setUpdateStatus({
+        type: 404,
+        message: error.message || "An unexpected error occurred",
+      });
+    } finally {
+      // Optional: Any cleanup or final actions
+      // For example, clearing form or resetting some state
+    }
+  };
   const handleEditToggle = () => setModalOpen(true);
   const handleModalClose = () => {
     setModalOpen(false);
