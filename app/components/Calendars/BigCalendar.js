@@ -85,18 +85,33 @@ export default function BigCalendar({ cars, orders }) {
     await fetchAndUpdateOrders();
   };
 
+  const sortedCars = useMemo(() => {
+    return [...cars].sort((a, b) => a.model.localeCompare(b.model));
+  }, [cars]);
+
   return (
     <Box
       sx={{
         overflowX: "auto",
-        overflowY: "auto",
+        overflowY: "hidden",
+        //position: "fixed", // Фиксируем Box, чтобы исключить скроллинг страницы
+        //top: 0,
+        //left: 0,
         pt: 10,
-        maxWidth: "100vw",
+        width: "auto",
+        // maxWidth: "100vw",
         zIndex: 100,
+        height: "calc(100vh - 10px)", // Добавлено для контроля высоты
       }}
     >
-      <TableContainer sx={{ maxHeight: "100vh", border: "1px solid #ddd" }}>
-        <Table stickyHeader sx={{ minWidth: "100vh" }}>
+      <TableContainer
+        sx={{
+          maxHeight: "calc(100vh - 80px)",
+          border: "1px solid #ddd",
+          overflow: "auto",
+        }}
+      >
+        <Table stickyHeader sx={{ width: "auto" }}>
           <TableHead>
             <TableRow position="fixed">
               {/* Sticky Left Column for Car Names */}
@@ -161,7 +176,7 @@ export default function BigCalendar({ cars, orders }) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cars.map((car) => (
+            {sortedCars.map((car) => (
               <TableRow key={car._id}>
                 <TableCell
                   sx={{
@@ -170,7 +185,8 @@ export default function BigCalendar({ cars, orders }) {
                     backgroundColor: "secondary.dark",
                     color: "text.light",
                     zIndex: 3,
-                    padding: 0,
+                    padding: "0px 0px",
+                    width: "auto",
                     minWidth: 120,
                   }}
                 >
