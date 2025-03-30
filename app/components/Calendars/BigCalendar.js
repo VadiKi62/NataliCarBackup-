@@ -98,8 +98,8 @@ export default function BigCalendar({ cars, orders }) {
         //top: 0,
         //left: 0,
         pt: 10,
-        width: "auto",
-        // maxWidth: "100vw",
+        //width: "auto",
+        maxWidth: "100vw",
         zIndex: 100,
         height: "calc(100vh - 10px)", // Добавлено для контроля высоты
       }}
@@ -185,8 +185,8 @@ export default function BigCalendar({ cars, orders }) {
                     backgroundColor: "secondary.dark",
                     color: "text.light",
                     zIndex: 3,
-                    padding: "0px 0px",
-                    width: "auto",
+                    padding: 0,
+                    // width: "auto",
                     minWidth: 120,
                   }}
                 >
