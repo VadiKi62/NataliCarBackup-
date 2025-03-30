@@ -27,6 +27,8 @@
   "order": {
     "chooseDates": "Choose your dates for booking",
     "notAvailableDate": "Not available",
+    "unavailableDate": "This date is unavailable",
+    "not100Date": "This date is pending approval. Maybe available but not 100%",
     "pendingDate": "Pending (available for booking)",
     "confirmBooking": "Confirm booking",
     "bookingConfirmed": "Booking confirmed",
@@ -59,7 +61,8 @@
     "updateOrder": "Update order details",
     "updateClientInfo": "Update client information",
     "deleteOrder": "Delete order",
-    "sureDelOrder": "Are you sure you want to delete this order?"
+    "sureDelOrder": "Are you sure you want to delete this order?",
+    "changeDates": "Everything is great! Dates have been changed"
   },
   "car": {
     "viewDetails": "View more details",
