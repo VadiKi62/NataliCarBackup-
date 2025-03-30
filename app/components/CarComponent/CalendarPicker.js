@@ -202,9 +202,8 @@ const CalendarPicker = ({
     // ДАЛЬШЕ КОД ВНЕДРЯЕТ СТИЛИ для каждого типа
 
     const getTooltipMessage = () => {
-      if (isConfirmed) return "This date is unavailable.";
-      if (isUnavailable)
-        return "This date is pending approval. Maybe available but not 100%";
+      if (isConfirmed) return t("order.unavailableDate");
+      if (isUnavailable) return t("order.not100Date");
       if (isStartDate && startEndInfo.type == "confirmed")
         return `Car needs to be returned after ${startEndInfo.time} `;
       if (isEndDate && startEndInfo.type == "confirmed")

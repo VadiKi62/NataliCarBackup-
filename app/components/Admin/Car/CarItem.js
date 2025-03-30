@@ -194,13 +194,19 @@ function CarItem({ car, onCarDelete, setUpdateStatus }) {
     setModalOpen(false);
     setUpdateStatus(null);
   };
+
   const { t } = useTranslation();
 
   const handleDelete = () => {
-    if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
+    if (window.confirm(t("carPark.sureDelCar") + car.model + " ?")) {
       onCarDelete(car._id);
     }
   };
+  //const handleDelete = () => {
+  //  if (window.confirm(`Вы уверены что хотите удалить ${car.model}?`)) {
+  //    onCarDelete(car._id);
+  //  }
+  //};
   /* const { t } = useTranslation(); */
   return (
     <StyledCarItem elevation={3}>
