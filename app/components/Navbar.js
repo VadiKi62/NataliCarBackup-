@@ -213,9 +213,18 @@ export default function NavBar({
                         {t("header.calendar")}
                       </Typography>
                     </Link>
-                    <ListItem button component={Link} href="/admin/table">
-                      <ListItemText primary="Таблица заказов" />
-                    </ListItem>
+
+                    <Link href="/admin/table">
+                      <Typography
+                        sx={{
+                          px: { xs: 0.5, md: 3 },
+                          fontSize: { xs: 11, md: 15 },
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {t("header.orderList")}
+                      </Typography>
+                    </Link>
                   </>
                 )}
                 <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
@@ -234,7 +243,7 @@ export default function NavBar({
             <Link href="/">
               <Logo
                 sx={{
-                  fontSize: "clamp(10px, calc(0.5rem + 1vw), 32px)",
+                  fontSize: "clamp(12px, calc(0.99rem + 1vw), 32px)",
                 }}
               >
                 {companyData.name}
@@ -340,7 +349,11 @@ export default function NavBar({
                   <ListItemText primary={t("header.calendar")} />
                 </ListItem>
                 <ListItem button component={Link} href="/admin/table">
-                  <ListItemText primary="Таблица заказов" />
+                  <ListItemText primary={t("header.orderList")} />
+                </ListItem>
+                {/* Language Switcher in Drawer */}
+                <ListItem button onClick={handleLanguageClick}>
+                  <ListItemText primary={lang} />
                 </ListItem>
               </>
             )}
