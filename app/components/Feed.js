@@ -19,6 +19,8 @@ import Footer from "@app/components/Footer";
 function Feed({ children, ...props }) {
   unstable_noStore();
 
+  const shouldShowFooter = !props.isAdmin; // Скрываем Footer, если isAdmin === true
+
   return (
     <Suspense fallback={<Loading />}>
       <ThemeProvider theme={theme}>
@@ -30,7 +32,8 @@ function Feed({ children, ...props }) {
           >
             <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
             <main>{children}</main>
-            {props.isMain && <Footer />}
+            {shouldShowFooter && <Footer />}{" "}
+            {/* Footer не отобразится, если isAdmin === true */}
             <ScrollButton />
           </MainContextProvider>
         </I18nextProvider>

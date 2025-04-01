@@ -1,40 +1,45 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Typography, Button, Stack } from "@mui/material";
 import { useMainContext } from "@app/Context";
 
 function DataGridOrders({ cars, orders }) {
-  // Prepare order data with formatted dates and robust date handling
-  const orderData = useMemo(
-    () =>
-      orders.map((order, index) => {
-        // Safely convert dates, with fallback values
-        const startDate = order.rentalStartDate
-          ? new Date(order.rentalStartDate)
-          : new Date(); // Default to current date if undefined
-        const endDate = order.rentalEndDate
-          ? new Date(order.rentalEndDate)
-          : new Date(); // Default to current date if undefined
+  // Используем состояние вместо useMemo для данных таблицы
+  const [orderData, setOrderData] = useState([]);
+  const [filterType, setFilterType] = useState("all");
 
-        return {
-          id: index + 1,
-          customerName: order.customerName,
-          phone: order.phone,
-          carNumber: order.carNumber,
-          email: order.email,
-          rentalStartDate: startDate.toLocaleDateString(),
-          rentalEndDate: endDate.toLocaleDateString(),
-          originalStartDate: startDate,
-          originalEndDate: endDate,
-          numberOfDays: order.numberOfDays,
-          totalPrice: order.totalPrice,
-          carModel: order.carModel,
-          confirmed: order.confirmed,
-        };
-      }),
-    [orders]
-  );
+  // Инициализируем данные при изменении props orders
+  useEffect(() => {
+    const formattedOrders = orders.map((order, index) => {
+      // Safely convert dates, with fallback values
+      const startDate = order.rentalStartDate
+        ? new Date(order.rentalStartDate)
+        : new Date(); // Default to current date if undefined
+      const endDate = order.rentalEndDate
+        ? new Date(order.rentalEndDate)
+        : new Date(); // Default to current date if undefined
+
+      return {
+        id: index + 1,
+        customerName: order.customerName,
+        phone: order.phone,
+        carNumber: order.carNumber,
+        email: order.email,
+        rentalStartDate: startDate.toLocaleDateString(),
+        rentalEndDate: endDate.toLocaleDateString(),
+        originalStartDate: startDate,
+        originalEndDate: endDate,
+        numberOfDays: order.numberOfDays,
+        totalPrice: order.totalPrice,
+        carModel: order.carModel,
+        confirmed: order.confirmed,
+      };
+    });
+
+    setOrderData(formattedOrders);
+  }, [orders]);
+
   // Handle the edit process for order data
   const processOrderRowUpdate = (newRow) => {
     const updatedOrderData = orderData.map((row) =>
@@ -81,7 +86,6 @@ function DataGridOrders({ cars, orders }) {
       width: 130,
       editable: true,
     },
-
     {
       field: "confirmed",
       headerName: "Confirmed",
@@ -90,8 +94,7 @@ function DataGridOrders({ cars, orders }) {
       type: "boolean",
     },
   ];
-  const [filterType, setFilterType] = useState("all");
-  // Filtered orders based on selected filter
+
   // Filtered orders based on selected filter
   const filteredOrderData = useMemo(() => {
     const today = new Date();
