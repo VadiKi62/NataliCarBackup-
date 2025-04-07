@@ -133,35 +133,46 @@ CarSchema.methods.getSeason = function (date) {
 
 // Method to calculate price based on days and current season
 CarSchema.methods.calculatePrice = function (days, date = dayjs()) {
-  const season = this.getSeason(date); // Determine the current season
-  // console.log("season!!!! is !!!", season);
+  console.log("1. Функция вызвана с параметрами:", { days, date });
+  console.log("1a. Функция вызвана с параметрами:", { days });
+  const season = this.getSeason(date);
+  console.log("2. Определён сезон:", season);
 
-  const pricingTiers = this.pricingTiers.get(season); // Use Map's `get` method
-  // console.log("pricingTiers!!!! is !!!", pricingTiers);
+  const pricingTiers = this.pricingTiers.get(season);
+  console.log("3. Доступные тарифы:", Array.from(pricingTiers.days.keys()));
 
-  // Ensure the map keys are properly converted to numbers
-  const tiers = Array.from(pricingTiers.days.keys()).map((key) =>
-    parseInt(key, 10)
-  );
-  // console.log("TIERS ISSS!!! ", tiers); // Log to see if they are valid numbers
+  // Группировка дней по заданным правилам
+  let targetDays;
+  if (days >= 1 && days <= 4) {
+    targetDays = 4; // 1-4 дня → тариф за 4 дня
+  } else if (days >= 5 && days <= 14) {
+    targetDays = 7; // 5-14 дней → тариф за 7 дней
+  } else {
+    targetDays = 14; // 15+ дней → тариф за 14 дней
+  }
+  console.log("4. Выбран целевой тариф (targetDays):", targetDays);
 
-  // Sort the tiers in descending order
-  const sortedTiers = tiers.sort((a, b) => b - a);
-  // console.log("Sorted TIERS: ", sortedTiers); // Check if sorting works correctly
+  // Проверяем, существует ли такой тариф в pricingTiers
+  if (!pricingTiers.days.has(targetDays.toString())) {
+    // Если нет — ищем ближайший меньший доступный тариф
+    const availableTiers = Array.from(pricingTiers.days.keys())
+      .map(Number)
+      .sort((a, b) => b - a); // Сортировка по убыванию
 
-  // Find the correct price tier for the number of days
-  for (let tier of sortedTiers) {
-    if (days <= tier) {
-      // console.log(
-      //   "RETURN ISSS!!!  IS!!! ",
-      //   pricingTiers.days.get(tier.toString())
-      // ); // Map keys are strings
-      return pricingTiers.days.get(tier.toString()); // Use `toString()` for map access
+    const tiers = Array.from(pricingTiers.days.keys()).map(Number);
+
+    for (let tier of availableTiers) {
+      if (targetDays >= tier) {
+        targetDays = tier;
+        break;
+      }
     }
+    console.log("5. Используется ближайший меньший тариф:", targetDays);
   }
 
-  // Return the highest tier if no match is found
-  return pricingTiers.days.get(sortedTiers[sortedTiers.length - 1].toString());
+  const result = pricingTiers.days.get(targetDays.toString());
+  console.log("6. Итоговая цена:", result);
+  return result;
 };
 
 const Car = models.Car || model("Car", CarSchema);
