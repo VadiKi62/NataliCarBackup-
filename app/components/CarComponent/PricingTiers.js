@@ -27,6 +27,18 @@ const PricingDisplay = ({ prices }) => {
   const currentSeason = getCurrentSeason(); // Get current season
   const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
 
+  // Helper function для формирования шапки таблицы цен при аренде авто
+  const getDayRangeText = (days) => {
+    const daysNum = Number(days); // Явное преобразование в число
+    console.log("1. Читаем из Tiers:", days, daysNum);
+    //if (daysNum >= 1 && daysNum <= 4) return t("carPark.1-4days");
+    if (daysNum === 4) return t("carPark.1-4days");
+    if (daysNum === 7) return t("carPark.5-14days");
+    if (daysNum === 14) return t("carPark.14+days"); // Явное условие для >14
+
+    return ""; // Запасной вариант
+  };
+
   return (
     <>
       {" "}
@@ -66,7 +78,7 @@ const PricingDisplay = ({ prices }) => {
                     mb: 1,
                   }}
                 >
-                  {t("car.upTo", { days: days })}
+                  {getDayRangeText(days)}
                 </Typography>
 
                 <Typography
