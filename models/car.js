@@ -133,8 +133,9 @@ CarSchema.methods.getSeason = function (date) {
 
 // Method to calculate price based on days and current season
 CarSchema.methods.calculatePrice = function (days, date = dayjs()) {
-  console.log("1. Функция вызвана с параметрами:", { days, date });
-  console.log("1a. Функция вызвана с параметрами:", { days });
+  //console.log("1. Функция вызвана с параметрами:", { days, date });
+  console.log("1a. Функция вызвана с параметром:", { days });
+  // Определяем сезон
   const season = this.getSeason(date);
   console.log("2. Определён сезон:", season);
 
