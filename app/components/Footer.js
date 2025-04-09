@@ -107,14 +107,14 @@ function Footer() {
         <Slogan>{slogan}</Slogan>
         <SocialLinks>
           <MuiLink
-            href="https://www.linkedin.com/in/natalia-kirejeva/"
+            href="https://www.facebook.com/people/Natali-carscom/100053110548109/?sk=about"
             color="inherit"
             target="_blank"
           >
             <FacebookIcon fontSize="large" />
           </MuiLink>
           <MuiLink
-            href="https://www.linkedin.com/in/natalia-kirejeva/"
+            href="https://www.facebook.com/people/Natali-carscom/100053110548109/?sk=about"
             color="inherit"
             target="_blank"
           >
