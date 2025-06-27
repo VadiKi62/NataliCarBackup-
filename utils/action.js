@@ -63,7 +63,8 @@ export const fetchAllCars = async () => {
   try {
     const apiUrl = `${API_URL}/api/car/all`;
     const response = await fetch(apiUrl, {
-      method: "POST",
+      //method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },

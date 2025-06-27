@@ -395,3 +395,20 @@ button {
 button:hover {
   background-color: rgba(var(--background-end-rgb));
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .MuiDataGrid-root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    /* Можно добавить уменьшение размера шрифта для печати */
+    font-size: 12px !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

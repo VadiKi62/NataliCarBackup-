@@ -115,5 +115,33 @@
     "days": "days",
     "updateCar": "Update Car Details",
     "sureDelCar": "Are you sure you want to delete "
+  },
+  "table": {
+    "allOrders": "Show All Orders",
+    "activOrders": "Active (without past)",
+    "startToday": "Starting Today",
+    "startTomorrow": "Starting Tomorrow",
+    "endToday": "Ending Today",
+    "endTomorrow": "Ending Tomorrow",
+    "print": "Print",
+    "number": "N",
+    "carModel": "Car Model",
+    "carNumber": "Car Number",
+    "customer": "Customer",
+    "phone": "Phone",
+    "email": "Email",
+    "rentStart": "Rental Start",
+    "rentEnd": "Rental End",
+    "days": "Days",
+    "price": "Total Price",
+    "confirm": "Confirmed"
+  },
+  "print": {
+    "allOrders": "All Orders",
+    "activOrders": "Active orders (without past)",
+    "startToday": "Orders Starting Today",
+    "startTomorrow": "Orders Starting Tomorrow",
+    "endToday": "Orders Ending Today",
+    "endTomorrow": "Orders Ending Tomorrow"
   }
 }
