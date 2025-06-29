@@ -31,6 +31,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "formidable": "^3.5.1",
+    "i18next": "^23.5.1",
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.0",
     "multer": "^1.4.5-lts.1",
@@ -38,6 +39,7 @@
     "next-auth": "^4.24.7",
     "next-cloudinary": "^6.15.0",
     "next-connect": "^1.0.0",
+    "nodemailer": "^6.10.1",
     "prettier": "^2.8.8",
     "rate-limiter-flexible": "^5.0.3",
     "react": "^18",
@@ -47,8 +49,7 @@
     "react-i18next": "^13.2.2",
     "react-icons": "^4.11.0",
     "react-scripts": "^5.0.1",
-    "react-scroll": "^1.9.0",
-    "i18next": "^23.5.1"
+    "react-scroll": "^1.9.0"
   },
   "devDependencies": {
     "eslint": "^8",
