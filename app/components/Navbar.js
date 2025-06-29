@@ -87,6 +87,13 @@ export default function NavBar({
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { i18n, t } = useTranslation();
+  // Добавьте этот useEffect:
+  useEffect(() => {
+    if (isAdmin && i18n.language !== "ru") {
+      i18n.changeLanguage("ru");
+    }
+  }, [isAdmin, i18n]);
+
   const {
     scrolled,
     setSelectedClass,
