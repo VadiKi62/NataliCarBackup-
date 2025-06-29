@@ -75,6 +75,7 @@ function Admin({ children, ...props }) {
         type: 200,
         message: message || "Car deleted successfully",
       });
+      await resubmitCars();
     } else {
       setUpdateStatus({
         type: 500,
@@ -208,7 +209,7 @@ function Admin({ children, ...props }) {
         <Snackbar
           key={updateStatus.message + updateStatus.type}
           message={updateStatus.message}
-          isError={updateStatus.type !== 200}
+          isError={updateStatus.type != 200}
           closeFunc={handleCloseSnackbar}
           open={Boolean(updateStatus)}
         />
