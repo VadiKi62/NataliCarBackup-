@@ -837,12 +837,15 @@ const EditOrderModal = ({
   const handleDateUpdate = async () => {
     setIsUpdating(true);
     try {
+      // Найти выбранный автомобиль по id
+      const selectedCar = cars.find((c) => c._id === editedOrder.car);
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
         timeIn: dayjs(startTime).utc().toDate(),
         timeOut: dayjs(endTime).utc().toDate(),
-        car: editedOrder.car, // <-- обязательно передаем выбранный автомобиль
+        car: editedOrder.car, // id автомобиля
+        carNumber: selectedCar ? selectedCar.carNumber : undefined, // carNumber
       };
 
       const response = await changeRentalDates(
@@ -853,7 +856,8 @@ const EditOrderModal = ({
         datesToSend.timeOut,
         editedOrder.placeIn,
         editedOrder.placeOut,
-        datesToSend.car // <-- обязательно передаем выбранный автомобиль!
+        datesToSend.car,
+        datesToSend.carNumber
       );
       showMessage(response.message);
       if (response.status == 202) {
@@ -1035,11 +1039,13 @@ const EditOrderModal = ({
                 }
               >
                 {cars &&
-                  cars.map((car) => (
-                    <MenuItem key={car._id} value={car._id}>
-                      {car.model} {car.regNumber}
-                    </MenuItem>
-                  ))}
+                  [...cars]
+                    .sort((a, b) => a.model.localeCompare(b.model)) // сортировка по алфавиту по модели
+                    .map((car) => (
+                      <MenuItem key={car._id} value={car._id}>
+                        {car.model} {car.regNumber}
+                      </MenuItem>
+                    ))}
               </Select>
             </FormControl>
             {/* --- КОНЕЦ ВЫБОРА АВТОМОБИЛЯ --- */}
