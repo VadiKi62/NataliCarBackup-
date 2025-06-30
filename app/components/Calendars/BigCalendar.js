@@ -17,13 +17,11 @@
 // import { useMainContext } from "@app/Context";
 // import CarTableRow from "./Row";
 // import {
-//   functionToretunrStartEndOverlap,
-//   getConfirmedAndUnavailableStartEndDates,
 //   extractArraysOfStartEndConfPending,
-//   returnOverlapOrders,
 //   returnOverlapOrdersObjects,
 // } from "@utils/functions";
 // import EditOrderModal from "@app/components/Admin/Order/EditOrderModal";
+// import AddOrderModal from "@app/components/Admin/Order/AddOrderModal";
 
 // export default function BigCalendar({ cars, orders }) {
 //   const { ordersByCarId, fetchAndUpdateOrders, allOrders } = useMainContext();
@@ -34,6 +32,11 @@
 //   const [startEndDates, setStartEndDates] = useState([]);
 //   const [isConflictOrder, setIsConflictOrder] = useState(false);
 //   const [open, setOpen] = useState(false);
+
+//   // Для AddOrderModal
+//   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
+//   const [selectedCarForAdd, setSelectedCarForAdd] = useState(null);
+//   const [selectedDateForAdd, setSelectedDateForAdd] = useState(null);
 
 //   const handleClose = () => setOpen(false);
 
@@ -51,11 +54,15 @@
 //       return {
 //         dayjs: date,
 //         date: date.date(),
-//         weekday: date.format("dd"), // Shortened weekday names
-//         isSunday: date.day() === 0, // Добавляем флаг для воскресенья
+//         weekday: date.format("dd"),
+//         isSunday: date.day() === 0,
 //       };
 //     });
 //   }, [month, year, daysInMonth]);
+
+//   // Индекс сегодняшнего дня в массиве days
+//   const today = dayjs();
+//   const todayIndex = days.findIndex((d) => d.dayjs.isSame(today, "day"));
 
 //   const handleSelectMonth = (e) => setMonth(e.target.value);
 //   const handleSelectYear = (e) => setYear(e.target.value);
@@ -65,16 +72,9 @@
 //   }, []);
 
 //   useEffect(() => {
-//     const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
-//       extractArraysOfStartEndConfPending(allOrders);
-
-//     const overlap = returnOverlapOrdersObjects(
-//       allOrders,
-//       transformedStartEndOverlap
-//     );
-
+//     const { startEnd } = extractArraysOfStartEndConfPending(allOrders);
 //     setStartEndDates(startEnd);
-//   }, [orders]);
+//   }, [allOrders]);
 
 //   const handleSaveOrder = async (updatedOrder) => {
 //     setSelectedOrders((prevSelectedOrders) =>
@@ -89,21 +89,31 @@
 //     return [...cars].sort((a, b) => a.model.localeCompare(b.model));
 //   }, [cars]);
 
+//   // Обработчик для открытия AddOrderModal по клику по пустой ячейке
+//   const handleAddOrderClick = (car, dateStr) => {
+//     setSelectedCarForAdd(car);
+//     setSelectedDateForAdd(dateStr); // строка даты "YYYY-MM-DD"
+//     setIsAddOrderOpen(true);
+//   };
+
 //   return (
 //     <Box
 //       sx={{
 //         overflowX: "auto",
 //         overflowY: "hidden",
-//         //position: "fixed", // Фиксируем Box, чтобы исключить скроллинг страницы
-//         //top: 0,
-//         //left: 0,
 //         pt: 10,
-//         //width: "auto",
 //         maxWidth: "100vw",
 //         zIndex: 100,
-//         height: "calc(100vh - 10px)", // Добавлено для контроля высоты
+//         height: "calc(100vh - 10px)",
 //       }}
 //     >
+//       <style>
+//         {`
+//           .today-column-bg {
+//             background-color: #ffe082 !important;
+//           }
+//         `}
+//       </style>
 //       <TableContainer
 //         sx={{
 //           maxHeight: "calc(100vh - 80px)",
@@ -113,7 +123,7 @@
 //       >
 //         <Table stickyHeader sx={{ width: "auto" }}>
 //           <TableHead>
-//             <TableRow position="fixed">
+//             <TableRow>
 //               {/* Sticky Left Column for Car Names */}
 //               <TableCell
 //                 sx={{
@@ -150,17 +160,17 @@
 //                   ))}
 //                 </Select>
 //               </TableCell>
-//               {days.map((day) => (
+//               {days.map((day, idx) => (
 //                 <TableCell
 //                   key={day.dayjs}
 //                   align="center"
 //                   sx={{
 //                     position: "sticky",
 //                     top: 0,
-//                     backgroundColor: "white",
+//                     backgroundColor: idx === todayIndex ? "#ffe082" : "white",
 //                     zIndex: 4,
-//                     fontSize: "16px", // Smaller text
-//                     padding: "6px", // Reduce padding
+//                     fontSize: "16px",
+//                     padding: "6px",
 //                     minWidth: 40,
 //                     fontWeight: "bold",
 //                   }}
@@ -186,12 +196,12 @@
 //                     color: "text.light",
 //                     zIndex: 3,
 //                     padding: 0,
-//                     // width: "auto",
 //                     minWidth: 120,
 //                   }}
 //                 >
 //                   {car.model} {car.regNumber}
 //                 </TableCell>
+//                 {/* Рендерим строки дней с выделением сегодняшнего столбца */}
 //                 <CarTableRow
 //                   key={car._id}
 //                   car={car}
@@ -200,6 +210,8 @@
 //                   ordersByCarId={ordersByCarId}
 //                   setSelectedOrders={setSelectedOrders}
 //                   setOpen={setOpen}
+//                   onAddOrderClick={handleAddOrderClick}
+//                   todayIndex={todayIndex}
 //                 />
 //               </TableRow>
 //             ))}
@@ -257,15 +269,26 @@
 //                 open={open}
 //                 onClose={handleClose}
 //                 onSave={handleSaveOrder}
-//                 // setCarOrders={setCarOrders}
 //                 isConflictOrder={selectedOrders.length > 1 ? true : false}
 //                 setIsConflictOrder={setIsConflictOrder}
 //                 startEndDates={startEndDates}
+//                 cars={cars}
 //               />
 //             </Grid>
 //           ))}
 //         </Grid>
 //       </Modal>
+
+//       {/* AddOrderModal для создания нового заказа */}
+//       {isAddOrderOpen && selectedCarForAdd && (
+//         <AddOrderModal
+//           open={isAddOrderOpen}
+//           onClose={() => setIsAddOrderOpen(false)}
+//           car={selectedCarForAdd}
+//           date={selectedDateForAdd}
+//           setUpdateStatus={() => {}}
+//         />
+//       )}
 //     </Box>
 //   );
 // }
@@ -312,17 +335,36 @@ export default function BigCalendar({ cars, orders }) {
 
   const handleClose = () => setOpen(false);
 
+  // const daysInMonth = useMemo(
+  //   () => dayjs().year(year).month(month).daysInMonth(),
+  //   [month, year]
+  // );
+
+  // const days = useMemo(() => {
+  //   return Array.from({ length: daysInMonth }, (_, index) => {
+  //     const date = dayjs()
+  //       .year(year)
+  //       .month(month)
+  //       .date(index + 1);
+  //     return {
+  //       dayjs: date,
+  //       date: date.date(),
+  //       weekday: date.format("dd"),
+  //       isSunday: date.day() === 0,
+  //     };
+  //   });
+  // }, [month, year, daysInMonth]);
   const daysInMonth = useMemo(
     () => dayjs().year(year).month(month).daysInMonth(),
     [month, year]
   );
 
   const days = useMemo(() => {
-    return Array.from({ length: daysInMonth }, (_, index) => {
-      const date = dayjs()
-        .year(year)
-        .month(month)
-        .date(index + 1);
+    // Сколько всего дней показывать
+    const totalDays = daysInMonth;
+    //const totalDays = daysInMonth + 15;
+    return Array.from({ length: totalDays }, (_, index) => {
+      const date = dayjs().year(year).month(month).date(1).add(index, "day");
       return {
         dayjs: date,
         date: date.date(),
@@ -332,6 +374,10 @@ export default function BigCalendar({ cars, orders }) {
     });
   }, [month, year, daysInMonth]);
 
+  // Индекс сегодняшнего дня в массиве days
+  const today = dayjs();
+  const todayIndex = days.findIndex((d) => d.dayjs.isSame(today, "day"));
+
   const handleSelectMonth = (e) => setMonth(e.target.value);
   const handleSelectYear = (e) => setYear(e.target.value);
 
@@ -340,15 +386,7 @@ export default function BigCalendar({ cars, orders }) {
   }, []);
 
   useEffect(() => {
-    const { startEnd, transformedStartEndOverlap } =
-      extractArraysOfStartEndConfPending(allOrders);
-
-    // Можно использовать overlap если нужно
-    // const overlap = returnOverlapOrdersObjects(
-    //   allOrders,
-    //   transformedStartEndOverlap
-    // );
-
+    const { startEnd } = extractArraysOfStartEndConfPending(allOrders);
     setStartEndDates(startEnd);
   }, [allOrders]);
 
@@ -382,7 +420,24 @@ export default function BigCalendar({ cars, orders }) {
         zIndex: 100,
         height: "calc(100vh - 10px)",
       }}
+      // sx={{
+      //   position: "sticky",
+      //   top: 0,
+      //   //backgroundColor: idx === todayIndex ? "#ffe082" : "white",
+      //   zIndex: 4,
+      //   fontSize: "12px", // было 16px
+      //   padding: "2px", // было 6px
+      //   minWidth: 32, // было 40
+      //   fontWeight: "bold",
+      // }}
     >
+      <style>
+        {`
+          .today-column-bg {
+            background-color: #ffe082 !important;
+          }
+        `}
+      </style>
       <TableContainer
         sx={{
           maxHeight: "calc(100vh - 80px)",
@@ -429,14 +484,14 @@ export default function BigCalendar({ cars, orders }) {
                   ))}
                 </Select>
               </TableCell>
-              {days.map((day) => (
+              {days.map((day, idx) => (
                 <TableCell
                   key={day.dayjs}
                   align="center"
                   sx={{
                     position: "sticky",
                     top: 0,
-                    backgroundColor: "white",
+                    backgroundColor: idx === todayIndex ? "#ffe082" : "white",
                     zIndex: 4,
                     fontSize: "16px",
                     padding: "6px",
@@ -470,6 +525,7 @@ export default function BigCalendar({ cars, orders }) {
                 >
                   {car.model} {car.regNumber}
                 </TableCell>
+                {/* Рендерим строки дней с выделением сегодняшнего столбца */}
                 <CarTableRow
                   key={car._id}
                   car={car}
@@ -479,6 +535,7 @@ export default function BigCalendar({ cars, orders }) {
                   setSelectedOrders={setSelectedOrders}
                   setOpen={setOpen}
                   onAddOrderClick={handleAddOrderClick}
+                  todayIndex={todayIndex}
                 />
               </TableRow>
             ))}
