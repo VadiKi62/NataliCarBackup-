@@ -21,7 +21,6 @@ export default async function PageOrdersCalendar({ children }) {
   const ordersData = await reFetchAllOrders();
   const companyId = "679903bd10e6c8a8c0f027bc";
   const company = await fetchCompany(companyId);
-
   return (
     <Suspense fallback={<Loading />}>
       <Feed
