@@ -308,7 +308,8 @@ const CustomCalendarPicker = ({
     if (newValue && newValue[0] && newValue[1]) {
       setBookedDates({
         start: newValue[0].format("YYYY-MM-DD"),
-        end: newValue[1].format("YYYY-MM-DD"),
+        //end: newValue[1].format("YYYY-MM-DD"),
+        end: newValue[1].add(1, "day").format("YYYY-MM-DD"), // ← увеличиваем на 1 день
       });
     }
   };
@@ -326,6 +327,7 @@ const CustomCalendarPicker = ({
         onChange={handleDateChange}
         slots={{ day: ServerDay }}
         disablePast // Отключаем выбор прошедших дат
+        format="DD-MM-YYYY" // ← вот это добавьте
       />
     </Box>
   );

@@ -395,7 +395,6 @@ button {
 button:hover {
   background-color: rgba(var(--background-end-rgb));
 }
-
 @media print {
   .no-print {
     display: none !important;
@@ -404,11 +403,28 @@ button:hover {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-    /* Можно добавить уменьшение размера шрифта для печати */
     font-size: 12px !important;
   }
   body {
     background: #fff !important;
     color: #000 !important;
+  }
+  body * {
+    visibility: hidden !important;
+  }
+  #print-orders-modal,
+  #print-orders-modal * {
+    visibility: visible !important;
+  }
+  #print-orders-modal {
+    position: fixed !important; /* исправлено */
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: #fff !important;
+    z-index: 9999 !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
