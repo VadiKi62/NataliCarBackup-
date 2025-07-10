@@ -376,7 +376,12 @@ export default function BigCalendar({ cars }) {
           onClose={() => setIsAddOrderOpen(false)}
           car={selectedCarForAdd}
           date={selectedDateForAdd}
-          setUpdateStatus={() => {}}
+          setUpdateStatus={(status) => {
+            console.log("Update status:", status);
+            if (status?.type === 200) {
+              fetchAndUpdateOrders();
+            }
+          }}
         />
       )}
       {/* ВСТАВЬТЕ СЮДА МОДАЛЬНОЕ ОКНО ДЛЯ ЗАКАЗОВ ПО ДАТЕ В ШАПКЕ */}
