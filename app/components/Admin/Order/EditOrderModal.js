@@ -1069,19 +1069,52 @@ const EditOrderModal = ({
             </Box>
 
             <Box sx={{ mb: 3 }}>
-              {renderField(t("order.pickupDate"), "rentalStartDate", "date")}
-              {renderField(t("order.returnDate"), "rentalEndDate", "date")}
-              <TimePicker
-                mb={2}
-                startTime={dayjs(startTime).utc()}
-                endTime={dayjs(endTime).utc()}
-                setStartTime={setStartTime}
-                setEndTime={setEndTime}
-                isRestrictionTimeIn={availableTimes?.availableStart}
-                isRestrictionTimeOut={availableTimes?.availableEnd}
-                timeInMessage={timeInMessage}
-                timeOutMessage={timeOutMessage}
-              />
+              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <TextField
+                  label={t("order.pickupDate")}
+                  type="date"
+                  value={dayjs(editedOrder.rentalStartDate).format("YYYY-MM-DD")}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      rentalStartDate: dayjs(e.target.value),
+                    }))
+                  }
+                  sx={{ flex: 1 }}
+                  size="small"
+                />
+                <TextField
+                  label={t("order.returnDate")}
+                  type="date"
+                  value={dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD")}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      rentalEndDate: dayjs(e.target.value),
+                    }))
+                  }
+                  sx={{ flex: 1 }}
+                  size="small"
+                />
+              </Box>
+              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <TextField
+                  label={t("order.pickupTime")}
+                  type="time"
+                  value={dayjs(startTime).format("HH:mm")}
+                  onChange={(e) => setStartTime(dayjs(e.target.value, "HH:mm"))}
+                  sx={{ flex: 1 }}
+                  size="small"
+                />
+                <TextField
+                  label={t("order.returnTime")}
+                  type="time"
+                  value={dayjs(endTime).format("HH:mm")}
+                  onChange={(e) => setEndTime(dayjs(e.target.value, "HH:mm"))}
+                  sx={{ flex: 1 }}
+                  size="small"
+                />
+              </Box>
               <RenderSelectField
                 name="placeIn"
                 label={t("order.pickupLocation")}

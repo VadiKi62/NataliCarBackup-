@@ -274,9 +274,6 @@
 
 //   const renderDateTimeSection = () => (
 //     <Box sx={{ mb: 3 }}>
-//       {/* <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
-//         Время & Дата & Место выдачи/забора
-//       </Typography> */}
 //       <LocalizationProvider dateAdapter={AdapterDayjs}>
 //         <MuiCalendar
 //           carId={car?._id}
@@ -653,13 +650,12 @@
 //       if (!dates.start || !dates.end) {
 //         setBookedDates({ start: null, end: null });
 //         setPendingDatesInRange([]);
+//         setConfirmedDatesInRange([]);
 //         return;
 //       }
 
-//       const startDate = dayjs(dates.start).utc().format("YYYY-MM-DD");
-//       //const endDate = dayjs(dates.end).utc().format("YYYY-MM-DD");
-//       //const endDate = dayjs(date).add(1, "day").format("YYYY-MM-DD");
-//       const endDate = dayjs(dates.start).add(1, "day").format("YYYY-MM-DD");
+//       const startDate = dayjs(dates.start).format("YYYY-MM-DD");
+//       const endDate = dayjs(dates.end).format("YYYY-MM-DD"); // Используем выбранную дату окончания
 
 //       const conflicts = checkConflictsPending(dates.start, dates.end);
 //       const conflictsConfirmed = checkConflictsConfirmed(
@@ -680,12 +676,13 @@
 //           type: "warning",
 //           message: `Внимание: В выбранном диапазоне есть ${conflicts.length} ожидающих подтверждения бронирований`,
 //         });
-//       }
-//       if (conflictsConfirmed?.length > 0) {
+//       } else if (conflictsConfirmed?.length > 0) {
 //         setStatusMessage({
 //           type: "error",
 //           message: `Ошибка: В выбранном диапазоне есть ${conflictsConfirmed.length} уже подтвержденных бронирований`,
 //         });
+//       } else {
+//         setStatusMessage({ type: null, message: "" });
 //       }
 //     },
 //     [checkConflictsPending, checkConflictsConfirmed]
@@ -701,19 +698,19 @@
 //       phone: orderDetails.phone,
 //       email: orderDetails.email,
 //       rentalStartDate: dayjs(bookDates.start)
-//         .utc()
+//         //  .utc()
 //         .hour(startTime.hour())
 //         .minute(startTime.minute()),
 //       rentalEndDate: dayjs(bookDates.end)
-//         .utc()
+//         //  .utc()
 //         .hour(endTime.hour())
 //         .minute(endTime.minute()),
 //       timeIn: dayjs(bookDates.start)
-//         .utc()
+//         //  .utc()
 //         .hour(startTime.hour())
 //         .minute(startTime.minute()),
 //       timeOut: dayjs(bookDates.end)
-//         .utc()
+//         //  .utc()
 //         .hour(endTime.hour())
 //         .minute(endTime.minute()),
 //       placeIn: orderDetails.placeIn,
@@ -723,8 +720,6 @@
 
 //     try {
 //       const response = await addOrderNew(data);
-
-//       // await fetchAndUpdateOrders();
 
 //       setStatusMessage({
 //         type: "success",
@@ -786,40 +781,47 @@
 
 //   const renderDateTimeSection = () => (
 //     <Box sx={{ mb: 3 }}>
-//       <LocalizationProvider dateAdapter={AdapterDayjs}>
-//         <MuiCalendar
-//           carId={car?._id}
-//           orders={carOrders}
-//           isLoading={isLoading}
-//           setBookedDates={handleSetBookedDates}
-//           startDate={bookDates.start}
-//           endDate={bookDates.end}
+//       <Box sx={{ display: "flex", gap: 2 }}>
+//         <TextField
+//           label={t("order.pickupDate")}
+//           type="date"
+//           value={bookDates.start || ""}
+//           onChange={(e) =>
+//             setBookedDates((dates) => ({ ...dates, start: e.target.value }))
+//           }
+//           fullWidth
+//           margin="normal"
 //         />
-//         {bookDates.start && bookDates.end && pendingDatesInRange.length > 0 && (
-//           <RenderConflictMessage
-//             pendingDatesInRange={pendingDatesInRange}
-//             startDate={bookDates.start}
-//             endDate={bookDates.end}
-//           />
-//         )}
-//         {bookDates.start &&
-//           bookDates.end &&
-//           confirmedDatesInRange.length > 0 && (
-//             <RenderConflictMessage
-//               pendingDatesInRange={confirmedDatesInRange}
-//               startDate={bookDates.start}
-//               endDate={bookDates.end}
-//               confirmed={true}
-//             />
-//           )}
-//         <MuiTimePicker
-//           startTime={startTime}
-//           endTime={endTime}
-//           setStartTime={setStartTime}
-//           setEndTime={setEndTime}
+//         <TextField
+//           label={t("order.returnDate")}
+//           type="date"
+//           value={bookDates.end || ""}
+//           onChange={(e) =>
+//             setBookedDates((dates) => ({ ...dates, end: e.target.value }))
+//           }
+//           fullWidth
+//           margin="normal"
 //         />
-//       </LocalizationProvider>
-
+//       </Box>
+//       <Box sx={{ display: "flex", gap: 2 }}>
+//         <TextField
+//           label={t("order.pickupTime")}
+//           type="time"
+//           value={startTime.format("HH:mm")}
+//           onChange={(e) => setStartTime(dayjs(e.target.value, "HH:mm"))}
+//           margin="normal"
+//           sx={{ flex: 1 }}
+//         />
+//         <TextField
+//           label={t("order.returnTime")}
+//           type="time"
+//           value={endTime.format("HH:mm")}
+//           onChange={(e) => setEndTime(dayjs(e.target.value, "HH:mm"))}
+//           margin="normal"
+//           sx={{ flex: 1 }}
+//         />
+//       </Box>
+//       {/* Остальные поля */}
 //       <RenderSelectField
 //         mt={2}
 //         name="placeIn"
@@ -1165,19 +1167,19 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       phone: orderDetails.phone,
       email: orderDetails.email,
       rentalStartDate: dayjs(bookDates.start)
-        .utc()
+        //  .utc()
         .hour(startTime.hour())
         .minute(startTime.minute()),
       rentalEndDate: dayjs(bookDates.end)
-        .utc()
+        //  .utc()
         .hour(endTime.hour())
         .minute(endTime.minute()),
       timeIn: dayjs(bookDates.start)
-        .utc()
+        //  .utc()
         .hour(startTime.hour())
         .minute(startTime.minute()),
       timeOut: dayjs(bookDates.end)
-        .utc()
+        //  .utc()
         .hour(endTime.hour())
         .minute(endTime.minute()),
       placeIn: orderDetails.placeIn,
@@ -1248,40 +1250,47 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const renderDateTimeSection = () => (
     <Box sx={{ mb: 3 }}>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <MuiCalendar
-          carId={car?._id}
-          orders={carOrders}
-          isLoading={isLoading}
-          setBookedDates={handleSetBookedDates}
-          startDate={bookDates.start}
-          endDate={bookDates.end}
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <TextField
+          label={t("order.pickupDate")}
+          type="date"
+          value={bookDates.start || ""}
+          onChange={(e) =>
+            setBookedDates((dates) => ({ ...dates, start: e.target.value }))
+          }
+          fullWidth
+          margin="normal"
         />
-        {bookDates.start && bookDates.end && pendingDatesInRange.length > 0 && (
-          <RenderConflictMessage
-            pendingDatesInRange={pendingDatesInRange}
-            startDate={bookDates.start}
-            endDate={bookDates.end}
-          />
-        )}
-        {bookDates.start &&
-          bookDates.end &&
-          confirmedDatesInRange.length > 0 && (
-            <RenderConflictMessage
-              pendingDatesInRange={confirmedDatesInRange}
-              startDate={bookDates.start}
-              endDate={bookDates.end}
-              confirmed={true}
-            />
-          )}
-        <MuiTimePicker
-          startTime={startTime}
-          endTime={endTime}
-          setStartTime={setStartTime}
-          setEndTime={setEndTime}
+        <TextField
+          label={t("order.returnDate")}
+          type="date"
+          value={bookDates.end || ""}
+          onChange={(e) =>
+            setBookedDates((dates) => ({ ...dates, end: e.target.value }))
+          }
+          fullWidth
+          margin="normal"
         />
-      </LocalizationProvider>
-
+      </Box>
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <TextField
+          label={t("order.pickupTime")}
+          type="time"
+          value={startTime.format("HH:mm")}
+          onChange={(e) => setStartTime(dayjs(e.target.value, "HH:mm"))}
+          margin="normal"
+          sx={{ flex: 1 }}
+        />
+        <TextField
+          label={t("order.returnTime")}
+          type="time"
+          value={endTime.format("HH:mm")}
+          onChange={(e) => setEndTime(dayjs(e.target.value, "HH:mm"))}
+          margin="normal"
+          sx={{ flex: 1 }}
+        />
+      </Box>
+      {/* Остальные поля */}
       <RenderSelectField
         mt={2}
         name="placeIn"
@@ -1394,7 +1403,6 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           {t("car.reg-numb")}: {car?.regNumber}
         </Typography>
 
-        {renderConfirmationButton()}
         {renderDateTimeSection()}
         {renderCustomerSection()}
 
