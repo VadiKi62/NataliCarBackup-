@@ -30,6 +30,17 @@ import { CAR_CLASSES } from "@models/enums";
 import SelectedFieldClass from "./common/SelectedFieldClass";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Slider,
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { ru } from "date-fns/locale";
 
 // Styled components (unchanged or slightly adjusted)
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -86,7 +97,28 @@ export default function NavBar({
   const headerRef = useRef(null);
   const [languageAnchor, setLanguageAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [discountModalOpen, setDiscountModalOpen] = useState(false);
+  const [selectedDiscount, setSelectedDiscount] = useState(0);
+  const [discountStartDate, setDiscountStartDate] = useState(null);
+  const [discountEndDate, setDiscountEndDate] = useState(null);
+
   const { i18n, t } = useTranslation();
+
+  useEffect(() => {
+    const savedDiscount = localStorage.getItem("rentalDiscount");
+    const savedStartDate = localStorage.getItem("rentalDiscountStartDate");
+    const savedEndDate = localStorage.getItem("rentalDiscountEndDate");
+
+    if (savedDiscount !== null) {
+      setSelectedDiscount(parseInt(savedDiscount));
+    }
+    if (savedStartDate) {
+      setDiscountStartDate(new Date(savedStartDate)); // Загружаем дату начала
+    }
+    if (savedEndDate) {
+      setDiscountEndDate(new Date(savedEndDate)); // Загружаем дату конца
+    }
+  }, []);
   // Добавьте этот useEffect:
   useEffect(() => {
     if (isAdmin && i18n.language !== "ru") {
@@ -234,6 +266,32 @@ export default function NavBar({
                     </Link>
                   </>
                 )}
+                <Button
+                  variant="outlined"
+                  onClick={() => setDiscountModalOpen(true)}
+                  sx={{
+                    px: { xs: 0.5, md: 3 },
+                    fontSize: { xs: 11, md: 13 },
+                    textTransform: "uppercase",
+                    color: "white",
+                    borderColor: "white",
+                    backgroundColor:
+                      selectedDiscount > 0
+                        ? "rgba(255, 0, 0, 0.2)"
+                        : "transparent",
+                    "&:hover": {
+                      borderColor: "white",
+                      backgroundColor:
+                        selectedDiscount > 0
+                          ? "rgba(255, 0, 0, 0.3)"
+                          : "rgba(255, 255, 255, 0.1)",
+                    },
+                  }}
+                >
+                  {selectedDiscount > 0
+                    ? `Скидка ${selectedDiscount}%`
+                    : "Скидка"}
+                </Button>
                 <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
                   <Typography
                     sx={{
@@ -367,6 +425,89 @@ export default function NavBar({
           </List>
         </Box>
       </Drawer>
+      <Dialog
+        open={discountModalOpen}
+        onClose={() => setDiscountModalOpen(false)}
+        maxWidth="sm"
+        PaperProps={{
+          sx: { minHeight: 400, minWidth: 350 },
+        }}
+      >
+        <DialogTitle sx={{ pb: 2 }}>
+          Выбор скидки: {selectedDiscount}%
+        </DialogTitle>
+        <DialogContent sx={{ minWidth: 350, pb: 3, pt: 3 }}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+            <Box sx={{ mb: 3, mt: 6 }}>
+              <DatePicker
+                label="Дата начала скидки"
+                value={discountStartDate}
+                onChange={(newValue) => setDiscountStartDate(newValue)}
+                inputFormat="dd.MM.yyyy" // Формат: 31.12.2024
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    margin="normal"
+                    sx={{ mt: 2 }}
+                  />
+                )}
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <DatePicker
+                label="Дата окончания скидки"
+                value={discountEndDate}
+                onChange={(newValue) => setDiscountEndDate(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    margin="normal"
+                    sx={{ mt: 2 }}
+                  />
+                )}
+              />
+            </Box>
+          </LocalizationProvider>
+
+          <Typography gutterBottom sx={{ mt: 6, mb: 5 }}>
+            Скидка на аренду (%):
+          </Typography>
+          <Slider
+            value={selectedDiscount}
+            onChange={(e, value) => setSelectedDiscount(value)}
+            valueLabelDisplay="on"
+            step={5}
+            marks
+            min={0}
+            max={100}
+            sx={{ width: "100%", mt: 1, maxWidth: 300 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDiscountModalOpen(false)}>Закрыть</Button>
+          <Button
+            variant="outlined"
+            onClick={() => setDiscountModalOpen(true)}
+            sx={{
+              px: { xs: 0.5, md: 3 },
+              fontSize: { xs: 11, md: 13 },
+              textTransform: "uppercase",
+              color: "white",
+              borderColor: "white",
+              "&:hover": {
+                borderColor: "white",
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            {selectedDiscount > 0
+              ? `Скидка (${selectedDiscount}%)`
+              : "Сохранить"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
