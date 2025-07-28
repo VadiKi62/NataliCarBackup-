@@ -19,6 +19,7 @@ import {
   IconButton,
   Popover,
   MenuItem,
+  TextField,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
@@ -42,7 +43,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ru } from "date-fns/locale";
 
-// Styled components (unchanged or slightly adjusted)
 const StyledBox = styled(Box)(({ theme }) => ({
   zIndex: 996,
   position: "fixed",
@@ -105,6 +105,8 @@ export default function NavBar({
   const { i18n, t } = useTranslation();
 
   useEffect(() => {
+    if (!isAdmin) return;
+
     const savedDiscount = localStorage.getItem("rentalDiscount");
     const savedStartDate = localStorage.getItem("rentalDiscountStartDate");
     const savedEndDate = localStorage.getItem("rentalDiscountEndDate");
@@ -113,13 +115,13 @@ export default function NavBar({
       setSelectedDiscount(parseInt(savedDiscount));
     }
     if (savedStartDate) {
-      setDiscountStartDate(new Date(savedStartDate)); // Загружаем дату начала
+      setDiscountStartDate(new Date(savedStartDate));
     }
     if (savedEndDate) {
-      setDiscountEndDate(new Date(savedEndDate)); // Загружаем дату конца
+      setDiscountEndDate(new Date(savedEndDate));
     }
-  }, []);
-  // Добавьте этот useEffect:
+  }, [isAdmin]);
+
   useEffect(() => {
     if (isAdmin && i18n.language !== "ru") {
       i18n.changeLanguage("ru");
@@ -155,6 +157,25 @@ export default function NavBar({
     handleLanguageClose();
   };
 
+  const handleSaveDiscount = () => {
+    if (!isAdmin) return;
+
+    localStorage.setItem("rentalDiscount", selectedDiscount.toString());
+    if (discountStartDate) {
+      localStorage.setItem(
+        "rentalDiscountStartDate",
+        discountStartDate.toISOString()
+      );
+    }
+    if (discountEndDate) {
+      localStorage.setItem(
+        "rentalDiscountEndDate",
+        discountEndDate.toISOString()
+      );
+    }
+    setDiscountModalOpen(false);
+  };
+
   return (
     <>
       <GradientAppBar ref={headerRef} scrolled={scrolled}>
@@ -165,9 +186,7 @@ export default function NavBar({
             justifyContent="space-between"
             sx={{ width: "100%" }}
           >
-            {/* Left side: navigation and drawer toggle */}
             <Stack alignItems="center" direction="row-reverse" spacing={2}>
-              {/* Mobile Drawer Toggle (visible on xs) */}
               <IconButton
                 edge="start"
                 color="inherit"
@@ -176,7 +195,7 @@ export default function NavBar({
               >
                 <MenuIcon />
               </IconButton>
-              {/* Desktop Navigation Links (visible on md and up) */}
+
               <Stack
                 direction="row"
                 spacing={2}
@@ -252,7 +271,6 @@ export default function NavBar({
                         {t("header.calendar")}
                       </Typography>
                     </Link>
-
                     <Link href="/admin/table">
                       <Typography
                         sx={{
@@ -266,32 +284,29 @@ export default function NavBar({
                     </Link>
                   </>
                 )}
-                <Button
-                  variant="outlined"
-                  onClick={() => setDiscountModalOpen(true)}
-                  sx={{
-                    px: { xs: 0.5, md: 3 },
-                    fontSize: { xs: 11, md: 13 },
-                    textTransform: "uppercase",
-                    color: "white",
-                    borderColor: "white",
-                    backgroundColor:
-                      selectedDiscount > 0
-                        ? "rgba(255, 0, 0, 0.2)"
-                        : "transparent",
-                    "&:hover": {
+
+                {isAdmin && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setDiscountModalOpen(true)}
+                    sx={{
+                      px: { xs: 0.5, md: 3 },
+                      fontSize: { xs: 11, md: 13 },
+                      textTransform: "uppercase",
+                      color: "white",
                       borderColor: "white",
-                      backgroundColor:
-                        selectedDiscount > 0
-                          ? "rgba(255, 0, 0, 0.3)"
-                          : "rgba(255, 255, 255, 0.1)",
-                    },
-                  }}
-                >
-                  {selectedDiscount > 0
-                    ? `Скидка ${selectedDiscount}%`
-                    : "Скидка"}
-                </Button>
+                      "&:hover": {
+                        borderColor: "white",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      },
+                    }}
+                  >
+                    {selectedDiscount > 0
+                      ? `Скидка ${selectedDiscount}%`
+                      : "Скидка"}
+                  </Button>
+                )}
+
                 <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
                   <Typography
                     sx={{
@@ -304,7 +319,7 @@ export default function NavBar({
                 </LanguageSwitcher>
               </Stack>
             </Stack>
-            {/* Right side: Logo */}
+
             <Link href="/">
               <Logo
                 sx={{
@@ -317,6 +332,7 @@ export default function NavBar({
             </Link>
           </Stack>
         </Toolbar>
+
         <LanguagePopover
           open={Boolean(languageAnchor)}
           anchorEl={languageAnchor}
@@ -340,6 +356,7 @@ export default function NavBar({
             Русский
           </MenuItem>
         </LanguagePopover>
+
         {isMain && (
           <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
             <Stack
@@ -362,7 +379,6 @@ export default function NavBar({
         )}
       </GradientAppBar>
 
-      {/* Mobile Drawer (opens from right) */}
       <Drawer
         anchor="right"
         open={drawerOpen}
@@ -385,7 +401,7 @@ export default function NavBar({
             </IconButton>
           </Stack>
           <List>
-            {!isAdmin && (
+            {!isAdmin ? (
               <>
                 <ListItem button component={Link} href="/">
                   <ListItemText primary={t("header.main")} />
@@ -396,13 +412,8 @@ export default function NavBar({
                 <ListItem button component={Link} href="/contacts">
                   <ListItemText primary={t("header.contacts")} />
                 </ListItem>
-                {/* Language Switcher in Drawer */}
-                <ListItem button onClick={handleLanguageClick}>
-                  <ListItemText primary={lang} />
-                </ListItem>
               </>
-            )}
-            {isAdmin && (
+            ) : (
               <>
                 <ListItem button component={Link} href="/admin/cars">
                   <ListItemText primary={t("header.cars")} />
@@ -416,98 +427,106 @@ export default function NavBar({
                 <ListItem button component={Link} href="/admin/table">
                   <ListItemText primary={t("header.orderList")} />
                 </ListItem>
-                {/* Language Switcher in Drawer */}
-                <ListItem button onClick={handleLanguageClick}>
-                  <ListItemText primary={lang} />
-                </ListItem>
+
+                {isAdmin && (
+                  <ListItem
+                    button
+                    onClick={() => {
+                      setDrawerOpen(false);
+                      setDiscountModalOpen(true);
+                    }}
+                  >
+                    <ListItemText
+                      primary={
+                        selectedDiscount > 0
+                          ? `Скидка (${selectedDiscount}%)`
+                          : "Скидка"
+                      }
+                    />
+                  </ListItem>
+                )}
               </>
             )}
+
+            <ListItem button onClick={handleLanguageClick}>
+              <ListItemText primary={lang} />
+            </ListItem>
           </List>
         </Box>
       </Drawer>
-      <Dialog
-        open={discountModalOpen}
-        onClose={() => setDiscountModalOpen(false)}
-        maxWidth="sm"
-        PaperProps={{
-          sx: { minHeight: 400, minWidth: 350 },
-        }}
-      >
-        <DialogTitle sx={{ pb: 2 }}>
-          Выбор скидки: {selectedDiscount}%
-        </DialogTitle>
-        <DialogContent sx={{ minWidth: 350, pb: 3, pt: 3 }}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-            <Box sx={{ mb: 3, mt: 6 }}>
-              <DatePicker
-                label="Дата начала скидки"
-                value={discountStartDate}
-                onChange={(newValue) => setDiscountStartDate(newValue)}
-                inputFormat="dd.MM.yyyy" // Формат: 31.12.2024
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    margin="normal"
-                    sx={{ mt: 2 }}
-                  />
-                )}
-              />
-            </Box>
-            <Box sx={{ mb: 3 }}>
-              <DatePicker
-                label="Дата окончания скидки"
-                value={discountEndDate}
-                onChange={(newValue) => setDiscountEndDate(newValue)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    fullWidth
-                    margin="normal"
-                    sx={{ mt: 2 }}
-                  />
-                )}
-              />
-            </Box>
-          </LocalizationProvider>
 
-          <Typography gutterBottom sx={{ mt: 6, mb: 5 }}>
-            Скидка на аренду (%):
-          </Typography>
-          <Slider
-            value={selectedDiscount}
-            onChange={(e, value) => setSelectedDiscount(value)}
-            valueLabelDisplay="on"
-            step={5}
-            marks
-            min={0}
-            max={100}
-            sx={{ width: "100%", mt: 1, maxWidth: 300 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDiscountModalOpen(false)}>Закрыть</Button>
-          <Button
-            variant="outlined"
-            onClick={() => setDiscountModalOpen(true)}
-            sx={{
-              px: { xs: 0.5, md: 3 },
-              fontSize: { xs: 11, md: 13 },
-              textTransform: "uppercase",
-              color: "white",
-              borderColor: "white",
-              "&:hover": {
-                borderColor: "white",
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            {selectedDiscount > 0
-              ? `Скидка (${selectedDiscount}%)`
-              : "Сохранить"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {isAdmin && (
+        <Dialog
+          open={discountModalOpen}
+          onClose={() => setDiscountModalOpen(false)}
+          maxWidth="sm"
+          PaperProps={{
+            sx: { minHeight: 400, minWidth: 350 },
+          }}
+        >
+          <DialogTitle sx={{ pb: 2 }}>
+            Выбор скидки: {selectedDiscount}%
+          </DialogTitle>
+          <DialogContent sx={{ minWidth: 350, pb: 3, pt: 3 }}>
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={ru}
+            >
+              <Box sx={{ mb: 3, mt: 6 }}>
+                <DatePicker
+                  label="Дата начала скидки"
+                  value={discountStartDate}
+                  onChange={(newValue) => setDiscountStartDate(newValue)}
+                  inputFormat="dd.MM.yyyy"
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      margin="normal"
+                      sx={{ mt: 2 }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ mb: 3 }}>
+                <DatePicker
+                  label="Дата окончания скидки"
+                  value={discountEndDate}
+                  onChange={(newValue) => setDiscountEndDate(newValue)}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      fullWidth
+                      margin="normal"
+                      sx={{ mt: 2 }}
+                    />
+                  )}
+                />
+              </Box>
+            </LocalizationProvider>
+
+            <Typography gutterBottom sx={{ mt: 6, mb: 5 }}>
+              Скидка на аренду (%):
+            </Typography>
+            <Slider
+              value={selectedDiscount}
+              onChange={(e, value) => setSelectedDiscount(value)}
+              valueLabelDisplay="on"
+              step={5}
+              marks
+              min={0}
+              max={100}
+              sx={{ width: "100%", mt: 1, maxWidth: 300 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDiscountModalOpen(false)}>Закрыть</Button>
+            <Button variant="contained" onClick={handleSaveDiscount}>
+              Применить
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 }

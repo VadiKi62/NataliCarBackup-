@@ -1,389 +1,3 @@
-// "use client";
-// import React, { useState, useEffect, useCallback } from "react";
-// import {
-//   Table,
-//   TableHead,
-//   TableRow,
-//   TableCell,
-//   TableBody,
-//   Box,
-// } from "@mui/material";
-// import dayjs from "dayjs";
-// import { useMainContext } from "@app/Context";
-// import {
-//   functionToretunrStartEndOverlap,
-//   getConfirmedAndUnavailableStartEndDates,
-//   extractArraysOfStartEndConfPending,
-//   returnOverlapOrders,
-//   returnOverlapOrdersObjects,
-// } from "@utils/functions";
-
-// export default function CarTableRow({
-//   car,
-//   days,
-//   orders,
-//   setSelectedOrders,
-//   setOpen,
-// }) {
-//   const { ordersByCarId } = useMainContext();
-//   const [unavailableDates, setUnavailableDates] = useState([]);
-//   const [confirmedDates, setConfirmedDates] = useState([]);
-//   const [startEndOverlapDates, setStartEndOverlapDates] = useState(null);
-//   const [overlapDates, setOverlapDates] = useState(null);
-//   const [startEndDates, setStartEndDates] = useState([]);
-//   const [carOrders, setCarOrders] = useState(orders);
-
-//   // Update orders when allOrders or car._id changes
-//   useEffect(() => {
-//     const updatedOrders = ordersByCarId(car._id);
-//     setCarOrders(updatedOrders);
-//   }, [car._id, ordersByCarId]);
-
-//   // Extract and process order data
-//   useEffect(() => {
-//     const { unavailable, confirmed, startEnd, transformedStartEndOverlap } =
-//       extractArraysOfStartEndConfPending(carOrders);
-
-//     const overlap = returnOverlapOrdersObjects(
-//       carOrders,
-//       transformedStartEndOverlap
-//     );
-//     setOverlapDates(overlap);
-//     setStartEndOverlapDates(transformedStartEndOverlap);
-//     setUnavailableDates(unavailable);
-//     setConfirmedDates(confirmed);
-//     setStartEndDates(startEnd);
-//   }, []);
-
-//   const renderDateCell = useCallback(
-//     (date) => {
-//       const dateStr = date.format("YYYY-MM-DD");
-//       const isConfirmed = confirmedDates.includes(dateStr);
-//       const isUnavailable = unavailableDates.includes(dateStr);
-
-//       const startEndInfo = startEndDates.find((d) => d.date === dateStr);
-//       const isStartDate = startEndInfo?.type === "start";
-//       const isEndDate = startEndInfo?.type === "end";
-//       // проверяем чтобы эта дата не была одновременно начальной и конечной для разных броинрований
-//       const isStartAndEndDateOverlapInfo = startEndOverlapDates?.find(
-//         (dateObj) => dateObj.date === dateStr
-//       );
-//       // если предыдущая функция нашла что-то, то эта вернет тру, и если нет таких дат, которые начальные и конечные тогда это будет фолс
-//       const isStartEndOverlap = Boolean(isStartAndEndDateOverlapInfo);
-
-//       const overlapOrders = returnOverlapOrders(carOrders, dateStr);
-//       // const isOverlapDate = overlapOrders.length > 1;
-//       const isOverlapDateInfo = overlapDates?.find(
-//         (dateObj) => dateObj.date === dateStr
-//       );
-//       const isOverlapDate = Boolean(isOverlapDateInfo);
-
-//       // if (
-//       //   orders[0]?.car === "670bb226223dd911f0595287" &&
-//       //   overlapOrders.length > 1 &&
-//       //   overlapDates
-//       // ) {
-//       //   // console.log("" overlapOrders.length > 1);
-//       //   console.log("New : should be true ", isOverlapDate);
-//       //   console.log(isOverlapDateInfo);
-//       // }
-
-//       let backgroundColor = "transparent";
-//       let color = "inherit";
-//       let borderRadius = "1px";
-//       let border = "1px solid green";
-//       let width;
-
-//       if (isUnavailable) {
-//         backgroundColor = "primary.green";
-//         color = "text.dark";
-//       }
-//       if (isConfirmed) {
-//         backgroundColor = "primary.red";
-//         color = "common.white";
-//       }
-
-//       // Single order date styling
-//       if (isStartDate && !isEndDate) {
-//         borderRadius = "50% 0 0 50%";
-//         width = "50%";
-//         backgroundColor = "primary.green";
-//         color = "common.white";
-//       }
-//       if (!isStartDate && isEndDate) {
-//         borderRadius = "0 50% 50% 0";
-//         width = "50%";
-//         backgroundColor = "primary.green";
-//         color = "common.white";
-//       }
-
-//       const handleDateClick = () => {
-//         const relevantOrders = carOrders.filter((order) => {
-//           const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
-//           const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
-
-//           return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
-//         });
-
-//         if (relevantOrders.length > 0) {
-//           setSelectedOrders(relevantOrders);
-//           setOpen(true);
-//         }
-//       };
-
-//       if (isOverlapDate && !isStartEndOverlap) {
-//         const circlesPending = isOverlapDateInfo.pending || 0; // Number of yellow circles
-//         const circlesConfirmed = isOverlapDateInfo.confirmed || 0; // Number of red circles
-
-//         return (
-//           <Box
-//             onClick={handleDateClick}
-//             sx={{
-//               border: border,
-//               position: "relative",
-//               height: "120%",
-//               display: "flex",
-//               alignItems: "center",
-//               justifyContent: "center",
-//               color: "text.red",
-//               backgroundColor: "text.green",
-//               cursor: "pointer",
-//               width: "100%",
-//             }}
-//           >
-//             {/* Render red circles based on the number of confirmed */}
-//             <Box
-//               sx={{
-//                 position: "absolute",
-//                 top: 2, // Adjust position to place circles at the top
-//                 display: "flex",
-//                 gap: 1, // Spacing between circles
-//                 justifyContent: "flex-end",
-//                 width: "100%",
-//               }}
-//             >
-//               {Array.from({ length: circlesConfirmed }).map((_, index) => (
-//                 <Box
-//                   key={index}
-//                   sx={{
-//                     width: 6, // Adjust circle size
-//                     height: 6,
-//                     backgroundColor: "primary.red",
-//                     borderRadius: "50%",
-//                   }}
-//                 />
-//               ))}
-//             </Box>
-//             {/* Render yellow circles based on the number of confirmed */}
-//             <Box
-//               sx={{
-//                 position: "absolute",
-//                 top: 2, // Adjust position to place circles at the top
-//                 display: "flex",
-//                 gap: 1, // Spacing between circles
-//                 justifyContent: "center",
-//                 width: "100%",
-//               }}
-//             >
-//               {Array.from({ length: circlesPending }).map((_, index) => (
-//                 <Box
-//                   key={index}
-//                   sx={{
-//                     width: 6, // Adjust circle size
-//                     height: 6,
-//                     backgroundColor: "primary.green",
-//                     borderRadius: "50%",
-//                   }}
-//                 />
-//               ))}
-//             </Box>
-//           </Box>
-//         );
-//       }
-
-//       // For overlapping start/end dates
-//       if (isStartEndOverlap) {
-//         return (
-//           <Box
-//             onClick={handleDateClick}
-//             sx={{
-//               border: border,
-//               position: "relative",
-//               width: "100%",
-//               height: "100%",
-//               display: "flex",
-//               flexDirection: "row",
-//               cursor: "pointer",
-//             }}
-//           >
-//             {/* End Date Box - Left half */}
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
-//                   ? "primary.main"
-//                   : "primary.green",
-//                 borderRadius: "0 50% 50% 0",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//                 color: "common.white",
-//               }}
-//             >
-//               {/* {order?.timeEnd} */}
-//             </Box>
-
-//             {/* Start Date Box - Right half */}
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
-//                   ? "primary.main"
-//                   : "primary.green",
-//                 borderRadius: "0 50% 50% 0",
-//                 borderRadius: "50% 0 0 50%",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//                 color: "common.white",
-//               }}
-//             ></Box>
-//           </Box>
-//         );
-//       }
-
-//       //only start date
-//       if (isStartDate && !isEndDate && !isOverlapDate)
-//         return (
-//           <Box
-//             onClick={handleDateClick}
-//             sx={{
-//               border: border,
-//               position: "relative",
-//               width: "100%",
-//               height: "100%",
-//               display: "flex",
-//               flexDirection: "row",
-//               cursor: "pointer",
-//             }}
-//           >
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//               }}
-//             ></Box>
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 borderRadius: "50% 0 0 50%",
-//                 backgroundColor: startEndInfo.confirmed
-//                   ? "primary.main"
-//                   : "primary.green",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//                 color,
-//               }}
-//             ></Box>
-//           </Box>
-//         );
-
-//       if (!isStartDate && isEndDate)
-//         return (
-//           <Box
-//             onClick={handleDateClick}
-//             sx={{
-//               border: border,
-//               position: "relative",
-//               width: "100%",
-//               height: "100%",
-//               display: "flex",
-//               flexDirection: "row",
-//               cursor: "pointer",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             }}
-//           >
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 borderRadius: "0 50% 50% 0",
-//                 backgroundColor: startEndInfo.confirmed
-//                   ? "primary.main"
-//                   : "primary.green",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//                 color,
-//               }}
-//             ></Box>
-//             <Box
-//               sx={{
-//                 width: "50%",
-//                 height: "100%",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 justifyContent: "center",
-//               }}
-//             >
-//               {" "}
-//             </Box>
-//           </Box>
-//         );
-
-//       // Regular cell rendering
-//       return (
-//         <Box
-//           onClick={handleDateClick}
-//           sx={{
-//             position: "relative",
-//             height: "100%",
-//             display: "flex",
-//             alignItems: "center",
-//             justifyContent: "center",
-//             backgroundColor,
-//             borderRadius,
-//             color,
-//             cursor: "pointer",
-//             border: border,
-//             width: "100%",
-//           }}
-//         ></Box>
-//       );
-//     },
-//     [confirmedDates, unavailableDates]
-//   );
-
-//   return (
-//     <>
-//       {days.map((day) => (
-//         <TableCell key={day.dayjs.toString()} sx={{ padding: 0 }}>
-//           <Box
-//             sx={{
-//               width: "100%",
-//               height: "50px",
-//               display: "flex",
-//               justifyContent: "center",
-//               alignItems: "center",
-//             }}
-//           >
-//             {renderDateCell(day.dayjs)}
-//           </Box>
-//         </TableCell>
-//       ))}
-//     </>
-//     // </TableRow>
-//   );
-// }
-
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { TableCell, Box } from "@mui/material";
@@ -394,6 +8,22 @@ import {
   returnOverlapOrders,
   returnOverlapOrdersObjects,
 } from "@utils/functions";
+import PropTypes from "prop-types";
+
+CarTableRow.propTypes = {
+  car: PropTypes.object.isRequired,
+  days: PropTypes.array.isRequired,
+  orders: PropTypes.array,
+  setSelectedOrders: PropTypes.func,
+  setOpen: PropTypes.func,
+  onAddOrderClick: PropTypes.func,
+  onLongPress: PropTypes.func.isRequired,
+  moveMode: PropTypes.bool,
+  onCarSelectForMove: PropTypes.func,
+  selectedOrderId: PropTypes.string,
+  orderToMove: PropTypes.object,
+  selectedMoveOrder: PropTypes.object,
+};
 
 export default function CarTableRow({
   car,
@@ -401,8 +31,18 @@ export default function CarTableRow({
   orders,
   setSelectedOrders,
   setOpen,
-  onAddOrderClick, // <-- добавили проп
+  onAddOrderClick,
+  onLongPress,
+  moveMode,
+  onCarSelectForMove,
+  selectedMoveOrder,
+  orderToMove,
 }) {
+  const [pressTimer, setPressTimer] = useState(null);
+  const [isPressing, setIsPressing] = useState(false);
+  const [longPressOrder, setLongPressOrder] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
   const { ordersByCarId } = useMainContext();
   const [unavailableDates, setUnavailableDates] = useState([]);
   const [confirmedDates, setConfirmedDates] = useState([]);
@@ -410,6 +50,17 @@ export default function CarTableRow({
   const [overlapDates, setOverlapDates] = useState(null);
   const [startEndDates, setStartEndDates] = useState([]);
   const [carOrders, setCarOrders] = useState(orders);
+
+  const [wasLongPress, setWasLongPress] = useState(false);
+
+  // Отслеживаем изменения selectedMoveOrder для подсветки
+  useEffect(() => {
+    if (selectedMoveOrder) {
+      setSelectedOrderId(selectedMoveOrder._id);
+    } else {
+      setSelectedOrderId(null);
+    }
+  }, [selectedMoveOrder]);
 
   useEffect(() => {
     const updatedOrders = ordersByCarId(car._id);
@@ -430,6 +81,121 @@ export default function CarTableRow({
     setConfirmedDates(confirmed);
     setStartEndDates(startEnd);
   }, [carOrders]);
+
+  // Функция для получения заказа по дате
+  const getOrderByDate = useCallback(
+    (dateStr) => {
+      return carOrders.find((order) => {
+        const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+        const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+        return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
+      });
+    },
+    [carOrders]
+  );
+
+  // Функция для проверки, является ли дата частью выбранного заказа (для синей подсветки)
+  const isPartOfSelectedOrder = useCallback(
+    (dateStr) => {
+      if (!selectedOrderId) return false;
+      const order = carOrders.find((o) => o._id === selectedOrderId);
+      if (!order) return false;
+
+      const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+      const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+      return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
+    },
+    [selectedOrderId, carOrders]
+  );
+
+  // Функция для проверки, является ли дата последней для заказа
+  const isLastDateForOrder = useCallback(
+    (dateStr) => {
+      const relevantOrders = carOrders.filter((order) => {
+        const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+        const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+        return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
+      });
+
+      return relevantOrders.some((order) => {
+        const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+        return rentalEnd === dateStr;
+      });
+    },
+    [carOrders]
+  );
+
+  // Функция для проверки, содержит ли ячейка заказ
+  const hasOrder = useCallback(
+    (dateStr) => {
+      const isConfirmed = confirmedDates.includes(dateStr);
+      const isUnavailable = unavailableDates.includes(dateStr);
+      const startEndInfo = startEndDates.find((d) => d.date === dateStr);
+      const isStartDate = startEndInfo?.type === "start";
+      const isEndDate = startEndInfo?.type === "end";
+      const isStartAndEndDateOverlapInfo = startEndOverlapDates?.find(
+        (dateObj) => dateObj.date === dateStr
+      );
+      const isStartEndOverlap = Boolean(isStartAndEndDateOverlapInfo);
+      const isOverlapDateInfo = overlapDates?.find(
+        (dateObj) => dateObj.date === dateStr
+      );
+      const isOverlapDate = Boolean(isOverlapDateInfo);
+
+      return (
+        isConfirmed ||
+        isUnavailable ||
+        isOverlapDate ||
+        isStartEndOverlap ||
+        isStartDate ||
+        isEndDate
+      );
+    },
+    [
+      confirmedDates,
+      unavailableDates,
+      startEndDates,
+      startEndOverlapDates,
+      overlapDates,
+    ]
+  );
+
+  // ИСПРАВЛЕННЫЕ обработчики для длинного нажатия
+  const handleLongPressStart = (dateStr) => {
+    if (hasOrder(dateStr) && !isLastDateForOrder(dateStr)) {
+      setWasLongPress(false); // Сбрасываем флаг
+
+      const timer = setTimeout(() => {
+        const order = getOrderByDate(dateStr);
+        if (order) {
+          setWasLongPress(true); // Устанавливаем флаг длинного нажатия
+          console.log("Long press detected on order:", {
+            id: order._id,
+            customer: order.customerName,
+            carId: order.car,
+            dates: order.rentalStartDate + " - " + order.rentalEndDate,
+          });
+
+          // Выделяем заказ синим цветом
+          setSelectedOrderId(order._id);
+
+          // Вызываем функцию длинного нажатия (активирует режим перемещения)
+          if (onLongPress) {
+            onLongPress(order);
+          }
+        }
+      }, 500); // 500ms для длинного нажатия
+
+      setPressTimer(timer);
+    }
+  };
+
+  const handleLongPressEnd = () => {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      setPressTimer(null);
+    }
+  };
 
   const renderDateCell = useCallback(
     (date) => {
@@ -457,6 +223,7 @@ export default function CarTableRow({
       let border = "1px solid green";
       let width;
 
+      // Базовая логика определения цвета
       if (isUnavailable) {
         backgroundColor = "primary.green";
         color = "text.dark";
@@ -466,20 +233,42 @@ export default function CarTableRow({
         color = "common.white";
       }
 
+      // ВАЖНО: Проверка выделения должна быть в самом конце для перезаписи цвета
+      if (isPartOfSelectedOrder(dateStr)) {
+        backgroundColor = "#1976d2"; // Синий цвет для выбранного заказа
+        color = "white";
+      }
+
       if (isStartDate && !isEndDate) {
         borderRadius = "50% 0 0 50%";
         width = "50%";
-        backgroundColor = "primary.green";
-        color = "common.white";
+        if (!isPartOfSelectedOrder(dateStr)) {
+          backgroundColor = "primary.green";
+          color = "common.white";
+        }
       }
       if (!isStartDate && isEndDate) {
         borderRadius = "0 50% 50% 0";
         width = "50%";
-        backgroundColor = "primary.green";
-        color = "common.white";
+        if (!isPartOfSelectedOrder(dateStr)) {
+          backgroundColor = "primary.green";
+          color = "common.white";
+        }
       }
 
+      // ИСПРАВЛЕННАЯ функция обработки клика по дате с заказом
       const handleDateClick = () => {
+        // Если это было длинное нажатие, не открываем модальное окно
+        if (wasLongPress) {
+          setWasLongPress(false); // Сбрасываем флаг
+          return;
+        }
+
+        // Если в режиме перемещения, не открываем модальное окно редактирования
+        if (moveMode) {
+          return;
+        }
+
         const relevantOrders = carOrders.filter((order) => {
           const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
           const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
@@ -492,7 +281,6 @@ export default function CarTableRow({
         }
       };
 
-      // --- ДОБАВЛЕНО: обработчик для пустой ячейки ---
       const isCellEmpty =
         !isConfirmed &&
         !isUnavailable &&
@@ -500,22 +288,70 @@ export default function CarTableRow({
         !isStartEndOverlap &&
         !isStartDate &&
         !isEndDate;
+
+      // ИСПРАВЛЕННАЯ функция обработки клика по пустой ячейке
       const handleEmptyCellClick = () => {
+        console.log("Empty cell click - moveMode:", moveMode, "car:", car);
+
+        // Если в режиме перемещения
+        if (moveMode) {
+          console.log("=== Режим перемещения активен ===");
+          console.log("Выбранный заказ для перемещения:", selectedMoveOrder);
+          console.log("Целевой автомобиль:", {
+            id: car._id,
+            number: car.carNumber,
+            model: car.model,
+          });
+
+          // Проверяем, что есть заказ для перемещения
+          if (!selectedMoveOrder) {
+            console.error("Ошибка: не выбран заказ для перемещения");
+            return;
+          }
+
+          // Проверяем, что не пытаемся переместить на тот же автомобиль
+          if (selectedMoveOrder.car === car._id) {
+            console.log("Попытка переместить на тот же автомобиль");
+            return;
+          }
+
+          // Вызываем функцию выбора автомобиля для перемещения
+          if (onCarSelectForMove) {
+            onCarSelectForMove({
+              _id: car._id,
+              carNumber: car.carNumber,
+              model: car.model,
+              regNumber: car.regNumber,
+            });
+          }
+          return;
+        }
+
+        // Обычный режим - создание нового заказа
         if (onAddOrderClick) {
-          onAddOrderClick(car, date);
+          console.log("Создание нового заказа на", {
+            car: car._id,
+            date: dateStr,
+          });
+          onAddOrderClick(car, dateStr);
         }
       };
+
       if (isCellEmpty) {
         return (
           <Box
             onClick={handleEmptyCellClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
             sx={{
               position: "relative",
               height: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor,
+              backgroundColor: backgroundColor,
               borderRadius,
               color,
               cursor: "pointer",
@@ -525,7 +361,6 @@ export default function CarTableRow({
           ></Box>
         );
       }
-      // ---------------------------------------------
 
       if (isOverlapDate && !isStartEndOverlap) {
         const circlesPending = isOverlapDateInfo.pending || 0;
@@ -534,6 +369,10 @@ export default function CarTableRow({
         return (
           <Box
             onClick={handleDateClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
             sx={{
               border: border,
               position: "relative",
@@ -541,8 +380,12 @@ export default function CarTableRow({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "text.red",
-              backgroundColor: "text.green",
+              color: isPartOfSelectedOrder(dateStr)
+                ? "common.white"
+                : "text.red",
+              backgroundColor: isPartOfSelectedOrder(dateStr)
+                ? "#1976d2"
+                : "text.green",
               cursor: "pointer",
               width: "100%",
             }}
@@ -599,6 +442,10 @@ export default function CarTableRow({
         return (
           <Box
             onClick={handleDateClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
             sx={{
               border: border,
               position: "relative",
@@ -613,7 +460,9 @@ export default function CarTableRow({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
+                backgroundColor: isPartOfSelectedOrder(dateStr)
+                  ? "#1976d2"
+                  : isStartAndEndDateOverlapInfo.endConfirmed
                   ? "primary.main"
                   : "primary.green",
                 borderRadius: "0 50% 50% 0",
@@ -627,7 +476,9 @@ export default function CarTableRow({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
+                backgroundColor: isPartOfSelectedOrder(dateStr)
+                  ? "#1976d2"
+                  : isStartAndEndDateOverlapInfo.startConfirmed
                   ? "primary.main"
                   : "primary.green",
                 borderRadius: "50% 0 0 50%",
@@ -645,6 +496,10 @@ export default function CarTableRow({
         return (
           <Box
             onClick={handleDateClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
             sx={{
               border: border,
               position: "relative",
@@ -669,13 +524,15 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 borderRadius: "50% 0 0 50%",
-                backgroundColor: startEndInfo.confirmed
+                backgroundColor: isPartOfSelectedOrder(dateStr)
+                  ? "#1976d2"
+                  : startEndInfo.confirmed
                   ? "primary.main"
                   : "primary.green",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color,
+                color: "common.white",
               }}
             ></Box>
           </Box>
@@ -685,6 +542,10 @@ export default function CarTableRow({
         return (
           <Box
             onClick={handleDateClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
             sx={{
               border: border,
               position: "relative",
@@ -702,13 +563,15 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 borderRadius: "0 50% 50% 0",
-                backgroundColor: startEndInfo.confirmed
+                backgroundColor: isPartOfSelectedOrder(dateStr)
+                  ? "#1976d2"
+                  : startEndInfo.confirmed
                   ? "primary.main"
                   : "primary.green",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color,
+                color: "common.white",
               }}
             ></Box>
             <Box
@@ -726,13 +589,17 @@ export default function CarTableRow({
       return (
         <Box
           onClick={handleDateClick}
+          onMouseDown={() => handleLongPressStart(dateStr)}
+          onMouseUp={handleLongPressEnd}
+          onMouseLeave={handleLongPressEnd}
+          onContextMenu={(e) => e.preventDefault()}
           sx={{
             position: "relative",
             height: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor,
+            backgroundColor: backgroundColor,
             borderRadius,
             color,
             cursor: "pointer",
@@ -752,7 +619,18 @@ export default function CarTableRow({
       setOpen,
       setSelectedOrders,
       onAddOrderClick,
+      onLongPress,
       car,
+      pressTimer,
+      isLastDateForOrder,
+      hasOrder,
+      selectedOrderId,
+      isPartOfSelectedOrder,
+      getOrderByDate,
+      moveMode,
+      selectedMoveOrder,
+      onCarSelectForMove,
+      wasLongPress,
     ]
   );
 

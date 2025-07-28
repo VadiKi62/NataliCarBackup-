@@ -12,8 +12,8 @@ import {
   MenuItem,
   Modal,
   Grid,
-  Typography, // ← добавьте этот импорт
-  Button, // ← и этот, если Button не импортирован
+  Typography,
+  Button,
 } from "@mui/material";
 import dayjs from "dayjs";
 import { useMainContext } from "@app/Context";
@@ -24,9 +24,26 @@ import {
 } from "@utils/functions";
 import EditOrderModal from "@app/components/Admin/Order/EditOrderModal";
 import AddOrderModal from "@app/components/Admin/Order/AddOrderModal";
+import { useSnackbar } from "notistack";
+import { changeRentalDates } from "@utils/action";
 
 export default function BigCalendar({ cars }) {
+  const { enqueueSnackbar } = useSnackbar();
   const { ordersByCarId, fetchAndUpdateOrders, allOrders } = useMainContext();
+
+  const getOrderNumber = (order) => {
+    if (!order) return "Не указан";
+    console.log("Full order object:", order);
+    if (order.orderNumber) return order.orderNumber;
+    if (order.id) return order.id;
+    if (order.number) return order.number;
+    if (order.orderNo) return order.orderNo;
+    if (order._id) {
+      const shortId = order._id.slice(-6).toUpperCase();
+      return `ORD-${shortId}`;
+    }
+    return "Не указан";
+  };
 
   const [month, setMonth] = useState(dayjs().month());
   const [year, setYear] = useState(dayjs().year());
@@ -44,39 +61,27 @@ export default function BigCalendar({ cars }) {
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
   const [selectedCarForAdd, setSelectedCarForAdd] = useState(null);
   const [selectedDateForAdd, setSelectedDateForAdd] = useState(null);
+  const [isMoving, setIsMoving] = useState(false);
+  const [selectedMoveOrder, setSelectedMoveOrder] = useState(null);
 
   const handleClose = () => setOpen(false);
 
-  //console.log("allOrders from context:", allOrders);
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    newCar: null,
+  });
 
-  // const daysInMonth = useMemo(
-  //   () => dayjs().year(year).month(month).daysInMonth(),
-  //   [month, year]
-  // );
+  // Состояния для режима перемещения
+  const [moveMode, setMoveMode] = useState(false);
+  const [orderToMove, setOrderToMove] = useState(null);
 
-  // const days = useMemo(() => {
-  //   return Array.from({ length: daysInMonth }, (_, index) => {
-  //     const date = dayjs()
-  //       .year(year)
-  //       .month(month)
-  //       .date(index + 1);
-  //     return {
-  //       dayjs: date,
-  //       date: date.date(),
-  //       weekday: date.format("dd"),
-  //       isSunday: date.day() === 0,
-  //     };
-  //   });
-  // }, [month, year, daysInMonth]);
   const daysInMonth = useMemo(
     () => dayjs().year(year).month(month).daysInMonth(),
     [month, year]
   );
 
   const days = useMemo(() => {
-    // Сколько всего дней показывать
     const totalDays = daysInMonth;
-    //const totalDays = daysInMonth + 15;
     return Array.from({ length: totalDays }, (_, index) => {
       const date = dayjs().year(year).month(month).date(1).add(index, "day");
       return {
@@ -88,7 +93,6 @@ export default function BigCalendar({ cars }) {
     });
   }, [month, year, daysInMonth]);
 
-  // Индекс сегодняшнего дня в массиве days
   const today = dayjs();
   const todayIndex = days.findIndex((d) => d.dayjs.isSame(today, "day"));
 
@@ -98,6 +102,24 @@ export default function BigCalendar({ cars }) {
   const ordersByCarIdWithAllorders = useCallback((carId, orders) => {
     return orders?.filter((order) => order.car === carId);
   }, []);
+
+  // ИСПРАВЛЕННАЯ функция handleLongPress - только активирует режим перемещения
+  const handleLongPress = (order) => {
+    if (!order?._id) return;
+
+    // Устанавливаем заказ для перемещения и включаем режим перемещения
+    setSelectedMoveOrder(order);
+    setOrderToMove(order);
+    setMoveMode(true);
+
+    // Показываем уведомление
+    enqueueSnackbar("Выберите новый автомобиль для перемещения", {
+      variant: "info",
+      autoHideDuration: 4000,
+    });
+
+    // НЕ открываем модальное окно редактирования!
+  };
 
   useEffect(() => {
     const { startEnd } = extractArraysOfStartEndConfPending(allOrders);
@@ -113,14 +135,24 @@ export default function BigCalendar({ cars }) {
     await fetchAndUpdateOrders();
   };
 
+  const filteredStartEndDates = allOrders
+    ? allOrders.map((order) => ({
+        startStr: order.startDateISO || order.start,
+        endStr: order.endDateISO || order.end,
+        orderId: order._id,
+      }))
+    : [];
+
   const sortedCars = useMemo(() => {
     return [...cars].sort((a, b) => a.model.localeCompare(b.model));
   }, [cars]);
 
-  // Обработчик для открытия AddOrderModal по клику по пустой ячейке
   const handleAddOrderClick = (car, dateStr) => {
+    // Если в режиме перемещения - не открываем AddOrderModal
+    if (moveMode) return;
+
     setSelectedCarForAdd(car);
-    setSelectedDateForAdd(dateStr); // строка даты "YYYY-MM-DD"
+    setSelectedDateForAdd(dateStr);
     setIsAddOrderOpen(true);
   };
 
@@ -140,7 +172,69 @@ export default function BigCalendar({ cars }) {
 
   const getRegNumberByCarNumber = (carNumber) => {
     const car = cars.find((c) => c.carNumber === carNumber);
-    return car ? car.regNumber : carNumber; // если не найдено — покажет carNumber
+    return car ? car.regNumber : carNumber;
+  };
+
+  // ИСПРАВЛЕННАЯ функция обработки выбора автомобиля для перемещения
+  const handleCarSelectForMove = (selectedCar) => {
+    if (!moveMode || !selectedMoveOrder) return;
+
+    // Находим информацию о старом автомобиле
+    const oldCar = cars.find((car) => car._id === selectedMoveOrder.car);
+
+    // Проверяем, что выбран другой автомобиль
+    if (selectedMoveOrder.car === selectedCar._id) {
+      enqueueSnackbar("Заказ уже на этом автомобиле", { variant: "warning" });
+      return;
+    }
+
+    // Показываем модальное окно подтверждения с правильными данными
+    setConfirmModal({
+      open: true,
+      newCar: selectedCar,
+      oldCar: oldCar, // Добавляем информацию о старом автомобиле
+    });
+  };
+
+  // Функция для выхода из режима перемещения
+  const exitMoveMode = () => {
+    setMoveMode(false);
+    setSelectedMoveOrder(null);
+    setOrderToMove(null);
+  };
+
+  const updateOrder = async (orderData) => {
+    console.log("🔄 Updating order with data:", orderData);
+
+    try {
+      const result = await changeRentalDates(
+        orderData._id,
+        new Date(orderData.rentalStartDate),
+        new Date(orderData.rentalEndDate),
+        new Date(orderData.timeIn || orderData.rentalStartDate),
+        new Date(orderData.timeOut || orderData.rentalEndDate),
+        orderData.placeIn || "",
+        orderData.placeOut || "",
+        orderData.car,
+        orderData.carNumber
+      );
+
+      if (result?.status === 201 || result?.status === 202) {
+        console.log("✅ Заказ успешно обновлён:", result.updatedOrder);
+      } else if (result?.status === 408) {
+        console.warn("⚠️ Конфликт по времени:", result.conflicts);
+        alert(
+          "Конфликт по времени аренды:\n" +
+            JSON.stringify(result.conflicts, null, 2)
+        );
+      } else {
+        console.error("❌ Ошибка при обновлении заказа", result);
+        alert("Не удалось обновить заказ");
+      }
+    } catch (error) {
+      console.error("🔥 Ошибка в updateOrder:", error);
+      alert("Произошла ошибка при обновлении заказа");
+    }
   };
 
   return (
@@ -153,16 +247,6 @@ export default function BigCalendar({ cars }) {
         zIndex: 100,
         height: "calc(100vh - 10px)",
       }}
-      // sx={{
-      //   position: "sticky",
-      //   top: 0,
-      //   //backgroundColor: idx === todayIndex ? "#ffe082" : "white",
-      //   zIndex: 4,
-      //   fontSize: "12px", // было 16px
-      //   padding: "2px", // было 6px
-      //   minWidth: 32, // было 40
-      //   fontWeight: "bold",
-      // }}
     >
       <style>
         {`
@@ -181,7 +265,6 @@ export default function BigCalendar({ cars }) {
         <Table stickyHeader sx={{ width: "auto" }}>
           <TableHead>
             <TableRow>
-              {/* Sticky Left Column for Car Names */}
               <TableCell
                 sx={{
                   position: "sticky",
@@ -217,29 +300,6 @@ export default function BigCalendar({ cars }) {
                   ))}
                 </Select>
               </TableCell>
-              {/* {days.map((day, idx) => (
-                <TableCell
-                  key={day.dayjs}
-                  align="center"
-                  sx={{
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: idx === todayIndex ? "#ffe082" : "white",
-                    zIndex: 4,
-                    fontSize: "16px",
-                    padding: "6px",
-                    minWidth: 40,
-                    fontWeight: "bold",
-                  }}
-                >
-                  <div style={{ color: day.isSunday ? "red" : "inherit" }}>
-                    {day.date}
-                  </div>
-                  <div style={{ color: day.isSunday ? "red" : "inherit" }}>
-                    {day.weekday}
-                  </div>
-                </TableCell>
-              ))} */}
               {days.map((day, idx) => (
                 <TableCell
                   key={day.dayjs}
@@ -259,8 +319,8 @@ export default function BigCalendar({ cars }) {
                     console.log("orders in header click:", allOrders);
                     setHeaderOrdersModal({
                       open: true,
-                      date: day.dayjs, // или day.dayjs.format("DD.MM.YYYY") если нужно строкой
-                      orders: allOrders, // показываем все заказы
+                      date: day.dayjs,
+                      orders: allOrders,
                     });
                   }}
                 >
@@ -290,11 +350,9 @@ export default function BigCalendar({ cars }) {
                 >
                   {car.model} {car.regNumber}
                 </TableCell>
-                {/* Рендерим строки дней с выделением сегодняшнего столбца */}
                 <CarTableRow
                   key={car._id}
                   car={car}
-                  //orders={ordersByCarIdWithAllorders(car._id, orders)}
                   orders={ordersByCarIdWithAllorders(car._id, allOrders)}
                   days={days}
                   ordersByCarId={ordersByCarId}
@@ -302,6 +360,12 @@ export default function BigCalendar({ cars }) {
                   setOpen={setOpen}
                   onAddOrderClick={handleAddOrderClick}
                   todayIndex={todayIndex}
+                  onLongPress={handleLongPress}
+                  filteredStartEndDates={filteredStartEndDates}
+                  moveMode={moveMode}
+                  onCarSelectForMove={handleCarSelectForMove}
+                  orderToMove={orderToMove}
+                  selectedMoveOrder={selectedMoveOrder}
                 />
               </TableRow>
             ))}
@@ -309,6 +373,7 @@ export default function BigCalendar({ cars }) {
         </Table>
       </TableContainer>
 
+      {/* Модальное окно редактирования заказов - открывается только при обычном клике */}
       <Modal
         open={open}
         onClose={handleClose}
@@ -384,7 +449,8 @@ export default function BigCalendar({ cars }) {
           }}
         />
       )}
-      {/* ВСТАВЬТЕ СЮДА МОДАЛЬНОЕ ОКНО ДЛЯ ЗАКАЗОВ ПО ДАТЕ В ШАПКЕ */}
+
+      {/* Модальное окно для заказов по дате в шапке */}
       <Modal
         open={headerOrdersModal.open}
         onClose={() =>
@@ -407,14 +473,13 @@ export default function BigCalendar({ cars }) {
           }}
         >
           <Grid container spacing={4}>
-            {/* Левая часть — начинаются */}
             <Grid item xs={12} md={6}>
               <Box sx={{ mb: 4 }}>
                 <Typography
                   variant="h6"
                   gutterBottom
                   align="center"
-                  sx={{ color: "black" }} // или любой другой цвет
+                  sx={{ color: "black" }}
                 >
                   Заказы, начинающиеся{" "}
                   {headerOrdersModal.date &&
@@ -551,7 +616,7 @@ export default function BigCalendar({ cars }) {
                   variant="h6"
                   gutterBottom
                   align="center"
-                  sx={{ color: "black" }} // ← черный цвет
+                  sx={{ color: "black" }}
                 >
                   Заказы, заканчивающиеся{" "}
                   {headerOrdersModal.date &&
@@ -703,6 +768,95 @@ export default function BigCalendar({ cars }) {
           >
             Закрыть
           </Button>
+        </Box>
+      </Modal>
+
+      {/* ИСПРАВЛЕННОЕ модальное окно подтверждения перемещения */}
+      <Modal
+        open={confirmModal.open}
+        onClose={() => {
+          setConfirmModal({ open: false, newCar: null, oldCar: null });
+          exitMoveMode();
+        }}
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          paddingTop: "10vh", // отступ сверху, регулируй по вкусу
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: "background.paper",
+            boxShadow: 24,
+            p: 3,
+            minWidth: 400,
+            borderRadius: 1,
+            maxWidth: "90vw",
+          }}
+        >
+          <Typography sx={{ mb: 3, color: "black" }}>
+            Вы хотите сдвинуть заказ с автомобиля {confirmModal.oldCar?.model} (
+            {confirmModal.oldCar?.regNumber}) на автомобиль{" "}
+            {confirmModal.newCar?.model} ({confirmModal.newCar?.regNumber})?
+          </Typography>
+
+          <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setConfirmModal({ open: false, newCar: null, oldCar: null });
+                exitMoveMode();
+                enqueueSnackbar("Перемещение отменено", { variant: "info" });
+              }}
+            >
+              НЕТ
+            </Button>
+            <Button
+              variant="contained"
+              onClick={async () => {
+                setConfirmModal({ open: false, newCar: null, oldCar: null });
+
+                try {
+                  const result = await changeRentalDates(
+                    selectedMoveOrder._id,
+                    new Date(selectedMoveOrder.rentalStartDate),
+                    new Date(selectedMoveOrder.rentalEndDate),
+                    new Date(
+                      selectedMoveOrder.timeIn ||
+                        selectedMoveOrder.rentalStartDate
+                    ),
+                    new Date(
+                      selectedMoveOrder.timeOut ||
+                        selectedMoveOrder.rentalEndDate
+                    ),
+                    selectedMoveOrder.placeIn || "",
+                    selectedMoveOrder.placeOut || "",
+                    confirmModal.newCar._id,
+                    confirmModal.newCar.carNumber
+                  );
+
+                  if (result?.status === 201 || result?.status === 202) {
+                    await fetchAndUpdateOrders();
+                    enqueueSnackbar(
+                      `Заказ сдвинут на ${confirmModal.newCar.model}`,
+                      {
+                        variant: "success",
+                      }
+                    );
+                  }
+                } catch (error) {
+                  enqueueSnackbar(`Ошибка перемещения: ${error.message}`, {
+                    variant: "error",
+                  });
+                } finally {
+                  exitMoveMode();
+                }
+              }}
+            >
+              ДА
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </Box>
