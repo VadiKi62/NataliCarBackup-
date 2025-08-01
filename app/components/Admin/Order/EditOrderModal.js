@@ -608,6 +608,7 @@
 // };
 
 // export default EditOrderModal;
+
 import React, { useState, useEffect } from "react";
 import {
   Paper,
@@ -839,6 +840,14 @@ const EditOrderModal = ({
     try {
       // Найти выбранный автомобиль по id
       const selectedCar = cars.find((c) => c._id === editedOrder.car);
+
+      // // Увеличить дату начала на 1 день и дату окончания на 1 день
+      // const adjustedStartDate = dayjs(editedOrder.rentalStartDate).add(
+      //   1,
+      //   "day"
+      // );
+      // const adjustedEndDate = dayjs(editedOrder.rentalEndDate).add(1, "day");
+
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
@@ -847,6 +856,15 @@ const EditOrderModal = ({
         car: editedOrder.car, // id автомобиля
         carNumber: selectedCar ? selectedCar.carNumber : undefined, // carNumber
       };
+
+      // const datesToSend = {
+      //   rentalStartDate: adjustedStartDate.toDate(),
+      //   rentalEndDate: adjustedEndDate.toDate(),
+      //   timeIn: dayjs(startTime).utc().toDate(), // время НЕ изменяется
+      //   timeOut: dayjs(endTime).utc().toDate(), // время НЕ изменяется
+      //   car: editedOrder.car,
+      //   carNumber: selectedCar ? selectedCar.carNumber : undefined,
+      // };
 
       const response = await changeRentalDates(
         editedOrder._id,
@@ -1073,7 +1091,9 @@ const EditOrderModal = ({
                 <TextField
                   label={t("order.pickupDate")}
                   type="date"
-                  value={dayjs(editedOrder.rentalStartDate).format("YYYY-MM-DD")}
+                  value={dayjs(editedOrder.rentalStartDate).format(
+                    "YYYY-MM-DD"
+                  )}
                   onChange={(e) =>
                     setEditedOrder((prev) => ({
                       ...prev,
