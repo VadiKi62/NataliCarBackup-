@@ -9,6 +9,7 @@ import {
   returnOverlapOrdersObjects,
 } from "@utils/functions";
 import PropTypes from "prop-types";
+import { useSnackbar } from "notistack";
 
 CarTableRow.propTypes = {
   car: PropTypes.object.isRequired,
@@ -52,6 +53,8 @@ export default function CarTableRow({
   const [carOrders, setCarOrders] = useState(orders);
 
   const [wasLongPress, setWasLongPress] = useState(false);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   // Отслеживаем изменения selectedMoveOrder для подсветки
   useEffect(() => {
@@ -312,6 +315,30 @@ export default function CarTableRow({
           // Проверяем, что не пытаемся переместить на тот же автомобиль
           if (selectedMoveOrder.car === car._id) {
             console.log("Попытка переместить на тот же автомобиль");
+            return;
+          }
+
+          // Проверка на конфликт времени
+          const ordersAtTargetCar = ordersByCarId(car._id);
+          const start = dayjs(selectedMoveOrder.rentalStartDate);
+          const end = dayjs(selectedMoveOrder.rentalEndDate);
+
+          const conflict = ordersAtTargetCar.some((order) => {
+            const otherStart = dayjs(order.rentalStartDate);
+            const otherEnd = dayjs(order.rentalEndDate);
+
+            const overlap =
+              (start.isBefore(otherEnd) && end.isAfter(otherStart)) ||
+              start.isSame(otherStart) ||
+              end.isSame(otherEnd);
+
+            return overlap && order._id !== selectedMoveOrder._id;
+          });
+
+          if (conflict) {
+            enqueueSnackbar("⛔ Перемещение отменено: конфликт по времени", {
+              variant: "error",
+            });
             return;
           }
 

@@ -274,18 +274,78 @@ import { connectToDB } from "@utils/database";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import {
-  analyzeDates,
-  isSameDay,
-  isSameOrBefore,
-  calculateAvailableTimes,
-  setTimeToDatejs,
-  checkConflicts,
-} from "@utils/analyzeDates";
 
 dayjs.extend(utc);
-// dayjs.extend(timezone);
-// dayjs.tz.setDefault("Europe/Athens");
+
+// ИСПРАВЛЕННАЯ функция проверки конфликтов
+function checkConflictsFixed(allOrders, newStart, newEnd) {
+  const conflictingOrders = [];
+  const conflictDates = { start: null, end: null };
+
+  for (const existingOrder of allOrders) {
+    const existingStart = dayjs(existingOrder.timeIn);
+    const existingEnd = dayjs(existingOrder.timeOut);
+
+    // КЛЮЧЕВАЯ ЛОГИКА: заказы НЕ конфликтуют если "касаются" по времени
+    const newEndsWhenExistingStarts = newEnd.isSame(existingStart);
+    const newStartsWhenExistingEnds = newStart.isSame(existingEnd);
+
+    // Если заказы касаются - это НЕ конфликт
+    if (newEndsWhenExistingStarts || newStartsWhenExistingEnds) {
+      continue;
+    }
+
+    // Проверяем реальное пересечение периодов
+    const hasOverlap =
+      newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+
+    if (hasOverlap) {
+      conflictingOrders.push(existingOrder);
+
+      // Определяем конкретные конфликтные времена
+      if (newStart.isBefore(existingEnd) && newStart.isAfter(existingStart)) {
+        conflictDates.start = existingStart.toISOString();
+      }
+      if (newEnd.isAfter(existingStart) && newEnd.isBefore(existingEnd)) {
+        conflictDates.end = existingEnd.toISOString();
+      }
+    }
+  }
+
+  if (conflictingOrders.length === 0) {
+    return { status: null, data: null }; // Нет конфликтов
+  }
+
+  // Проверяем подтвержденность конфликтующих заказов
+  const confirmedConflicts = conflictingOrders.filter(
+    (order) => order.confirmed
+  );
+
+  if (confirmedConflicts.length > 0) {
+    // Конфликт с подтвержденными заказами - блокируем
+    return {
+      status: 409,
+      data: {
+        conflictMessage: `Time has conflict with confirmed bookings`,
+        conflictDates,
+        conflictingOrders: confirmedConflicts,
+      },
+    };
+  } else {
+    // Конфликт только с неподтвержденными заказами
+    return {
+      status: 202,
+      data: {
+        conflictMessage: `Time has conflict with unconfirmed bookings`,
+        conflictDates,
+        conflictOrdersIds: conflictingOrders.map((order) =>
+          order._id.toString()
+        ),
+        conflictingOrders,
+      },
+    };
+  }
+}
 
 export const PUT = async (req) => {
   try {
@@ -308,6 +368,7 @@ export const PUT = async (req) => {
     if (!order) {
       return new Response(JSON.stringify({ message: "Order not found" }), {
         status: 404,
+        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -317,6 +378,7 @@ export const PUT = async (req) => {
       if (!newCar) {
         return new Response(JSON.stringify({ message: "Car not found" }), {
           status: 404,
+          headers: { "Content-Type": "application/json" },
         });
       }
       order.car = newCar._id;
@@ -348,13 +410,24 @@ export const PUT = async (req) => {
       newTimeOut
     );
 
+    // ДОБАВЛЯЕМ ОТЛАДОЧНУЮ ИНФОРМАЦИЮ
+    console.log("=== DEBUGGING ORDER UPDATE ===");
+    console.log("Order ID:", _id);
+    console.log("New time period:", {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    });
+
     // Ensure start and end dates are not the same
-    if (dayjs(start).isSame(dayjs(end), "day")) {
+    if (start.isSame(end, "day")) {
       return new Response(
         JSON.stringify({
           message: "Start and end dates cannot be the same.",
         }),
-        { status: 405 }
+        {
+          status: 405,
+          headers: { "Content-Type": "application/json" },
+        }
       );
     }
 
@@ -371,11 +444,24 @@ export const PUT = async (req) => {
 
     // Fetch all orders for the car, excluding the current order
     const allOrders = await Order.find({
-      car: order.car, // используем id автомобиля
+      car: order.car,
       _id: { $ne: _id },
     });
 
-    const { status, data } = checkConflicts(allOrders, start, end);
+    console.log(
+      "Existing orders for car:",
+      allOrders.map((o) => ({
+        id: o._id.toString(),
+        timeIn: dayjs(o.timeIn).toISOString(),
+        timeOut: dayjs(o.timeOut).toISOString(),
+        confirmed: o.confirmed,
+      }))
+    );
+
+    // ИСПОЛЬЗУЕМ ИСПРАВЛЕННУЮ функцию проверки конфликтов
+    const { status, data } = checkConflictsFixed(allOrders, start, end);
+
+    console.log("Conflict check result:", { status, data });
 
     if (status) {
       switch (status) {
@@ -462,18 +548,27 @@ export const PUT = async (req) => {
 
     await order.save();
 
+    console.log("Order updated successfully");
+
     return new Response(
       JSON.stringify({
         message: `ВСЕ ОТЛИЧНО! Даты изменены.`,
         data: order,
       }),
-      { status: 201, headers: { "Content-Type": "application/json" } }
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   } catch (error) {
     console.error("Error updating order:", error);
-    return new Response(`Failed to update order: ${error.message}`, {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({ message: `Failed to update order: ${error.message}` }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 };
 
@@ -493,11 +588,16 @@ async function checkForResolvedConflicts(order, newStartDate, newEndDate) {
       const conflictStartDate = dayjs(conflictingOrder.rentalStartDate);
       const conflictEndDate = dayjs(conflictingOrder.rentalEndDate);
 
-      // If the conflicting order no longer overlaps with the new dates
-      if (
+      // ИСПРАВЛЕНО: используем правильную логику сравнения
+      // Конфликт разрешен если заказы НЕ пересекаются (могут касаться)
+      const ordersTouch =
+        newEndDate.isSame(conflictStartDate) ||
+        newStartDate.isSame(conflictEndDate);
+      const ordersDoNotOverlap =
         newEndDate.isBefore(conflictStartDate) ||
-        newStartDate.isAfter(conflictEndDate)
-      ) {
+        newStartDate.isAfter(conflictEndDate);
+
+      if (ordersDoNotOverlap || ordersTouch) {
         resolvedConflicts.push(conflictingOrder._id); // This conflict is resolved
       } else {
         stillConflictingOrders.push(conflictingOrder._id); // Still conflicting

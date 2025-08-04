@@ -81,8 +81,15 @@ function analyzeDates(orders) {
         datejs: currentDate,
         isStart: isSameDay(currentDate, startDate),
         isEnd: isSameDay(currentDate, endDate),
-        timeStart: isSameDay(currentDate, startDate) ? order.timeIn : null,
-        timeEnd: isSameDay(currentDate, endDate) ? order.timeOut : null,
+        // timeStart: isSameDay(currentDate, startDate) ? order.timeIn : null,
+        // timeEnd: isSameDay(currentDate, endDate) ? order.timeOut : null,
+        timeStart: isSameDay(currentDate, startDate)
+          ? dayjs.utc(order.timeIn)
+          : null,
+        timeEnd: isSameDay(currentDate, endDate)
+          ? dayjs.utc(new Date(order.timeOut))
+          : null,
+
         isOverlapped: dateOccurrences.get(dateStr) - 1,
         orderId: order._id,
       };
@@ -146,6 +153,7 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
   }
 
   // Initialize timeConflicts to track conflicts
+
   const timeConflicts = { start: null, end: null };
 
   // Check if booking start overlaps with an existing end date's time
@@ -154,10 +162,38 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
       item.isEnd &&
       item.dateFormat === dayjs(startDate).format("YYYY-MM-DD") &&
       item.timeEnd && // Ensure there is a timeEnd
-      dayjs(item.timeEnd).isAfter(dayjs(timeIn)) // Check if timeEnd conflicts with timeIn
+      //dayjs(item.timeEnd).isAfter(dayjs(timeIn)) // Check if timeEnd conflicts with timeIn
+      // dayjs(item.timeEnd).isAfter(dayjs(timeIn)) &&
+      // !dayjs(item.timeEnd).isSame(dayjs(timeIn))
+      //
+      dayjs.utc(timeIn).isBefore(dayjs.utc(item.timeEnd))
     ) {
       console.log("item is", item);
       console.log("timeIn", timeIn);
+      console.log(
+        "🟠 DEBUG: Сравнение начала перемещаемого заказа с концом существующего:"
+      );
+      console.log(
+        "Новое время начала (timeIn):",
+        timeIn,
+        "→",
+        dayjs.utc(timeIn).format()
+      );
+      console.log(
+        "Существующее время конца (item.timeEnd):",
+        item.timeEnd,
+        "→",
+        dayjs.utc(item.timeEnd).format()
+      );
+      console.log(
+        "dayjs.utc(timeIn).isBefore(item.timeEnd):",
+        dayjs.utc(timeIn).isBefore(dayjs.utc(item.timeEnd))
+      );
+      console.log(
+        "dayjs.utc(timeIn).isSame(item.timeEnd):",
+        dayjs.utc(timeIn).isSame(dayjs.utc(item.timeEnd))
+      );
+
       timeConflicts.start = item.timeEnd;
       return true;
     }
@@ -170,13 +206,39 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
       item.isStart &&
       item.dateFormat === dayjs(endDate).format("YYYY-MM-DD") &&
       item.timeStart && // Ensure there is a timeStart
-      dayjs(item.timeStart).isBefore(dayjs(timeOut)) // Check if timeStart conflicts with timeOut
+      //dayjs(item.timeStart).isBefore(dayjs(timeOut)) // Check if timeStart conflicts with timeOut
+      //
+      dayjs.utc(item.timeStart).isBefore(dayjs.utc(timeOut)) &&
+      !dayjs.utc(item.timeStart).isSame(dayjs.utc(timeOut))
     ) {
       console.log("item out is", item.timeStart);
       console.log("timeOut", timeOut);
       console.log(
         "boolean check if  item out  is before timeOut==>",
         dayjs(item.timeStart).isBefore(dayjs(timeOut))
+      );
+      console.log(
+        "🟠 DEBUG: Сравнение начала перемещаемого заказа с концом существующего:"
+      );
+      console.log(
+        "Новое время начала (timeIn):",
+        timeIn,
+        "→",
+        dayjs.utc(timeIn).format()
+      );
+      console.log(
+        "Существующее время конца (item.timeEnd):",
+        item.timeEnd,
+        "→",
+        dayjs.utc(item.timeEnd).format()
+      );
+      console.log(
+        "dayjs.utc(timeIn).isBefore(item.timeEnd):",
+        dayjs.utc(timeIn).isBefore(dayjs.utc(item.timeEnd))
+      );
+      console.log(
+        "dayjs.utc(timeIn).isSame(item.timeEnd):",
+        dayjs.utc(timeIn).isSame(dayjs.utc(item.timeEnd))
       );
 
       timeConflicts.end = item.timeStart;
@@ -187,15 +249,29 @@ function checkConflicts(existingOrders, startDate, endDate, timeIn, timeOut) {
 
   // Handle time-specific conflicts - order created but with notice - status 200
   if (isStartTimeConflict || isEndTimeConflict) {
+    // const conflictMessage = `Time ${
+    //   timeConflicts.start
+    //     ? `has conflict with start booking: ${timeConflicts.start.utc()} `
+    //     : ""
+    // }${
+    //   timeConflicts.end
+    //     ? `has conflict with end booking: ${timeConflicts.end.utc()}`
+    //     : ""
+    // } with existingn bookings.`;
+
     const conflictMessage = `Time ${
       timeConflicts.start
-        ? `has conflict with start booking: ${timeConflicts.start.utc()} `
+        ? `has conflict with start booking: ${dayjs(timeConflicts.start)
+            .utc()
+            .format()} `
         : ""
     }${
       timeConflicts.end
-        ? `has conflict with end booking: ${timeConflicts.end.utc()}`
+        ? `has conflict with end booking: ${dayjs(timeConflicts.end)
+            .utc()
+            .format()}`
         : ""
-    } with existingn bookings.`;
+    } with existing bookings.`;
 
     return {
       status: 408,
