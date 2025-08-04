@@ -45,6 +45,7 @@ const EditCarModal = ({
   handleUpdate,
   handleCheckboxChange,
   setUpdatedCar,
+  //updateCarInContext,
 }) => {
   const { updateCarInContext, setUpdateStatus, updateStatus } =
     useMainContext();

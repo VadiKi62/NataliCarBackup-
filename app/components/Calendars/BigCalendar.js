@@ -26,10 +26,12 @@ import EditOrderModal from "@app/components/Admin/Order/EditOrderModal";
 import AddOrderModal from "@app/components/Admin/Order/AddOrderModal";
 import { useSnackbar } from "notistack";
 import { changeRentalDates } from "@utils/action";
+import EditCarModal from "@app/components/Admin/Car/EditCarModal";
 
 export default function BigCalendar({ cars }) {
   const { enqueueSnackbar } = useSnackbar();
-  const { ordersByCarId, fetchAndUpdateOrders, allOrders } = useMainContext();
+  const { ordersByCarId, fetchAndUpdateOrders, allOrders, updateCarInContext } =
+    useMainContext();
 
   const getOrderNumber = (order) => {
     if (!order) return "Не указан";
@@ -70,6 +72,9 @@ export default function BigCalendar({ cars }) {
     open: false,
     newCar: null,
   });
+  // Состояния для режима редактирования авто
+  const [selectedCarForEdit, setSelectedCarForEdit] = useState(null);
+  const [isEditCarOpen, setIsEditCarOpen] = useState(false);
 
   // Состояния для режима перемещения
   const [moveMode, setMoveMode] = useState(false);
@@ -95,6 +100,11 @@ export default function BigCalendar({ cars }) {
 
   const today = dayjs();
   const todayIndex = days.findIndex((d) => d.dayjs.isSame(today, "day"));
+
+  const handleEditCar = (car) => {
+    setSelectedCarForEdit(car);
+    setIsEditCarOpen(true);
+  };
 
   const handleSelectMonth = (e) => setMonth(e.target.value);
   const handleSelectYear = (e) => setYear(e.target.value);
@@ -338,6 +348,7 @@ export default function BigCalendar({ cars }) {
             {sortedCars.map((car) => (
               <TableRow key={car._id}>
                 <TableCell
+                  onClick={() => handleEditCar(car)}
                   sx={{
                     position: "sticky",
                     left: 0,
@@ -346,10 +357,15 @@ export default function BigCalendar({ cars }) {
                     zIndex: 3,
                     padding: 0,
                     minWidth: 120,
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "secondary.main",
+                    },
                   }}
                 >
                   {car.model} {car.regNumber}
                 </TableCell>
+
                 <CarTableRow
                   key={car._id}
                   car={car}
@@ -859,6 +875,41 @@ export default function BigCalendar({ cars }) {
           </Box>
         </Box>
       </Modal>
+
+      {isEditCarOpen && selectedCarForEdit && (
+        <EditCarModal
+          open={isEditCarOpen}
+          onClose={() => {
+            setIsEditCarOpen(false);
+            setSelectedCarForEdit(null);
+          }}
+          updatedCar={selectedCarForEdit}
+          setUpdatedCar={setSelectedCarForEdit}
+          updateCarInContext={updateCarInContext}
+          handleChange={(e) =>
+            setSelectedCarForEdit((prev) => ({
+              ...prev,
+              [e.target.name]: e.target.value,
+            }))
+          }
+          handleCheckboxChange={(e) =>
+            setSelectedCarForEdit((prev) => ({
+              ...prev,
+              [e.target.name]: e.target.checked,
+            }))
+          }
+          handleUpdate={async () => {
+            const response = await updateCarInContext(selectedCarForEdit);
+            if (response?.type === 200) {
+              enqueueSnackbar("Машина обновлена", { variant: "success" });
+              fetchAndUpdateOrders();
+              setIsEditCarOpen(false);
+            } else {
+              enqueueSnackbar("Ошибка обновления", { variant: "error" });
+            }
+          }}
+        />
+      )}
     </Box>
   );
 }

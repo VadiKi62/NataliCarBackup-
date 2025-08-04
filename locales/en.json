@@ -25,6 +25,7 @@
     "orderDone": "Order successful! We will contact you shortly. 🎉"
   },
   "order": {
+    "car": "Car",
     "chooseDates": "Choose your dates for booking",
     "notAvailableDate": "Not available",
     "unavailableDate": "This date is unavailable",
