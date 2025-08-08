@@ -753,6 +753,8 @@ const EditOrderModal = ({
         setCarOrders((prevOrders) =>
           prevOrders.filter((order) => order._id !== editedOrder._id)
         );
+      // 🔹 Перезагружаем список заказов из базы, чтобы таблица обновилась
+      await fetchAndUpdateOrders();
 
       showMessage("Order deleted successfully.");
       onClose();

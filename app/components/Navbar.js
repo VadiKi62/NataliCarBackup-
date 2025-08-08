@@ -281,7 +281,7 @@ export default function NavBar({
                         {t("header.cars")}
                       </Typography>
                     </Link>
-                    <Link href="/admin/orders">
+                    {/*<Link href="/admin/orders">
                       <Typography
                         sx={{
                           px: { xs: 0.5, md: 3 },
@@ -291,7 +291,7 @@ export default function NavBar({
                       >
                         {t("header.orders")}
                       </Typography>
-                    </Link>
+                    </Link>*/}
                     <Link href="/admin/orders-calendar">
                       <Typography
                         sx={{
@@ -300,10 +300,11 @@ export default function NavBar({
                           textTransform: "uppercase",
                         }}
                       >
-                        {t("header.calendar")}
+                        {/* {t("header.calendar")} */}
+                        {t("header.orders")}
                       </Typography>
                     </Link>
-                    <Link href="/admin/table">
+                    {/*<Link href="/admin/table">
                       <Typography
                         sx={{
                           px: { xs: 0.5, md: 3 },
@@ -313,7 +314,7 @@ export default function NavBar({
                       >
                         {t("header.orderList")}
                       </Typography>
-                    </Link>
+                    </Link>*/}
                   </>
                 )}
 
@@ -450,16 +451,19 @@ export default function NavBar({
                 <ListItem button component={Link} href="/admin/cars">
                   <ListItemText primary={t("header.cars")} />
                 </ListItem>
-                <ListItem button component={Link} href="/admin/orders">
+                {/* <ListItem button component={Link} href="/admin/orders">
                   <ListItemText primary={t("header.orders")} />
                 </ListItem>
                 <ListItem button component={Link} href="/admin/orders-calendar">
                   <ListItemText primary={t("header.calendar")} />
                 </ListItem>
-                <ListItem button component={Link} href="/admin/table">
-                  <ListItemText primary={t("header.orderList")} />
+                */}
+                <ListItem button component={Link} href="/admin/orders-calendar">
+                  <ListItemText primary={t("header.orders")} />
                 </ListItem>
-
+                {/*<ListItem button component={Link} href="/admin/table">
+                  <ListItemText primary={t("header.orderList")} />
+                </ListItem>  */}
                 {isAdmin && (
                   <ListItem
                     button
