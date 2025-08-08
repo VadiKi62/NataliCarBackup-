@@ -107,19 +107,24 @@ export default function NavBar({
   useEffect(() => {
     if (!isAdmin) return;
 
-    const savedDiscount = localStorage.getItem("rentalDiscount");
-    const savedStartDate = localStorage.getItem("rentalDiscountStartDate");
-    const savedEndDate = localStorage.getItem("rentalDiscountEndDate");
+    const fetchDiscountFromDB = async () => {
+      try {
+        const res = await fetch("/api/discount");
+        if (!res.ok) throw new Error("Ошибка загрузки скидки из БД");
 
-    if (savedDiscount !== null) {
-      setSelectedDiscount(parseInt(savedDiscount));
-    }
-    if (savedStartDate) {
-      setDiscountStartDate(new Date(savedStartDate));
-    }
-    if (savedEndDate) {
-      setDiscountEndDate(new Date(savedEndDate));
-    }
+        const data = await res.json();
+
+        if (data) {
+          setSelectedDiscount(data.discount || 0);
+          if (data.startDate) setDiscountStartDate(new Date(data.startDate));
+          if (data.endDate) setDiscountEndDate(new Date(data.endDate));
+        }
+      } catch (err) {
+        console.error("❌ Ошибка при загрузке скидки:", err);
+      }
+    };
+
+    fetchDiscountFromDB();
   }, [isAdmin]);
 
   useEffect(() => {
@@ -157,22 +162,49 @@ export default function NavBar({
     handleLanguageClose();
   };
 
-  const handleSaveDiscount = () => {
+  const handleSaveDiscount = async () => {
     if (!isAdmin) return;
 
-    localStorage.setItem("rentalDiscount", selectedDiscount.toString());
-    if (discountStartDate) {
-      localStorage.setItem(
-        "rentalDiscountStartDate",
-        discountStartDate.toISOString()
+    // 👉 Преобразуем в UTC-полночь вручную, чтобы сохранить точную дату
+    // const startDateUtc = new Date(discountStartDate);
+    // startDateUtc.setUTCHours(12, 0, 0, 0);
+
+    const toUTCZeroTime = (date) => {
+      return new Date(
+        Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
       );
+    };
+
+    const startDateUtc = toUTCZeroTime(discountStartDate);
+    const endDateUtc = toUTCZeroTime(discountEndDate);
+
+    // 👉 Отправляем в MongoDB
+
+    try {
+      const res = await fetch("/api/discount", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          discount: selectedDiscount,
+          // startDate: discountStartDate,
+          // endDate: discountEndDate,
+          startDate: startDateUtc,
+          endDate: endDateUtc,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        console.log("✅ Скидка сохранена в MongoDB:", data);
+      } else {
+        console.error("❌ Ошибка сохранения скидки:", data);
+      }
+    } catch (error) {
+      console.error("❌ Ошибка при отправке скидки:", error);
     }
-    if (discountEndDate) {
-      localStorage.setItem(
-        "rentalDiscountEndDate",
-        discountEndDate.toISOString()
-      );
-    }
+
     setDiscountModalOpen(false);
   };
 
