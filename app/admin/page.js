@@ -1,7 +1,5 @@
 import React, { Suspense } from "react";
-import { getServerSession } from "next-auth";
 import { unstable_noStore } from "next/cache";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
