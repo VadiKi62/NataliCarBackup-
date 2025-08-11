@@ -12,7 +12,6 @@ import { MainContextProvider } from "@app/Context";
 import Navbar from "@app/components/Navbar";
 
 import Feed from "@app/components/Feed";
-
 export default async function PageOrdersCalendar({ children }) {
   unstable_noStore();
   const carsData = await fetchAllCars();
