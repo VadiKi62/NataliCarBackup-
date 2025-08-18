@@ -44,7 +44,7 @@ const CalendarPicker = ({
   selectedTimes,
 }) => {
   const { t } = useTranslation();
-  console.log(t("order.chooseDates"));
+  //console.log(t("order.chooseDates"));
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [unavailableDates, setUnavailableDates] = useState([]);

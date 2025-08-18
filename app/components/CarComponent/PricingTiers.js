@@ -22,15 +22,20 @@ const getCurrentSeason = () => {
 };
 
 // PricingDisplay component to show current season pricing
-const PricingDisplay = ({ prices }) => {
+// const PricingDisplay = ({ prices }) => {
+//   const { t } = useTranslation();
+//   const currentSeason = getCurrentSeason(); // Get current season
+//   const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
+const PricingDisplay = ({ prices, selectedDate }) => {
   const { t } = useTranslation();
-  const currentSeason = getCurrentSeason(); // Get current season
-  const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
+  const seasonDate = selectedDate ? dayjs(selectedDate) : dayjs();
+  const currentSeason = getCurrentSeason(seasonDate);
+  const pricingData = prices[currentSeason]?.days || {};
 
   // Helper function для формирования шапки таблицы цен при аренде авто
   const getDayRangeText = (days) => {
     const daysNum = Number(days); // Явное преобразование в число
-    console.log("1. Читаем из Tiers:", days, daysNum);
+    //console.log("1. Читаем из Tiers:", days, daysNum);
     //if (daysNum >= 1 && daysNum <= 4) return t("carPark.1-4days");
     if (daysNum === 4) return t("carPark.1-4days");
     if (daysNum === 7) return t("carPark.5-14days");

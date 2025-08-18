@@ -20,6 +20,7 @@
 import "@styles/globals.css";
 import "antd/dist/reset.css";
 import Providers from "./providers";
+import { Suspense } from "react";
 
 export const metadata = {
   title: "Natali Car Rent",
@@ -32,7 +33,9 @@ export default function RootLayout({ children }) {
       <body
         style={{ position: "relative", minHeight: "100vh", minWidth: "100%" }}
       >
-        <Providers>{children}</Providers>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );

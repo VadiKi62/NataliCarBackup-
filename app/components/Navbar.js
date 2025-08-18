@@ -44,7 +44,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import { ru } from "date-fns/locale";
 
-const StyledBox = styled(Box)(({ theme }) => ({
+const StyledBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "$isCarInfo" && prop !== "scrolled",
+})(({ theme, $isCarInfo }) => ({
   zIndex: 996,
   position: "fixed",
   top: 50,
@@ -54,6 +56,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   py: theme.spacing(1),
   backgroundColor: theme.palette.primary.main1,
+  // можно использовать $isCarInfo для стилей, если нужно
 }));
 
 const GradientAppBar = styled(AppBar, {
@@ -392,7 +395,10 @@ export default function NavBar({
         </LanguagePopover>
 
         {isMain && (
-          <StyledBox scrolled={scrolled} isCarInfo={isCarInfo}>
+          <StyledBox
+            scrolled={scrolled ? "true" : undefined}
+            $isCarInfo={isCarInfo}
+          >
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={{ xs: 1, sm: 10 }}
