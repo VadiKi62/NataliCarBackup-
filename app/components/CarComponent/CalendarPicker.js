@@ -42,6 +42,8 @@ const CalendarPicker = ({
   carId,
   setSelectedTimes,
   selectedTimes,
+  onDateChange, // ⬅️ новый проп
+  onCurrentDateChange, // ДОБАВИТЬ ЭТОТ PROP
 }) => {
   const { t } = useTranslation();
   //console.log(t("order.chooseDates"));
@@ -146,6 +148,15 @@ const CalendarPicker = ({
     setConfirmedDates(confirmed);
     setStartEndDates(startEnd);
   }, [orders]);
+
+  // ДОБАВИТЬ ЭТОТ useEffect ЗДЕСЬ:
+  useEffect(() => {
+    console.log("Текущий месяц:", currentDate.format("MMMM YYYY"));
+
+    if (onCurrentDateChange) {
+      onCurrentDateChange(currentDate);
+    }
+  }, [currentDate, onCurrentDateChange]);
 
   const renderDateCell = (date) => {
     // выбранные даты
@@ -545,6 +556,14 @@ const CalendarPicker = ({
     const month = current.format("MMMM");
     const year = current.year();
 
+    // const goToNextMonth = () => {
+    //   setCurrentDate((prev) => prev.add(1, "month"));
+    // };
+
+    // const goToPreviousMonth = () => {
+    //   setCurrentDate((prev) => prev.subtract(1, "month"));
+    // };
+    // В headerRender обновите функции навигации:
     const goToNextMonth = () => {
       setCurrentDate((prev) => prev.add(1, "month"));
     };

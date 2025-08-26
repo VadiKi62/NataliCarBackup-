@@ -4,22 +4,54 @@ import dayjs from "dayjs";
 import { seasons } from "@utils/companyData";
 import { useTranslation } from "@node_modules/react-i18next";
 
+import { useEffect } from "react";
+
 // Function to get the current season (same as above)
-const getCurrentSeason = () => {
-  const today = dayjs();
-  const currentYear = today.year();
+// const getCurrentSeason = (date = dayjs()) => {
+//   const currentYear = date.year();
+
+//   for (const [season, range] of Object.entries(seasons)) {
+//     const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
+//     const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
+
+//     if (date.isAfter(startDate) && date.isBefore(endDate)) {
+//       return season;
+//     }
+//   }
+
+//   return "NoSeason";
+// };
+const getCurrentSeason = (date = dayjs()) => {
+  const targetDate = dayjs(date);
+  const currentYear = targetDate.year();
 
   for (const [season, range] of Object.entries(seasons)) {
     const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
     const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
 
-    if (today.isAfter(startDate) && today.isBefore(endDate)) {
+    if (targetDate.isAfter(startDate) && targetDate.isBefore(endDate)) {
       return season;
     }
   }
 
   return "NoSeason"; // Default season
 };
+
+// const getCurrentSeason = () => {
+//   const today = dayjs();
+//   const currentYear = today.year();
+
+//   for (const [season, range] of Object.entries(seasons)) {
+//     const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
+//     const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
+
+//     if (today.isAfter(startDate) && today.isBefore(endDate)) {
+//       return season;
+//     }
+//   }
+
+//   return "NoSeason"; // Default season
+// };
 
 // PricingDisplay component to show current season pricing
 // const PricingDisplay = ({ prices }) => {
@@ -31,6 +63,10 @@ const PricingDisplay = ({ prices, selectedDate }) => {
   const seasonDate = selectedDate ? dayjs(selectedDate) : dayjs();
   const currentSeason = getCurrentSeason(seasonDate);
   const pricingData = prices[currentSeason]?.days || {};
+  // Логируем для отладки
+  useEffect(() => {
+    console.log("Текущий сезон:", currentSeason);
+  }, [selectedDate, currentSeason]);
 
   // Helper function для формирования шапки таблицы цен при аренде авто
   const getDayRangeText = (days) => {

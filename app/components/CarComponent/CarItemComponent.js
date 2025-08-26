@@ -30,6 +30,9 @@ import CarDetails from "./CarDetails";
 
 import { CldImage } from "next-cloudinary";
 
+// ДОБАВИТЬ ЭТУ СТРОКУ:
+import dayjs from "dayjs";
+
 const StyledCarItem = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   marginLeft: 2,
@@ -114,6 +117,9 @@ function CarItemComponent({ car }) {
     end: null,
   });
 
+  // ДОБАВИТЬ ЭТО СОСТОЯНИЕ для передачи месяца из календаря:
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(dayjs());
+
   const { fetchAndUpdateOrders, isLoading, ordersByCarId, allOrders } =
     useMainContext();
   const [carOrders, setCarOrders] = useState([]);
@@ -126,6 +132,15 @@ function CarItemComponent({ car }) {
 
   const handleBookingComplete = () => {
     setModalOpen(true);
+  };
+
+  // ДОБАВИТЬ ЭТУ ФУНКЦИЮ для передачи месяца из календаря:
+  const handleCurrentDateChange = (newDate) => {
+    // console.log(
+    //   "CarItemComponent получил новую дату:",
+    //   newDate.format("YYYY-MM-DD")
+    // );
+    setCurrentCalendarDate(newDate);
   };
 
   return (
@@ -171,8 +186,14 @@ function CarItemComponent({ car }) {
           onBookingComplete={handleBookingComplete}
           setSelectedTimes={setSelectedTimes}
           selectedTimes={selectedTimes}
+          onCurrentDateChange={handleCurrentDateChange} // ДОБАВИТЬ ЭТОТ PROP
         />
-        {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />}
+        {car?.pricingTiers && (
+          <PricingTiers
+            prices={car?.pricingTiers}
+            selectedDate={currentCalendarDate} // ДОБАВИТЬ ЭТОТ PROP
+          />
+        )}
       </Stack>
       <BookingModal
         fetchAndUpdateOrders={fetchAndUpdateOrders}
