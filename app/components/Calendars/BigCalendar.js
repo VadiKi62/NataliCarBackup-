@@ -47,8 +47,30 @@ export default function BigCalendar({ cars }) {
     return "Не указан";
   };
 
-  const [month, setMonth] = useState(dayjs().month());
-  const [year, setYear] = useState(dayjs().year());
+  // const [month, setMonth] = useState(dayjs().month());
+  // const [year, setYear] = useState(dayjs().year());
+
+  const [month, setMonth] = useState(() => {
+    // Проверяем localStorage при первой загрузке
+    const savedMonth = localStorage.getItem("bigCalendar_month");
+    return savedMonth !== null ? parseInt(savedMonth, 10) : dayjs().month();
+  });
+
+  const [year, setYear] = useState(() => {
+    // Проверяем localStorage при первой загрузке
+    const savedYear = localStorage.getItem("bigCalendar_year");
+    return savedYear !== null ? parseInt(savedYear, 10) : dayjs().year();
+  });
+
+  // useEffect для сохранения в localStorage:
+  useEffect(() => {
+    localStorage.setItem("bigCalendar_month", month.toString());
+  }, [month]);
+
+  useEffect(() => {
+    localStorage.setItem("bigCalendar_year", year.toString());
+  }, [year]);
+
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [startEndDates, setStartEndDates] = useState([]);
   const [isConflictOrder, setIsConflictOrder] = useState(false);
@@ -106,8 +128,22 @@ export default function BigCalendar({ cars }) {
     setIsEditCarOpen(true);
   };
 
-  const handleSelectMonth = (e) => setMonth(e.target.value);
-  const handleSelectYear = (e) => setYear(e.target.value);
+  // const handleSelectMonth = (e) => setMonth(e.target.value);
+  // const handleSelectYear = (e) => setYear(e.target.value);
+
+  const handleSelectMonth = (e) => {
+    const newMonth = e.target.value;
+    setMonth(newMonth);
+    console.log(
+      `Выбран месяц: ${dayjs().month(newMonth).format("MMMM")} (${newMonth})`
+    );
+  };
+
+  const handleSelectYear = (e) => {
+    const newYear = e.target.value;
+    setYear(newYear);
+    console.log(`Выбран год: ${newYear}`);
+  };
 
   const ordersByCarIdWithAllorders = useCallback((carId, orders) => {
     return orders?.filter((order) => order.car === carId);
