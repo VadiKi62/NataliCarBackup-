@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Paper, Stack, Typography, Divider } from "@mui/material";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 import { seasons } from "@utils/companyData";
 import { useTranslation } from "@node_modules/react-i18next";
-
-import { useEffect } from "react";
 
 // Function to get the current season (same as above)
 // const getCurrentSeason = (date = dayjs()) => {
@@ -60,11 +62,27 @@ const getCurrentSeason = (date = dayjs()) => {
 //   const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
 const PricingDisplay = ({ prices, selectedDate }) => {
   const { t } = useTranslation();
+  const [discount, setDiscount] = useState(null);
+  const [discountStart, setDiscountStart] = useState(null);
+  const [discountEnd, setDiscountEnd] = useState(null);
   const seasonDate = selectedDate ? dayjs(selectedDate) : dayjs();
   const currentSeason = getCurrentSeason(seasonDate);
   const pricingData = prices[currentSeason]?.days || {};
-  // Логируем для отладки
+
   useEffect(() => {
+    async function fetchDiscount() {
+      try {
+        const res = await fetch("/api/discount");
+        if (!res.ok) throw new Error("Ошибка загрузки скидки");
+        const data = await res.json();
+        setDiscount(data.discount || null);
+        setDiscountStart(data.startDate ? dayjs(data.startDate) : null);
+        setDiscountEnd(data.endDate ? dayjs(data.endDate) : null);
+      } catch (err) {
+        console.error("Ошибка загрузки скидки:", err);
+      }
+    }
+    fetchDiscount();
     console.log("Текущий сезон:", currentSeason);
   }, [selectedDate, currentSeason]);
 
@@ -109,36 +127,53 @@ const PricingDisplay = ({ prices, selectedDate }) => {
           }}
         >
           {/* Map over the day tiers and prices */}
-          {Object.entries(pricingData).map(([days, amount], index) => (
-            <React.Fragment key={index}>
-              <Stack direction="column" alignItems="center">
-                <Typography
-                  sx={{
-                    lineHeight: { xs: "0.9rem", sm: "0.9rem" },
-                    fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                    mb: 1,
-                  }}
-                >
-                  {getDayRangeText(days)}
-                </Typography>
+          {Object.entries(pricingData).map(([days, amount], index) => {
+            // Проверяем, действует ли скидка на выбранную дату
+            let isDiscountActive = false;
+            if (discount && discountStart && discountEnd) {
+              const targetDate = selectedDate ? dayjs(selectedDate) : dayjs();
+              isDiscountActive = targetDate.isSameOrAfter(discountStart, 'day') && targetDate.isSameOrBefore(discountEnd, 'day');
+            }
+            const discountedPrice = isDiscountActive ? Math.round(amount * (1 - discount / 100)) : amount;
+            return (
+              <React.Fragment key={index}>
+                <Stack direction="column" alignItems="center">
+                  <Typography
+                    sx={{
+                      lineHeight: { xs: "0.9rem", sm: "0.9rem" },
+                      fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                      mb: 1,
+                    }}
+                  >
+                    {getDayRangeText(days)}
+                  </Typography>
 
-                <Typography
-                  sx={{
-                    lineHeight: { xs: "1rem", sm: "1.2rem" },
-                    fontSize: { xs: "1rem", sm: "1.2rem" },
-                  }}
-                  color="primary"
-                >
-                  ${amount}
-                </Typography>
-              </Stack>
+                  <Typography
+                    sx={{
+                      lineHeight: { xs: "1rem", sm: "1.2rem" },
+                      fontSize: { xs: "1rem", sm: "1.2rem" },
+                    }}
+                    color="primary"
+                  >
+                    {isDiscountActive ? (
+                      <>
+                        <span style={{ textDecoration: "line-through", color: "#888", marginRight: 6 }}>${amount}</span>
+                        <span>${discountedPrice}</span>
+                        <span style={{ color: "#388e3c", marginLeft: 4 }}>({discount}% скидка)</span>
+                      </>
+                    ) : (
+                      <>${amount}</>
+                    )}
+                  </Typography>
+                </Stack>
 
-              {/* Divider between prices */}
-              {index + 1 < Object.entries(pricingData).length && (
-                <Divider orientation="vertical" flexItem />
-              )}
-            </React.Fragment>
-          ))}
+                {/* Divider between prices */}
+                {index + 1 < Object.entries(pricingData).length && (
+                  <Divider orientation="vertical" flexItem />
+                )}
+              </React.Fragment>
+            );
+          })}
         </Stack>
       </Paper>
     </>
