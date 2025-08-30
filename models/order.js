@@ -115,12 +115,11 @@ OrderSchema.pre("save", async function (next) {
   const car = await Car.findById(this.car);
 
   if (car) {
-    this.carNumber = car.carNumber;
-    this.carModel = car.model;
+  this.carNumber = car.carNumber;
+  this.carModel = car.model;
 
-    // Calculate total price using the car's pricing tiers
-    const pricePerDay = car.calculatePrice(numberOfDays);
-    this.totalPrice = pricePerDay * numberOfDays;
+  // Новый алгоритм расчёта итоговой цены
+  this.totalPrice = await car.calculateTotalRentalPricePerDay(this.rentalStartDate, this.rentalEndDate);
   }
 
   next();

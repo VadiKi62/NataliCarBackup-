@@ -116,14 +116,49 @@ const CarSchema = new Schema({
 });
 
 CarSchema.methods.getSeason = function (date) {
-  const today = dayjs(date);
+  // Логгируем все сезоны и их даты из базы
+  console.log("[SEASON] Сезоны из базы:");
+  for (const [season, range] of Object.entries(seasons)) {
+    console.log(`  ${season}: start = ${range.start}, end = ${range.end}`);
+  }
+  // Явно указываем формат даты заказа
+  const today = dayjs(date, "MM/DD/YYYY", true);
   const currentYear = today.year();
 
+  console.log(`\n[SEASON] Проверяем дату: ${today.format("MM/DD/YYYY")}`);
+  // 1. Сначала проверяем обычные сезоны (не переливающиеся)
   for (const [season, range] of Object.entries(seasons)) {
-    const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
-    const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
+    // Формируем строку для даты начала и конца сезона
+    // Преобразуем 'DD/MM' -> 'MM/DD'
+    const [startDay, startMonth] = range.start.split("/");
+    const [endDay, endMonth] = range.end.split("/");
+    let startString = `${startMonth}/${startDay}/${currentYear}`;
+    let endString;
+    // Универсальная логика переходящего сезона:
+    // Если месяц начала > месяц конца, или месяц равен и день начала > день конца — сезон "перетекает" через год
+    if (
+      parseInt(startMonth) > parseInt(endMonth) ||
+      (parseInt(startMonth) === parseInt(endMonth) && parseInt(startDay) > parseInt(endDay))
+    ) {
+      endString = `${endMonth}/${endDay}/${currentYear + 1}`;
+    } else {
+      endString = `${endMonth}/${endDay}/${currentYear}`;
+    }
+    console.log(
+      `[SEASON] ${season}: startString = ${startString}, endString = ${endString}`
+    );
+    // Преобразуем строки в даты dayjs с указанием формата
+    const startDate = dayjs(startString, "MM/DD/YYYY", true);
+    const endDate = dayjs(endString, "MM/DD/YYYY", true);
 
-    if (today.isBetween(startDate, endDate, null, "[]")) {
+    console.log(
+      `[SEASON] ${season}: startDate = ${startDate.format(
+        "MM/DD/YYYY"
+      )}, endDate = ${endDate.format("MM/DD/YYYY")}`
+    );
+
+    if (today.isBetween(startDate, endDate, "day", "[]")) {
+      console.log(`[SEASON] Дата попала в сезон: ${season}`);
       return season;
     }
   }
@@ -132,48 +167,87 @@ CarSchema.methods.getSeason = function (date) {
 };
 
 // Method to calculate price based on days and current season
+// СТАРЫЙ АЛГОРИТМ ЗАКОММЕНТИРОВАН
+/*
 CarSchema.methods.calculatePrice = function (days, date = dayjs()) {
-  //console.log("1. Функция вызвана с параметрами:", { days, date });
-  console.log("1a. Функция вызвана с параметром:", { days });
-  // Определяем сезон
-  const season = this.getSeason(date);
-  console.log("2. Определён сезон:", season);
+  // ...старый алгоритм...
+};
+*/
 
-  const pricingTiers = this.pricingTiers.get(season);
-  console.log("3. Доступные тарифы:", Array.from(pricingTiers.days.keys()));
+// Новый алгоритм: расчёт по дням, с логгированием и скидкой
+import DiscountSetting from "./DiscountSetting";
 
-  // Группировка дней по заданным правилам
-  let targetDays;
-  if (days >= 1 && days <= 4) {
-    targetDays = 4; // 1-4 дня → тариф за 4 дня
-  } else if (days >= 5 && days <= 14) {
-    targetDays = 7; // 5-14 дней → тариф за 7 дней
-  } else {
-    targetDays = 14; // 15+ дней → тариф за 14 дней
-  }
-  console.log("4. Выбран целевой тариф (targetDays):", targetDays);
+CarSchema.methods.calculateTotalRentalPricePerDay = async function (
+  startDate,
+  endDate
+) {
+  const dayjsStart = dayjs(startDate).startOf("day");
+  const dayjsEnd = dayjs(endDate).startOf("day");
+  const days = dayjsEnd.diff(dayjsStart, "day");
+  let total = 0;
+  let logs = [];
 
-  // Проверяем, существует ли такой тариф в pricingTiers
-  if (!pricingTiers.days.has(targetDays.toString())) {
-    // Если нет — ищем ближайший меньший доступный тариф
-    const availableTiers = Array.from(pricingTiers.days.keys())
-      .map(Number)
-      .sort((a, b) => b - a); // Сортировка по убыванию
-
-    const tiers = Array.from(pricingTiers.days.keys()).map(Number);
-
-    for (let tier of availableTiers) {
-      if (targetDays >= tier) {
-        targetDays = tier;
-        break;
-      }
+  for (let i = 0; i < days; i++) {
+    const currentDate = dayjsStart.add(i, "day");
+    // 1. Определяем сезон для текущего дня
+    const season = this.getSeason(currentDate);
+    // 2. Определяем тариф
+    let targetDays;
+    if (days >= 1 && days <= 4) {
+      targetDays = 4;
+    } else if (days >= 5 && days <= 14) {
+      targetDays = 7;
+    } else {
+      targetDays = 14;
     }
-    console.log("5. Используется ближайший меньший тариф:", targetDays);
-  }
+    // 3. Получаем цену за день
+    const pricingTiers = this.pricingTiers.get(season);
+    let price = pricingTiers?.days?.get(targetDays.toString()) || 0;
 
-  const result = pricingTiers.days.get(targetDays.toString());
-  console.log("6. Итоговая цена:", result);
-  return result;
+    // 4. Проверяем скидку
+    let discount = 0;
+    let discountActive = false;
+    try {
+      const discountSetting = await DiscountSetting.findOne();
+      if (discountSetting) {
+        const startDiscount = dayjs(discountSetting.startDate);
+        const endDiscount = dayjs(discountSetting.endDate);
+        if (
+          currentDate.isSame(startDiscount, "day") ||
+          currentDate.isSame(endDiscount, "day") ||
+          (currentDate.isAfter(startDiscount, "day") &&
+            currentDate.isBefore(endDiscount, "day"))
+        ) {
+          discount = discountSetting.discount || 0;
+          discountActive = true;
+        }
+      }
+    } catch (err) {
+      // Ошибка чтения скидки
+    }
+
+    // 5. Применяем скидку
+    let finalPrice = price;
+    if (discountActive && discount > 0) {
+      finalPrice = Math.round(price * (1 - discount / 100));
+    }
+
+    // 6. Логгируем расчёт по дню
+    logs.push({
+      day: i + 1,
+      date: currentDate.format("MM/DD/YYYY"),
+      season,
+      targetDays,
+      price,
+      discount,
+      discountActive,
+      finalPrice,
+    });
+    total += finalPrice;
+  }
+  console.log("[ALGO] Расчёт по дням:", logs);
+  console.log("[ALGO] Итоговая цена заказа:", total);
+  return total;
 };
 
 const Car = models.Car || model("Car", CarSchema);

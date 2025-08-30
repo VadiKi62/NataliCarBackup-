@@ -118,12 +118,11 @@ export async function POST(request) {
     }
 
     // Calculate the number of rental days using dayjs
-    const startDate = dayjs(rentalStartDate);
-    const endDate = dayjs(rentalEndDate);
-    const rentalDays = endDate.diff(startDate, "day"); // include only start  day
-    // Calculate the price per day using the car's pricing tiers
-    const pricePerDay = existingCar.calculatePrice(rentalDays);
-    const totalPrice = pricePerDay * rentalDays;
+  const startDate = dayjs(rentalStartDate);
+  const endDate = dayjs(rentalEndDate);
+  const rentalDays = endDate.diff(startDate, "day"); // include only start  day
+  // Новый алгоритм расчёта итоговой цены
+  const totalPrice = await existingCar.calculateTotalRentalPricePerDay(startDate, endDate);
 
     // Create a new order document with calculated values
     const newOrder = new Order({
