@@ -24,14 +24,19 @@ import { useTranslation } from "@node_modules/react-i18next";
 //   return "NoSeason";
 // };
 const getCurrentSeason = (date = dayjs()) => {
-  const targetDate = dayjs(date);
+  // Используем первый день месяца для определения сезона
+  const targetDate = dayjs(date).startOf('month');
   const currentYear = targetDate.year();
 
   for (const [season, range] of Object.entries(seasons)) {
     const startDate = dayjs(`${range.start}/${currentYear}`, "DD/MM/YYYY");
     const endDate = dayjs(`${range.end}/${currentYear}`, "DD/MM/YYYY");
 
-    if (targetDate.isAfter(startDate) && targetDate.isBefore(endDate)) {
+    // Включаем граничные даты сезона
+    if (
+      targetDate.isSameOrAfter(startDate, "day") &&
+      targetDate.isSameOrBefore(endDate, "day")
+    ) {
       return season;
     }
   }
