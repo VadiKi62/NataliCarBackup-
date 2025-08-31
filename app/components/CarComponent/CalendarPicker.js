@@ -44,6 +44,9 @@ const CalendarPicker = ({
   selectedTimes,
   onDateChange, // ⬅️ новый проп
   onCurrentDateChange, // ДОБАВИТЬ ЭТОТ PROP
+  discount,
+  discountStart,
+  discountEnd,
 }) => {
   const { t } = useTranslation();
   //console.log(t("order.chooseDates"));
@@ -613,6 +616,26 @@ const CalendarPicker = ({
     );
   };
 
+  // Проверяем, действует ли скидка в текущем месяце
+  let showDiscountInfo = false;
+  let discountText = "";
+  if (
+    discount > 0 &&
+    discountStart &&
+    discountEnd &&
+    dayjs(currentDate)
+      .endOf("month")
+      .isSameOrAfter(dayjs(discountStart), "day") &&
+    dayjs(currentDate)
+      .startOf("month")
+      .isSameOrBefore(dayjs(discountEnd), "day")
+  ) {
+    showDiscountInfo = true;
+    discountText = `Скидка ${discount}% с ${dayjs(discountStart).format(
+      "DD.MM.YYYY"
+    )} по ${dayjs(discountEnd).format("DD.MM.YYYY")}`;
+  }
+
   return (
     <Box sx={{ width: "100%", p: "20px" }}>
       <Typography
@@ -621,12 +644,20 @@ const CalendarPicker = ({
           lineHeight: "1.3rem",
           letterSpacing: "0.1rem",
           textTransform: "uppercase",
-          marginBottom: "20px",
+          marginBottom: showDiscountInfo ? "8px" : "20px",
           color: "primary.main",
         }}
       >
         {t("order.chooseDates")}
       </Typography>
+      {showDiscountInfo && (
+        <Typography
+          variant="body2"
+          sx={{ color: "error.main", fontWeight: 600, mb: 2 }}
+        >
+          {discountText}
+        </Typography>
+      )}
       {isLoading ? (
         <CircularProgress />
       ) : (

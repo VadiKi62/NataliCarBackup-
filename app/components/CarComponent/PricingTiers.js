@@ -71,31 +71,41 @@ const getCurrentSeason = (date = dayjs()) => {
 //   const { t } = useTranslation();
 //   const currentSeason = getCurrentSeason(); // Get current season
 //   const pricingData = prices[currentSeason].days || {}; // Get the days and amounts for the current season
-const PricingDisplay = ({ prices, selectedDate }) => {
-  const { t } = useTranslation();
-  const [discount, setDiscount] = useState(null);
-  const [discountStart, setDiscountStart] = useState(null);
-  const [discountEnd, setDiscountEnd] = useState(null);
+const PricingDisplay = ({
+  prices,
+  selectedDate,
+  discount,
+  discountStart,
+  discountEnd,
+}) => {
   const seasonDate = selectedDate ? dayjs(selectedDate) : dayjs();
+  // Проверка: действует ли скидка в текущем месяце полностью, частично или не действует
+  const monthStart = seasonDate.startOf("month");
+  const monthEnd = seasonDate.endOf("month");
+  let discountType = "none"; // 'full', 'partial', 'none'
+  if (
+    typeof discount === "number" &&
+    discount > 0 &&
+    discountStart &&
+    discountEnd
+  ) {
+    // Скидка покрывает весь месяц
+    if (
+      monthStart.isSameOrAfter(discountStart, "day") &&
+      monthEnd.isSameOrBefore(discountEnd, "day")
+    ) {
+      discountType = "full";
+    } else if (
+      monthEnd.isSameOrAfter(discountStart, "day") &&
+      monthStart.isSameOrBefore(discountEnd, "day")
+    ) {
+      // Скидка покрывает часть месяца
+      discountType = "partial";
+    }
+  }
+  const { t } = useTranslation();
   const currentSeason = getCurrentSeason(seasonDate);
   const pricingData = prices[currentSeason]?.days || {};
-
-  useEffect(() => {
-    async function fetchDiscount() {
-      try {
-        const res = await fetch("/api/discount");
-        if (!res.ok) throw new Error("Ошибка загрузки скидки");
-        const data = await res.json();
-        setDiscount(data.discount || null);
-        setDiscountStart(data.startDate ? dayjs(data.startDate) : null);
-        setDiscountEnd(data.endDate ? dayjs(data.endDate) : null);
-      } catch (err) {
-        console.error("Ошибка загрузки скидки:", err);
-      }
-    }
-    fetchDiscount();
-    console.log("Текущий сезон:", currentSeason);
-  }, [selectedDate, currentSeason]);
 
   // Helper function для формирования шапки таблицы цен при аренде авто
   const getDayRangeText = (days) => {
@@ -139,17 +149,33 @@ const PricingDisplay = ({ prices, selectedDate }) => {
         >
           {/* Map over the day tiers and prices */}
           {Object.entries(pricingData).map(([days, amount], index) => {
-            // Проверяем, действует ли скидка на выбранную дату
-            let isDiscountActive = false;
-            if (discount && discountStart && discountEnd) {
-              const targetDate = selectedDate ? dayjs(selectedDate) : dayjs();
-              isDiscountActive =
-                targetDate.isSameOrAfter(discountStart, "day") &&
-                targetDate.isSameOrBefore(discountEnd, "day");
+            const discountedPrice = Math.round(
+              amount * (1 - (discount || 0) / 100)
+            );
+            let priceDisplay;
+            if (discountType === "full") {
+              // Скидка действует весь месяц
+              priceDisplay = (
+                <>
+                  <span>${discountedPrice}</span>
+                </>
+              );
+            } else if (discountType === "partial") {
+              // Скидка действует частично
+              priceDisplay = (
+                <>
+                  <span>${discountedPrice}</span>
+                  <span style={{ margin: "0 6px" }}> - </span>
+                  <span>${amount}</span>
+                  {/* <span style={{ color: '#388e3c', marginLeft: 4 }}>
+                    ({discount}% скидка частично)
+                  </span> */}
+                </>
+              );
+            } else {
+              // Скидка не действует
+              priceDisplay = <>{`$${amount}`}</>;
             }
-            const discountedPrice = isDiscountActive
-              ? Math.round(amount * (1 - discount / 100))
-              : amount;
             return (
               <React.Fragment key={index}>
                 <Stack direction="column" alignItems="center">
@@ -162,7 +188,6 @@ const PricingDisplay = ({ prices, selectedDate }) => {
                   >
                     {getDayRangeText(days)}
                   </Typography>
-
                   <Typography
                     sx={{
                       lineHeight: { xs: "1rem", sm: "1.2rem" },
@@ -170,28 +195,9 @@ const PricingDisplay = ({ prices, selectedDate }) => {
                     }}
                     color="primary"
                   >
-                    {isDiscountActive ? (
-                      <>
-                        <span
-                          style={{
-                            textDecoration: "line-through",
-                            color: "#888",
-                            marginRight: 6,
-                          }}
-                        >
-                          ${amount}
-                        </span>
-                        <span>${discountedPrice}</span>
-                        <span style={{ color: "#388e3c", marginLeft: 4 }}>
-                          ({discount}% скидка)
-                        </span>
-                      </>
-                    ) : (
-                      <>${amount}</>
-                    )}
+                    {priceDisplay}
                   </Typography>
                 </Stack>
-
                 {/* Divider between prices */}
                 {index + 1 < Object.entries(pricingData).length && (
                   <Divider orientation="vertical" flexItem />

@@ -68,7 +68,7 @@
   "car": {
     "viewDetails": "Подробнее",
     "upTo": "До {{days}} дней",
-    "pricesFor": "Цены на текущий сезон",
+    "pricesFor": "Цены для ",
     "fromTo": "с {{date1}} по {{date2}}",
     "model": "Модель",
     "class": "Класс",

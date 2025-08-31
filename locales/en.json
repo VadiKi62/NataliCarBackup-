@@ -68,7 +68,7 @@
   "car": {
     "viewDetails": "View more details",
     "upTo": "Up to {{days}} days",
-    "pricesFor": "Prices for current Season",
+    "pricesFor": "Prices for",
     "fromTo": "from {{date1}} to {{date2}}",
     "model": "Model",
     "class": "Class",
