@@ -449,6 +449,7 @@ const CalendarPicker = ({
       );
     }
     //если ничего из меречисленного не работает то рендерить прозрачно
+    //const { t } = useTranslation();
     return (
       <Box
         sx={{
@@ -631,11 +632,19 @@ const CalendarPicker = ({
       .isSameOrBefore(dayjs(discountEnd), "day")
   ) {
     showDiscountInfo = true;
-    discountText = `Скидка ${discount}% с ${dayjs(discountStart).format(
-      "DD.MM.YYYY"
-    )} по ${dayjs(discountEnd).format("DD.MM.YYYY")}`;
-  }
+    //   discountText = `Скидка ${discount}% с ${dayjs(discountStart).format(
+    //     "DD.MM.YYYY"
+    //   )} по ${dayjs(discountEnd).format("DD.MM.YYYY")}`;
+    // }
 
+    discountText =
+      t("order.discount") +
+      ` ${discount}% ` +
+      t("basic.from") +
+      `${dayjs(discountStart).format("DD.MM")} ` +
+      t("basic.to") +
+      `${dayjs(discountEnd).format("DD.MM")} `;
+  }
   return (
     <Box sx={{ width: "100%", p: "20px" }}>
       <Typography

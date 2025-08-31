@@ -16,7 +16,7 @@
     "cancel": "cancel",
     "save": "save",
     "from": "from ",
-    "to": "to",
+    "to": "to ",
     "till": "till "
   },
   "statusMesssages": {
@@ -63,7 +63,8 @@
     "updateClientInfo": "Update client information",
     "deleteOrder": "Delete order",
     "sureDelOrder": "Are you sure you want to delete this order?",
-    "changeDates": "Everything is great! Dates have been changed"
+    "changeDates": "Everything is great! Dates have been changed",
+    "discount": "Discount"
   },
   "car": {
     "viewDetails": "View more details",
