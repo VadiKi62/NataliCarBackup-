@@ -24,8 +24,14 @@ import { useTranslation } from "@node_modules/react-i18next";
 //   return "NoSeason";
 // };
 const getCurrentSeason = (date = dayjs()) => {
-  // Используем первый день месяца для определения сезона
-  const targetDate = dayjs(date).startOf('month');
+  // Если date не задана (или это текущий месяц), используем первый день месяца
+  // Если date — это выбранная дата бронирования, используем её
+  let targetDate;
+  if (!date || dayjs(date).isSame(dayjs(), "month")) {
+    targetDate = dayjs().startOf("month");
+  } else {
+    targetDate = dayjs(date);
+  }
   const currentYear = targetDate.year();
 
   for (const [season, range] of Object.entries(seasons)) {
@@ -137,9 +143,13 @@ const PricingDisplay = ({ prices, selectedDate }) => {
             let isDiscountActive = false;
             if (discount && discountStart && discountEnd) {
               const targetDate = selectedDate ? dayjs(selectedDate) : dayjs();
-              isDiscountActive = targetDate.isSameOrAfter(discountStart, 'day') && targetDate.isSameOrBefore(discountEnd, 'day');
+              isDiscountActive =
+                targetDate.isSameOrAfter(discountStart, "day") &&
+                targetDate.isSameOrBefore(discountEnd, "day");
             }
-            const discountedPrice = isDiscountActive ? Math.round(amount * (1 - discount / 100)) : amount;
+            const discountedPrice = isDiscountActive
+              ? Math.round(amount * (1 - discount / 100))
+              : amount;
             return (
               <React.Fragment key={index}>
                 <Stack direction="column" alignItems="center">
@@ -162,9 +172,19 @@ const PricingDisplay = ({ prices, selectedDate }) => {
                   >
                     {isDiscountActive ? (
                       <>
-                        <span style={{ textDecoration: "line-through", color: "#888", marginRight: 6 }}>${amount}</span>
+                        <span
+                          style={{
+                            textDecoration: "line-through",
+                            color: "#888",
+                            marginRight: 6,
+                          }}
+                        >
+                          ${amount}
+                        </span>
                         <span>${discountedPrice}</span>
-                        <span style={{ color: "#388e3c", marginLeft: 4 }}>({discount}% скидка)</span>
+                        <span style={{ color: "#388e3c", marginLeft: 4 }}>
+                          ({discount}% скидка)
+                        </span>
                       </>
                     ) : (
                       <>${amount}</>

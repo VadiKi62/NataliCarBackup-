@@ -138,7 +138,8 @@ CarSchema.methods.getSeason = function (date) {
     // Если месяц начала > месяц конца, или месяц равен и день начала > день конца — сезон "перетекает" через год
     if (
       parseInt(startMonth) > parseInt(endMonth) ||
-      (parseInt(startMonth) === parseInt(endMonth) && parseInt(startDay) > parseInt(endDay))
+      (parseInt(startMonth) === parseInt(endMonth) &&
+        parseInt(startDay) > parseInt(endDay))
     ) {
       endString = `${endMonth}/${endDay}/${currentYear + 1}`;
     } else {
