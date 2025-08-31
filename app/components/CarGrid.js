@@ -12,9 +12,32 @@ const Section = styled("section")(({ theme }) => ({
   textAlign: "center",
 }));
 
+import dayjs from "dayjs";
+
 function CarGrid() {
   const { cars, company, selectedClass } = useMainContext();
   const [filteredCars, setFilteredCars] = useState(cars);
+
+  // --- Состояния для скидки ---
+  const [discount, setDiscount] = useState(null);
+  const [discountStart, setDiscountStart] = useState(null);
+  const [discountEnd, setDiscountEnd] = useState(null);
+
+  useEffect(() => {
+    async function fetchDiscount() {
+      try {
+        const res = await fetch("/api/discount");
+        if (!res.ok) throw new Error("Ошибка загрузки скидки");
+        const data = await res.json();
+        setDiscount(data.discount || null);
+        setDiscountStart(data.startDate ? dayjs(data.startDate) : null);
+        setDiscountEnd(data.endDate ? dayjs(data.endDate) : null);
+      } catch (err) {
+        // Ошибка загрузки скидки
+      }
+    }
+    fetchDiscount();
+  }, []);
 
   // Filter cars by the selected class
   useEffect(() => {
@@ -37,7 +60,12 @@ function CarGrid() {
         >
           {filteredCars?.map((car) => (
             <Grid item xs={12} sx={{ padding: 2 }} key={car._id}>
-              <CarItemComponent car={car} />
+              <CarItemComponent
+                car={car}
+                discount={discount}
+                discountStart={discountStart}
+                discountEnd={discountEnd}
+              />
             </Grid>
           ))}
         </Grid>

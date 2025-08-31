@@ -154,7 +154,7 @@ const CalendarPicker = ({
 
   // ДОБАВИТЬ ЭТОТ useEffect ЗДЕСЬ:
   useEffect(() => {
-    console.log("Текущий месяц:", currentDate.format("MMMM YYYY"));
+    //console.log("Текущий месяц:", currentDate.format("MMMM YYYY"));
 
     if (onCurrentDateChange) {
       onCurrentDateChange(currentDate);

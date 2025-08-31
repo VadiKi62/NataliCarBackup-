@@ -96,27 +96,8 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
   }),
 }));
 
-function CarItemComponent({ car }) {
-  // --- Состояния для скидки ---
-  const [discount, setDiscount] = useState(null);
-  const [discountStart, setDiscountStart] = useState(null);
-  const [discountEnd, setDiscountEnd] = useState(null);
-
-  useEffect(() => {
-    async function fetchDiscount() {
-      try {
-        const res = await fetch("/api/discount");
-        if (!res.ok) throw new Error("Ошибка загрузки скидки");
-        const data = await res.json();
-        setDiscount(data.discount || null);
-        setDiscountStart(data.startDate ? dayjs(data.startDate) : null);
-        setDiscountEnd(data.endDate ? dayjs(data.endDate) : null);
-      } catch (err) {
-        // Ошибка загрузки скидки
-      }
-    }
-    fetchDiscount();
-  }, []);
+function CarItemComponent({ car, discount, discountStart, discountEnd }) {
+  // --- Скидка теперь приходит из родителя ---
   const [imageLoading, setImageLoading] = useState(true);
   useEffect(() => {
     // Set a 3-second delay before showing the image
@@ -137,7 +118,7 @@ function CarItemComponent({ car }) {
     end: null,
   });
 
-  // ДОБАВИТЬ ЭТО СОСТОЯНИЕ для передачи месяца из календаря:
+  // Состояние для передачи месяца из календаря:
   const [currentCalendarDate, setCurrentCalendarDate] = useState(dayjs());
 
   const { fetchAndUpdateOrders, isLoading, ordersByCarId, allOrders } =
@@ -195,7 +176,6 @@ function CarItemComponent({ car }) {
           </CarImage>
         </Link>
         <CarDetails car={car} />
-        {/* {car?.pricingTiers && <PricingTiers prices={car?.pricingTiers} />} */}
       </Wrapper>
       <Stack>
         <CalendarPicker
