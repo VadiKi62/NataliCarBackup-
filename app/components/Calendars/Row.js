@@ -25,6 +25,7 @@ CarTableRow.propTypes = {
   orderToMove: PropTypes.object,
   selectedMoveOrder: PropTypes.object,
   onExitMoveMode: PropTypes.func,
+  selectedOrderDates: PropTypes.array,
 };
 
 export default function CarTableRow({
@@ -40,6 +41,7 @@ export default function CarTableRow({
   selectedMoveOrder,
   orderToMove,
   onExitMoveMode,
+  selectedOrderDates,
 }) {
   const [pressTimer, setPressTimer] = useState(null);
   const [isPressing, setIsPressing] = useState(false);
@@ -239,8 +241,46 @@ export default function CarTableRow({
         color = "common.white";
       }
 
+      // Желтый фон для режима перемещения - применяется ко всем автомобилям
+      let isInMoveModeDateRange = false;
+      let gradientBackground = null;
+      if (moveMode && selectedOrderDates && selectedOrderDates.includes(dateStr)) {
+        // Проверяем, есть ли конфликтующие заказы у этого автомобиля
+        const hasConflictingOrders = carOrders.some((order) => {
+          if (order._id === selectedMoveOrder?._id) return false; // Исключаем сам перемещаемый заказ
+          
+          const orderStart = dayjs(order.rentalStartDate);
+          const orderEnd = dayjs(order.rentalEndDate);
+          const moveStart = dayjs(selectedMoveOrder?.rentalStartDate);
+          const moveEnd = dayjs(selectedMoveOrder?.rentalEndDate);
+          
+          // Проверяем пересечение периодов
+          return orderStart.isSameOrBefore(moveEnd) && orderEnd.isSameOrAfter(moveStart);
+        });
+        
+        // Применяем желтый фон только для пустых ячеек и автомобилей без конфликтов
+        if (backgroundColor === "transparent" && !hasConflictingOrders) {
+          const isFirstDay = selectedOrderDates[0] === dateStr;
+          const isLastDay = selectedOrderDates[selectedOrderDates.length - 1] === dateStr;
+          
+          if (isFirstDay) {
+            // Желтый фон в правой половине первого дня
+            gradientBackground = "linear-gradient(to right, transparent 50%, #fff3cd 50%)";
+          } else if (isLastDay) {
+            // Желтый фон в левой половине последнего дня
+            gradientBackground = "linear-gradient(to right, #fff3cd 50%, transparent 50%)";
+          } else {
+            // Полный желтый фон для средних дней
+            backgroundColor = "#fff3cd";
+          }
+          
+          isInMoveModeDateRange = true;
+        }
+      }
+
       // ВАЖНО: Проверка выделения должна быть в самом конце для перезаписи цвета
-      if (isPartOfSelectedOrder(dateStr)) {
+      // НО не должна перезаписывать желтый фон для режима перемещения  
+      if (isPartOfSelectedOrder(dateStr) && !isInMoveModeDateRange) {
         // Проверяем edge-case для императивной логики
         let shouldApplyImperativeBlue = true;
         if (selectedOrderId) {
@@ -286,7 +326,7 @@ export default function CarTableRow({
       if (isStartDate && !isEndDate) {
         borderRadius = "50% 0 0 50%";
         width = "50%";
-        if (!isPartOfSelectedOrder(dateStr)) {
+        if (!isPartOfSelectedOrder(dateStr) && !isInMoveModeDateRange) {
           backgroundColor = "primary.green";
           color = "common.white";
         }
@@ -332,7 +372,7 @@ export default function CarTableRow({
           shouldApplyBlueBackground = true;
         }
 
-        if (!shouldApplyBlueBackground) {
+        if (!shouldApplyBlueBackground && !isInMoveModeDateRange) {
           backgroundColor = "primary.green";
           color = "common.white";
         }
@@ -479,7 +519,7 @@ export default function CarTableRow({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: backgroundColor,
+              backgroundColor: backgroundColor.startsWith('#') ? backgroundColor : backgroundColor,
               borderRadius,
               color,
               cursor: "pointer",
@@ -863,7 +903,8 @@ export default function CarTableRow({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: backgroundColor,
+            backgroundColor: gradientBackground ? undefined : (backgroundColor.startsWith('#') ? backgroundColor : backgroundColor),
+            background: gradientBackground || undefined,
             borderRadius,
             color,
             cursor: "pointer",
@@ -896,6 +937,7 @@ export default function CarTableRow({
       onCarSelectForMove,
       wasLongPress,
       onExitMoveMode,
+      selectedOrderDates,
     ]
   );
 

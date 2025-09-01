@@ -193,6 +193,23 @@ export default function BigCalendar({ cars }) {
     return [...cars].sort((a, b) => a.model.localeCompare(b.model));
   }, [cars]);
 
+  // Генерируем массив дат для выбранного заказа в режиме перемещения
+  const selectedOrderDates = useMemo(() => {
+    if (!moveMode || !selectedMoveOrder) return [];
+    
+    const startDate = dayjs(selectedMoveOrder.rentalStartDate);
+    const endDate = dayjs(selectedMoveOrder.rentalEndDate);
+    const dates = [];
+    
+    let currentDate = startDate;
+    while (currentDate.isSameOrBefore(endDate, 'day')) {
+      dates.push(currentDate.format('YYYY-MM-DD'));
+      currentDate = currentDate.add(1, 'day');
+    }
+    
+    return dates;
+  }, [moveMode, selectedMoveOrder]);
+
   const handleAddOrderClick = (car, dateStr) => {
     // Если в режиме перемещения - не открываем AddOrderModal
     if (moveMode) return;
@@ -420,6 +437,7 @@ export default function BigCalendar({ cars }) {
                   orderToMove={orderToMove}
                   selectedMoveOrder={selectedMoveOrder}
                   onExitMoveMode={exitMoveMode}
+                  selectedOrderDates={selectedOrderDates}
                 />
               </TableRow>
             ))}
