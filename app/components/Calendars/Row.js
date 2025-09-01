@@ -203,6 +203,7 @@ export default function CarTableRow({
   const renderDateCell = useCallback(
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
+
       const isConfirmed = confirmedDates.includes(dateStr);
       const isUnavailable = unavailableDates.includes(dateStr);
 
@@ -238,8 +239,46 @@ export default function CarTableRow({
 
       // ВАЖНО: Проверка выделения должна быть в самом конце для перезаписи цвета
       if (isPartOfSelectedOrder(dateStr)) {
-        backgroundColor = "#1976d2"; // Синий цвет для выбранного заказа
-        color = "white";
+        // Проверяем edge-case для императивной логики
+        let shouldApplyImperativeBlue = true;
+        if (selectedOrderId) {
+          const selectedOrder = carOrders.find(
+            (o) => o._id === selectedOrderId
+          );
+          if (selectedOrder) {
+            const selectedOrderStart = dayjs(
+              selectedOrder.rentalStartDate
+            ).format("YYYY-MM-DD");
+            const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+              "YYYY-MM-DD"
+            );
+
+            const previousOrder = carOrders.find((o) => {
+              const rentalEnd = dayjs(o.rentalEndDate).format("YYYY-MM-DD");
+              return rentalEnd === dateStr && o._id !== selectedOrderId;
+            });
+
+            const nextOrder = carOrders.find((o) => {
+              const rentalStart = dayjs(o.rentalStartDate).format("YYYY-MM-DD");
+              return rentalStart === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Если это edge-case (первый день выбранного заказа + есть предыдущий заказ), не применяем императивную подсветку
+            if (selectedOrderStart === dateStr && previousOrder) {
+              shouldApplyImperativeBlue = false;
+            }
+
+            // Если это edge-case (последний день выбранного заказа + есть следующий заказ), не применяем императивную подсветку
+            if (selectedOrderEnd === dateStr && nextOrder) {
+              shouldApplyImperativeBlue = false;
+            }
+          }
+        }
+
+        if (shouldApplyImperativeBlue) {
+          backgroundColor = "#1976d2"; // Синий цвет для выбранного заказа
+          color = "white";
+        }
       }
 
       if (isStartDate && !isEndDate) {
@@ -253,7 +292,45 @@ export default function CarTableRow({
       if (!isStartDate && isEndDate) {
         borderRadius = "0 50% 50% 0";
         width = "50%";
-        if (!isPartOfSelectedOrder(dateStr)) {
+
+        // Проверяем edge-case для императивной логики
+        let shouldApplyBlueBackground = false;
+        if (selectedOrderId) {
+          const selectedOrder = carOrders.find(
+            (o) => o._id === selectedOrderId
+          );
+          if (selectedOrder) {
+            const selectedOrderStart = dayjs(
+              selectedOrder.rentalStartDate
+            ).format("YYYY-MM-DD");
+            const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+              "YYYY-MM-DD"
+            );
+
+            const previousOrder = carOrders.find((o) => {
+              const rentalEnd = dayjs(o.rentalEndDate).format("YYYY-MM-DD");
+              return rentalEnd === dateStr && o._id !== selectedOrderId;
+            });
+
+            const nextOrder = carOrders.find((o) => {
+              const rentalStart = dayjs(o.rentalStartDate).format("YYYY-MM-DD");
+              return rentalStart === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Если это НЕ edge-case, применяем обычную логику
+            if (
+              !(selectedOrderStart === dateStr && previousOrder) &&
+              !(selectedOrderEnd === dateStr && nextOrder) &&
+              isPartOfSelectedOrder(dateStr)
+            ) {
+              shouldApplyBlueBackground = true;
+            }
+          }
+        } else if (isPartOfSelectedOrder(dateStr)) {
+          shouldApplyBlueBackground = true;
+        }
+
+        if (!shouldApplyBlueBackground) {
           backgroundColor = "primary.green";
           color = "common.white";
         }
@@ -466,6 +543,52 @@ export default function CarTableRow({
       }
 
       if (isStartEndOverlap) {
+        // Проверяем edge-case для overlap случая
+        let shouldHighlightLeft = false;
+        let shouldHighlightRight = false;
+
+        if (selectedOrderId) {
+          const selectedOrder = carOrders.find(
+            (o) => o._id === selectedOrderId
+          );
+          if (selectedOrder) {
+            // Логирование для отладки
+            const selectedOrderStart = dayjs(
+              selectedOrder.rentalStartDate
+            ).format("YYYY-MM-DD");
+            const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+              "YYYY-MM-DD"
+            );
+
+            const previousOrder = carOrders.find((o) => {
+              const rentalEnd = dayjs(o.rentalEndDate).format("YYYY-MM-DD");
+              return rentalEnd === dateStr && o._id !== selectedOrderId;
+            });
+
+            const nextOrder = carOrders.find((o) => {
+              const rentalStart = dayjs(o.rentalStartDate).format("YYYY-MM-DD");
+              return rentalStart === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Если это edge-case (первый день выбранного заказа + есть предыдущий заказ)
+            if (selectedOrderStart === dateStr && previousOrder) {
+              shouldHighlightLeft = false; // не подсвечивать левую половину (предыдущий заказ)
+              shouldHighlightRight = true; // подсвечивать правую половину (выбранный заказ)
+            }
+            // Если это edge-case (последний день выбранного заказа + есть следующий заказ)
+            else if (selectedOrderEnd === dateStr && nextOrder) {
+              shouldHighlightLeft = true; // подсвечивать левую половину (выбранный заказ)
+              shouldHighlightRight = false; // не подсвечивать правую половину (следующий заказ)
+            } else if (isPartOfSelectedOrder(dateStr)) {
+              shouldHighlightLeft = true; // обычная подсветка
+              shouldHighlightRight = true; // обычная подсветка
+            }
+          }
+        } else if (isPartOfSelectedOrder(dateStr)) {
+          shouldHighlightLeft = true; // обычная подсветка
+          shouldHighlightRight = true; // обычная подсветка
+        }
+
         return (
           <Box
             onClick={handleDateClick}
@@ -487,7 +610,7 @@ export default function CarTableRow({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isPartOfSelectedOrder(dateStr)
+                backgroundColor: shouldHighlightLeft
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.endConfirmed
                   ? "primary.main"
@@ -503,7 +626,7 @@ export default function CarTableRow({
               sx={{
                 width: "50%",
                 height: "100%",
-                backgroundColor: isPartOfSelectedOrder(dateStr)
+                backgroundColor: shouldHighlightRight
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.startConfirmed
                   ? "primary.main"
@@ -519,7 +642,47 @@ export default function CarTableRow({
         );
       }
 
-      if (isStartDate && !isEndDate && !isOverlapDate)
+      if (isStartDate && !isEndDate && !isOverlapDate) {
+        // Проверяем edge-case для первого дня заказа
+        let shouldHighlightRight = false;
+
+        if (selectedOrderId) {
+          const selectedOrder = carOrders.find(
+            (o) => o._id === selectedOrderId
+          );
+          if (selectedOrder) {
+            const selectedOrderStart = dayjs(
+              selectedOrder.rentalStartDate
+            ).format("YYYY-MM-DD");
+            const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+              "YYYY-MM-DD"
+            );
+
+            const previousOrder = carOrders.find((o) => {
+              const rentalEnd = dayjs(o.rentalEndDate).format("YYYY-MM-DD");
+              return rentalEnd === dateStr && o._id !== selectedOrderId;
+            });
+
+            const nextOrder = carOrders.find((o) => {
+              const rentalStart = dayjs(o.rentalStartDate).format("YYYY-MM-DD");
+              return rentalStart === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Если это edge-case (первый день выбранного заказа + есть предыдущий заказ)
+            if (selectedOrderStart === dateStr && previousOrder) {
+              shouldHighlightRight = true; // подсвечивать правую половину (выбранный заказ)
+            }
+            // Если это edge-case (последний день выбранного заказа + есть следующий заказ)
+            else if (selectedOrderEnd === dateStr && nextOrder) {
+              shouldHighlightRight = false; // не подсвечивать правую половину (следующий заказ)
+            } else if (isPartOfSelectedOrder(dateStr)) {
+              shouldHighlightRight = true; // обычная подсветка
+            }
+          }
+        } else if (isPartOfSelectedOrder(dateStr)) {
+          shouldHighlightRight = true; // обычная подсветка
+        }
+
         return (
           <Box
             onClick={handleDateClick}
@@ -551,7 +714,7 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 borderRadius: "50% 0 0 50%",
-                backgroundColor: isPartOfSelectedOrder(dateStr)
+                backgroundColor: shouldHighlightRight
                   ? "#1976d2"
                   : startEndInfo.confirmed
                   ? "primary.main"
@@ -564,8 +727,54 @@ export default function CarTableRow({
             ></Box>
           </Box>
         );
+      }
 
-      if (!isStartDate && isEndDate)
+      if (!isStartDate && isEndDate) {
+        // Проверяем edge-case: если выбранный заказ начинается или заканчивается в этот день
+        let shouldHighlightLeft = false;
+        let shouldHighlightRight = false;
+
+        if (selectedOrderId) {
+          const selectedOrder = carOrders.find(
+            (o) => o._id === selectedOrderId
+          );
+          if (selectedOrder) {
+            const selectedOrderStart = dayjs(
+              selectedOrder.rentalStartDate
+            ).format("YYYY-MM-DD");
+            const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+              "YYYY-MM-DD"
+            );
+
+            // Ищем предыдущий заказ, который заканчивается в этот день
+            const previousOrder = carOrders.find((o) => {
+              const rentalEnd = dayjs(o.rentalEndDate).format("YYYY-MM-DD");
+              return rentalEnd === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Ищем следующий заказ, который начинается в этот день
+            const nextOrder = carOrders.find((o) => {
+              const rentalStart = dayjs(o.rentalStartDate).format("YYYY-MM-DD");
+              return rentalStart === dateStr && o._id !== selectedOrderId;
+            });
+
+            // Если выбранный заказ начинается в этот день И есть предыдущий заказ (edge-case)
+            if (selectedOrderStart === dateStr && previousOrder) {
+              shouldHighlightLeft = false; // не подсвечивать левую половину (предыдущий заказ)
+              shouldHighlightRight = true; // подсвечивать правую половину (выбранный заказ)
+            }
+            // Если выбранный заказ заканчивается в этот день И есть следующий заказ (edge-case)
+            else if (selectedOrderEnd === dateStr && nextOrder) {
+              shouldHighlightLeft = true; // подсвечивать левую половину (выбранный заказ)
+              shouldHighlightRight = false; // не подсвечивать правую половину (следующий заказ)
+            } else if (isPartOfSelectedOrder(dateStr)) {
+              shouldHighlightLeft = true; // обычная подсветка
+            }
+          }
+        } else if (isPartOfSelectedOrder(dateStr)) {
+          shouldHighlightLeft = true; // обычная подсветка
+        }
+
         return (
           <Box
             onClick={handleDateClick}
@@ -590,7 +799,7 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 borderRadius: "0 50% 50% 0",
-                backgroundColor: isPartOfSelectedOrder(dateStr)
+                backgroundColor: shouldHighlightLeft
                   ? "#1976d2"
                   : startEndInfo.confirmed
                   ? "primary.main"
@@ -605,13 +814,17 @@ export default function CarTableRow({
               sx={{
                 width: "50%",
                 height: "100%",
+                borderRadius: shouldHighlightRight ? "50% 0 0 50%" : undefined,
+                backgroundColor: shouldHighlightRight ? "#1976d2" : undefined,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                color: shouldHighlightRight ? "white" : undefined,
               }}
             ></Box>
           </Box>
         );
+      }
 
       return (
         <Box
