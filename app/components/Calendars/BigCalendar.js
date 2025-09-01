@@ -247,6 +247,7 @@ export default function BigCalendar({ cars }) {
     setMoveMode(false);
     setSelectedMoveOrder(null);
     setOrderToMove(null);
+    enqueueSnackbar("Режим перемещения отключён", { variant: "info" });
   };
 
   const updateOrder = async (orderData) => {
@@ -418,6 +419,7 @@ export default function BigCalendar({ cars }) {
                   onCarSelectForMove={handleCarSelectForMove}
                   orderToMove={orderToMove}
                   selectedMoveOrder={selectedMoveOrder}
+                  onExitMoveMode={exitMoveMode}
                 />
               </TableRow>
             ))}

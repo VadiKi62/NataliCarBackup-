@@ -24,6 +24,7 @@ CarTableRow.propTypes = {
   selectedOrderId: PropTypes.string,
   orderToMove: PropTypes.object,
   selectedMoveOrder: PropTypes.object,
+  onExitMoveMode: PropTypes.func,
 };
 
 export default function CarTableRow({
@@ -38,6 +39,7 @@ export default function CarTableRow({
   onCarSelectForMove,
   selectedMoveOrder,
   orderToMove,
+  onExitMoveMode,
 }) {
   const [pressTimer, setPressTimer] = useState(null);
   const [isPressing, setIsPressing] = useState(false);
@@ -344,8 +346,30 @@ export default function CarTableRow({
           return;
         }
 
-        // Если в режиме перемещения, не открываем модальное окно редактирования
+        // Если в режиме перемещения
         if (moveMode) {
+          // Проверяем, кликнули ли мы по выбранному для перемещения заказу
+          if (selectedMoveOrder) {
+            const relevantOrders = carOrders.filter((order) => {
+              const rentalStart = dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+              const rentalEnd = dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+              return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
+            });
+
+            // Если среди заказов на этой дате есть выбранный для перемещения заказ
+            const isClickOnSelectedOrder = relevantOrders.some(
+              (order) => order._id === selectedMoveOrder._id
+            );
+
+            if (isClickOnSelectedOrder) {
+              // Выходим из режима перемещения
+              if (onExitMoveMode) {
+                onExitMoveMode();
+              }
+              return;
+            }
+          }
+          // Если кликнули не на выбранный заказ, ничего не делаем (остаёмся в режиме перемещения)
           return;
         }
 
@@ -871,6 +895,7 @@ export default function CarTableRow({
       selectedMoveOrder,
       onCarSelectForMove,
       wasLongPress,
+      onExitMoveMode,
     ]
   );
 
