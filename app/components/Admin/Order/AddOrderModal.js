@@ -1412,7 +1412,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
         {renderStatusMessage()}
 
-        <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+        <Box sx={{ mt: 2, display: "flex", gap: 2, justifyContent: "center" }}>
           <Button
             variant="outlined"
             onClick={onClose}
