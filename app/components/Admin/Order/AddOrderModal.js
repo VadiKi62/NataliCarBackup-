@@ -1249,7 +1249,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   };
 
   const renderDateTimeSection = () => (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: 2 }}>
       <Box sx={{ display: "flex", gap: 2 }}>
         <TextField
           label={t("order.pickupDate")}
@@ -1259,7 +1259,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             setBookedDates((dates) => ({ ...dates, start: e.target.value }))
           }
           fullWidth
-          margin="normal"
+          margin="dense"
         />
         <TextField
           label={t("order.returnDate")}
@@ -1269,7 +1269,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             setBookedDates((dates) => ({ ...dates, end: e.target.value }))
           }
           fullWidth
-          margin="normal"
+          margin="dense"
         />
       </Box>
       <Box sx={{ display: "flex", gap: 2 }}>
@@ -1278,7 +1278,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           type="time"
           value={startTime.format("HH:mm")}
           onChange={(e) => setStartTime(dayjs(e.target.value, "HH:mm"))}
-          margin="normal"
+          margin="dense"
           sx={{ flex: 1 }}
         />
         <TextField
@@ -1286,50 +1286,53 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           type="time"
           value={endTime.format("HH:mm")}
           onChange={(e) => setEndTime(dayjs(e.target.value, "HH:mm"))}
-          margin="normal"
+          margin="dense"
           sx={{ flex: 1 }}
         />
       </Box>
-      {/* Остальные поля */}
-      <RenderSelectField
-        mt={2}
-        name="placeIn"
-        label={t("order.pickupLocation")}
-        options={locations}
-        updatedCar={orderDetails}
-        handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
-        required
-      />
-      <RenderSelectField
-        name="placeOut"
-        label={t("order.returnLocation")}
-        updatedCar={orderDetails}
-        options={locations}
-        handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
-        required
-      />
+      {/* Места получения и возврата в одну строку */}
+      <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+        <RenderSelectField
+          name="placeIn"
+          label={t("order.pickupLocation")}
+          options={locations}
+          updatedCar={orderDetails}
+          handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
+          required
+          sx={{ flex: 1 }}
+        />
+        <RenderSelectField
+          name="placeOut"
+          label={t("order.returnLocation")}
+          updatedCar={orderDetails}
+          options={locations}
+          handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
+          required
+          sx={{ flex: 1 }}
+        />
+      </Box>
     </Box>
   );
 
   const renderCustomerSection = () => (
-    <Box sx={{ mb: 3 }}>
+    <Box sx={{ mb: 2, mt: -1 }}>
       <TextField
         fullWidth
-        margin="normal"
+        margin="dense"
         label={t("order.clientName")}
         value={orderDetails.customerName}
         onChange={(e) => handleFieldChange("customerName", e.target.value)}
       />
       <TextField
         fullWidth
-        margin="normal"
+        margin="dense"
         label={t("order.phone")}
         value={orderDetails.phone}
         onChange={(e) => handleFieldChange("phone", e.target.value)}
       />
       <TextField
         fullWidth
-        margin="normal"
+        margin="dense"
         label={t("order.email")}
         value={orderDetails.email}
         onChange={(e) => handleFieldChange("email", e.target.value)}
@@ -1364,8 +1367,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin: "auto",
           bgcolor: "background.paper",
           maxWidth: 600,
-          maxHeight: "90vh",
+          maxHeight: "75vh",
           overflow: "auto",
+          borderRadius: 2,
         }}
       >
         {loadingState && (
@@ -1408,7 +1412,15 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
         {renderStatusMessage()}
 
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'center' }}>
+          <Button
+            variant="outlined"
+            onClick={onClose}
+            disabled={loadingState}
+            sx={{ minWidth: "120px" }}
+          >
+            {t("basic.cancel")}
+          </Button>
           <Button
             variant="contained"
             onClick={handleBookingComplete}
@@ -1421,7 +1433,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
               !orderDetails.phone ||
               loadingState
             }
-            sx={{ width: "100%" }}
+            sx={{ minWidth: "120px" }}
           >
             {t("order.CompleteBook")}
           </Button>
