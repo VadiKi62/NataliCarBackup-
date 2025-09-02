@@ -159,10 +159,13 @@ export default function BigCalendar({ cars }) {
     setMoveMode(true);
 
     // Показываем уведомление
-    enqueueSnackbar("Выберите новый автомобиль для перемещения", {
-      variant: "info",
-      autoHideDuration: 4000,
-    });
+    enqueueSnackbar(
+      "Выберите другой автомобиль для перемещения заказа. Доступные автомобили выделены желтым цветом",
+      {
+        variant: "info",
+        autoHideDuration: 8000,
+      }
+    );
 
     // НЕ открываем модальное окно редактирования!
   };
@@ -196,19 +199,49 @@ export default function BigCalendar({ cars }) {
   // Генерируем массив дат для выбранного заказа в режиме перемещения
   const selectedOrderDates = useMemo(() => {
     if (!moveMode || !selectedMoveOrder) return [];
-    
+
     const startDate = dayjs(selectedMoveOrder.rentalStartDate);
     const endDate = dayjs(selectedMoveOrder.rentalEndDate);
     const dates = [];
-    
+
     let currentDate = startDate;
-    while (currentDate.isSameOrBefore(endDate, 'day')) {
-      dates.push(currentDate.format('YYYY-MM-DD'));
-      currentDate = currentDate.add(1, 'day');
+    while (currentDate.isSameOrBefore(endDate, "day")) {
+      dates.push(currentDate.format("YYYY-MM-DD"));
+      currentDate = currentDate.add(1, "day");
     }
-    
+
     return dates;
   }, [moveMode, selectedMoveOrder]);
+
+  // Функция проверки совместимости автомобиля для перемещения
+  const isCarCompatibleForMove = useCallback(
+    (carId) => {
+      if (!moveMode || !selectedMoveOrder) return true;
+
+      // Исключаем автомобиль с текущим заказом
+      if (selectedMoveOrder.car === carId) return false;
+
+      // Получаем заказы целевого автомобиля
+      const carOrders = ordersByCarId(carId);
+
+      // Проверяем конфликты по времени
+      const start = dayjs(selectedMoveOrder.rentalStartDate);
+      const end = dayjs(selectedMoveOrder.rentalEndDate);
+
+      const hasConflict = carOrders.some((order) => {
+        if (order._id === selectedMoveOrder._id) return false; // Исключаем сам перемещаемый заказ
+
+        const orderStart = dayjs(order.rentalStartDate);
+        const orderEnd = dayjs(order.rentalEndDate);
+
+        // Проверяем пересечение периодов
+        return orderStart.isSameOrBefore(end) && orderEnd.isSameOrAfter(start);
+      });
+
+      return !hasConflict;
+    },
+    [moveMode, selectedMoveOrder, ordersByCarId]
+  );
 
   const handleAddOrderClick = (car, dateStr) => {
     // Если в режиме перемещения - не открываем AddOrderModal
@@ -330,6 +363,7 @@ export default function BigCalendar({ cars }) {
           <TableHead>
             <TableRow>
               <TableCell
+                title="Выберите месяц и год для просмотра календаря"
                 sx={{
                   position: "sticky",
                   left: 0,
@@ -368,6 +402,7 @@ export default function BigCalendar({ cars }) {
                 <TableCell
                   key={day.dayjs}
                   align="center"
+                  title="Нажмите для просмотра всех начинающихся и заканчивающихся заказов на эту дату"
                   sx={{
                     position: "sticky",
                     top: 0,
@@ -403,6 +438,7 @@ export default function BigCalendar({ cars }) {
               <TableRow key={car._id}>
                 <TableCell
                   onClick={() => handleEditCar(car)}
+                  title="Нажмите для редактирования информации об автомобиле"
                   sx={{
                     position: "sticky",
                     left: 0,
@@ -438,6 +474,7 @@ export default function BigCalendar({ cars }) {
                   selectedMoveOrder={selectedMoveOrder}
                   onExitMoveMode={exitMoveMode}
                   selectedOrderDates={selectedOrderDates}
+                  isCarCompatibleForMove={isCarCompatibleForMove(car._id)}
                 />
               </TableRow>
             ))}
