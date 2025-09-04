@@ -305,8 +305,10 @@ export default function CarTableRow({
         // Получаем заказы для текущей даты
         const ordersForDate = returnOverlapOrders(carOrders, dateStr);
         // Проверяем, есть ли среди них заказы с my_order = true
-        const hasMyOrder = ordersForDate?.some(order => order.confirmed && order.my_order);
-        
+        const hasMyOrder = ordersForDate?.some(
+          (order) => order.confirmed && order.my_order
+        );
+
         backgroundColor = hasMyOrder ? "#4CAF50" : "primary.red"; // Зеленый если есть my_order=true, иначе красный
         color = "common.white";
       }
@@ -898,7 +900,10 @@ export default function CarTableRow({
                   : isStartAndEndDateOverlapInfo.endConfirmed
                   ? (() => {
                       const orders = returnOverlapOrders(carOrders, dateStr);
-                      const hasMyOrder = orders.some(order => order.my_order === true && order.confirmed === true);
+                      const hasMyOrder = orders.some(
+                        (order) =>
+                          order.my_order === true && order.confirmed === true
+                      );
                       return hasMyOrder ? "#4CAF50" : "primary.main";
                     })()
                   : "primary.green",
@@ -920,7 +925,10 @@ export default function CarTableRow({
                   : isStartAndEndDateOverlapInfo.startConfirmed
                   ? (() => {
                       const orders = returnOverlapOrders(carOrders, dateStr);
-                      const hasMyOrder = orders.some(order => order.my_order === true && order.confirmed === true);
+                      const hasMyOrder = orders.some(
+                        (order) =>
+                          order.my_order === true && order.confirmed === true
+                      );
                       return hasMyOrder ? "#4CAF50" : "primary.main";
                     })()
                   : "primary.green",
@@ -1036,8 +1044,12 @@ export default function CarTableRow({
                   : startEndInfo.confirmed
                   ? (() => {
                       // Получаем заказ для startEndInfo
-                      const orderForStartEnd = carOrders?.find(order => order._id === startEndInfo.orderId);
-                      return (orderForStartEnd?.my_order) ? "#4CAF50" : "primary.main";
+                      const orderForStartEnd = carOrders?.find(
+                        (order) => order._id === startEndInfo.orderId
+                      );
+                      return orderForStartEnd?.my_order
+                        ? "#4CAF50"
+                        : "primary.main";
                     })()
                   : "primary.green",
                 display: "flex",
@@ -1151,8 +1163,12 @@ export default function CarTableRow({
                   : startEndInfo.confirmed
                   ? (() => {
                       // Получаем заказ для startEndInfo
-                      const orderForStartEnd = carOrders?.find(order => order._id === startEndInfo.orderId);
-                      return (orderForStartEnd?.my_order) ? "#4CAF50" : "primary.main";
+                      const orderForStartEnd = carOrders?.find(
+                        (order) => order._id === startEndInfo.orderId
+                      );
+                      return orderForStartEnd?.my_order
+                        ? "#4CAF50"
+                        : "primary.main";
                     })()
                   : "primary.green",
                 display: "flex",

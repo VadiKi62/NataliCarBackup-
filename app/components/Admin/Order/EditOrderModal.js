@@ -1041,7 +1041,7 @@ const EditOrderModal = ({
                 {t("order.daysNumber")} {editedOrder?.numberOfDays}
               </Typography>
             </Box>
-            
+
             {/* Отладочная информация для поля my_order - ЗАКОММЕНТИРОВАНО */}
             {/*
             <Box
@@ -1064,7 +1064,7 @@ const EditOrderModal = ({
               </Typography>
             </Box>
             */}
-            
+
             <Divider sx={{ my: 2 }} />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}
