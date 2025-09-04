@@ -1042,7 +1042,8 @@ const EditOrderModal = ({
               </Typography>
             </Box>
             
-            {/* Отладочная информация для поля my_order */}
+            {/* Отладочная информация для поля my_order - ЗАКОММЕНТИРОВАНО */}
+            {/*
             <Box
               display="flex"
               alignContent="center"
@@ -1062,6 +1063,7 @@ const EditOrderModal = ({
                 {editedOrder?.my_order ? ' (Заказ с главной страницы)' : ' (Админский заказ)'}
               </Typography>
             </Box>
+            */}
             
             <Divider sx={{ my: 2 }} />
 

@@ -302,7 +302,12 @@ export default function CarTableRow({
         color = "text.dark";
       }
       if (isConfirmed) {
-        backgroundColor = "primary.red";
+        // Получаем заказы для текущей даты
+        const ordersForDate = returnOverlapOrders(carOrders, dateStr);
+        // Проверяем, есть ли среди них заказы с my_order = true
+        const hasMyOrder = ordersForDate?.some(order => order.confirmed && order.my_order);
+        
+        backgroundColor = hasMyOrder ? "#4CAF50" : "primary.red"; // Зеленый если есть my_order=true, иначе красный
         color = "common.white";
       }
 
@@ -891,7 +896,11 @@ export default function CarTableRow({
                   : shouldHighlightLeft
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.endConfirmed
-                  ? "primary.main"
+                  ? (() => {
+                      const orders = returnOverlapOrders(carOrders, dateStr);
+                      const hasMyOrder = orders.some(order => order.my_order === true && order.confirmed === true);
+                      return hasMyOrder ? "#4CAF50" : "primary.main";
+                    })()
                   : "primary.green",
                 borderRadius: "0 50% 50% 0",
                 display: "flex",
@@ -909,7 +918,11 @@ export default function CarTableRow({
                   : shouldHighlightRight
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.startConfirmed
-                  ? "primary.main"
+                  ? (() => {
+                      const orders = returnOverlapOrders(carOrders, dateStr);
+                      const hasMyOrder = orders.some(order => order.my_order === true && order.confirmed === true);
+                      return hasMyOrder ? "#4CAF50" : "primary.main";
+                    })()
                   : "primary.green",
                 borderRadius: "50% 0 0 50%",
                 display: "flex",
@@ -1021,7 +1034,11 @@ export default function CarTableRow({
                   : shouldHighlightRight
                   ? "#1976d2"
                   : startEndInfo.confirmed
-                  ? "primary.main"
+                  ? (() => {
+                      // Получаем заказ для startEndInfo
+                      const orderForStartEnd = carOrders?.find(order => order._id === startEndInfo.orderId);
+                      return (orderForStartEnd?.my_order) ? "#4CAF50" : "primary.main";
+                    })()
                   : "primary.green",
                 display: "flex",
                 alignItems: "center",
@@ -1132,7 +1149,11 @@ export default function CarTableRow({
                   : shouldHighlightLeft
                   ? "#1976d2"
                   : startEndInfo.confirmed
-                  ? "primary.main"
+                  ? (() => {
+                      // Получаем заказ для startEndInfo
+                      const orderForStartEnd = carOrders?.find(order => order._id === startEndInfo.orderId);
+                      return (orderForStartEnd?.my_order) ? "#4CAF50" : "primary.main";
+                    })()
                   : "primary.green",
                 display: "flex",
                 alignItems: "center",
