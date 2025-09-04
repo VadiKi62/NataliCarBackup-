@@ -217,16 +217,7 @@ export default function CarTableRow({
 
       // Функция для создания желтого overlay для первого/последнего дня перемещения
       const createYellowOverlay = (isFirstDay, isLastDay) => {
-        console.log(
-          "🟡 createYellowOverlay:",
-          shouldShowYellowOverlay,
-          isFirstDay,
-          isLastDay
-        );
-
         if (!shouldShowYellowOverlay) return null;
-
-        console.log("✅ Создаем желтый overlay для", dateStr);
 
         if (isFirstDay && isLastDay) {
           // Если это единственный день заказа
@@ -238,7 +229,7 @@ export default function CarTableRow({
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: "rgba(255, 243, 205, 0.6)", // Полупрозрачный желтый
+                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
                 pointerEvents: "none",
                 zIndex: 1,
               }}
@@ -254,7 +245,7 @@ export default function CarTableRow({
                 right: 0,
                 width: "50%",
                 height: "100%",
-                backgroundColor: "rgba(255, 243, 205, 0.6)",
+                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
                 pointerEvents: "none",
                 zIndex: 1,
                 borderRadius: "50% 0 0 50%",
@@ -271,7 +262,7 @@ export default function CarTableRow({
                 left: 0,
                 width: "50%",
                 height: "100%",
-                backgroundColor: "rgba(255, 243, 205, 0.6)",
+                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
                 pointerEvents: "none",
                 zIndex: 1,
                 borderRadius: "0 50% 50% 0",
@@ -328,34 +319,28 @@ export default function CarTableRow({
         selectedOrderDates.includes(dateStr) &&
         isCarCompatibleForMove
       ) {
-        console.log(
-          `🟡 Режим перемещения для ${dateStr}, фон: ${backgroundColor}`
-        );
-
         isFirstMoveDay = selectedOrderDates[0] === dateStr;
         isLastMoveDay =
           selectedOrderDates[selectedOrderDates.length - 1] === dateStr;
 
         // Применяем желтый фон для пустых ячеек и совместимых автомобилей
         if (backgroundColor === "transparent") {
-          console.log(`📅 Пустая ячейка ${dateStr} - применяем градиент`);
           if (isFirstMoveDay) {
             // Желтый фон в правой половине первого дня
             gradientBackground =
-              "linear-gradient(to right, transparent 50%, #fff3cd 50%)";
+              "linear-gradient(to right, transparent 50%, #ffeb3b 50%)";
           } else if (isLastMoveDay) {
             // Желтый фон в левой половине последнего дня
             gradientBackground =
-              "linear-gradient(to right, #fff3cd 50%, transparent 50%)";
+              "linear-gradient(to right, #ffeb3b 50%, transparent 50%)";
           } else {
             // Полный желтый фон для средних дней
-            backgroundColor = "#fff3cd";
+            backgroundColor = "#ffeb3b";
           }
           isInMoveModeDateRange = true;
         } else {
           // Для занятых ячеек в первый и последний дни показываем желтый overlay
           if (isFirstMoveDay || isLastMoveDay) {
-            console.log(`🟨 Занятая ячейка ${dateStr} - устанавливаем overlay`);
             shouldShowYellowOverlay = true;
             isInMoveModeDateRange = true;
           }
@@ -636,7 +621,7 @@ export default function CarTableRow({
                 sx={{
                   width: "50%",
                   height: "100%",
-                  backgroundColor: "#fff3cd",
+                  backgroundColor: "#ffeb3b",
                   borderRadius: "50% 0 0 50%",
                 }}
               ></Box>
@@ -669,7 +654,7 @@ export default function CarTableRow({
                 sx={{
                   width: "50%",
                   height: "100%",
-                  backgroundColor: "#fff3cd",
+                  backgroundColor: "#ffeb3b",
                   borderRadius: "0 50% 50% 0",
                 }}
               ></Box>
@@ -902,7 +887,7 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 backgroundColor: shouldShowLastMoveDay
-                  ? "#fff3cd"
+                  ? "#ffeb3b"
                   : shouldHighlightLeft
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.endConfirmed
@@ -920,7 +905,7 @@ export default function CarTableRow({
                 width: "50%",
                 height: "100%",
                 backgroundColor: shouldShowFirstMoveDay
-                  ? "#fff3cd"
+                  ? "#ffeb3b"
                   : shouldHighlightRight
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.startConfirmed
@@ -1032,7 +1017,7 @@ export default function CarTableRow({
                 height: "100%",
                 borderRadius: "50% 0 0 50%",
                 backgroundColor: shouldShowFirstMoveDay
-                  ? "#fff3cd"
+                  ? "#ffeb3b"
                   : shouldHighlightRight
                   ? "#1976d2"
                   : startEndInfo.confirmed
@@ -1143,7 +1128,7 @@ export default function CarTableRow({
                 height: "100%",
                 borderRadius: "0 50% 50% 0",
                 backgroundColor: shouldShowLastMoveDay
-                  ? "#fff3cd"
+                  ? "#ffeb3b"
                   : shouldHighlightLeft
                   ? "#1976d2"
                   : startEndInfo.confirmed
