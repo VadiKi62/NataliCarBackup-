@@ -5,13 +5,14 @@ export const PUT = async (req) => {
   try {
     await connectToDB();
 
-    const { _id, phone, email, customerName } = await req.json(); // Destructure only the allowed fields
+    const { _id, phone, email, customerName, my_order } = await req.json(); // Destructure only the allowed fields
 
     // Filter the update to only include allowed fields
     const updateFields = {};
     if (phone) updateFields.phone = phone;
     if (email) updateFields.email = email;
     if (customerName) updateFields.customerName = customerName;
+    if (typeof my_order === 'boolean') updateFields.my_order = my_order;
 
     // Update the order with only the allowed fields
     const updatedOrder = await Order.findByIdAndUpdate(_id, updateFields, {

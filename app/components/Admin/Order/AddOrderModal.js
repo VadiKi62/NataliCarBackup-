@@ -1057,6 +1057,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     totalPrice: 0,
     numberOfDays: 0,
     confirmed: false,
+    my_order: false, // Админские заказы помечаем как my_order = false
   });
 
   // --- ВАЖНО: автоматическое заполнение даты при открытии модального окна ---
@@ -1185,6 +1186,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       placeIn: orderDetails.placeIn,
       placeOut: orderDetails.placeOut,
       confirmed: orderDetails.confirmed,
+      my_order: orderDetails.my_order, // Передаем значение my_order в API
     };
 
     try {

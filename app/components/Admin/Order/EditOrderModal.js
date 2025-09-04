@@ -1041,6 +1041,28 @@ const EditOrderModal = ({
                 {t("order.daysNumber")} {editedOrder?.numberOfDays}
               </Typography>
             </Box>
+            
+            {/* Отладочная информация для поля my_order */}
+            <Box
+              display="flex"
+              alignContent="center"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ 
+                bgcolor: editedOrder?.my_order ? '#e8f5e8' : '#fff5f5',
+                p: 1,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: editedOrder?.my_order ? '#4caf50' : '#f44336',
+                my: 1
+              }}
+            >
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                🐛 DEBUG: my_order = {editedOrder?.my_order ? 'true' : 'false'}
+                {editedOrder?.my_order ? ' (Заказ с главной страницы)' : ' (Админский заказ)'}
+              </Typography>
+            </Box>
+            
             <Divider sx={{ my: 2 }} />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}

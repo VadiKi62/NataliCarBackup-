@@ -98,6 +98,10 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     default: "Nea Kalikratia",
   },
+  my_order: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Pre-save middleware to calculate the number of days and total price

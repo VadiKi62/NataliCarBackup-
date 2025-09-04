@@ -35,6 +35,7 @@ export async function POST(request) {
       placeIn,
       placeOut,
       confirmed,
+      my_order = false,
     } = await request.json();
 
     console.log("timeIn IS ", timeIn);
@@ -145,6 +146,7 @@ export async function POST(request) {
       placeOut,
       date: dayjs().format("MMM D HH:mm"),
       confirmed: confirmed,
+      my_order: my_order,
     });
 
     if (nonConfirmedDates.length > 0) {

@@ -130,6 +130,7 @@ const BookingModal = ({
         timeOut: dayjs(endTime),
         rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
         rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
+        my_order: true, // Заказы с главной страницы помечаем как my_order = true
         // totalPrice,
       };
 

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf .next"
+    "clean": "rm -rf .next",
+    "migrate:my-order": "node scripts/migrate_my_order_field.js"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
