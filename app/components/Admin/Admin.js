@@ -4,7 +4,14 @@ import { unstable_noStore } from "next/cache";
 import { DataGrid } from "@mui/x-data-grid";
 import DataGridCars from "./DataGridCars";
 import Item from "./Order/Item";
-import { Grid, Container, CircularProgress, Box, Stack, Button } from "@mui/material";
+import {
+  Grid,
+  Container,
+  CircularProgress,
+  Box,
+  Stack,
+  Button,
+} from "@mui/material";
 import { Element, scroller } from "react-scroll";
 import { signOut } from "next-auth/react";
 
@@ -110,28 +117,28 @@ function Admin({ children, ...props }) {
   return (
     <Suspense fallback={<Loading />}>
       {/* Кнопка выхода */}
-      <Box 
-        sx={{ 
-          position: 'fixed', 
-          top: 10, 
-          right: 10, 
+      <Box
+        sx={{
+          position: "fixed",
+          top: 10,
+          right: 10,
           zIndex: 1000,
-          backgroundColor: 'white',
+          backgroundColor: "white",
           borderRadius: 1,
-          boxShadow: 2
+          boxShadow: 2,
         }}
       >
         <Button
           variant="contained"
           color="error"
           size="small"
-          onClick={() => signOut({ callbackUrl: '/' })}
+          onClick={() => signOut({ callbackUrl: "/" })}
           sx={{ m: 1 }}
         >
           Выйти
         </Button>
       </Box>
-      
+
       {/* <Navbar
         isAdmin={true}
         isCarInfo={isCarInfo}
