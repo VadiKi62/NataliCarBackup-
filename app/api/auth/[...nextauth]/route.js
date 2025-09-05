@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare, hash } from "bcrypt";
-// Pre-hash the password
-const hashedPassword = await hash("11111111", 10);
+import { compare, hashSync } from "bcrypt";
+
+// Pre-hash the password synchronously
+const hashedPassword = hashSync("11111111", 10);
 
 const adminUser = {
   id: "admin",
