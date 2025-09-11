@@ -152,7 +152,7 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
-        <CarImage style={{ position: 'relative', cursor: 'pointer' }}>
+        <CarImage style={{ position: "relative", cursor: "pointer" }}>
           {imageLoading ? (
             <Box
               display="flex"
@@ -175,7 +175,12 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 crop="fill"
                 priority
                 sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: "contain", width: "100%", height: "auto", cursor: 'pointer' }}
+                style={{
+                  objectFit: "contain",
+                  width: "100%",
+                  height: "auto",
+                  cursor: "pointer",
+                }}
                 onLoad={() => setImageLoading(false)}
               />
               <Button
@@ -186,15 +191,15 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 variant="outlined"
                 size="small"
                 sx={{
-                  position: 'absolute',
+                  position: "absolute",
                   bottom: 8,
                   right: 8,
-                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                  backgroundColor: "rgba(255, 255, 255, 0.9)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 1)",
                   },
-                  fontSize: '0.75rem',
-                  padding: '4px 8px',
+                  fontSize: "0.75rem",
+                  padding: "4px 8px",
                   zIndex: 1,
                 }}
               >

@@ -40,7 +40,8 @@ const CarDetails = ({ car }) => {
       key: "color",
       label: t("car.color"),
       icon: "/icons/color.png",
-      getValue: (car) => car.color ? car.color.charAt(0).toUpperCase() + car.color.slice(1) : '',
+      getValue: (car) =>
+        car.color ? car.color.charAt(0).toUpperCase() + car.color.slice(1) : "",
     },
     {
       key: "numberOfDoors",
@@ -67,19 +68,26 @@ const CarDetails = ({ car }) => {
       key: "class",
       label: t("car.class"),
       icon: "/icons/klass.png",
-      getValue: (car) => car.class ? car.class.charAt(0).toUpperCase() + car.class.slice(1) : '',
+      getValue: (car) =>
+        car.class ? car.class.charAt(0).toUpperCase() + car.class.slice(1) : "",
     },
     {
       key: "transmission",
       label: t("car.transmission"),
       icon: "/icons/transmission.png",
-      getValue: (car) => car.transmission ? car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1) : '',
+      getValue: (car) =>
+        car.transmission
+          ? car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)
+          : "",
     },
     {
       key: "fueltype",
       label: t("car.fuel"),
       icon: "/icons/fuel.png",
-      getValue: (car) => car.fueltype ? car.fueltype.charAt(0).toUpperCase() + car.fueltype.slice(1) : '',
+      getValue: (car) =>
+        car.fueltype
+          ? car.fueltype.charAt(0).toUpperCase() + car.fueltype.slice(1)
+          : "",
     },
     {
       key: "seats",

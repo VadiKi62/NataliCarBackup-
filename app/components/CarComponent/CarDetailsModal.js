@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 
 const CarDetailsModal = ({ open, onClose, car }) => {
   const { t } = useTranslation();
-  
+
   const additionalDetails = [
     {
       key: "registration",
@@ -24,7 +24,8 @@ const CarDetailsModal = ({ open, onClose, car }) => {
       key: "color",
       label: t("car.color"),
       icon: "/icons/color.png",
-      getValue: (car) => car.color ? car.color.charAt(0).toUpperCase() + car.color.slice(1) : '',
+      getValue: (car) =>
+        car.color ? car.color.charAt(0).toUpperCase() + car.color.slice(1) : "",
     },
     {
       key: "numberOfDoors",
@@ -42,7 +43,10 @@ const CarDetailsModal = ({ open, onClose, car }) => {
       key: "engine",
       label: t("car.engine"),
       icon: "/icons/engine.png",
-      getValue: (car) => car.engine ? car.engine.charAt(0).toUpperCase() + car.engine.slice(1) : '',
+      getValue: (car) =>
+        car.engine
+          ? car.engine.charAt(0).toUpperCase() + car.engine.slice(1)
+          : "",
     },
   ];
 
@@ -51,19 +55,26 @@ const CarDetailsModal = ({ open, onClose, car }) => {
       key: "class",
       label: t("car.class"),
       icon: "/icons/klass.png",
-      getValue: (car) => car.class ? car.class.charAt(0).toUpperCase() + car.class.slice(1) : '',
+      getValue: (car) =>
+        car.class ? car.class.charAt(0).toUpperCase() + car.class.slice(1) : "",
     },
     {
       key: "transmission",
       label: t("car.transmission"),
       icon: "/icons/transmission.png",
-      getValue: (car) => car.transmission ? car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1) : '',
+      getValue: (car) =>
+        car.transmission
+          ? car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)
+          : "",
     },
     {
       key: "fueltype",
       label: t("car.fuel"),
       icon: "/icons/fuel.png",
-      getValue: (car) => car.fueltype ? car.fueltype.charAt(0).toUpperCase() + car.fueltype.slice(1) : '',
+      getValue: (car) =>
+        car.fueltype
+          ? car.fueltype.charAt(0).toUpperCase() + car.fueltype.slice(1)
+          : "",
     },
     {
       key: "seats",
@@ -75,17 +86,13 @@ const CarDetailsModal = ({ open, onClose, car }) => {
       key: "airConditioning",
       label: t("car.air"),
       icon: "/icons/ac.png",
-      getValue: (car) => car.airConditioning ? "Yes" : "No",
+      getValue: (car) => (car.airConditioning ? "Yes" : "No"),
     },
   ];
 
   const allDetails = [...defaultDetails, ...additionalDetails];
   return (
-    <Modal 
-      open={open} 
-      onClose={onClose} 
-      sx={{ textAlign: "center" }}
-    >
+    <Modal open={open} onClose={onClose} sx={{ textAlign: "center" }}>
       <Box
         onClick={() => onClose()}
         sx={{
@@ -119,8 +126,11 @@ const CarDetailsModal = ({ open, onClose, car }) => {
                 </Grid>
                 <Grid item>
                   <CarTypography>
-                    {detail.label}: {typeof detail.getValue(car) === 'string' && detail.getValue(car) 
-                      ? detail.getValue(car).charAt(0).toUpperCase() + detail.getValue(car).slice(1)
+                    {detail.label}:{" "}
+                    {typeof detail.getValue(car) === "string" &&
+                    detail.getValue(car)
+                      ? detail.getValue(car).charAt(0).toUpperCase() +
+                        detail.getValue(car).slice(1)
                       : detail.getValue(car)}
                   </CarTypography>
                 </Grid>
