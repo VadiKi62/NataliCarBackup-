@@ -9,7 +9,7 @@ import SpeedIcon from "@mui/icons-material/Speed";
 import Image from "next/image";
 import CarDetailsModal from "./CarDetailsModal";
 import CarTypography from "../common/CarTypography";
-import { useTranslation } from "@node_modules/react-i18next";
+import { useTranslation } from "react-i18next";
 
 const CarTitle = styled(Typography)(({ theme }) => ({
   fontSize: "1.5rem",
@@ -40,7 +40,7 @@ const CarDetails = ({ car }) => {
       key: "color",
       label: t("car.color"),
       icon: "/icons/color.png",
-      getValue: (car) => car.color,
+      getValue: (car) => car.color ? car.color.charAt(0).toUpperCase() + car.color.slice(1) : '',
     },
     {
       key: "numberOfDoors",
@@ -67,19 +67,19 @@ const CarDetails = ({ car }) => {
       key: "class",
       label: t("car.class"),
       icon: "/icons/klass.png",
-      getValue: (car) => car.class,
+      getValue: (car) => car.class ? car.class.charAt(0).toUpperCase() + car.class.slice(1) : '',
     },
     {
       key: "transmission",
       label: t("car.transmission"),
       icon: "/icons/transmission.png",
-      getValue: (car) => car.transmission,
+      getValue: (car) => car.transmission ? car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1) : '',
     },
     {
       key: "fueltype",
       label: t("car.fuel"),
       icon: "/icons/fuel.png",
-      getValue: (car) => car.fueltype,
+      getValue: (car) => car.fueltype ? car.fueltype.charAt(0).toUpperCase() + car.fueltype.slice(1) : '',
     },
     {
       key: "seats",
@@ -91,7 +91,8 @@ const CarDetails = ({ car }) => {
       key: "airConditioning",
       label: t("car.air"),
       icon: "/icons/ac.png",
-      getValue: (car) => (car.airConditioning ? "Yes" : "No"),
+      getValue: (car) => car.airConditioning,
+      showOnlyIfTrue: true,
     },
   ];
 
@@ -107,36 +108,46 @@ const CarDetails = ({ car }) => {
           display: "flex",
           flexDirection: "column",
           flexGrow: 1,
-          alignItems: "left",
+          alignItems: "center",
           px: 3,
         }}
       >
-        {defaultDetails.map((detail) => (
-          <Grid item key={detail.key} mb={0.4}>
-            <Grid container alignItems="center" mb={0.2}>
-              <Grid item mr={1}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 2,
+            justifyContent: "center",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          {defaultDetails
+            .filter((detail) => !detail.showOnlyIfTrue || detail.getValue(car))
+            .map((detail) => (
+              <Box
+                key={detail.key}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                }}
+              >
                 <Image
                   src={detail.icon}
                   alt={detail.label}
-                  width={24}
-                  height={24}
+                  width={20}
+                  height={20}
                 />
-              </Grid>
-              <Grid item>
-                <CarTypography>
-                  {detail.label}: {detail.getValue(car)}
-                </CarTypography>
-              </Grid>
-            </Grid>
-          </Grid>
-        ))}
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="outlined"
-          sx={{ mt: 2, mb: 1 }}
-        >
-          {t("car.viewDetails")}
-        </Button>
+                {!detail.showOnlyIfTrue && (
+                  <CarTypography variant="body2">
+                    {detail.getValue(car)}
+                  </CarTypography>
+                )}
+              </Box>
+            ))}
+        </Box>
 
         <CarDetailsModal
           open={modalOpen}

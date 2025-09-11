@@ -11,6 +11,7 @@ import {
   IconButton,
   CircularProgress,
   Collapse,
+  Button,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,8 +28,10 @@ import CalendarPicker from "./CalendarPicker";
 import { useMainContext } from "@app/Context";
 import PricingTiers from "@app/components/CarComponent/PricingTiers";
 import CarDetails from "./CarDetails";
+import CarDetailsModal from "./CarDetailsModal";
 
 import { CldImage } from "next-cloudinary";
+import { useTranslation } from "react-i18next";
 
 // ДОБАВИТЬ ЭТУ СТРОКУ:
 import dayjs from "dayjs";
@@ -97,6 +100,7 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
 }));
 
 function CarItemComponent({ car, discount, discountStart, discountEnd }) {
+  const { t } = useTranslation();
   // --- Скидка теперь приходит из родителя ---
   const [imageLoading, setImageLoading] = useState(true);
   useEffect(() => {
@@ -113,6 +117,7 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
 
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [modalOpen, setModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedTimes, setSelectedTimes] = useState({
     start: null,
     end: null,
@@ -147,21 +152,22 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
   return (
     <StyledCarItem elevation={3}>
       <Wrapper>
-        <Link href={`/car/${car._id}`} passHref>
-          <CarImage>
-            {imageLoading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <CircularProgress />
-                <CircularProgress sx={{ color: "primary.green" }} />
-                <CircularProgress sx={{ color: "primary.red" }} />
-              </Box>
-            ) : (
+        <CarImage style={{ position: 'relative', cursor: 'pointer' }}>
+          {imageLoading ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="100%"
+            >
+              <CircularProgress />
+              <CircularProgress sx={{ color: "primary.green" }} />
+              <CircularProgress sx={{ color: "primary.red" }} />
+            </Box>
+          ) : (
+            <>
               <CldImage
+                onClick={() => setDetailsModalOpen(true)}
                 src={car?.photoUrl || "NO_PHOTO_h2klff"}
                 alt={`Natali-Cars-${car.model}`}
                 width="450"
@@ -169,12 +175,34 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 crop="fill"
                 priority
                 sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: "contain", width: "100%", height: "auto" }}
+                style={{ objectFit: "contain", width: "100%", height: "auto", cursor: 'pointer' }}
                 onLoad={() => setImageLoading(false)}
               />
-            )}
-          </CarImage>
-        </Link>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDetailsModalOpen(true);
+                }}
+                variant="outlined"
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                  },
+                  fontSize: '0.75rem',
+                  padding: '4px 8px',
+                  zIndex: 1,
+                }}
+              >
+                {t("car.viewDetails")}
+              </Button>
+            </>
+          )}
+        </CarImage>
         <CarDetails car={car} />
       </Wrapper>
       <Stack>
@@ -210,6 +238,11 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
         presetDates={{ startDate: bookDates?.start, endDate: bookDates?.end }}
         isLoading={isLoading}
         selectedTimes={selectedTimes}
+      />
+      <CarDetailsModal
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        car={car}
       />
     </StyledCarItem>
   );
