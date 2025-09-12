@@ -646,7 +646,14 @@ const CalendarPicker = ({
       `${dayjs(discountEnd).format("DD.MM")} `;
   }
   return (
-    <Box sx={{ width: "100%", p: "20px" }}>
+    <Box
+      sx={{
+        width: "100%",
+        p: { xs: "10px 10px 10px 10px", sm: "10px 10px 10px 10px" },
+      }}
+    >
+      {" "}
+      {/* Уменьшили верхний padding */}
       <Typography
         variant="h6"
         sx={{
@@ -659,27 +666,36 @@ const CalendarPicker = ({
       >
         {t("order.chooseDates")}
       </Typography>
-      {showDiscountInfo && (
+      {/* {showDiscountInfo && (
         <Typography
           variant="body2"
           sx={{ color: "error.main", fontWeight: 600, mb: 2 }}
         >
           {discountText}
         </Typography>
-      )}
+      )} */}
       {isLoading ? (
         <CircularProgress />
       ) : (
         <>
           {showBookButton && (
-            <DefaultButton
-              onClick={handleBooking}
-              blinking={true}
-              label={`Book ${selectedRange[0]?.format(
-                "MMM D"
-              )} - ${selectedRange[1]?.format("MMM D")} `}
-              relative={true}
-            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center", // Центрирование кнопки
+                mb: 2, // Отступ снизу перед календарем
+                mt: 1, // Небольшой отступ сверху после заголовка
+              }}
+            >
+              <DefaultButton
+                onClick={handleBooking}
+                blinking={true}
+                label={`Book ${selectedRange[0]?.format(
+                  "MMM D"
+                )} - ${selectedRange[1]?.format("MMM D")} `}
+                relative={true}
+              />
+            </Box>
           )}
 
           <Calendar

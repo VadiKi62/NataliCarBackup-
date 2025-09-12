@@ -37,7 +37,7 @@ import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 
 const StyledCarItem = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(1),
+  padding: theme.spacing(0.5), // Уменьшили с 1 до 0.5
   marginLeft: 2,
   maxWidth: 400,
   zIndex: 22,
@@ -79,6 +79,11 @@ const CarImage = styled(Box)(({ theme }) => ({
   height: "auto",
   borderRadius: theme.shape.borderRadius,
   overflow: "hidden",
+
+  // Мобильные устройства - компактнее
+  [theme.breakpoints.down("sm")]: {
+    marginBottom: theme.spacing(1), // Уменьшенный отступ снизу
+  },
 
   [theme.breakpoints.up("md")]: {
     width: 450,
@@ -192,14 +197,14 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 size="small"
                 sx={{
                   position: "absolute",
-                  bottom: 8,
-                  right: 8,
+                  bottom: { xs: 4, sm: 8 }, // Меньший отступ на мобильных
+                  right: { xs: 4, sm: 8 },
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
                   "&:hover": {
                     backgroundColor: "rgba(255, 255, 255, 1)",
                   },
-                  fontSize: "0.75rem",
-                  padding: "4px 8px",
+                  fontSize: { xs: "0.65rem", sm: "0.75rem" }, // Меньший шрифт на мобильных
+                  padding: { xs: "2px 6px", sm: "4px 8px" }, // Меньший padding на мобильных
                   zIndex: 1,
                 }}
               >
@@ -224,6 +229,67 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
           discountStart={discountStart}
           discountEnd={discountEnd}
         />
+        {/* Информация о дискаунте с логикой как в PricingTiers */}
+        {discount &&
+          discountStart &&
+          discountEnd &&
+          (() => {
+            const monthStart = currentCalendarDate.startOf("month");
+            const monthEnd = currentCalendarDate.endOf("month");
+            let discountType = "none"; // 'full', 'partial', 'none'
+
+            if (
+              typeof discount === "number" &&
+              discount > 0 &&
+              discountStart &&
+              discountEnd
+            ) {
+              // Скидка покрывает весь месяц
+              if (
+                monthStart.isSameOrAfter(discountStart, "day") &&
+                monthEnd.isSameOrBefore(discountEnd, "day")
+              ) {
+                discountType = "full";
+              } else if (
+                monthEnd.isSameOrAfter(discountStart, "day") &&
+                monthStart.isSameOrBefore(discountEnd, "day")
+              ) {
+                // Скидка покрывает часть месяца
+                discountType = "partial";
+              }
+            }
+
+            // Отображаем информацию о скидке только если она действует хотя бы частично
+            if (discountType !== "none") {
+              let discountText = "";
+              if (discountType === "full") {
+                discountText = `${t("order.discount")} ${discount}%`;
+              } else if (discountType === "partial") {
+                discountText = `${t("order.discount")} ${discount}% ${t(
+                  "basic.from"
+                )} ${dayjs(discountStart).format("DD.MM")} ${t(
+                  "basic.till"
+                )} ${dayjs(discountEnd).format("DD.MM")}`;
+              }
+
+              return (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    mt: { xs: 0.5, sm: 0.5 }, // Уменьшили верхний отступ
+                    mb: { xs: 0.5, sm: 0.5 }, // Уменьшили нижний отступ
+                    color: "#d32f2f",
+                    fontWeight: 600,
+                    fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                    textAlign: "center",
+                  }}
+                >
+                  {discountText}
+                </Typography>
+              );
+            }
+            return null;
+          })()}
         {car?.pricingTiers && (
           <PricingTiers
             prices={car?.pricingTiers}

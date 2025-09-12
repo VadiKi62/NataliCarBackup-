@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, Grid, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Grid,
+  Button,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import TimeToLeaveIcon from "@mui/icons-material/TimeToLeave";
@@ -22,6 +29,8 @@ const CarTitle = styled(Typography)(({ theme }) => ({
 const CarDetails = ({ car }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const additionalDetails = [
     {
@@ -106,9 +115,29 @@ const CarDetails = ({ car }) => {
 
   const allDetails = [...additionalDetails, ...defaultDetails];
 
+  // Ограничиваем количество параметров на мобильных для помещения в одну строку
+  const getVisibleDetails = () => {
+    if (isMobile) {
+      // На мобильных показываем все 5 основных параметров включая кондиционер
+      return defaultDetails.filter(
+        (detail) => !detail.showOnlyIfTrue || detail.getValue(car)
+      );
+    }
+    return defaultDetails.filter(
+      (detail) => !detail.showOnlyIfTrue || detail.getValue(car)
+    );
+  };
+
   return (
     <>
-      <CarTitle sx={{ width: "60%", textAlign: "center" }} variant="h5">
+      <CarTitle
+        sx={{
+          width: "60%",
+          textAlign: "center",
+          mb: { xs: 1, sm: 2 }, // Уменьшенный отступ снизу на мобильных
+        }}
+        variant="h5"
+      >
         {car.model}
       </CarTitle>
       <Box
@@ -117,44 +146,100 @@ const CarDetails = ({ car }) => {
           flexDirection: "column",
           flexGrow: 1,
           alignItems: "center",
-          px: 3,
+          px: { xs: 1, sm: 3 }, // Уменьшенные отступы на мобильных
+          width: "100%", // Ограничиваем ширину контейнера
+          maxWidth: { xs: "100%", md: "450px" }, // Максимальная ширина как у фото
         }}
       >
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 2,
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 2,
+            flexDirection: { xs: "row", sm: "column" }, // На мобильных - в строку, на десктопе - в столбик
+            flexWrap: "nowrap", // Запрещаем перенос строки
+            gap: { xs: 0.05, sm: 0.4 }, // Уменьшили gap на десктопе для более компактного отображения
+            justifyContent: { xs: "center", sm: "flex-start" }, // На мобильных по центру, на десктопе по левому краю
+            alignItems: { xs: "center", sm: "flex-start" }, // На десктопе выравниваем по левому краю
+            mb: { xs: 1, sm: 2 }, // Уменьшенный отступ снизу на мобильных
+            width: "100%",
+            overflow: "hidden", // Скрываем то что не помещается
           }}
         >
-          {defaultDetails
-            .filter((detail) => !detail.showOnlyIfTrue || detail.getValue(car))
-            .map((detail) => (
-              <Box
-                key={detail.key}
+          {getVisibleDetails().map((detail) => (
+            <Box
+              key={detail.key}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 0.2, sm: 0.6 }, // Промежуток между элементами в строке
+                flex: "0 0 auto", // Не растягиваем, не сжимаем
+                minWidth: 0, // Позволяем сжатие при необходимости
+                width: { xs: "auto", sm: "100%" }, // На десктопе занимаем всю ширину
+                justifyContent: { xs: "center", sm: "flex-start" }, // На десктопе выравниваем по левому краю
+              }}
+            >
+              <Image
+                src={detail.icon}
+                alt={detail.label}
+                width={20}
+                height={20}
+              />
+              {/* Название параметра - только на десктопе */}
+              <Typography
+                variant="body2"
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0.5,
+                  display: { xs: "none", sm: "block" }, // Скрываем на мобильных
+                  fontSize: "0.85rem",
+                  color: "text.secondary",
+                  minWidth: "80px", // Фиксированная ширина для выравнивания
+                  flexShrink: 0,
                 }}
               >
-                <Image
-                  src={detail.icon}
-                  alt={detail.label}
-                  width={20}
-                  height={20}
-                />
-                {!detail.showOnlyIfTrue && (
-                  <CarTypography variant="body2">
-                    {detail.getValue(car)}
+                {detail.label}:
+              </Typography>
+              {/* Логика отображения значения параметра */}
+              {detail.showOnlyIfTrue ? (
+                // Для кондиционера - на десктопе показываем Yes/No, на мобильных только если true
+                isMobile ? (
+                  detail.getValue(car) && (
+                    <CarTypography
+                      variant="body2"
+                      sx={{
+                        fontSize: "0.85rem",
+                        color: "text.primary",
+                      }}
+                    >
+                      {/* На мобильных для кондиционера ничего не показываем, только иконка */}
+                    </CarTypography>
+                  )
+                ) : (
+                  // На десктопе всегда показываем Yes/No для кондиционера
+                  <CarTypography
+                    variant="body2"
+                    sx={{
+                      fontSize: "0.95rem",
+                      color: "text.primary",
+                    }}
+                  >
+                    {detail.getValue(car) ? "Yes" : "No"}
                   </CarTypography>
-                )}
-              </Box>
-            ))}
+                )
+              ) : (
+                // Для обычных параметров всегда показываем значение
+                <CarTypography
+                  variant="body2"
+                  sx={{
+                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                    whiteSpace: "nowrap", // Запрещаем перенос текста
+                    overflow: "hidden",
+                    textOverflow: "ellipsis", // Многоточие если не помещается
+                    color: "text.primary",
+                  }}
+                >
+                  {detail.getValue(car)}
+                </CarTypography>
+              )}
+            </Box>
+          ))}
         </Box>
 
         <CarDetailsModal

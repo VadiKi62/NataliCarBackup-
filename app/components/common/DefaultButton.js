@@ -1,5 +1,6 @@
 import React from "react";
 import MuiButton from "@mui/material/Button";
+import { useTheme, useMediaQuery } from "@mui/material";
 
 export default function DefaultButton({
   visibility = true,
@@ -12,6 +13,9 @@ export default function DefaultButton({
   blinking = false,
   props,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   return (
     visibility && (
       <MuiButton
@@ -40,9 +44,16 @@ export default function DefaultButton({
             blinking: " false",
           },
           ...(blinking && {
-            animation: "blink 1s linear infinite",
+            animation: isMobile
+              ? "blinkMobile 1.5s ease-in-out infinite" // 1.5 секунды мигания на мобильных
+              : "blinkDesktop 1s linear infinite", // Обычное мигание на десктопе
           }),
-          "@keyframes blink": {
+          "@keyframes blinkMobile": {
+            "0%": { transform: "scale(1)", backgroundColor: "#00ff00" }, // Ярко-зеленый фон, убрали opacity
+            "50%": { transform: "scale(1.02)", backgroundColor: "#32ff32" }, // Еще более яркий зеленый, убрали opacity
+            "100%": { transform: "scale(1)", backgroundColor: "#00ff00" }, // Ярко-зеленый фон, убрали opacity
+          },
+          "@keyframes blinkDesktop": {
             "0%": { opacity: 1 },
             "50%": { opacity: 0.5 },
             "100%": { opacity: 1 },

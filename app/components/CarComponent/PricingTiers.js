@@ -123,14 +123,14 @@ const PricingDisplay = ({
     <>
       {" "}
       <Typography>
-        {t("car.pricesFor")} - {currentSeason} ({t("basic.from")}{" "}
+        {t("car.pricesFor")} {currentSeason} ({t("basic.from")}{" "}
         {seasons[currentSeason].start} {t("basic.till")}{" "}
         {seasons[currentSeason].end})
       </Typography>
       <Paper
         elevation={0}
         sx={{
-          padding: { xs: 1.8, sm: 3 },
+          padding: { xs: 1.2, sm: 2 }, // Уменьшили отступы для более компактного вида
           display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
