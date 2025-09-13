@@ -170,7 +170,7 @@ const CarDetails = ({ car }) => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: { xs: 0.2, sm: 0.6 }, // Промежуток между элементами в строке
+                gap: { xs: 0.2, sm: 0.3 }, // Уменьшили gap на десктопе с 0.6 до 0.3
                 flex: "0 0 auto", // Не растягиваем, не сжимаем
                 minWidth: 0, // Позволяем сжатие при необходимости
                 width: { xs: "auto", sm: "100%" }, // На десктопе занимаем всю ширину
@@ -190,8 +190,9 @@ const CarDetails = ({ car }) => {
                   display: { xs: "none", sm: "block" }, // Скрываем на мобильных
                   fontSize: "0.85rem",
                   color: "text.secondary",
-                  minWidth: "80px", // Фиксированная ширина для выравнивания
+                  // Убираем minWidth для естественной ширины текста
                   flexShrink: 0,
+                  lineHeight: 1, // Устанавливаем одинаковую высоту строки
                 }}
               >
                 {detail.label}:
@@ -218,6 +219,7 @@ const CarDetails = ({ car }) => {
                     sx={{
                       fontSize: "0.95rem",
                       color: "text.primary",
+                      lineHeight: 1, // Устанавливаем одинаковую высоту строки
                     }}
                   >
                     {detail.getValue(car) ? "Yes" : "No"}
@@ -233,6 +235,7 @@ const CarDetails = ({ car }) => {
                     overflow: "hidden",
                     textOverflow: "ellipsis", // Многоточие если не помещается
                     color: "text.primary",
+                    lineHeight: 1, // Устанавливаем одинаковую высоту строки
                   }}
                 >
                   {detail.getValue(car)}

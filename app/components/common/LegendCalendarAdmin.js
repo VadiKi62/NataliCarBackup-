@@ -40,38 +40,42 @@ function LegendCalendarAdmin({ client }) {
             fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
           }}
         >
-          {t("order.confirmed")}
+          {/* На главной странице (client=true) показываем "Недоступные даты", в админке - "Подтвержденные заказы" */}
+          {client ? t("order.unavailable-dates") : t("order.confirmed")}
         </Typography>
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
-        }}
-      >
+      {/* Закомментировано для главной страницы - показываем только в админке */}
+      {!client && (
         <Box
-          component="span"
           sx={{
-            display: "inline-block",
-            width: "20px",
-            height: "20px",
-            backgroundColor: "primary.green",
-            marginRight: "10px",
-          }}
-        />
-        <Typography
-          component="span"
-          variant="body2"
-          sx={{
-            fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
           }}
         >
-          {t("order.not-confirmed")}
-        </Typography>
-      </Box>
+          <Box
+            component="span"
+            sx={{
+              display: "inline-block",
+              width: "20px",
+              height: "20px",
+              backgroundColor: "primary.green",
+              marginRight: "10px",
+            }}
+          />
+          <Typography
+            component="span"
+            variant="body2"
+            sx={{
+              fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+            }}
+          >
+            {t("order.not-confirmed")}
+          </Typography>
+        </Box>
+      )}
 
       <Box
         sx={{

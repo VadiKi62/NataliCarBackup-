@@ -1,6 +1,6 @@
 {
   "header": {
-    "main": "Rent",
+    "main": "Rental",
     "terms": "Terms",
     "contacts": "Contacts",
     "cars": "Cars",
@@ -32,6 +32,7 @@
     "not100Date": "This date is pending approval. Maybe available but not 100%",
     "pendingDate": "Pending (available for booking)",
     "confirmBooking": "Confirm booking",
+    "processing": "Processing...",
     "bookingConfirmed": "Booking confirmed",
     "book": "Book {{model}}",
     "youBook": "You are booking {{model}} from ",
@@ -47,6 +48,7 @@
     "weContact": "We have got your order and we will contact you shortly to finalize the details.",
     "confirmed": "Confirmed orders",
     "not-confirmed": "Non-confirmed orders",
+    "unavailable-dates": "Unavailable dates",
     "conflict": "Conflict orders",
     "addOrder": "Add Order for ",
     "pickupLocation": "Pick-up location",

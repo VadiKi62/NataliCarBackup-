@@ -71,6 +71,7 @@ const BookingModal = ({
   // const [totalPrice, setTotalPrice] = useState(0);
   const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Новое состояние для отслеживания процесса отправки
   const [message, setMessage] = useState(null);
   const [submittedOrder, setSubmittedOrder] = useState(null);
   const [dateRange, setDateRange] = useState([
@@ -105,6 +106,9 @@ const BookingModal = ({
   };
 
   const handleSubmit = async () => {
+    // Предотвращаем повторную отправку, если уже идет процесс
+    if (isSubmitting) return;
+
     const newErrors = {};
 
     // Validation checks
@@ -117,6 +121,9 @@ const BookingModal = ({
       setErrors(newErrors);
       return;
     }
+
+    // Устанавливаем состояние отправки
+    setIsSubmitting(true);
 
     console.log("startTime before adding ORDER", startTime);
     console.log("endTime before adding ORDER", endTime);
@@ -224,6 +231,9 @@ const BookingModal = ({
         submit:
           error.message || "An error occurred while processing your request.",
       });
+    } finally {
+      // Сбрасываем состояние отправки в любом случае (успех или ошибка)
+      setIsSubmitting(false);
     }
   };
 
@@ -234,6 +244,7 @@ const BookingModal = ({
     setPhone("");
     setErrors({});
     setIsSubmitted(false);
+    setIsSubmitting(false); // Сбрасываем состояние отправки
     setSubmittedOrder(null);
     setSuccessfullySent(false);
     setMessage(null);
@@ -356,14 +367,18 @@ const BookingModal = ({
                 color="primary"
                 onClick={handleSubmit}
                 disabled={
+                  isSubmitting || // Отключаем кнопку во время отправки
                   !name ||
                   !email ||
                   !phone ||
                   !presetDates?.startDate ||
                   !presetDates?.endDate
                 }
+                startIcon={isSubmitting ? <CircularProgress size={20} /> : null} // Показываем индикатор загрузки
               >
-                {t("order.confirmBooking")}
+                {isSubmitting
+                  ? t("order.processing") || "Processing..."
+                  : t("order.confirmBooking")}
               </Button>
             )}
           </DialogActions>

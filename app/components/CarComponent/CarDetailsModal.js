@@ -109,9 +109,20 @@ const CarDetailsModal = ({ open, onClose, car }) => {
           cursor: "pointer",
         }}
       >
-        {/* <Typography variant="h6" component="h2" gutterBottom>
-          Additional Car Details
-        </Typography> */}
+        {/* Заголовок с названием автомобиля */}
+        <Typography
+          variant="h5"
+          component="h2"
+          gutterBottom
+          sx={{
+            textTransform: "uppercase",
+            fontWeight: 700,
+            mb: 3,
+            color: "primary.main",
+          }}
+        >
+          {car?.model || "Car Details"}
+        </Typography>
         <Grid container direction="column" spacing={2}>
           {allDetails.map((detail) => (
             <Grid item key={detail.key}>
