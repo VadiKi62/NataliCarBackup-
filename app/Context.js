@@ -41,6 +41,34 @@ export const MainContextProvider = ({
   const { i18n } = useTranslation();
   const [lang, setLang] = useState(i18n.language);
 
+  // Функция для смены языка с сохранением в localStorage
+  const changeLanguage = useCallback(
+    (newLang) => {
+      if (["en", "el", "ru"].includes(newLang)) {
+        i18n.changeLanguage(newLang);
+        setLang(newLang);
+        // Сохраняем выбранный язык в localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("selectedLanguage", newLang);
+        }
+      }
+    },
+    [i18n]
+  );
+
+  // Эффект для синхронизации языка при изменении в i18n
+  useEffect(() => {
+    const handleLanguageChange = (lng) => {
+      setLang(lng);
+    };
+
+    i18n.on("languageChanged", handleLanguageChange);
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChange);
+    };
+  }, [i18n]);
+
   const [company, setCompany] = useState(companyData);
   const [scrolled, setScrolled] = useState(false);
   const [cars, setCars] = useState(carsData || []);
@@ -49,8 +77,12 @@ export const MainContextProvider = ({
   const [error, setError] = useState(null);
   const [updateStatus, setUpdateStatus] = useState(null);
   const [selectedClass, setSelectedClass] = useState("All");
+  const [selectedTransmission, setSelectedTransmission] = useState("All"); // Новый фильтр по коробке передач
   const arrayOfAvailableClasses = useMemo(() => {
     return [...new Set(cars.map((car) => car.class))];
+  }, [cars]);
+  const arrayOfAvailableTransmissions = useMemo(() => {
+    return [...new Set(cars.map((car) => car.transmission))];
   }, [cars]);
   const handleScroll = useCallback(() => {
     const scrollPosition = window.scrollY;
@@ -167,13 +199,18 @@ export const MainContextProvider = ({
       setSelectedClass,
       selectedClass,
       arrayOfAvailableClasses,
+      setSelectedTransmission, // Новые значения для фильтра коробки передач
+      selectedTransmission,
+      arrayOfAvailableTransmissions,
       lang,
       setLang,
+      changeLanguage, // Добавляем функцию смены языка
       company,
     }),
     [
       cars,
       arrayOfAvailableClasses,
+      arrayOfAvailableTransmissions, // Добавляем в зависимости
       error,
       ordersByCarId,
       updateStatus,
@@ -181,8 +218,10 @@ export const MainContextProvider = ({
       isLoading,
       scrolled,
       selectedClass,
+      selectedTransmission, // Добавляем в зависимости
       lang,
       setLang,
+      changeLanguage, // Добавляем в зависимости
       company,
     ]
   );

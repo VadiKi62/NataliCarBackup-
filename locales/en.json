@@ -9,7 +9,8 @@
     "calendar": "Calendar",
     "orders": "Orders",
     "orderList": "Order list",
-    "carClass": "Choose Car Class"
+    "carClass": "Choose Car Class",
+    "transmission": "Choose Transmission"
   },
   "basic": {
     "close": "close",

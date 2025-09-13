@@ -15,7 +15,8 @@ const Section = styled("section")(({ theme }) => ({
 import dayjs from "dayjs";
 
 function CarGrid() {
-  const { cars, company, selectedClass } = useMainContext();
+  const { cars, company, selectedClass, selectedTransmission } =
+    useMainContext(); // Добавляем selectedTransmission
   const [filteredCars, setFilteredCars] = useState(cars);
 
   // --- Состояния для скидки ---
@@ -39,15 +40,20 @@ function CarGrid() {
     fetchDiscount();
   }, []);
 
-  // Filter cars by the selected class
+  // Filter cars by the selected class and transmission
   useEffect(() => {
     const updatedCars = cars
       .filter(
-        (car) => !!(selectedClass == "All") || car.class === selectedClass
+        (car) =>
+          // Фильтр по классу
+          (selectedClass === "All" || car.class === selectedClass) &&
+          // Фильтр по коробке передач
+          (selectedTransmission === "All" ||
+            car.transmission === selectedTransmission)
       )
       .sort((a, b) => a.model.localeCompare(b.model)); // Sort the filtered cars
     setFilteredCars(updatedCars);
-  }, [selectedClass, cars]);
+  }, [selectedClass, selectedTransmission, cars]); // Добавляем selectedTransmission в зависимости
 
   return (
     <Container sx={{ paddingTop: { xs: 28, md: 20 } }}>

@@ -278,7 +278,7 @@ const CalendarPicker = ({
       isStartAndEndDateOverlapInfo?.endPending ||
       isStartAndEndDateOverlapInfo?.startPending
     ) {
-      backgroundColor = "primary.green";
+      backgroundColor = "rgba(194, 209, 224, 0.3)"; // Сделаем неподтвержденные заказы еще бледнее
       color = "common.black";
     }
 
@@ -333,7 +333,7 @@ const CalendarPicker = ({
                 borderRadius: "50% 0 0 50%",
                 backgroundColor: startEndInfo.confirmed
                   ? "primary.red"
-                  : "primary.green",
+                  : "rgba(194, 209, 224, 0.3)", // Сделаем неподтвержденные заказы еще бледнее
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -370,7 +370,7 @@ const CalendarPicker = ({
                 borderRadius: "0 50% 50% 0",
                 backgroundColor: startEndInfo.confirmed
                   ? "primary.red"
-                  : "primary.green",
+                  : "rgba(194, 209, 224, 0.3)", // Сделаем неподтвержденные заказы еще бледнее
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -416,12 +416,14 @@ const CalendarPicker = ({
               height: "100%",
               backgroundColor: isStartAndEndDateOverlapInfo.endConfirmed
                 ? "primary.main"
-                : "primary.green",
+                : "rgba(194, 209, 224, 0.3)", // Сделаем неподтвержденные заказы еще бледнее
               borderRadius: "0 50% 50% 0",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "common.white",
+              color: isStartAndEndDateOverlapInfo.endConfirmed
+                ? "common.white"
+                : "common.black",
             }}
           >
             {date.date()}
@@ -434,13 +436,15 @@ const CalendarPicker = ({
               height: "100%",
               backgroundColor: isStartAndEndDateOverlapInfo.startConfirmed
                 ? "primary.main"
-                : "primary.green",
+                : "rgba(194, 209, 224, 0.3)", // Сделаем неподтвержденные заказы еще бледнее
               borderRadius: "0 50% 50% 0",
               borderRadius: "50% 0 0 50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "common.white",
+              color: isStartAndEndDateOverlapInfo.startConfirmed
+                ? "common.white"
+                : "common.black",
             }}
           >
             {date.date()}

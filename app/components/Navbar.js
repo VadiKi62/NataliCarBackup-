@@ -142,13 +142,22 @@ export default function NavBar({
     setSelectedClass,
     selectedClass,
     arrayOfAvailableClasses,
+    setSelectedTransmission, // Новые значения для фильтра коробки передач
+    selectedTransmission,
+    arrayOfAvailableTransmissions,
     lang,
     setLang,
+    changeLanguage, // Добавляем функцию смены языка
   } = useMainContext();
 
   const handleCarClassChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedClass(selectedValue === "" ? "" : selectedValue);
+  };
+
+  const handleTransmissionChange = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedTransmission(selectedValue === "" ? "" : selectedValue);
   };
 
   const handleLanguageClick = (event) => {
@@ -161,8 +170,7 @@ export default function NavBar({
   };
 
   const handleLanguageSelect = (selectedLanguage) => {
-    setLang(selectedLanguage);
-    i18n.changeLanguage(selectedLanguage);
+    changeLanguage(selectedLanguage); // Используем новую функцию, которая автоматически сохраняет в localStorage
     handleLanguageClose();
   };
 
@@ -231,6 +239,18 @@ export default function NavBar({
               >
                 <MenuIcon />
               </IconButton>
+
+              {/* Языковой переключатель - всегда видим */}
+              <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
+                <Typography
+                  sx={{
+                    fontStretch: "extra-condensed",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {lang}
+                </Typography>
+              </LanguageSwitcher>
 
               <Stack
                 direction="row"
@@ -343,17 +363,6 @@ export default function NavBar({
                       : "Скидка"}
                   </Button>
                 )}
-
-                <LanguageSwitcher color="inherit" onClick={handleLanguageClick}>
-                  <Typography
-                    sx={{
-                      fontStretch: "extra-condensed",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {lang}
-                  </Typography>
-                </LanguageSwitcher>
               </Stack>
             </Stack>
 
@@ -407,13 +416,32 @@ export default function NavBar({
               pb={1}
             >
               <LegendCalendarAdmin client={isMain} />
-              <SelectedFieldClass
-                name="class"
-                label={t("header.carClass")}
-                options={Object.values(arrayOfAvailableClasses)}
-                value={selectedClass}
-                handleChange={handleCarClassChange}
-              />
+              {/* Контейнер для фильтров - на мобильных в строку */}
+              <Stack
+                direction={{ xs: "row", sm: "row" }}
+                spacing={{ xs: 1, sm: 3 }}
+                alignItems="center"
+                justifyContent="center"
+                sx={{
+                  width: "100%",
+                  flexWrap: { xs: "nowrap", sm: "nowrap" },
+                }}
+              >
+                <SelectedFieldClass
+                  name="class"
+                  label={t("header.carClass")}
+                  options={Object.values(arrayOfAvailableClasses)}
+                  value={selectedClass}
+                  handleChange={handleCarClassChange}
+                />
+                <SelectedFieldClass
+                  name="transmission"
+                  label={t("header.transmission")}
+                  options={Object.values(arrayOfAvailableTransmissions)}
+                  value={selectedTransmission}
+                  handleChange={handleTransmissionChange}
+                />
+              </Stack>
             </Stack>
           </StyledBox>
         )}
@@ -491,9 +519,11 @@ export default function NavBar({
               </>
             )}
 
-            <ListItem button onClick={handleLanguageClick}>
+            {/* Языковой переключатель убран из мобильного меню, 
+                поскольку теперь он всегда видим в верхней панели */}
+            {/* <ListItem button onClick={handleLanguageClick}>
               <ListItemText primary={lang} />
-            </ListItem>
+            </ListItem> */}
           </List>
         </Box>
       </Drawer>

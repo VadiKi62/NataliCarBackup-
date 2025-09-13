@@ -13,6 +13,7 @@ import { MainContextProvider } from "../Context";
 import CarGrid from "./CarGrid";
 import CarPage from "@app/components/CarPage";
 import ScrollButton from "./common/ScrollButton";
+// import BrowserLanguageInfo from "./common/BrowserLanguageInfo"; // Компонент для показа информации о языке
 import Navbar from "@app/components/Navbar";
 import Footer from "@app/components/Footer";
 
@@ -35,6 +36,8 @@ function Feed({ children, ...props }) {
             {shouldShowFooter && <Footer />}{" "}
             {/* Footer не отобразится, если isAdmin === true */}
             <ScrollButton />
+            {/* <BrowserLanguageInfo /> */}{" "}
+            {/* Показывает информацию о языке браузера только в development */}
           </MainContextProvider>
         </I18nextProvider>
       </ThemeProvider>

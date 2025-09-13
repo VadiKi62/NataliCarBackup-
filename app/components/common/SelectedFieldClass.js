@@ -11,16 +11,19 @@ const SelectedFieldClass = ({
   isLoading = false,
 }) => (
   <FormControl
-    fullWidth
+    fullWidth={false} // Отключаем fullWidth для лучшего контроля ширины
     required={required}
     sx={{
       mb: 2,
+      minWidth: { xs: 160, sm: 280 }, // Минимальная ширина для адаптивности
+      maxWidth: { xs: 180, sm: 300 }, // Максимальная ширина
       "& .MuiInputBase-root": {
         color: "white", // Text color inside the input field
-        width: 300,
+        fontSize: { xs: "0.85rem", sm: "1rem" }, // Меньший размер текста на мобильных
       },
       "& .MuiInputLabel-root": {
         color: "white", // Label color
+        fontSize: { xs: "0.75rem", sm: "1rem" }, // Меньший размер шрифта на мобильных
       },
       "& .MuiSelect-icon": {
         color: "white", // Arrow icon color
