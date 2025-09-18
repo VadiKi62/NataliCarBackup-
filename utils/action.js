@@ -105,12 +105,59 @@ export const reFetchAllOrders = async () => {
 //Adding new order using new order api
 export const addOrderNew = async (orderData) => {
   try {
+    // ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ ДЛЯ ОТСЛЕЖИВАНИЯ РАЗЛИЧИЙ
+    console.log("=== ACTION.JS: АНАЛИЗ ВРЕМЕНИ ===");
+    console.log(
+      "Источник:",
+      orderData.my_order ? "BookingModal" : "AddOrderModal"
+    );
+    console.log("orderData.timeIn тип:", typeof orderData.timeIn);
+    console.log("orderData.timeIn значение:", orderData.timeIn);
+    console.log("orderData.timeOut тип:", typeof orderData.timeOut);
+    console.log("orderData.timeOut значение:", orderData.timeOut);
+
+    // Проверяем, является ли объект dayjs
+    if (orderData.timeIn && typeof orderData.timeIn.format === "function") {
+      console.log("timeIn это dayjs объект:");
+      console.log(
+        "  timeIn.format('HH:mm'):",
+        orderData.timeIn.format("HH:mm")
+      );
+      console.log(
+        "  timeIn.format('YYYY-MM-DD HH:mm'):",
+        orderData.timeIn.format("YYYY-MM-DD HH:mm")
+      );
+      console.log("  timeIn.toISOString():", orderData.timeIn.toISOString());
+      console.log("  timeIn.$d (нативная дата):", orderData.timeIn.$d);
+    }
+
+    if (orderData.timeOut && typeof orderData.timeOut.format === "function") {
+      console.log("timeOut это dayjs объект:");
+      console.log(
+        "  timeOut.format('HH:mm'):",
+        orderData.timeOut.format("HH:mm")
+      );
+      console.log(
+        "  timeOut.format('YYYY-MM-DD HH:mm'):",
+        orderData.timeOut.format("YYYY-MM-DD HH:mm")
+      );
+      console.log("  timeOut.toISOString():", orderData.timeOut.toISOString());
+      console.log("  timeOut.$d (нативная дата):", orderData.timeOut.$d);
+    }
+
+    const stringifiedData = JSON.stringify(orderData);
+    const parsedBack = JSON.parse(stringifiedData);
+    console.log("После JSON.stringify -> JSON.parse:");
+    console.log("  timeIn:", parsedBack.timeIn);
+    console.log("  timeOut:", parsedBack.timeOut);
+    console.log("=== КОНЕЦ АНАЛИЗА ===");
+
     const response = await fetch(`${API_URL}/api/order/add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(orderData),
+      body: stringifiedData,
     });
 
     const result = await response.json();

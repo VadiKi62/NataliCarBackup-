@@ -127,6 +127,34 @@ const BookingModal = ({
 
     console.log("startTime before adding ORDER", startTime);
     console.log("endTime before adding ORDER", endTime);
+
+    // ДОБАВЛЯЮ ЛОГИРОВАНИЕ ДЛЯ СРАВНЕНИЯ С ADDORDERMODAL
+    console.log("=== BOOKINGMODAL: АНАЛИЗ ВРЕМЕНИ ===");
+    console.log("startTime тип:", typeof startTime);
+    console.log("startTime значение:", startTime);
+    if (startTime && typeof startTime.format === "function") {
+      console.log("startTime.format('HH:mm'):", startTime.format("HH:mm"));
+      console.log(
+        "startTime.format('YYYY-MM-DD HH:mm'):",
+        startTime.format("YYYY-MM-DD HH:mm")
+      );
+      console.log("startTime.toISOString():", startTime.toISOString());
+      console.log("startTime.$d:", startTime.$d);
+      console.log("startTime.$u (UTC флаг):", startTime.$u);
+    }
+    console.log("endTime тип:", typeof endTime);
+    if (endTime && typeof endTime.format === "function") {
+      console.log("endTime.format('HH:mm'):", endTime.format("HH:mm"));
+      console.log(
+        "endTime.format('YYYY-MM-DD HH:mm'):",
+        endTime.format("YYYY-MM-DD HH:mm")
+      );
+      console.log("endTime.toISOString():", endTime.toISOString());
+      console.log("endTime.$d:", endTime.$d);
+      console.log("endTime.$u (UTC флаг):", endTime.$u);
+    }
+    console.log("=== КОНЕЦ АНАЛИЗА BOOKINGMODAL ===");
+
     try {
       const orderData = {
         carNumber: car.carNumber,
@@ -137,8 +165,7 @@ const BookingModal = ({
         timeOut: dayjs(endTime),
         rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
         rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
-        my_order: true, // Заказы с главной страницы помечаем как my_order = true
-        // totalPrice,
+        my_order: true,
       };
 
       const response = await addOrderNew(orderData);
