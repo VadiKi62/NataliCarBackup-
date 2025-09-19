@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Typography,
   Box,
@@ -12,44 +10,16 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { addOrder, addOrderNew } from "@utils/action";
+import { addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
-import TimePicker from "@app/components/Calendars/MuiTimePicker";
-// import sendEmail from "@utils/sendEmail";
 import sendEmail from "@utils/sendEmail";
 import { setTimeToDatejs } from "@utils/functions";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import { useMainContext } from "../../Context";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
-
-// const { RangePicker } = DatePicker;
-
-const getYearMonth = (date) => date.year() * 12 + date.month();
-
-const disabledDate = (current, { from, type }) => {
-  if (from) {
-    const minDate = dayjs(from).subtract(6, "days");
-    const maxDate = dayjs(from).add(6, "days");
-    switch (type) {
-      case "year":
-        return (
-          current.year() < minDate.year() || current.year() > maxDate.year()
-        );
-      case "month":
-        return (
-          getYearMonth(current) < getYearMonth(minDate) ||
-          getYearMonth(current) > getYearMonth(maxDate)
-        );
-      default:
-        return Math.abs(current.diff(from, "days")) >= 7;
-    }
-  }
-  return false;
-};
 
 const BookingModal = ({
   open,
@@ -60,7 +30,6 @@ const BookingModal = ({
   isLoading,
   selectedTimes,
 }) => {
-  // if (presetDates) console.log("presetDates from Fooking Modal ", presetDates);
   const { t } = useTranslation();
   const { company } = useMainContext();
 
@@ -68,23 +37,18 @@ const BookingModal = ({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [errors, setErrors] = useState({});
-  // const [totalPrice, setTotalPrice] = useState(0);
   const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Новое состояние для отслеживания процесса отправки
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [submittedOrder, setSubmittedOrder] = useState(null);
-  const [dateRange, setDateRange] = useState([
-    presetDates?.startDate ? dayjs(presetDates.startDate).utc() : null,
-    presetDates?.endDate ? dayjs(presetDates.endDate).utc() : null,
-  ]);
 
-  const [startTime, setStartTime] = useState(() => {
-    return setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true);
-  });
-  const [endTime, setEndTime] = useState(() => {
-    return setTimeToDatejs(presetDates?.endDate, selectedTimes?.end);
-  });
+  const [startTime, setStartTime] = useState(() =>
+    setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true)
+  );
+  const [endTime, setEndTime] = useState(() =>
+    setTimeToDatejs(presetDates?.endDate, selectedTimes?.end)
+  );
 
   useEffect(() => {
     if (presetDates?.startDate && presetDates?.endDate) {
@@ -93,7 +57,12 @@ const BookingModal = ({
       );
       setEndTime(setTimeToDatejs(presetDates?.endDate, selectedTimes?.end));
     }
-  }, [presetDates?.startDate, presetDates?.endDate, car.pricePerDay]);
+  }, [
+    presetDates?.startDate,
+    presetDates?.endDate,
+    car.pricePerDay,
+    selectedTimes,
+  ]);
 
   const validateEmail = (email) => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -105,55 +74,50 @@ const BookingModal = ({
     return re.test(phone);
   };
 
+  const bookButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      open &&
+      !isSubmitted &&
+      name &&
+      email &&
+      phone &&
+      presetDates?.startDate &&
+      presetDates?.endDate &&
+      bookButtonRef.current
+    ) {
+      const timer = setTimeout(() => {
+        bookButtonRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [
+    open,
+    isSubmitted,
+    name,
+    email,
+    phone,
+    presetDates?.startDate,
+    presetDates?.endDate,
+  ]);
+
   const handleSubmit = async () => {
-    // Предотвращаем повторную отправку, если уже идет процесс
     if (isSubmitting) return;
 
     const newErrors = {};
-
-    // Validation checks
     if (!name) newErrors.name = "Name is required";
     if (!validateEmail(email)) newErrors.email = "Invalid email address";
     if (!validatePhone(phone)) newErrors.phone = "Invalid phone number";
-
-    // If there are validation errors, set them and return early
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    // Устанавливаем состояние отправки
     setIsSubmitting(true);
-
-    console.log("startTime before adding ORDER", startTime);
-    console.log("endTime before adding ORDER", endTime);
-
-    // ДОБАВЛЯЮ ЛОГИРОВАНИЕ ДЛЯ СРАВНЕНИЯ С ADDORDERMODAL
-    console.log("=== BOOKINGMODAL: АНАЛИЗ ВРЕМЕНИ ===");
-    console.log("startTime тип:", typeof startTime);
-    console.log("startTime значение:", startTime);
-    if (startTime && typeof startTime.format === "function") {
-      console.log("startTime.format('HH:mm'):", startTime.format("HH:mm"));
-      console.log(
-        "startTime.format('YYYY-MM-DD HH:mm'):",
-        startTime.format("YYYY-MM-DD HH:mm")
-      );
-      console.log("startTime.toISOString():", startTime.toISOString());
-      console.log("startTime.$d:", startTime.$d);
-      console.log("startTime.$u (UTC флаг):", startTime.$u);
-    }
-    console.log("endTime тип:", typeof endTime);
-    if (endTime && typeof endTime.format === "function") {
-      console.log("endTime.format('HH:mm'):", endTime.format("HH:mm"));
-      console.log(
-        "endTime.format('YYYY-MM-DD HH:mm'):",
-        endTime.format("YYYY-MM-DD HH:mm")
-      );
-      console.log("endTime.toISOString():", endTime.toISOString());
-      console.log("endTime.$d:", endTime.$d);
-      console.log("endTime.$u (UTC флаг):", endTime.$u);
-    }
-    console.log("=== КОНЕЦ АНАЛИЗА BOOKINGMODAL ===");
 
     try {
       const orderData = {
@@ -161,16 +125,23 @@ const BookingModal = ({
         customerName: name,
         phone,
         email,
-        timeIn: dayjs(startTime),
-        timeOut: dayjs(endTime),
+        // Время заказа: 24-часовой формат, без AM/PM, как в EditOrderModal
+        timeIn: dayjs.utc(
+          dayjs(presetDates?.startDate).format("YYYY-MM-DD") +
+            " " +
+            startTime.format("HH:mm")
+        ),
+        timeOut: dayjs.utc(
+          dayjs(presetDates?.endDate).format("YYYY-MM-DD") +
+            " " +
+            endTime.format("HH:mm")
+        ),
         rentalStartDate: dayjs.utc(presetDates?.startDate).toDate(),
         rentalEndDate: dayjs.utc(presetDates?.endDate).toDate(),
         my_order: true,
       };
 
       const response = await addOrderNew(orderData);
-
-      console.log("response ORDER", response);
 
       const prepareEmailData = (orderData, status) => {
         const formattedStartDate = dayjs
@@ -179,18 +150,14 @@ const BookingModal = ({
         const formattedEndDate = dayjs
           .utc(orderData.rentalEndDate)
           .format("DD.MM.YYYY");
-
         let title =
           status === "success"
             ? `Новое бронирование ${orderData.carNumber} ${orderData.carModel}`
             : `Бронирование с неподтвержденными датами ${orderData.carNumber} ${orderData.carModel}`;
-
         let statusMessage =
           status === "success"
-            ? "Создано бронирование в сводобные даты."
+            ? "Создано бронирование в свободные даты."
             : "Бронирование в ожидании подтверждения.";
-
-        console.log("company", company);
         return {
           emailCompany: company.email,
           email: orderData.email,
@@ -206,72 +173,55 @@ const BookingModal = ({
             company.email,
             company.useEmail
           );
-          if (emailResponse.status === 200) {
-            setSuccessfullySent(true);
-          } else {
-            setSuccessfullySent(false);
-          }
+          setSuccessfullySent(emailResponse.status === 200);
         } catch (emailError) {
-          console.error("Error sending email:", emailError);
           setSuccessfullySent(false);
         }
       };
 
-      // Handle different response statuses
       switch (response.status) {
         case "success":
           setSubmittedOrder(response.data);
-          console.log("Order added successfully:", response.data);
           setIsSubmitted(true);
           fetchAndUpdateOrders();
           await sendConfirmationEmail(
             prepareEmailData(response.data, "success")
           );
           break;
-
         case "pending":
-          console.warn("Order is pending:", response.message);
           setSubmittedOrder(response.data);
           setMessage(response.message);
-          // setErrors({ submit: response.message });
           setIsSubmitted(true);
           fetchAndUpdateOrders();
           await sendConfirmationEmail(
             prepareEmailData(response.data, "pending")
           );
           break;
-
         case "conflict":
-          console.warn("Conflict with booking:", response.message);
           setErrors({ submit: response.message });
           break;
-
         case "error":
           throw new Error(response.message);
-
         default:
           throw new Error(`Unexpected response status: ${response.status}`);
       }
     } catch (error) {
-      console.error("Error adding order:", error.message);
       setErrors({
         submit:
           error.message || "An error occurred while processing your request.",
       });
     } finally {
-      // Сбрасываем состояние отправки в любом случае (успех или ошибка)
       setIsSubmitting(false);
     }
   };
 
   const resetForm = () => {
-    // Reset all form states
     setName("");
     setEmail("");
     setPhone("");
     setErrors({});
     setIsSubmitted(false);
-    setIsSubmitting(false); // Сбрасываем состояние отправки
+    setIsSubmitting(false);
     setSubmittedOrder(null);
     setSuccessfullySent(false);
     setMessage(null);
@@ -282,22 +232,16 @@ const BookingModal = ({
     onClose();
   };
 
-  const handleDateChange = (dates) => {
-    setDateRange(dates);
-  };
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      {/*  */}
       {isLoading ? (
         <Box sx={{ display: "flex", alignContent: "center", p: 10 }}>
-          {" "}
           <CircularProgress />
           <CircularProgress sx={{ color: "primary.green" }} />
           <CircularProgress sx={{ color: "primary.red" }} />
         </Box>
       ) : (
-        <>
+        <React.Fragment>
           <DialogTitle textAlign="center" mt="3">
             {t("order.book", { model: car.model })}
           </DialogTitle>
@@ -329,20 +273,33 @@ const BookingModal = ({
                   </Box>
                   .
                 </Typography>
-
                 <Box
                   component="form"
                   sx={{ "& .MuiTextField-root": { my: 1 } }}
                 >
-                  <TimePicker
-                    startTime={startTime}
-                    endTime={endTime}
-                    setStartTime={setStartTime}
-                    setEndTime={setEndTime}
-                    isRestrictionTimeIn={selectedTimes.start}
-                    isRestrictionTimeOut={selectedTimes.end}
-                  />
-
+                  {/* Время в одной строке, 24-часовой формат */}
+                  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                    <TextField
+                      label={t("order.pickupTime")}
+                      type="time"
+                      value={startTime.format("HH:mm")}
+                      onChange={(e) =>
+                        setStartTime(dayjs(e.target.value, "HH:mm"))
+                      }
+                      sx={{ flex: 1 }}
+                      size="small"
+                    />
+                    <TextField
+                      label={t("order.returnTime")}
+                      type="time"
+                      value={endTime.format("HH:mm")}
+                      onChange={(e) =>
+                        setEndTime(dayjs(e.target.value, "HH:mm"))
+                      }
+                      sx={{ flex: 1 }}
+                      size="small"
+                    />
+                  </Box>
                   <TextField
                     label={t("order.name")}
                     variant="outlined"
@@ -380,38 +337,86 @@ const BookingModal = ({
                     {errors.submit}
                   </Typography>
                 )}
+                {/* Кнопки внутри DialogContent, BOOK по центру и мигает */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 2,
+                    mt: 3,
+                    pt: 2,
+                    borderTop: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Button onClick={handleModalClose} variant="outlined">
+                    {isSubmitted ? "OK" : t("basic.cancel")}
+                  </Button>
+                  {!isSubmitted && (
+                    <Button
+                      ref={bookButtonRef}
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSubmit}
+                      disabled={
+                        isSubmitting ||
+                        !name ||
+                        !email ||
+                        !phone ||
+                        !presetDates?.startDate ||
+                        !presetDates?.endDate
+                      }
+                      startIcon={
+                        isSubmitting ? <CircularProgress size={20} /> : null
+                      }
+                      sx={{
+                        backgroundColor: "#00e676",
+                        color: "white",
+                        fontWeight: "bold",
+                        fontSize: "1.1rem",
+                        padding: "12px 32px",
+                        minWidth: "200px",
+                        margin: "0 auto",
+                        animation: "bookButtonPulse 1.5s ease-in-out infinite",
+                        display: "block",
+                        "&:hover": {
+                          backgroundColor: "#00c853",
+                          animation: "none",
+                        },
+                        "&:disabled": {
+                          backgroundColor: "#grey.400",
+                          animation: "none",
+                        },
+                        "@keyframes bookButtonPulse": {
+                          "0%": {
+                            backgroundColor: "#00e676",
+                            boxShadow: "0 0 10px rgba(0, 230, 118, 0.7)",
+                            transform: "scale(1)",
+                          },
+                          "50%": {
+                            backgroundColor: "#4cff4c",
+                            boxShadow: "0 0 20px rgba(76, 255, 76, 0.9)",
+                            transform: "scale(1.05)",
+                          },
+                          "100%": {
+                            backgroundColor: "#00e676",
+                            boxShadow: "0 0 10px rgba(0, 230, 118, 0.7)",
+                            transform: "scale(1)",
+                          },
+                        },
+                      }}
+                    >
+                      {isSubmitting
+                        ? t("order.processing") || "Processing..."
+                        : t("order.confirmBooking")}
+                    </Button>
+                  )}
+                </Box>
               </Box>
             )}
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleModalClose}>
-              {isSubmitted ? "OK" : t("basic.cancel")}
-            </Button>
-
-            {!isSubmitted && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                disabled={
-                  isSubmitting || // Отключаем кнопку во время отправки
-                  !name ||
-                  !email ||
-                  !phone ||
-                  !presetDates?.startDate ||
-                  !presetDates?.endDate
-                }
-                startIcon={isSubmitting ? <CircularProgress size={20} /> : null} // Показываем индикатор загрузки
-              >
-                {isSubmitting
-                  ? t("order.processing") || "Processing..."
-                  : t("order.confirmBooking")}
-              </Button>
-            )}
-          </DialogActions>
-        </>
+        </React.Fragment>
       )}
-      {/* </Slide> */}
     </Dialog>
   );
 };
