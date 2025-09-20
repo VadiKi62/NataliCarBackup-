@@ -60,6 +60,25 @@ const CalendarPicker = ({
   // Add refs for the calendar container and tracking clicks
   const lastClickTimeRef = useRef(0);
   const clickCountRef = useRef(0);
+  const bookButtonRef = useRef(null);
+
+  // --- useEffect для вертикального скроллинга всей страницы CarGrid ---
+  useEffect(() => {
+    if (showBookButton && bookButtonRef.current) {
+      const button = bookButtonRef.current;
+      const buttonRect = button.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const scrollY =
+        window.scrollY +
+        buttonRect.top +
+        buttonRect.height / 2 -
+        viewportHeight / 2;
+      window.scrollTo({
+        top: scrollY,
+        behavior: "smooth",
+      });
+    }
+  }, [showBookButton]);
 
   // Modified onSelect to handle double clicks
   // const onSelect = (date) => {
@@ -686,18 +705,50 @@ const CalendarPicker = ({
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "center", // Центрирование кнопки
-                mb: 2, // Отступ снизу перед календарем
-                mt: 1, // Небольшой отступ сверху после заголовка
+                justifyContent: "center",
+                mb: 2,
+                mt: 1,
               }}
             >
               <DefaultButton
+                ref={bookButtonRef}
                 onClick={handleBooking}
                 blinking={true}
                 label={`Book ${selectedRange[0]?.format(
                   "MMM D"
                 )} - ${selectedRange[1]?.format("MMM D")} `}
                 relative={true}
+                sx={{
+                  backgroundColor: "#00ff00", // Ярко-зелёный цвет
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  minWidth: "200px",
+                  boxShadow: "0 0 20px #00ff00",
+                  animation: "bookButtonPulse 1.2s infinite",
+                  display: "block",
+                  "&:hover": {
+                    backgroundColor: "#00c853",
+                    animation: "none",
+                  },
+                  "@keyframes bookButtonPulse": {
+                    "0%": {
+                      backgroundColor: "#00ff00",
+                      boxShadow: "0 0 20px #00ff00",
+                      transform: "scale(1)",
+                    },
+                    "50%": {
+                      backgroundColor: "#4cff4c",
+                      boxShadow: "0 0 40px #4cff4c",
+                      transform: "scale(1.08)",
+                    },
+                    "100%": {
+                      backgroundColor: "#00ff00",
+                      boxShadow: "0 0 20px #00ff00",
+                      transform: "scale(1)",
+                    },
+                  },
+                }}
               />
             </Box>
           )}

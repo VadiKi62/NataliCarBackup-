@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import {
@@ -154,8 +154,31 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
     setCurrentCalendarDate(newDate);
   };
 
+  // Добавляем ref для контейнера CarItemComponent
+  const carItemRef = useRef(null);
+
+  // Скроллим CarItemComponent чуть выше центра экрана, когда появляется кнопка BOOK
+  useEffect(() => {
+    if (carItemRef.current && bookDates?.start && bookDates?.end) {
+      const rect = carItemRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      // Смещение вверх на 160px (можно изменить по желанию)
+      const offset = -160;
+      const scrollY =
+        window.scrollY +
+        rect.top +
+        rect.height / 2 -
+        viewportHeight / 2 +
+        offset;
+      window.scrollTo({
+        top: scrollY,
+        behavior: "smooth",
+      });
+    }
+  }, [bookDates?.start, bookDates?.end]);
+
   return (
-    <StyledCarItem elevation={3}>
+    <StyledCarItem elevation={3} ref={carItemRef}>
       <Wrapper>
         <CarImage style={{ position: "relative", cursor: "pointer" }}>
           {imageLoading ? (
