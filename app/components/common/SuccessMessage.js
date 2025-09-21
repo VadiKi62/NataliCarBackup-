@@ -63,6 +63,26 @@ const SuccessMessage = ({
           {t("bookMesssages.bookFinalize")}
         </Typography>
       )}
+      {/* Добавлена кнопка OK для выхода из сообщения */}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Button
+          variant="contained"
+          color="error" // красный цвет по стилю MUI
+          onClick={onClose}
+          sx={{
+            minWidth: "120px",
+            fontWeight: "bold",
+            fontSize: "1.1rem",
+            backgroundColor: "primary.red", // красный цвет из темы
+            color: "white",
+            "&:hover": {
+              backgroundColor: "#d32f2f",
+            },
+          }}
+        >
+          OK
+        </Button>
+      </Box>
     </Box>
   );
 };

@@ -356,7 +356,7 @@ const BookingModal = ({
                     <Button
                       ref={bookButtonRef}
                       variant="contained"
-                      color="primary"
+                      color="error" // красный цвет по стилю MUI
                       onClick={handleSubmit}
                       disabled={
                         isSubmitting ||
@@ -370,7 +370,7 @@ const BookingModal = ({
                         isSubmitting ? <CircularProgress size={20} /> : null
                       }
                       sx={{
-                        backgroundColor: "#00e676",
+                        backgroundColor: "primary.red", // красный цвет из темы
                         color: "white",
                         fontWeight: "bold",
                         fontSize: "1.1rem",
@@ -380,7 +380,7 @@ const BookingModal = ({
                         animation: "bookButtonPulse 1.5s ease-in-out infinite",
                         display: "block",
                         "&:hover": {
-                          backgroundColor: "#00c853",
+                          backgroundColor: "#d32f2f", // стандартный hover для error
                           animation: "none",
                         },
                         "&:disabled": {
@@ -389,18 +389,18 @@ const BookingModal = ({
                         },
                         "@keyframes bookButtonPulse": {
                           "0%": {
-                            backgroundColor: "#00e676",
-                            boxShadow: "0 0 10px rgba(0, 230, 118, 0.7)",
+                            backgroundColor: "primary.red",
+                            boxShadow: "0 0 10px rgba(211, 47, 47, 0.7)",
                             transform: "scale(1)",
                           },
                           "50%": {
-                            backgroundColor: "#4cff4c",
-                            boxShadow: "0 0 20px rgba(76, 255, 76, 0.9)",
+                            backgroundColor: "#ff5252",
+                            boxShadow: "0 0 20px rgba(255, 82, 82, 0.9)",
                             transform: "scale(1.05)",
                           },
                           "100%": {
-                            backgroundColor: "#00e676",
-                            boxShadow: "0 0 10px rgba(0, 230, 118, 0.7)",
+                            backgroundColor: "primary.red",
+                            boxShadow: "0 0 10px rgba(211, 47, 47, 0.7)",
                             transform: "scale(1)",
                           },
                         },
