@@ -69,7 +69,7 @@ const OrderSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: false, // исправлено на false, чтобы email был необязательным
   },
   numberOfDays: {
     type: Number,

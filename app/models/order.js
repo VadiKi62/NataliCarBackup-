@@ -107,12 +107,6 @@ const BookingModal = ({
     presetDates?.endDate,
   ]);
 
-  useEffect(() => {
-    if (open) {
-      resetForm(); // Сбросить форму при каждом открытии модального окна
-    }
-  }, [open]);
-
   const handleSubmit = async () => {
     if (isSubmitting) return;
 
@@ -474,3 +468,14 @@ export default BookingModal;
 // console.log("API: email =", typeof email, email);
 
 // На фронте ничего менять не нужно — email: "" это корректно для необязательного поля.
+
+// В Mongoose-схеме Order найдите определение поля email и измените required: true на required: false:
+
+const OrderSchema = new mongoose.Schema({
+  // ...existing code...
+  email: {
+    type: String,
+    required: false, // ← email теперь необязателен
+  },
+  // ...existing code...
+});

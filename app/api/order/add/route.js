@@ -38,6 +38,27 @@ export async function POST(request) {
       my_order = false,
     } = await request.json();
 
+    // Логгирование входящих данных
+    console.log("API: Получен запрос на создание заказа:");
+    console.log({
+      carNumber,
+      customerName,
+      phone,
+      email,
+      rentalStartDate,
+      rentalEndDate,
+      timeIn,
+      timeOut,
+      placeIn,
+      placeOut,
+      confirmed,
+      my_order,
+    });
+    console.log("API: typeof email =", typeof email, "значение:", email);
+
+    // Явно присваиваем email пустую строку, если он не передан или undefined/null
+    const safeEmail = typeof email === "string" ? email : "";
+
     console.log("timeIn IS ", timeIn);
     console.log("timeOut is ", timeOut);
 
@@ -133,7 +154,7 @@ export async function POST(request) {
       carNumber: carNumber,
       customerName,
       phone,
-      email,
+      email: typeof email === "string" ? email : "",
       rentalStartDate: startDate.toDate(),
       rentalEndDate: endDate.toDate(),
       car: existingCar._id,
@@ -148,6 +169,9 @@ export async function POST(request) {
       confirmed: confirmed,
       my_order: my_order,
     });
+
+    // Добавьте дополнительное логгирование для email перед созданием заказа:
+    console.log("API: email перед созданием заказа:", typeof email, email);
 
     if (nonConfirmedDates.length > 0) {
       newOrder.hasConflictDates = [
@@ -179,15 +203,26 @@ export async function POST(request) {
     // Save the updated car document
     await existingCar.save();
 
+    // После сохранения заказа, логгируйте результат:
+    console.log("API: Заказ успешно создан:", newOrder);
+
     return new Response(JSON.stringify(newOrder), {
       status: 201,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error adding new order:", error);
-    return new Response(`Failed to add new order: ${error.message}`, {
-      status: 500,
-    });
+    // Логгирование ошибки с деталями запроса
+    console.error("API: Ошибка при обработке заказа:", error);
+    return new Response(
+      JSON.stringify({
+        error: `Failed to add new order: ${error.message}`,
+        details: error.stack,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
 
