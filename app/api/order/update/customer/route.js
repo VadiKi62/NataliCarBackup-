@@ -10,7 +10,7 @@ export const PUT = async (req) => {
     // Filter the update to only include allowed fields
     const updateFields = {};
     if (phone) updateFields.phone = phone;
-    if (email) updateFields.email = email;
+    updateFields.email = email; // Обновляем email даже если он пустой
     if (customerName) updateFields.customerName = customerName;
 
     // Update the order with only the allowed fields

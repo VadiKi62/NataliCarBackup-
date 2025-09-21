@@ -302,13 +302,23 @@ const EditOrderModal = ({
   const handleCustomerUpdate = async () => {
     setIsUpdating(true);
     try {
+      // Логгируем email перед отправкой
+      console.log("EditOrderModal: email для сохранения:", editedOrder.email);
+
+      // Явно передаем пустую строку, если email пустой или null
       const updates = {
         customerName: editedOrder.customerName,
         phone: editedOrder.phone,
-        email: editedOrder.email,
+        email: editedOrder.email ? editedOrder.email : "",
       };
 
+      console.log("EditOrderModal: updates для updateCustomerInfo:", updates);
+
       const response = await updateCustomerInfo(editedOrder._id, updates);
+
+      // Логгируем ответ сервера
+      console.log("EditOrderModal: response от updateCustomerInfo:", response);
+
       showMessage(response.message);
       onSave(response.updatedOrder);
     } catch (error) {
@@ -551,22 +561,27 @@ const EditOrderModal = ({
                   size="small"
                 />
               </Box>
-              <RenderSelectField
-                name="placeIn"
-                label={t("order.pickupLocation")}
-                options={locations}
-                updatedCar={editedOrder}
-                handleChange={handleChangeSelectedBox}
-                required
-              />
-              <RenderSelectField
-                name="placeOut"
-                label={t("order.returnLocation")}
-                updatedCar={editedOrder}
-                options={locations}
-                handleChange={handleChangeSelectedBox}
-                required
-              />
+              {/* Место получения и возврата в одной строке */}
+              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <RenderSelectField
+                  name="placeIn"
+                  label={t("order.pickupLocation")}
+                  options={locations}
+                  updatedCar={editedOrder}
+                  handleChange={handleChangeSelectedBox}
+                  required
+                  sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
+                />
+                <RenderSelectField
+                  name="placeOut"
+                  label={t("order.returnLocation")}
+                  updatedCar={editedOrder}
+                  options={locations}
+                  handleChange={handleChangeSelectedBox}
+                  required
+                  sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
+                />
+              </Box>
               <Button
                 variant="contained"
                 onClick={handleDateUpdate}
