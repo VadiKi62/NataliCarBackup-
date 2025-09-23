@@ -215,6 +215,208 @@ export default function CarTableRow({
     (date) => {
       const dateStr = date.format("YYYY-MM-DD");
 
+      if (isPartOfSelectedOrder(dateStr) && selectedOrderId) {
+        const selectedOrder = carOrders.find((o) => o._id === selectedOrderId);
+        if (selectedOrder) {
+          const selectedOrderStart = dayjs(
+            selectedOrder.rentalStartDate
+          ).format("YYYY-MM-DD");
+          const selectedOrderEnd = dayjs(selectedOrder.rentalEndDate).format(
+            "YYYY-MM-DD"
+          );
+
+          // Первый день выделенного заказа: левая половина - цвет предыдущего заказа, правая - синяя
+          if (selectedOrderStart === dateStr) {
+            const prevOrder = carOrders.find(
+              (order) =>
+                dayjs(order.rentalEndDate).format("YYYY-MM-DD") === dateStr &&
+                order.confirmed === true &&
+                order._id !== selectedOrder._id
+            );
+            if (prevOrder) {
+              const prevColor =
+                prevOrder.my_order === true ? "#4CAF50" : "primary.red";
+              console.log(
+                `[BigCalendar][${dateStr}] EDGE-CASE: Первый день выделенного заказа. Левая половина ${
+                  prevOrder.my_order ? "зелёная" : "красная"
+                }, правая синяя.`
+              );
+              return (
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "50%",
+                      height: "100%",
+                      backgroundColor: prevColor,
+                      borderRadius: "0 50% 50% 0",
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: "50%",
+                      height: "100%",
+                      backgroundColor: "#1976d2", // Синий
+                      borderRadius: "50% 0 0 50%",
+                    }}
+                  />
+                </Box>
+              );
+            }
+          }
+
+          // Последний день выделенного заказа: левая половина - синяя, правая - цвет следующего заказа
+          if (selectedOrderEnd === dateStr) {
+            const nextOrder = carOrders.find(
+              (order) =>
+                dayjs(order.rentalStartDate).format("YYYY-MM-DD") === dateStr &&
+                order.confirmed === true &&
+                order._id !== selectedOrder._id
+            );
+            if (nextOrder) {
+              const nextColor =
+                nextOrder.my_order === true ? "#4CAF50" : "primary.red";
+              console.log(
+                `[BigCalendar][${dateStr}] EDGE-CASE: Последний день выделенного заказа. Левая половина синяя, правая ${
+                  nextOrder.my_order ? "зелёная" : "красная"
+                }.`
+              );
+              return (
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "50%",
+                      height: "100%",
+                      backgroundColor: "#1976d2", // Синий
+                      borderRadius: "0 50% 50% 0",
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: "50%",
+                      height: "100%",
+                      backgroundColor: nextColor,
+                      borderRadius: "50% 0 0 50%",
+                    }}
+                  />
+                </Box>
+              );
+            }
+          }
+        }
+      }
+
+      const firstRedOrder = carOrders.find(
+        (order) =>
+          dayjs(order.rentalStartDate).format("YYYY-MM-DD") === dateStr &&
+          order.confirmed === true &&
+          order.my_order === false
+      );
+      const prevGreenOrder = carOrders.find(
+        (order) =>
+          dayjs(order.rentalEndDate).format("YYYY-MM-DD") === dateStr &&
+          order.confirmed === true &&
+          order.my_order === true
+      );
+
+      const lastRedOrder = carOrders.find(
+        (order) =>
+          dayjs(order.rentalEndDate).format("YYYY-MM-DD") === dateStr &&
+          order.confirmed === true &&
+          order.my_order === false
+      );
+      const nextGreenOrder = carOrders.find(
+        (order) =>
+          dayjs(order.rentalStartDate).format("YYYY-MM-DD") === dateStr &&
+          order.confirmed === true &&
+          order.my_order === true
+      );
+
+      // Первый день красного заказа после зеленого
+      if (firstRedOrder && prevGreenOrder) {
+        console.log(
+          `[BigCalendar][${dateStr}] EDGE-CASE: Первый день красного заказа после зеленого. Правая половина красная, левая зеленая.`
+        );
+        return (
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "#4CAF50", // Левая половина зелёная
+                borderRadius: "0 50% 50% 0", // закругление справа
+              }}
+            />
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "primary.red", // Правая половина красная
+                borderRadius: "50% 0 0 50%", // закругление слева
+              }}
+            />
+          </Box>
+        );
+      }
+
+      // Последний день красного заказа перед зеленым
+      if (lastRedOrder && nextGreenOrder) {
+        console.log(
+          `[BigCalendar][${dateStr}] EDGE-CASE: Последний день красного заказа перед зеленым. Левая половина красная, правая зеленая.`
+        );
+        return (
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "primary.red", // Левая половина красная
+                borderRadius: "0 50% 50% 0", // закругление справа
+              }}
+            />
+            <Box
+              sx={{
+                width: "50%",
+                height: "100%",
+                backgroundColor: "#4CAF50", // Правая половина зелёная
+                borderRadius: "50% 0 0 50%", // закругление слева
+              }}
+            />
+          </Box>
+        );
+      }
+
       // Функция для создания желтого overlay для первого/последнего дня перемещения
       const createYellowOverlay = (isFirstDay, isLastDay) => {
         if (!shouldShowYellowOverlay) return null;
