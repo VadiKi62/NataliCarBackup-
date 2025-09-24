@@ -236,11 +236,11 @@ export default function CarTableRow({
             if (prevOrder) {
               const prevColor =
                 prevOrder.my_order === true ? "#4CAF50" : "primary.red";
-              console.log(
-                `[BigCalendar][${dateStr}] EDGE-CASE: Первый день выделенного заказа. Левая половина ${
-                  prevOrder.my_order ? "зелёная" : "красная"
-                }, правая синяя.`
-              );
+              // console.log(
+              //   `[BigCalendar][${dateStr}] EDGE-CASE: Первый день выделенного заказа. Левая половина ${
+              //     prevOrder.my_order ? "зелёная" : "красная"
+              //   }, правая синяя.`
+              // );
               return (
                 <Box
                   sx={{
@@ -283,11 +283,11 @@ export default function CarTableRow({
             if (nextOrder) {
               const nextColor =
                 nextOrder.my_order === true ? "#4CAF50" : "primary.red";
-              console.log(
-                `[BigCalendar][${dateStr}] EDGE-CASE: Последний день выделенного заказа. Левая половина синяя, правая ${
-                  nextOrder.my_order ? "зелёная" : "красная"
-                }.`
-              );
+              // console.log(
+              //   `[BigCalendar][${dateStr}] EDGE-CASE: Последний день выделенного заказа. Левая половина синяя, правая ${
+              //     nextOrder.my_order ? "зелёная" : "красная"
+              //   }.`
+              // );
               return (
                 <Box
                   sx={{
@@ -349,9 +349,9 @@ export default function CarTableRow({
 
       // Первый день красного заказа после зеленого
       if (firstRedOrder && prevGreenOrder) {
-        console.log(
-          `[BigCalendar][${dateStr}] EDGE-CASE: Первый день красного заказа после зеленого. Правая половина красная, левая зеленая.`
-        );
+        // console.log(
+        //   `[BigCalendar][${dateStr}] EDGE-CASE: Первый день красного заказа после зеленого. Правая половина красная, левая зеленая.`
+        // );
         return (
           <Box
             sx={{
@@ -384,9 +384,9 @@ export default function CarTableRow({
 
       // Последний день красного заказа перед зеленым
       if (lastRedOrder && nextGreenOrder) {
-        console.log(
-          `[BigCalendar][${dateStr}] EDGE-CASE: Последний день красного заказа перед зеленым. Левая половина красная, правая зеленая.`
-        );
+        // console.log(
+        //   `[BigCalendar][${dateStr}] EDGE-CASE: Последний день красного заказа перед зеленым. Левая половина красная, правая зеленая.`
+        // );
         return (
           <Box
             sx={{
@@ -419,10 +419,11 @@ export default function CarTableRow({
 
       // Функция для создания желтого overlay для первого/последнего дня перемещения
       const createYellowOverlay = (isFirstDay, isLastDay) => {
-        if (!shouldShowYellowOverlay) return null;
+        // Показываем overlay только для совместимых авто и режима перемещения
+        if (!moveMode || !isCarCompatibleForMove) return null;
 
         if (isFirstDay && isLastDay) {
-          // Если это единственный день заказа
+          // Единственный день диапазона
           return (
             <Box
               sx={{
@@ -431,9 +432,9 @@ export default function CarTableRow({
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
+                backgroundColor: "rgba(255, 235, 59, 0.8)",
                 pointerEvents: "none",
-                zIndex: 1,
+                zIndex: 2,
               }}
             />
           );
@@ -447,9 +448,9 @@ export default function CarTableRow({
                 right: 0,
                 width: "50%",
                 height: "100%",
-                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
+                backgroundColor: "rgba(255, 235, 59, 0.8)",
                 pointerEvents: "none",
-                zIndex: 1,
+                zIndex: 2,
                 borderRadius: "50% 0 0 50%",
               }}
             />
@@ -464,9 +465,9 @@ export default function CarTableRow({
                 left: 0,
                 width: "50%",
                 height: "100%",
-                backgroundColor: "rgba(255, 235, 59, 0.8)", // Более яркий желтый
+                backgroundColor: "rgba(255, 235, 59, 0.8)",
                 pointerEvents: "none",
-                zIndex: 1,
+                zIndex: 2,
                 borderRadius: "0 50% 50% 0",
               }}
             />
@@ -1391,6 +1392,82 @@ export default function CarTableRow({
                 color: shouldHighlightRight ? "white" : undefined,
               }}
             ></Box>
+          </Box>
+        );
+      }
+
+      // Показываем желтый overlay для первого/последнего дня перемещения даже если ячейка занята
+      if (
+        moveMode &&
+        selectedOrderDates &&
+        isCarCompatibleForMove &&
+        (selectedOrderDates[0] === dateStr ||
+          selectedOrderDates[selectedOrderDates.length - 1] === dateStr)
+      ) {
+        const isFirstMoveDay = selectedOrderDates[0] === dateStr;
+        const isLastMoveDay =
+          selectedOrderDates[selectedOrderDates.length - 1] === dateStr;
+
+        // Логгирование для контроля
+        console.log(
+          `[BigCalendar][MOVE] Желтый overlay: ${
+            isFirstMoveDay ? "первый день" : "последний день"
+          } для авто ${car.model} (${car.regNumber}), дата: ${dateStr}`
+        );
+
+        return (
+          <Box
+            onClick={handleEmptyCellClick}
+            onMouseDown={() => handleLongPressStart(dateStr)}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            onContextMenu={(e) => e.preventDefault()}
+            title="Нажмите для перемещения заказа"
+            sx={{
+              border: border,
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              flexDirection: "row",
+              cursor: "pointer",
+              overflow: "hidden",
+            }}
+          >
+            {isLastMoveDay && (
+              <Box
+                sx={{
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: "#ffeb3b",
+                  borderRadius: "0 50% 50% 0",
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  zIndex: 2,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+            {isFirstMoveDay && (
+              <Box
+                sx={{
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: "#ffeb3b",
+                  borderRadius: "50% 0 0 50%",
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  zIndex: 2,
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+            {/* Содержимое ячейки под overlay */}
+            <Box sx={{ width: "100%", height: "100%" }}>
+              {/* Можно оставить стандартную логику отображения заказа, если нужно */}
+            </Box>
           </Box>
         );
       }
