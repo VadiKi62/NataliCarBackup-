@@ -584,13 +584,11 @@ export default function CarTableRow({
               return rentalStart === dateStr && o._id !== selectedOrderId;
             });
 
-            // Если это edge-case (первый день выбранного заказа + есть предыдущий заказ), не применяем императивную подсветку
-            if (selectedOrderStart === dateStr && previousOrder) {
-              shouldApplyImperativeBlue = false;
-            }
-
-            // Если это edge-case (последний день выбранного заказа + есть следующий заказ), не применяем императивную подсветку
-            if (selectedOrderEnd === dateStr && nextOrder) {
+            // Если это edge-case, не применяем императивную подсветку
+            if (
+              (selectedOrderStart === dateStr && previousOrder) ||
+              (selectedOrderEnd === dateStr && nextOrder)
+            ) {
               shouldApplyImperativeBlue = false;
             }
           }
@@ -659,13 +657,11 @@ export default function CarTableRow({
 
       // ИСПРАВЛЕННАЯ функция обработки клика по дате с заказом
       const handleDateClick = () => {
-        // Если это было длинное нажатие, не открываем модальное окно
         if (wasLongPress) {
-          setWasLongPress(false); // Сбрасываем флаг
+          setWasLongPress(false);
           return;
         }
 
-        // Если в режиме перемещения
         if (moveMode) {
           // Проверяем, кликнули ли мы по выбранному для перемещения заказу (синяя ячейка)
           if (selectedMoveOrder) {
@@ -705,6 +701,30 @@ export default function CarTableRow({
           return dayjs(dateStr).isBetween(rentalStart, rentalEnd, "day", "[]");
         });
 
+        // 1. Если одновременно последний и первый день заказа
+        if (isEndDate && isStartDate) {
+          setSelectedOrders(relevantOrders);
+          setOpen(true);
+          return;
+        }
+
+        // 2. Если последний день заказа и НЕ первый день нового заказа
+        if (isEndDate && !isStartDate) {
+          // Проверка на конфликтные заказы
+          if (relevantOrders.length > 1) {
+            // Конфликт: открываем окно редактирования заказов
+            setSelectedOrders(relevantOrders);
+            setOpen(true);
+            return;
+          }
+          // Нет конфликта: создаём новый заказ
+          if (onAddOrderClick) {
+            onAddOrderClick(car, dateStr);
+          }
+          return;
+        }
+
+        // 3. Обычная логика для остальных случаев
         if (relevantOrders.length > 0) {
           setSelectedOrders(relevantOrders);
           setOpen(true);
