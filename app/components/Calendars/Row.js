@@ -347,76 +347,6 @@ export default function CarTableRow({
           order.my_order === true
       );
 
-      // Первый день красного заказа после зеленого
-      if (firstRedOrder && prevGreenOrder) {
-        // console.log(
-        //   `[BigCalendar][${dateStr}] EDGE-CASE: Первый день красного заказа после зеленого. Правая половина красная, левая зеленая.`
-        // );
-        return (
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "#4CAF50", // Левая половина зелёная
-                borderRadius: "0 50% 50% 0", // закругление справа
-              }}
-            />
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "primary.red", // Правая половина красная
-                borderRadius: "50% 0 0 50%", // закругление слева
-              }}
-            />
-          </Box>
-        );
-      }
-
-      // Последний день красного заказа перед зеленым
-      if (lastRedOrder && nextGreenOrder) {
-        // console.log(
-        //   `[BigCalendar][${dateStr}] EDGE-CASE: Последний день красного заказа перед зеленым. Левая половина красная, правая зеленая.`
-        // );
-        return (
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "primary.red", // Левая половина красная
-                borderRadius: "0 50% 50% 0", // закругление справа
-              }}
-            />
-            <Box
-              sx={{
-                width: "50%",
-                height: "100%",
-                backgroundColor: "#4CAF50", // Правая половина зелёная
-                borderRadius: "50% 0 0 50%", // закругление слева
-              }}
-            />
-          </Box>
-        );
-      }
-
       // Функция для создания желтого overlay для первого/последнего дня перемещения
       const createYellowOverlay = (isFirstDay, isLastDay) => {
         // Показываем overlay только для совместимых авто и режима перемещения
@@ -1122,12 +1052,13 @@ export default function CarTableRow({
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.endConfirmed
                   ? (() => {
-                      const orders = returnOverlapOrders(carOrders, dateStr);
-                      const hasMyOrder = orders.some(
+                      // Ищем только заказ, который заканчивается в этот день
+                      const endingOrder = carOrders.find(
                         (order) =>
-                          order.my_order === true && order.confirmed === true
+                          dayjs(order.rentalEndDate).format("YYYY-MM-DD") ===
+                            dateStr && order.confirmed === true
                       );
-                      return hasMyOrder ? "#4CAF50" : "primary.main";
+                      return endingOrder?.my_order ? "#4CAF50" : "primary.red";
                     })()
                   : "primary.green",
                 borderRadius: "0 50% 50% 0",
@@ -1147,12 +1078,15 @@ export default function CarTableRow({
                   ? "#1976d2"
                   : isStartAndEndDateOverlapInfo.startConfirmed
                   ? (() => {
-                      const orders = returnOverlapOrders(carOrders, dateStr);
-                      const hasMyOrder = orders.some(
+                      // Ищем только заказ, который начинается в этот день
+                      const startingOrder = carOrders.find(
                         (order) =>
-                          order.my_order === true && order.confirmed === true
+                          dayjs(order.rentalStartDate).format("YYYY-MM-DD") ===
+                            dateStr && order.confirmed === true
                       );
-                      return hasMyOrder ? "#4CAF50" : "primary.main";
+                      return startingOrder?.my_order
+                        ? "#4CAF50"
+                        : "primary.red";
                     })()
                   : "primary.green",
                 borderRadius: "50% 0 0 50%",
