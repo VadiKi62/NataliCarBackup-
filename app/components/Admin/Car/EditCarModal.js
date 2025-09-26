@@ -142,34 +142,11 @@ const EditCarModal = ({
                 handleChange={handleChange}
                 isLoading={isLoading}
               />
-
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={updatedCar.airConditioning || false}
-                    onChange={handleCheckboxChange}
-                    name="airConditioning"
-                    disabled={isLoading}
-                  />
-                }
-                label={t("car.air")}
-                sx={{ my: 2 }}
-              />
-
               <RenderTextField
                 type="number"
                 name="PriceChildSeats"
                 label={t("car.childSeatsPrice") || "Цена детских кресел"}
                 defaultValue={updatedCar.PriceChildSeats}
-                updatedCar={updatedCar}
-                handleChange={handleChange}
-                isLoading={isLoading}
-              />
-              <RenderTextField
-                type="number"
-                name="franchise"
-                label={t("car.franchise") || "Франшиза"}
-                defaultValue={updatedCar.franchise}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}
@@ -201,6 +178,15 @@ const EditCarModal = ({
                 name="numberOfDoors"
                 label={t("car.doors")}
                 defaultValue={updatedCar.numberOfDoors}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              <RenderTextField
+                type="number"
+                name="franchise"
+                label={t("car.franchise") || "Франшиза"}
+                defaultValue={updatedCar.franchise}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}
@@ -257,22 +243,18 @@ const EditCarModal = ({
               isLoading={isLoading}
               adornment="bhp"
             />
-
-            {/* <TextField
-                name="photoUrl"
-                label="Photo URL"
-                value={photoUrl}
-                onChange={handleChange}
-                fullWidth
-                disabled={isLoading}
-              />
-              <input
-                accept="image/*"
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                disabled={isLoading}
-              /> */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={updatedCar.airConditioning || false}
+                  onChange={handleCheckboxChange}
+                  name="airConditioning"
+                  disabled={isLoading}
+                />
+              }
+              label={t("car.air")}
+              sx={{ my: 2 }}
+            />
           </Grid>
 
           <Grid item xs={12}>
