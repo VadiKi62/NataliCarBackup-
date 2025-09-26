@@ -68,9 +68,7 @@
     "deleteOrder": "Delete order",
     "sureDelOrder": "Are you sure you want to delete this order?",
     "changeDates": "Everything is great! Dates have been changed",
-    "discount": "Discount",
-    "childSeatsPrice": "Child seat price",
-    "franchise": "Franchise"
+    "discount": "Discount"
   },
   "car": {
     "viewDetails": "View more details",
@@ -88,7 +86,9 @@
     "color": "Color",
     "doors": "Number of Doors",
     "engine-pow": "Engine Power",
-    "engine": "Engine"
+    "engine": "Engine",
+    "childSeatsPrice": "Child seat price",
+    "franchise": "Franchise"
   },
   "bookMesssages": {
     "bookOK": "Booking Confirmed. Thank you for booking with us!",
