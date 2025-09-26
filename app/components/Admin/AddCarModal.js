@@ -69,6 +69,8 @@ const AddCarModal = ({
     engine: "1.500",
     pricingTiers: defaultPrices,
     photoUrl: "NO_PHOTO_h2klff",
+    PriceChildSeats: 3,
+    franchise: 300,
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -185,23 +187,6 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
-
-                    {/* <FormControl fullWidth required>
-                      <InputLabel>Class</InputLabel>
-                      <Select
-                        name="class"
-                        value={carData.class}
-                        onChange={handleChange}
-                        label="Class"
-                      >
-                        {Object.values(CAR_CLASSES).map((carClass) => (
-                          <MenuItem key={carClass} value={carClass}>
-                            {carClass.charAt(0).toUpperCase() +
-                              carClass.slice(1)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl> */}
                     <RenderTextField
                       type="number"
                       name="seats"
@@ -210,34 +195,13 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
-                    {/* <FormControl fullWidth required>
-                      <InputLabel>Transmission</InputLabel>
-                      <Select
-                        name="transmission"
-                        value={carData.transmission}
-                        onChange={handleChange}
-                        label="Transmission"
-                      >
-                        {Object.values(TRANSMISSION_TYPES).map(
-                          (transmission) => (
-                            <MenuItem key={transmission} value={transmission}>
-                              {transmission.charAt(0).toUpperCase() +
-                                transmission.slice(1)}
-                            </MenuItem>
-                          )
-                        )}
-                      </Select>
-                    </FormControl> */}
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={carData.airConditioning || false}
-                          onChange={handleChange}
-                          name="airConditioning"
-                        />
-                      }
-                      label={t("car.air")}
-                      sx={{ my: 2 }}
+                    <RenderTextField
+                      type="number"
+                      name="PriceChildSeats"
+                      label={t("car.childSeatsPrice")}
+                      defaultValue={carData.PriceChildSeats || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
                     />
                   </Stack>
                 </Grid>
@@ -270,19 +234,6 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
-                  </Stack>
-                </Grid>
-
-                <Grid item xs={12} sm={3}>
-                  <Stack spacing={3}>
-                    <RenderTextField
-                      type="number"
-                      name="PriceChildSeats"
-                      label={t("car.childSeatsPrice")}
-                      defaultValue={carData.PriceChildSeats || 0}
-                      updatedCar={carData}
-                      handleChange={handleChange}
-                    />
                     <RenderTextField
                       type="number"
                       name="franchise"
@@ -291,6 +242,11 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <Stack spacing={3}>
                     <RenderTextField
                       name="regNumber"
                       label={t("car.reg-numb")}
@@ -339,6 +295,17 @@ const AddCarModal = ({
                       handleImageChange={handleImageChange}
                       imagePreview={imagePreview}
                       required
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={carData.airConditioning || false}
+                          onChange={handleChange}
+                          name="airConditioning"
+                        />
+                      }
+                      label={t("car.air")}
+                      sx={{ my: 1 }}
                     />
                   </Stack>
                 </Grid>
