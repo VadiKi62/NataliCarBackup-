@@ -61,6 +61,20 @@ function Cars({ onCarDelete, setUpdateStatus }) {
   //   // await fetchAndUpdateCars();
   // };
 
+  useEffect(() => {
+    // Восстановить scroll при загрузке
+    const savedScroll = localStorage.getItem("carsScrollY");
+    if (savedScroll) {
+      window.scrollTo({ top: Number(savedScroll), behavior: "auto" });
+    }
+    // Сохранять scroll при любом изменении
+    const handleScroll = () => {
+      localStorage.setItem("carsScrollY", window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (isLoading) return <Loading />;
   if (error) return <Error />;
   return (

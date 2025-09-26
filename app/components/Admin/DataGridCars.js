@@ -33,6 +33,17 @@ function DataGridOrders({ session, cars, orders }) {
     }))
   );
 
+  const [selectionModel, setSelectionModel] = useState(() => {
+    const lastId = localStorage.getItem("lastCarId");
+    console.log("[DataGridCars] lastCarId from localStorage:", lastId);
+    return lastId ? [lastId] : [];
+  });
+
+  React.useEffect(() => {
+    console.log("[DataGridCars] carData:", carData);
+    console.log("[DataGridCars] selectionModel:", selectionModel);
+  }, [carData, selectionModel]);
+
   // Handle the edit process for car data
   const processCarRowUpdate = (newRow) => {
     const updatedCarData = carData.map((row) =>
@@ -129,6 +140,18 @@ function DataGridOrders({ session, cars, orders }) {
           pageSize={5}
           processRowUpdate={processCarRowUpdate}
           experimentalFeatures={{ newEditingApi: true }} // Required for editing functionality
+          selectionModel={selectionModel}
+          onSelectionModelChange={(newSelection) => {
+            setSelectionModel(newSelection);
+            console.log(
+              "[DataGridCars] onSelectionModelChange newSelection:",
+              newSelection
+            );
+            if (newSelection.length > 0) {
+              localStorage.setItem("lastCarId", newSelection[0]);
+              console.log("[DataGridCars] Saved lastCarId:", newSelection[0]);
+            }
+          }}
         />
       </Box>
     </Box>
