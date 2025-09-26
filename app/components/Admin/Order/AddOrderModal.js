@@ -405,13 +405,11 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           <input
             type="checkbox"
             checked={orderDetails.ChildSeats}
-            onChange={(e) =>
-              handleFieldChange("ChildSeats", e.target.checked)
-            }
+            onChange={(e) => handleFieldChange("ChildSeats", e.target.checked)}
             style={{ marginRight: 8 }}
           />
         }
-        label={<span style={{ color: '#222' }}>{t("order.childSeats")}</span>}
+        label={<span style={{ color: "#222" }}>{t("order.childSeats")}</span>}
         sx={{ mt: 1 }}
       />
       <TextField
