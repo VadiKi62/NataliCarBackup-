@@ -39,7 +39,14 @@ const OrderSchema = new mongoose.Schema({
     },
   },
   placeIn: {
-    type: String,
+      ChildSeats: {
+        type: Boolean,
+        default: false,
+      },
+      insurance: {
+        type: String,
+        default: "",
+      },
     default: "Nea Kallikratia",
   },
   placeOut: {

@@ -36,6 +36,8 @@ const BookingModal = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [childSeats, setChildSeats] = useState(false);
+  const [insurance, setInsurance] = useState("");
   const [errors, setErrors] = useState({});
   const [emailSent, setSuccessfullySent] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -161,6 +163,8 @@ const BookingModal = ({
           ? dayjs.utc(presetDates.endDate).toDate()
           : "",
         my_order: true,
+        ChildSeats: childSeats,
+        insurance: insurance,
       };
 
       // Логгирование JSON строки для отладки
@@ -338,6 +342,23 @@ const BookingModal = ({
                     required
                     error={!!errors.name}
                     helperText={errors.name}
+                  />
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                    <input
+                      type="checkbox"
+                      checked={childSeats}
+                      onChange={e => setChildSeats(e.target.checked)}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Typography>{t("order.childSeats")}</Typography>
+                  </Box>
+                  <TextField
+                    label={t("order.insurance")}
+                    variant="outlined"
+                    fullWidth
+                    value={insurance}
+                    onChange={e => setInsurance(e.target.value)}
+                    sx={{ mt: 1 }}
                   />
                   {/* Сначала телефон, потом email */}
                   <TextField

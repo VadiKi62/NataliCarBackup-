@@ -90,7 +90,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     totalPrice: 0,
     numberOfDays: 0,
     confirmed: false,
-    my_order: false, // Админские заказы помечаем как my_order = false
+    my_order: false,
+    ChildSeats: false,
+    insurance: "",
   });
 
   // --- ВАЖНО: автоматическое заполнение даты при открытии модального окна ---
@@ -234,7 +236,6 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       customerName: orderDetails.customerName,
       phone: orderDetails.phone,
       email: orderDetails.email,
-      // ИСПРАВЛЕНИЕ v2: передаю UTC объекты с сохранением локального времени
       timeIn: timeInWithDate,
       timeOut: timeOutWithDate,
       rentalStartDate: dayjs.utc(timeInWithDate).toDate(),
@@ -243,6 +244,8 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       placeOut: orderDetails.placeOut,
       confirmed: orderDetails.confirmed,
       my_order: orderDetails.my_order,
+      ChildSeats: orderDetails.ChildSeats,
+      insurance: orderDetails.insurance,
     };
 
     console.log("=== КОНЕЦ ИСПРАВЛЕНИЯ v2 ===");
@@ -396,6 +399,28 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         label={t("order.email")}
         value={orderDetails.email}
         onChange={(e) => handleFieldChange("email", e.target.value)}
+      />
+      <FormControlLabel
+        control={
+          <input
+            type="checkbox"
+            checked={orderDetails.ChildSeats}
+            onChange={(e) =>
+              handleFieldChange("ChildSeats", e.target.checked)
+            }
+            style={{ marginRight: 8 }}
+          />
+        }
+        label={<span style={{ color: '#222' }}>{t("order.childSeats")}</span>}
+        sx={{ mt: 1 }}
+      />
+      <TextField
+        fullWidth
+        margin="dense"
+        label={t("order.insurance")}
+        value={orderDetails.insurance}
+        onChange={(e) => handleFieldChange("insurance", e.target.value)}
+        sx={{ mt: 1 }}
       />
     </Box>
   );
