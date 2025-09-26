@@ -155,6 +155,25 @@ const EditCarModal = ({
                 label={t("car.air")}
                 sx={{ my: 2 }}
               />
+
+              <RenderTextField
+                type="number"
+                name="PriceChildSeats"
+                label={t("car.childSeatsPrice") || "Цена детских кресел"}
+                defaultValue={updatedCar.PriceChildSeats}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              <RenderTextField
+                type="number"
+                name="franchise"
+                label={t("car.franchise") || "Франшиза"}
+                defaultValue={updatedCar.franchise}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
             </Stack>
           </Grid>
 

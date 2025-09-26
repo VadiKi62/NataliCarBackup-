@@ -96,6 +96,14 @@ const CarSchema = new Schema({
     type: String,
     default: "1.500",
   },
+  PriceChildSeats: {
+    type: Number,
+    default: 3,
+  },
+  franchise: {
+    type: Number,
+    default: 300,
+  },
   pricingTiers: {
     type: Map,
     of: pricingTierSchema,

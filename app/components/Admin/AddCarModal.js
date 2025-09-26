@@ -276,6 +276,22 @@ const AddCarModal = ({
                 <Grid item xs={12} sm={3}>
                   <Stack spacing={3}>
                     <RenderTextField
+                      type="number"
+                      name="PriceChildSeats"
+                      label={t("car.childSeatsPrice")}
+                      defaultValue={carData.PriceChildSeats || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    <RenderTextField
+                      type="number"
+                      name="franchise"
+                      label={t("car.franchise")}
+                      defaultValue={carData.franchise || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    <RenderTextField
                       name="regNumber"
                       label={t("car.reg-numb")}
                       updatedCar={carData}

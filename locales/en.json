@@ -68,7 +68,9 @@
     "deleteOrder": "Delete order",
     "sureDelOrder": "Are you sure you want to delete this order?",
     "changeDates": "Everything is great! Dates have been changed",
-    "discount": "Discount"
+    "discount": "Discount",
+    "childSeatsPrice": "Child seat price",
+    "franchise": "Franchise"
   },
   "car": {
     "viewDetails": "View more details",
