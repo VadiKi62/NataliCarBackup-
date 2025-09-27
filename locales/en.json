@@ -27,8 +27,8 @@
     "orderDone": "Order successful! We will contact you shortly. 🎉"
   },
   "order": {
-  "childSeats": "Child seat",
-  "insurance": "Insurance",
+    "childSeats": "Child seat",
+    "insurance": "Insurance",
     "car": "Car",
     "chooseDates": "Choose your dates for booking",
     "notAvailableDate": "Not available",

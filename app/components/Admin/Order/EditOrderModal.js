@@ -11,6 +11,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -103,9 +105,10 @@ const EditOrderModal = ({
     }
   }, [
     editedOrder?.rentalStartDate,
-    startEndDates,
     editedOrder?.timeIn,
     editedOrder?.timeOut,
+    editedOrder?._id,
+    startEndDates,
   ]);
 
   useEffect(() => {
@@ -582,28 +585,48 @@ const EditOrderModal = ({
                   sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
                 />
               </Box>
-              <Button
-                variant="contained"
-                onClick={handleDateUpdate}
-                disabled={isUpdating}
-                sx={{ mt: 2 }}
-              >
-                {t("order.updateOrder")}
-              </Button>
-              {conflictMessage1 && (
-                <ConflictMessage
-                  initialConflicts={conflictMessage1}
-                  setUpdateMessage={setUpdateMessage}
-                  type={1}
+              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                <TextField
+                  label={t("order.insurance")}
+                  value={editedOrder.insurance || ""}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      insurance: e.target.value,
+                    }))
+                  }
+                  sx={{ width: "50%" }}
                 />
-              )}
-              {conflictMessage2 && (
-                <ConflictMessage
-                  initialConflicts={conflictMessage2}
-                  setUpdateMessage={setUpdateMessage}
-                  type={2}
-                />
-              )}
+                <Box
+                  sx={{
+                    width: "50%",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={!!editedOrder.ChildSeats}
+                        onChange={(e) =>
+                          setEditedOrder((prev) => ({
+                            ...prev,
+                            ChildSeats: e.target.checked,
+                          }))
+                        }
+                        sx={{ mr: 1 }}
+                      />
+                    }
+                    label={
+                      <span style={{ color: "#222" }}>
+                        {t("order.childSeats")}
+                      </span>
+                    }
+                    sx={{ mt: 1 }}
+                  />
+                </Box>
+              </Box>
             </Box>
 
             <Divider sx={{ my: 2 }} />
@@ -615,23 +638,46 @@ const EditOrderModal = ({
               {renderField(t("order.clientName"), "customerName")}
               {renderField(t("order.phone"), "phone")}
               {renderField(t("order.email"), "email")}
-              <Button
-                variant="contained"
-                onClick={handleCustomerUpdate}
-                disabled={isUpdating}
-                sx={{ mt: 2 }}
-              >
-                {t("order.updateClientInfo")}
-              </Button>
             </Box>
 
-            <Divider sx={{ my: 2 }} />
-
             <Box
-              sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}
+              sx={{
+                mt: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               <Button onClick={onCloseModalEdit} variant="outlined">
                 {t("basic.cancel")}
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={isUpdating}
+                sx={{ mx: 2, width: "40%" }}
+                onClick={async () => {
+                  setIsUpdating(true);
+                  try {
+                    // Сохраняем даты
+                    await handleDateUpdate();
+                    // Сохраняем клиента
+                    await handleCustomerUpdate();
+                    showMessage(t("order.orderUpdated"));
+                  } catch (error) {
+                    setUpdateMessage(
+                      error?.message || "Ошибка обновления заказа"
+                    );
+                  } finally {
+                    setIsUpdating(false);
+                  }
+                }}
+              >
+                {isUpdating ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  t("order.updateOrder")
+                )}
               </Button>
               <Button
                 variant="contained"

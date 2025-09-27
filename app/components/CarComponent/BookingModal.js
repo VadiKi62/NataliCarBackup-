@@ -347,7 +347,7 @@ const BookingModal = ({
                     <input
                       type="checkbox"
                       checked={childSeats}
-                      onChange={e => setChildSeats(e.target.checked)}
+                      onChange={(e) => setChildSeats(e.target.checked)}
                       style={{ marginRight: 8 }}
                     />
                     <Typography>{t("order.childSeats")}</Typography>
@@ -357,7 +357,7 @@ const BookingModal = ({
                     variant="outlined"
                     fullWidth
                     value={insurance}
-                    onChange={e => setInsurance(e.target.value)}
+                    onChange={(e) => setInsurance(e.target.value)}
                     sx={{ mt: 1 }}
                   />
                   {/* Сначала телефон, потом email */}
