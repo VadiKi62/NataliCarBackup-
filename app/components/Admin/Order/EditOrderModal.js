@@ -259,6 +259,10 @@ const EditOrderModal = ({
           .toDate(),
         car: editedOrder.car,
         carNumber: selectedCar ? selectedCar.carNumber : undefined,
+        placeIn: editedOrder.placeIn,
+        placeOut: editedOrder.placeOut,
+        ChildSeats: editedOrder.ChildSeats, // ДОБАВИТЬ!
+        insurance: editedOrder.insurance, // ДОБАВИТЬ!
       };
 
       const response = await changeRentalDates(
@@ -270,7 +274,9 @@ const EditOrderModal = ({
         editedOrder.placeIn,
         editedOrder.placeOut,
         datesToSend.car,
-        datesToSend.carNumber
+        datesToSend.carNumber,
+        datesToSend.ChildSeats,
+        datesToSend.insurance
       );
       showMessage(response.message);
       if (response.status == 202) {

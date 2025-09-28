@@ -251,7 +251,9 @@ export const changeRentalDates = async (
   placeIn,
   placeOut,
   car,
-  carNumber // <-- добавьте этот аргумент!
+  carNumber, // <-- добавьте этот аргумент!
+  ChildSeats,
+  insurance
 ) => {
   try {
     const response = await fetch("/api/order/update/changeDates", {
@@ -269,6 +271,8 @@ export const changeRentalDates = async (
         placeOut: placeOut || null,
         car: car || null, // <-- обязательно!
         carNumber: carNumber || null, // <-- обязательно!
+        ChildSeats: ChildSeats, // ДОБАВИТЬ!
+        insurance: insurance, // ДОБАВИТЬ!
       }),
     });
 

@@ -90,7 +90,11 @@ export const PUT = async (req) => {
       placeIn,
       placeOut,
       car, // id нового автомобиля
+      ChildSeats,
+      insurance,
     } = await req.json();
+
+    console.log("PAYLOAD FROM FRONTEND:", { ChildSeats, insurance });
 
     // Найти заказ
     const order = await Order.findById(_id).populate("car");
@@ -243,6 +247,9 @@ export const PUT = async (req) => {
             ]),
           ];
 
+          order.ChildSeats = typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+          order.insurance = typeof insurance !== "undefined" ? insurance : order.insurance;
+
           const updatedOrder = await order.save();
 
           return new Response(
@@ -275,6 +282,31 @@ export const PUT = async (req) => {
     order.timeOut = toParseTime(order.rentalEndDate, end);
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
+
+    order.ChildSeats = typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+    order.insurance = typeof insurance !== "undefined" ? insurance : order.insurance;
+
+    console.log("SERVER: заказ перед сохранением:", {
+      rentalStartDate: order.rentalStartDate,
+      rentalEndDate: order.rentalEndDate,
+      timeIn: order.timeIn,
+      timeOut: order.timeOut,
+      placeIn: order.placeIn,
+      placeOut: order.placeOut,
+      ChildSeats: order.ChildSeats,
+      insurance: order.insurance,
+      customerName: order.customerName,
+      phone: order.phone,
+      email: order.email,
+      car: order.car,
+      carModel: order.carModel,
+      carNumber: order.carNumber,
+      confirmed: order.confirmed,
+      hasConflictDates: order.hasConflictDates,
+      numberOfDays: order.numberOfDays,
+      totalPrice: order.totalPrice,
+      my_order: order.my_order
+    });
 
     await order.save();
 
