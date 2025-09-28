@@ -247,8 +247,10 @@ export const PUT = async (req) => {
             ]),
           ];
 
-          order.ChildSeats = typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
-          order.insurance = typeof insurance !== "undefined" ? insurance : order.insurance;
+          order.ChildSeats =
+            typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+          order.insurance =
+            typeof insurance !== "undefined" ? insurance : order.insurance;
 
           const updatedOrder = await order.save();
 
@@ -283,8 +285,10 @@ export const PUT = async (req) => {
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
-    order.ChildSeats = typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
-    order.insurance = typeof insurance !== "undefined" ? insurance : order.insurance;
+    order.ChildSeats =
+      typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+    order.insurance =
+      typeof insurance !== "undefined" ? insurance : order.insurance;
 
     console.log("SERVER: заказ перед сохранением:", {
       rentalStartDate: order.rentalStartDate,
@@ -305,7 +309,7 @@ export const PUT = async (req) => {
       hasConflictDates: order.hasConflictDates,
       numberOfDays: order.numberOfDays,
       totalPrice: order.totalPrice,
-      my_order: order.my_order
+      my_order: order.my_order,
     });
 
     await order.save();
