@@ -92,6 +92,7 @@ export const PUT = async (req) => {
       car, // id нового автомобиля
       ChildSeats,
       insurance,
+      franchiseOrder,
     } = await req.json();
 
     console.log("PAYLOAD FROM FRONTEND:", { ChildSeats, insurance });

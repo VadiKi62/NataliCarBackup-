@@ -254,6 +254,7 @@ export const changeRentalDates = async (
   carNumber, // <-- добавьте этот аргумент!
   ChildSeats,
   insurance,
+  franchiseOrder,
   insuranceOrder
 ) => {
   try {
@@ -274,6 +275,7 @@ export const changeRentalDates = async (
         carNumber: carNumber || null, // <-- обязательно!
         ChildSeats: ChildSeats, // ДОБАВИТЬ!
         insurance: insurance, // ДОБАВИТЬ!
+        franchiseOrder: franchiseOrder, // <-- добавляем франшизу заказа!
         insuranceOrder: insuranceOrder, // ДОБАВИТЬ!
       }),
     });
