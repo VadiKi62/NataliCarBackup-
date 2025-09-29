@@ -263,6 +263,7 @@ const EditOrderModal = ({
         placeOut: editedOrder.placeOut,
         ChildSeats: editedOrder.ChildSeats, // ДОБАВИТЬ!
         insurance: editedOrder.insurance, // ДОБАВИТЬ!
+        franchiseOrder: editedOrder.franchiseOrder, // <-- добавляем франшизу заказа
       };
 
       const response = await changeRentalDates(
@@ -276,7 +277,8 @@ const EditOrderModal = ({
         datesToSend.car,
         datesToSend.carNumber,
         datesToSend.ChildSeats,
-        datesToSend.insurance
+        datesToSend.insurance,
+        datesToSend.franchiseOrder // <-- передаем франшизу заказа
       );
       showMessage(response.message);
       if (response.status == 202) {
@@ -611,6 +613,28 @@ const EditOrderModal = ({
                     alignItems: "center",
                   }}
                 >
+                  {/* Добавлено поле франшизы заказа */}
+                  <Box sx={{ mt: 2 }}>
+                    <Typography
+                      variant="body2"
+                      component="span"
+                      sx={{ fontWeight: "bold", mr: 1 }}
+                    >
+                      {t("order.franchiseOrder") || "Франшиза заказа"}:
+                    </Typography>
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={editedOrder.franchiseOrder || 0}
+                      onChange={(e) =>
+                        setEditedOrder((prev) => ({
+                          ...prev,
+                          franchiseOrder: Number(e.target.value),
+                        }))
+                      }
+                      sx={{ width: 120 }}
+                    />
+                  </Box>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -644,6 +668,28 @@ const EditOrderModal = ({
               {renderField(t("order.clientName"), "customerName")}
               {renderField(t("order.phone"), "phone")}
               {renderField(t("order.email"), "email")}
+              {/* Добавлено поле франшизы заказа
+              <Box sx={{ mt: 2 }}>
+                <Typography
+                  variant="body2"
+                  component="span"
+                  sx={{ fontWeight: "bold", mr: 1 }}
+                >
+                  {t("order.franchiseOrder") || "Франшиза заказа"}:
+                </Typography>
+                <TextField
+                  size="small"
+                  type="number"
+                  value={editedOrder.franchiseOrder || 0}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      franchiseOrder: Number(e.target.value),
+                    }))
+                  }
+                  sx={{ width: 120 }}
+                />
+              </Box> */}
             </Box>
 
             <Box

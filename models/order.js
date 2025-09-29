@@ -39,14 +39,7 @@ const OrderSchema = new mongoose.Schema({
     },
   },
   placeIn: {
-    ChildSeats: {
-      type: Boolean,
-      default: false,
-    },
-    insurance: {
-      type: String,
-      default: "",
-    },
+    type: String,
     default: "Nea Kallikratia",
   },
   placeOut: {
@@ -97,17 +90,21 @@ const OrderSchema = new mongoose.Schema({
     type: Date,
     default: dayjs().tz("Europe/Athens").toDate(),
   },
-  placeIn: {
-    type: String,
-    default: "Nea Kalikratia",
-  },
-  placeOut: {
-    type: String,
-    default: "Nea Kalikratia",
-  },
   my_order: {
     type: Boolean,
     default: false,
+  },
+  ChildSeats: {
+    type: Number,
+    default: 3,
+  },
+  insurance: {
+    type: String,
+    default: "TPL", // "TPL", "CDW"
+  },
+  franchiseOrder: {
+    type: Number,
+    default: 0,
   },
 });
 
