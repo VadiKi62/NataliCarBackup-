@@ -620,7 +620,7 @@ const EditOrderModal = ({
                       component="span"
                       sx={{ fontWeight: "bold", mr: 1 }}
                     >
-                      {t("order.franchiseOrder") || "Франшиза заказа"}:
+                      {t("car.franchise") || "Франшиза заказа"}:
                     </Typography>
                     <TextField
                       size="small"

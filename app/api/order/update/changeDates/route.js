@@ -289,6 +289,10 @@ export const PUT = async (req) => {
       typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
     order.insurance =
       typeof insurance !== "undefined" ? insurance : order.insurance;
+    order.franchiseOrder =
+      typeof franchiseOrder !== "undefined"
+        ? franchiseOrder
+        : order.franchiseOrder;
 
     console.log("SERVER: заказ перед сохранением:", {
       rentalStartDate: order.rentalStartDate,
@@ -299,6 +303,7 @@ export const PUT = async (req) => {
       placeOut: order.placeOut,
       ChildSeats: order.ChildSeats,
       insurance: order.insurance,
+      franchiseOrder: order.franchiseOrder,
       customerName: order.customerName,
       phone: order.phone,
       email: order.email,

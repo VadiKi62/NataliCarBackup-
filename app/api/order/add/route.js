@@ -36,6 +36,9 @@ export async function POST(request) {
       placeOut,
       confirmed,
       my_order = false,
+      ChildSeats,
+      insurance,
+      franchiseOrder,
     } = await request.json();
 
     // Логгирование входящих данных
@@ -53,6 +56,9 @@ export async function POST(request) {
       placeOut,
       confirmed,
       my_order,
+      ChildSeats,
+      insurance,
+      franchiseOrder,
     });
     console.log("API: typeof email =", typeof email, "значение:", email);
 
@@ -168,6 +174,9 @@ export async function POST(request) {
       date: dayjs().format("MMM D HH:mm"),
       confirmed: confirmed,
       my_order: my_order,
+      ChildSeats,
+      insurance,
+      franchiseOrder,
     });
 
     // Добавьте дополнительное логгирование для email перед созданием заказа:
