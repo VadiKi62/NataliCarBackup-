@@ -363,7 +363,10 @@ const BookingModal = ({
                       value={insurance}
                       onChange={(e) => setInsurance(e.target.value)}
                     >
-                      {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
+                      {(
+                        t("order.insuranceOptions", { returnObjects: true }) ||
+                        []
+                      ).map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.label}
                         </MenuItem>

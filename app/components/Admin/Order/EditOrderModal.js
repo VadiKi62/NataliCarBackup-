@@ -606,7 +606,9 @@ const EditOrderModal = ({
                       }))
                     }
                   >
-                    {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
+                    {(
+                      t("order.insuranceOptions", { returnObjects: true }) || []
+                    ).map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
                       </MenuItem>

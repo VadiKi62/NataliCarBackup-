@@ -423,11 +423,13 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           value={orderDetails.insurance}
           onChange={(e) => handleFieldChange("insurance", e.target.value)}
         >
-          {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
+          {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
+            (option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            )
+          )}
         </Select>
       </FormControl>
     </Box>
