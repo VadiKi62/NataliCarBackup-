@@ -29,6 +29,10 @@
   "order": {
     "childSeats": "Παιδικό κάθισμα",
     "insurance": "Ασφάλιση",
+    "insuranceOptions": [
+      { "label": "Αστική Ευθύνη", "value": "TPL" },
+      { "label": "Μικτή Ασφάλιση", "value": "CDW" }
+    ],
     "car": "Αυτοκίνητο",
     "chooseDates": "Επιλέξτε ημερομηνίες κράτησης",
     "notAvailableDate": "Μη διαθέσιμο",

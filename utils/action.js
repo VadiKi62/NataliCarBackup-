@@ -276,7 +276,6 @@ export const changeRentalDates = async (
         ChildSeats: ChildSeats, // ДОБАВИТЬ!
         insurance: insurance, // ДОБАВИТЬ!
         franchiseOrder: franchiseOrder, // <-- добавляем франшизу заказа!
-        insuranceOrder: insuranceOrder, // ДОБАВИТЬ!
       }),
     });
 

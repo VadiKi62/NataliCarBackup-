@@ -29,6 +29,10 @@
   "order": {
     "childSeats": "Детское кресло",
     "insurance": "Страховка",
+    "insuranceOptions": [
+      { "label": "ОСАГО", "value": "TPL" },
+      { "label": "КАСКО", "value": "CDW" }
+    ],
     "car": "Автомобиль",
     "chooseDates": "Выберите даты бронирования",
     "notAvailableDate": "Недоступно",

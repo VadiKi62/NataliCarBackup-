@@ -29,6 +29,10 @@
   "order": {
     "childSeats": "Child seat",
     "insurance": "Insurance",
+    "insuranceOptions": [
+      { "label": "TPL", "value": "TPL" },
+      { "label": "CDW", "value": "CDW" }
+    ],
     "car": "Car",
     "chooseDates": "Choose your dates for booking",
     "notAvailableDate": "Not available",

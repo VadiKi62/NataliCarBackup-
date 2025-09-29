@@ -9,6 +9,10 @@ import {
   CircularProgress,
   Divider,
   FormControlLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import dayjs from "dayjs";
@@ -412,14 +416,20 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         label={<span style={{ color: "#222" }}>{t("order.childSeats")}</span>}
         sx={{ mt: 1 }}
       />
-      <TextField
-        fullWidth
-        margin="dense"
-        label={t("order.insurance")}
-        value={orderDetails.insurance}
-        onChange={(e) => handleFieldChange("insurance", e.target.value)}
-        sx={{ mt: 1 }}
-      />
+      <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
+        <InputLabel>{t("order.insurance")}</InputLabel>
+        <Select
+          label={t("order.insurance")}
+          value={orderDetails.insurance}
+          onChange={(e) => handleFieldChange("insurance", e.target.value)}
+        >
+          {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
   );
 

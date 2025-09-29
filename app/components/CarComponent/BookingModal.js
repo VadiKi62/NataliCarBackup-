@@ -7,6 +7,10 @@ import {
   Typography,
   Box,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CircularProgress,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -352,14 +356,20 @@ const BookingModal = ({
                     />
                     <Typography>{t("order.childSeats")}</Typography>
                   </Box>
-                  <TextField
-                    label={t("order.insurance")}
-                    variant="outlined"
-                    fullWidth
-                    value={insurance}
-                    onChange={(e) => setInsurance(e.target.value)}
-                    sx={{ mt: 1 }}
-                  />
+                  <FormControl fullWidth sx={{ mt: 1 }}>
+                    <InputLabel>{t("order.insurance")}</InputLabel>
+                    <Select
+                      label={t("order.insurance")}
+                      value={insurance}
+                      onChange={(e) => setInsurance(e.target.value)}
+                    >
+                      {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                   {/* Сначала телефон, потом email */}
                   <TextField
                     label={t("order.phone")}

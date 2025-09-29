@@ -594,17 +594,25 @@ const EditOrderModal = ({
                 />
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  label={t("order.insurance")}
-                  value={editedOrder.insurance || ""}
-                  onChange={(e) =>
-                    setEditedOrder((prev) => ({
-                      ...prev,
-                      insurance: e.target.value,
-                    }))
-                  }
-                  sx={{ width: "50%" }}
-                />
+                <FormControl fullWidth sx={{ width: "50%" }}>
+                  <InputLabel>{t("order.insurance")}</InputLabel>
+                  <Select
+                    label={t("order.insurance")}
+                    value={editedOrder.insurance || ""}
+                    onChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        insurance: e.target.value,
+                      }))
+                    }
+                  >
+                    {(t("order.insuranceOptions", { returnObjects: true }) || []).map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <Box
                   sx={{
                     width: "50%",
