@@ -94,7 +94,8 @@
     "engine-pow": "Engine Power",
     "engine": "Engine",
     "childSeatsPrice": "Child seat price",
-    "franchise": "Franchise"
+    "franchise": "Franchise",
+    "KackoPrice": "CDW price per day"
   },
   "bookMesssages": {
     "bookOK": "Booking Confirmed. Thank you for booking with us!",

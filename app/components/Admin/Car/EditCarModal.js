@@ -123,7 +123,6 @@ const EditCarModal = ({
                 isLoading={isLoading}
                 required
               />
-
               <RenderSelectField
                 name="transmission"
                 label={t("car.transmission")}
@@ -147,6 +146,16 @@ const EditCarModal = ({
                 name="PriceChildSeats"
                 label={t("car.childSeatsPrice") || "Цена детских кресел"}
                 defaultValue={updatedCar.PriceChildSeats}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />{" "}
+              <RenderTextField
+                type="number"
+                name="PriceKacko"
+                label={t("car.KackoPrice") || "Цена КАСКО в день"}
+                //label="Цена КАСКО в день"
+                defaultValue={updatedCar.PriceKacko}
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}

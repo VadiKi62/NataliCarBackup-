@@ -71,6 +71,7 @@ const AddCarModal = ({
     photoUrl: "NO_PHOTO_h2klff",
     PriceChildSeats: 3,
     franchise: 300,
+    PriceKacko: 5,
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -199,7 +200,16 @@ const AddCarModal = ({
                       type="number"
                       name="PriceChildSeats"
                       label={t("car.childSeatsPrice")}
-                      defaultValue={carData.PriceChildSeats || 0}
+                      //label="Цена КАСКО в день"
+                      defaultValue={carData.PriceChildSeats || 3}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />{" "}
+                    <RenderTextField
+                      type="number"
+                      name="PriceKacko"
+                      label={t("car.KackoPrice") || "Цена КАСКО в день"}
+                      defaultValue={carData.PriceKacko || 5}
                       updatedCar={carData}
                       handleChange={handleChange}
                     />

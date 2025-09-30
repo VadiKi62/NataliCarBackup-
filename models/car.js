@@ -100,6 +100,10 @@ const CarSchema = new Schema({
     type: Number,
     default: 3,
   },
+  PriceKacko: {
+    type: Number,
+    default: 5,
+  },
   franchise: {
     type: Number,
     default: 300,
