@@ -641,28 +641,29 @@ const EditOrderModal = ({
                     isLoading={loading}
                   />
                 </Box>
-                <Box
-                  sx={{
-                    width: "25%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Checkbox
-                    checked={!!editedOrder.ChildSeats}
+                <FormControl fullWidth sx={{ width: "25%" }}>
+                  <InputLabel>{t("order.childSeats")}</InputLabel>
+                  <Select
+                    label={t("order.childSeats")}
+                    value={
+                      typeof editedOrder.ChildSeats === "number"
+                        ? editedOrder.ChildSeats
+                        : 0
+                    }
                     onChange={(e) =>
                       setEditedOrder((prev) => ({
                         ...prev,
-                        ChildSeats: e.target.checked,
+                        ChildSeats: Number(e.target.value),
                       }))
                     }
-                    sx={{ mr: 1 }}
-                  />
-                  <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-                    {t("order.childSeats")}
-                  </Typography>
-                </Box>
+                  >
+                    {[0, 1, 2, 3, 4].map((num) => (
+                      <MenuItem key={num} value={num}>
+                        {num}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             </Box>
 

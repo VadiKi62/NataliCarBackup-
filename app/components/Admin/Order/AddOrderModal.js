@@ -95,7 +95,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     numberOfDays: 0,
     confirmed: false,
     my_order: false,
-    ChildSeats: false,
+    ChildSeats: 0,
     insurance: "",
   });
 
@@ -404,18 +404,22 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         value={orderDetails.email}
         onChange={(e) => handleFieldChange("email", e.target.value)}
       />
-      <FormControlLabel
-        control={
-          <input
-            type="checkbox"
-            checked={orderDetails.ChildSeats}
-            onChange={(e) => handleFieldChange("ChildSeats", e.target.checked)}
-            style={{ marginRight: 8 }}
-          />
-        }
-        label={<span style={{ color: "#222" }}>{t("order.childSeats")}</span>}
-        sx={{ mt: 1 }}
-      />
+      <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
+        <InputLabel>{t("order.childSeats")}</InputLabel>
+        <Select
+          label={t("order.childSeats")}
+          value={orderDetails.ChildSeats || 0}
+          onChange={(e) =>
+            handleFieldChange("ChildSeats", Number(e.target.value))
+          }
+        >
+          {[0, 1, 2, 3, 4].map((num) => (
+            <MenuItem key={num} value={num}>
+              {num}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
         <InputLabel>{t("order.insurance")}</InputLabel>
         <Select

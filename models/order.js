@@ -96,7 +96,7 @@ const OrderSchema = new mongoose.Schema({
   },
   ChildSeats: {
     type: Number,
-    default: 3,
+    default: 0,
   },
   insurance: {
     type: String,

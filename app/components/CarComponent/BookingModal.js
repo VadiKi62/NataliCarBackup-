@@ -40,7 +40,7 @@ const BookingModal = ({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [childSeats, setChildSeats] = useState(false);
+  const [childSeats, setChildSeats] = useState(0);
   const [insurance, setInsurance] = useState("");
   const [errors, setErrors] = useState({});
   const [emailSent, setSuccessfullySent] = useState(false);
@@ -117,6 +117,7 @@ const BookingModal = ({
     if (open) {
       resetForm(); // Сбросить форму при каждом открытии модального окна
       setInsurance("TPL"); // Всегда по умолчанию внутренний код ОСАГО
+      setChildSeats(0); // Всегда по умолчанию 0
     }
   }, [open]);
 
@@ -348,15 +349,20 @@ const BookingModal = ({
                     error={!!errors.name}
                     helperText={errors.name}
                   />
-                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                    <input
-                      type="checkbox"
-                      checked={childSeats}
-                      onChange={(e) => setChildSeats(e.target.checked)}
-                      style={{ marginRight: 8 }}
-                    />
-                    <Typography>{t("order.childSeats")}</Typography>
-                  </Box>
+                  <FormControl fullWidth sx={{ mt: 1 }}>
+                    <InputLabel>{t("order.childSeats")}</InputLabel>
+                    <Select
+                      label={t("order.childSeats")}
+                      value={childSeats}
+                      onChange={(e) => setChildSeats(Number(e.target.value))}
+                    >
+                      {[0, 1, 2, 3, 4].map((num) => (
+                        <MenuItem key={num} value={num}>
+                          {num}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                   <FormControl fullWidth sx={{ mt: 1 }}>
                     <InputLabel>{t("order.insurance")}</InputLabel>
                     <Select
