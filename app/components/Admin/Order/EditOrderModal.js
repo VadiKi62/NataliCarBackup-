@@ -657,7 +657,8 @@ const EditOrderModal = ({
                       }))
                     }
                   >
-                    {[0, 1, 2, 3, 4].map((num) => (
+                    <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
+                    {[1, 2, 3, 4].map((num) => (
                       <MenuItem key={num} value={num}>
                         {num}
                       </MenuItem>

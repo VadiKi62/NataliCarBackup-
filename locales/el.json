@@ -27,7 +27,8 @@
     "orderDone": "Η παραγγελία ήταν επιτυχής! Θα επικοινωνήσουμε μαζί σας σύντομα. 🎉"
   },
   "order": {
-    "childSeats": "Παιδικό κάθισμα",
+  "childSeats": "Παιδικό κάθισμα",
+  "childSeatsNone": "Οχι",
     "insurance": "Ασφάλιση",
     "insuranceOptions": [
       { "label": "AE", "value": "TPL" },
