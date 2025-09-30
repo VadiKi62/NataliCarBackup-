@@ -388,7 +388,9 @@ const BookingModal = ({
                       ).map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.value === "CDW"
-                            ? `${option.label} ${car.PriceKacko ? car.PriceKacko : 0}€/${t("order.perDay")}`
+                            ? `${option.label} ${
+                                car.PriceKacko ? car.PriceKacko : 0
+                              }€/${t("order.perDay")}`
                             : option.label}
                         </MenuItem>
                       ))}
