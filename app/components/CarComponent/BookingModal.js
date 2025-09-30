@@ -371,9 +371,14 @@ const BookingModal = ({
                     </Select>
                   </FormControl>
                   <FormControl fullWidth sx={{ mt: 1 }}>
-                    <InputLabel>{t("order.insurance")}</InputLabel>
+                    <InputLabel>
+                      {t("order.insurance")}{" "}
+                      {car.PriceKacko ? car.PriceKacko : 0}€/{t("order.perDay")}
+                    </InputLabel>
                     <Select
-                      label={t("order.insurance")}
+                      label={`${t("order.insurance")} ${
+                        car.PriceKacko ? car.PriceKacko : 0
+                      }€/${t("order.perDay")}`}
                       value={insurance}
                       onChange={(e) => setInsurance(e.target.value)}
                     >
@@ -382,7 +387,9 @@ const BookingModal = ({
                         []
                       ).map((option) => (
                         <MenuItem key={option.value} value={option.value}>
-                          {option.label}
+                          {option.value === "CDW"
+                            ? `${option.label} ${car.PriceKacko ? car.PriceKacko : 0}€/${t("order.perDay")}`
+                            : option.label}
                         </MenuItem>
                       ))}
                     </Select>

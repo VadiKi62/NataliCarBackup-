@@ -32,7 +32,7 @@
     "perDay": "день",
     "insurance": "Страховка",
     "insuranceOptions": [
-      { "label": "ОСАГО", "value": "TPL" },
+      { "label": "ОСАГО Бесплатно", "value": "TPL" },
       { "label": "КАСКО", "value": "CDW" }
     ],
     "car": "Автомобиль",

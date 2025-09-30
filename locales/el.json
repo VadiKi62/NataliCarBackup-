@@ -32,7 +32,7 @@
     "perDay": "ημέρα",
     "insurance": "Ασφάλιση",
     "insuranceOptions": [
-      { "label": "AE", "value": "TPL" },
+      { "label": "AE Δωρεάν", "value": "TPL" },
       { "label": "CDW", "value": "CDW" }
     ],
     "car": "Αυτοκίνητο",

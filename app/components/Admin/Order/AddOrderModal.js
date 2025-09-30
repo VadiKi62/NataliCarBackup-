@@ -427,16 +427,25 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         </Select>
       </FormControl>
       <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>{t("order.insurance")}</InputLabel>
+        <InputLabel>
+          {t("order.insurance")} {car?.PriceKacko ? car.PriceKacko : 0}€/
+          {t("perDay")}
+        </InputLabel>
         <Select
-          label={t("order.insurance")}
+          label={`${t("order.insurance")} ${
+            car?.PriceKacko ? car.PriceKacko : 0
+          }€/${t("perDay")}`}
           value={orderDetails.insurance}
           onChange={(e) => handleFieldChange("insurance", e.target.value)}
         >
           {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
             (option) => (
               <MenuItem key={option.value} value={option.value}>
-                {option.label}
+                {option.value === "CDW"
+                  ? `${option.label} ${
+                      car?.PriceKacko ? car.PriceKacko : 0
+                    }€/${t("perDay")}`
+                  : option.label}
               </MenuItem>
             )
           )}

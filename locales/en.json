@@ -32,7 +32,7 @@
     "perDay": "day",
     "insurance": "Insurance",
     "insuranceOptions": [
-      { "label": "TPL", "value": "TPL" },
+      { "label": "TPL free", "value": "TPL" },
       { "label": "CDW", "value": "CDW" }
     ],
     "car": "Car",

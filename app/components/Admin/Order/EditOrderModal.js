@@ -606,9 +606,27 @@ const EditOrderModal = ({
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <FormControl fullWidth sx={{ width: "25%" }}>
-                  <InputLabel>{t("order.insurance")}</InputLabel>
+                  <InputLabel>
+                    {t("order.insurance")}{" "}
+                    {(() => {
+                      const selectedCar = cars?.find(
+                        (c) => c._id === editedOrder.car
+                      );
+                      return selectedCar && selectedCar.PriceKacko
+                        ? selectedCar.PriceKacko
+                        : 0;
+                    })()}
+                    €/{t("perDay")}
+                  </InputLabel>
                   <Select
-                    label={t("order.insurance")}
+                    label={`${t("order.insurance")} ${(() => {
+                      const selectedCar = cars?.find(
+                        (c) => c._id === editedOrder.car
+                      );
+                      return selectedCar && selectedCar.PriceKacko
+                        ? selectedCar.PriceKacko
+                        : 0;
+                    })()}€/${t("perDay")}`}
                     value={editedOrder.insurance || ""}
                     onChange={(e) =>
                       setEditedOrder((prev) => ({
@@ -619,11 +637,26 @@ const EditOrderModal = ({
                   >
                     {(
                       t("order.insuranceOptions", { returnObjects: true }) || []
-                    ).map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
+                    ).map((option) => {
+                      let kaskoPrice = 0;
+                      const selectedCar = cars?.find(
+                        (c) => c._id === editedOrder.car
+                      );
+                      if (
+                        option.value === "CDW" &&
+                        selectedCar &&
+                        selectedCar.PriceKacko
+                      ) {
+                        kaskoPrice = selectedCar.PriceKacko;
+                      }
+                      return (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.value === "CDW"
+                            ? `${option.label} ${kaskoPrice}€/${t("perDay")}`
+                            : option.label}
+                        </MenuItem>
+                      );
+                    })}
                   </Select>
                 </FormControl>
                 <Box sx={{ width: "25%" }}>
