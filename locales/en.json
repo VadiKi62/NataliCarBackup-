@@ -27,8 +27,8 @@
     "orderDone": "Order successful! We will contact you shortly. 🎉"
   },
   "order": {
-  "childSeats": "Child seat",
-  "childSeatsNone": "No",
+    "childSeats": "Child seat",
+    "childSeatsNone": "No",
     "insurance": "Insurance",
     "insuranceOptions": [
       { "label": "TPL", "value": "TPL" },
