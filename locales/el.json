@@ -29,6 +29,7 @@
   "order": {
     "childSeats": "Παιδικό κάθισμα",
     "childSeatsNone": "Οχι",
+    "perDay": "ημέρα",
     "insurance": "Ασφάλιση",
     "insuranceOptions": [
       { "label": "AE", "value": "TPL" },

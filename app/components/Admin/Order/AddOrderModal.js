@@ -405,9 +405,14 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         onChange={(e) => handleFieldChange("email", e.target.value)}
       />
       <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>{t("order.childSeats")}</InputLabel>
+        <InputLabel>
+          {t("order.childSeats")}{" "}
+          {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("perDay")}
+        </InputLabel>
         <Select
-          label={t("order.childSeats")}
+          label={`${t("order.childSeats")} ${
+            car?.PriceChildSeats ? car.PriceChildSeats : 0
+          }€/${t("perDay")}`}
           value={orderDetails.ChildSeats || 0}
           onChange={(e) =>
             handleFieldChange("ChildSeats", Number(e.target.value))

@@ -350,9 +350,15 @@ const BookingModal = ({
                     helperText={errors.name}
                   />
                   <FormControl fullWidth sx={{ mt: 1 }}>
-                    <InputLabel>{t("order.childSeats")}</InputLabel>
+                    <InputLabel>
+                      {t("order.childSeats")}{" "}
+                      {car.PriceChildSeats ? car.PriceChildSeats : 0}€/
+                      {t("order.perDay")}
+                    </InputLabel>
                     <Select
-                      label={t("order.childSeats")}
+                      label={`${t("order.childSeats")} ${
+                        car.PriceChildSeats ? car.PriceChildSeats : 0
+                      }€/${t("perDay")}`}
                       value={childSeats}
                       onChange={(e) => setChildSeats(Number(e.target.value))}
                     >

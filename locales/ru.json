@@ -29,6 +29,7 @@
   "order": {
     "childSeats": "Детское кресло",
     "childSeatsNone": "Нет",
+    "perDay": "день",
     "insurance": "Страховка",
     "insuranceOptions": [
       { "label": "ОСАГО", "value": "TPL" },

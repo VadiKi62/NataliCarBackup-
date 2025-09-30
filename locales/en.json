@@ -29,6 +29,7 @@
   "order": {
     "childSeats": "Child seat",
     "childSeatsNone": "No",
+    "perDay": "day",
     "insurance": "Insurance",
     "insuranceOptions": [
       { "label": "TPL", "value": "TPL" },

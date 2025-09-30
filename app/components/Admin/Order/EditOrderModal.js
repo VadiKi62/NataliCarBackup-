@@ -642,9 +642,27 @@ const EditOrderModal = ({
                   />
                 </Box>
                 <FormControl fullWidth sx={{ width: "25%" }}>
-                  <InputLabel>{t("order.childSeats")}</InputLabel>
+                  <InputLabel>
+                    {t("order.childSeats")}{" "}
+                    {(() => {
+                      const selectedCar = cars?.find(
+                        (c) => c._id === editedOrder.car
+                      );
+                      return selectedCar && selectedCar.PriceChildSeats
+                        ? selectedCar.PriceChildSeats
+                        : 0;
+                    })()}
+                    €/{t("perDay")}
+                  </InputLabel>
                   <Select
-                    label={t("order.childSeats")}
+                    label={`${t("order.childSeats")} ${(() => {
+                      const selectedCar = cars?.find(
+                        (c) => c._id === editedOrder.car
+                      );
+                      return selectedCar && selectedCar.PriceChildSeats
+                        ? selectedCar.PriceChildSeats
+                        : 0;
+                    })()}€/${t("perDay")}`}
                     value={
                       typeof editedOrder.ChildSeats === "number"
                         ? editedOrder.ChildSeats
