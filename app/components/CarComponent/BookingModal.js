@@ -116,6 +116,7 @@ const BookingModal = ({
   useEffect(() => {
     if (open) {
       resetForm(); // Сбросить форму при каждом открытии модального окна
+      setInsurance("TPL"); // Всегда по умолчанию внутренний код ОСАГО
     }
   }, [open]);
 

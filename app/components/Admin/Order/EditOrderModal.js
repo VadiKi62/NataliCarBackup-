@@ -14,6 +14,7 @@ import {
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
+import { RenderTextField } from "@app/components/common/Fields";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -55,7 +56,10 @@ const EditOrderModal = ({
 }) => {
   const { allOrders, fetchAndUpdateOrders, company } = useMainContext();
   const locations = company.locations.map((loc) => loc.name);
-  const [editedOrder, setEditedOrder] = useState(order);
+  const [editedOrder, setEditedOrder] = useState({
+    ...order,
+    insurance: order?.insurance || "TPL",
+  });
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
@@ -524,7 +528,14 @@ const EditOrderModal = ({
             </Box>
 
             <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  mb: 2,
+                  alignItems: "flex-start",
+                }}
+              >
                 <TextField
                   label={t("order.pickupDate")}
                   type="date"
@@ -594,7 +605,7 @@ const EditOrderModal = ({
                 />
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <FormControl fullWidth sx={{ width: "50%" }}>
+                <FormControl fullWidth sx={{ width: "25%" }}>
                   <InputLabel>{t("order.insurance")}</InputLabel>
                   <Select
                     label={t("order.insurance")}
@@ -615,56 +626,42 @@ const EditOrderModal = ({
                     ))}
                   </Select>
                 </FormControl>
+                <Box sx={{ width: "25%" }}>
+                  <RenderTextField
+                    name="franchiseOrder"
+                    label={t("car.franchise") || "Франшиза заказа"}
+                    type="number"
+                    updatedCar={editedOrder}
+                    handleChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        franchiseOrder: Number(e.target.value),
+                      }))
+                    }
+                    isLoading={loading}
+                  />
+                </Box>
                 <Box
                   sx={{
-                    width: "50%",
+                    width: "25%",
                     display: "flex",
-                    justifyContent: "flex-end",
                     alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {/* Добавлено поле франшизы заказа */}
-                  <Box sx={{ mt: 2 }}>
-                    <Typography
-                      variant="body2"
-                      component="span"
-                      sx={{ fontWeight: "bold", mr: 1 }}
-                    >
-                      {t("car.franchise") || "Франшиза заказа"}:
-                    </Typography>
-                    <TextField
-                      size="small"
-                      type="number"
-                      value={editedOrder.franchiseOrder || 0}
-                      onChange={(e) =>
-                        setEditedOrder((prev) => ({
-                          ...prev,
-                          franchiseOrder: Number(e.target.value),
-                        }))
-                      }
-                      sx={{ width: 120 }}
-                    />
-                  </Box>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={!!editedOrder.ChildSeats}
-                        onChange={(e) =>
-                          setEditedOrder((prev) => ({
-                            ...prev,
-                            ChildSeats: e.target.checked,
-                          }))
-                        }
-                        sx={{ mr: 1 }}
-                      />
+                  <Checkbox
+                    checked={!!editedOrder.ChildSeats}
+                    onChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        ChildSeats: e.target.checked,
+                      }))
                     }
-                    label={
-                      <span style={{ color: "#222" }}>
-                        {t("order.childSeats")}
-                      </span>
-                    }
-                    sx={{ mt: 1 }}
+                    sx={{ mr: 1 }}
                   />
+                  <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+                    {t("order.childSeats")}
+                  </Typography>
                 </Box>
               </Box>
             </Box>
