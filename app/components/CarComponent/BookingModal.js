@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -34,6 +34,8 @@ const BookingModal = ({
   isLoading,
   selectedTimes,
 }) => {
+  const [daysAndTotal, setDaysAndTotal] = useState({ days: 0, totalPrice: 0 });
+  const [calcLoading, setCalcLoading] = useState(false);
   const { t } = useTranslation();
   const { company } = useMainContext();
 
@@ -56,19 +58,48 @@ const BookingModal = ({
     setTimeToDatejs(presetDates?.endDate, selectedTimes?.end)
   );
 
-  useEffect(() => {
-    if (presetDates?.startDate && presetDates?.endDate) {
-      setStartTime(
-        setTimeToDatejs(presetDates?.startDate, selectedTimes?.start, true)
-      );
-      setEndTime(setTimeToDatejs(presetDates?.endDate, selectedTimes?.end));
+  // Получение стоимости с сервера при изменении дат
+  const fetchTotalPrice = useCallback(async () => {
+    if (!car?.carNumber || !presetDates?.startDate || !presetDates?.endDate) {
+      setDaysAndTotal({ days: 0, totalPrice: 0 });
+      return;
     }
-  }, [
-    presetDates?.startDate,
-    presetDates?.endDate,
-    car.pricePerDay,
-    selectedTimes,
-  ]);
+    setCalcLoading(true);
+    try {
+      const res = await fetch("/api/order/calcTotalPrice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carNumber: car.carNumber,
+          rentalStartDate: presetDates.startDate,
+          rentalEndDate: presetDates.endDate,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDaysAndTotal({ days: data.days, totalPrice: data.totalPrice });
+      } else {
+        setDaysAndTotal({ days: 0, totalPrice: 0 });
+      }
+    } catch {
+      setDaysAndTotal({ days: 0, totalPrice: 0 });
+    } finally {
+      setCalcLoading(false);
+    }
+  }, [car?.carNumber, presetDates?.startDate, presetDates?.endDate]);
+
+  useEffect(() => {
+    fetchTotalPrice();
+  }, [fetchTotalPrice]);
+
+  useEffect(() => {
+    if (presetDates && presetDates.startDate && presetDates.endDate) {
+      setStartTime(
+        setTimeToDatejs(presetDates.startDate, selectedTimes?.start, true)
+      );
+      setEndTime(setTimeToDatejs(presetDates.endDate, selectedTimes?.end));
+    }
+  }, [presetDates, car, selectedTimes]);
 
   // Проверка формата email происходит только на фронте, в функции validateEmail:
   const validateEmail = (email) => {
@@ -312,6 +343,51 @@ const BookingModal = ({
                   </Box>
                   .
                 </Typography>
+                {/* Информация о количестве дней и стоимости */}
+                <Box
+                  sx={{
+                    mb: 2,
+                    mt: 1,
+                    fontWeight: 400,
+                    fontSize: "1.05rem",
+                    color: "black",
+                    display: "flex",
+                    gap: 2,
+                  }}
+                >
+                  {calcLoading ? (
+                    t("order.calculating")
+                  ) : (
+                    <Typography
+                      variant="body1"
+                      component="span"
+                      sx={{ fontWeight: 400, color: "black" }}
+                    >
+                      {t("order.daysNumber", { count: daysAndTotal.days })} -
+                      <Box
+                        component="span"
+                        sx={{
+                          fontWeight: "bold",
+                          color: "primary.main",
+                          mx: 0.5,
+                        }}
+                      >
+                        {daysAndTotal.days}
+                      </Box>
+                      | {t("order.price")} -
+                      <Box
+                        component="span"
+                        sx={{
+                          fontWeight: "bold",
+                          color: "primary.main",
+                          mx: 0.5,
+                        }}
+                      >
+                        {daysAndTotal.totalPrice}€
+                      </Box>
+                    </Typography>
+                  )}
+                </Box>
                 <Box
                   component="form"
                   sx={{ "& .MuiTextField-root": { my: 1 } }}
@@ -423,7 +499,7 @@ const BookingModal = ({
                         {t("order.email")}
                         <span
                           style={{
-                            color: "red",
+                            color: "green",
                             fontWeight: 500,
                             marginLeft: 8,
                           }}

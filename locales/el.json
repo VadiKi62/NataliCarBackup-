@@ -35,6 +35,7 @@
       { "label": "AE Δωρεάν", "value": "TPL" },
       { "label": "CDW", "value": "CDW" }
     ],
+    "calculating": "Υπολογισμός τιμής",
     "car": "Αυτοκίνητο",
     "chooseDates": "Επιλέξτε ημερομηνίες κράτησης",
     "notAvailableDate": "Μη διαθέσιμο",

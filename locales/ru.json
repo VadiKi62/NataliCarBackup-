@@ -35,6 +35,7 @@
       { "label": "ОСАГО Бесплатно", "value": "TPL" },
       { "label": "КАСКО", "value": "CDW" }
     ],
+    "calculating": "Расчет стоимости",
     "car": "Автомобиль",
     "chooseDates": "Выберите даты бронирования",
     "notAvailableDate": "Недоступно",

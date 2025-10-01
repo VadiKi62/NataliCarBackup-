@@ -35,6 +35,7 @@
       { "label": "TPL free", "value": "TPL" },
       { "label": "CDW", "value": "CDW" }
     ],
+    "calculating": "Price calculation",
     "car": "Car",
     "chooseDates": "Choose your dates for booking",
     "notAvailableDate": "Not available",
