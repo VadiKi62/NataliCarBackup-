@@ -100,7 +100,6 @@ const BookingModal = ({
     fetchTotalPrice();
   }, [fetchTotalPrice]);
 
-
   useEffect(() => {
     if (presetDates && presetDates.startDate && presetDates.endDate) {
       setStartTime(

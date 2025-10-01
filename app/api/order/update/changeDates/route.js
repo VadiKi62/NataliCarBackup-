@@ -229,7 +229,12 @@ export const PUT = async (req) => {
           );
           const totalPrice202 =
             carDoc && carDoc.calculateTotalRentalPricePerDay
-              ? await carDoc.calculateTotalRentalPricePerDay(start, end, insurance, childSeats)
+              ? await carDoc.calculateTotalRentalPricePerDay(
+                  start,
+                  end,
+                  insurance,
+                  childSeats
+                )
               : 0;
 
           order.rentalStartDate = start.toDate();
@@ -273,7 +278,12 @@ export const PUT = async (req) => {
     const rentalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const totalPrice =
       carDoc && carDoc.calculateTotalRentalPricePerDay
-        ? await carDoc.calculateTotalRentalPricePerDay(start, end, insurance, childSeats)
+        ? await carDoc.calculateTotalRentalPricePerDay(
+            start,
+            end,
+            insurance,
+            childSeats
+          )
         : 0;
 
     // Update the order

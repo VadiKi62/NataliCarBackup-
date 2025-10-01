@@ -266,26 +266,36 @@ CarSchema.methods.calculateTotalRentalPricePerDay = async function (
       discountActive,
       finalPrice,
     });
-  total += finalPrice;
+    total += finalPrice;
   }
   // Добавляем стоимость КАСКО, если выбрано CDW
   if (kacko === "CDW") {
     const kaskoPerDay = this.PriceKacko || 0;
     const kaskoTotal = kaskoPerDay * days;
     total += kaskoTotal;
-    console.log(`[ALGO] КАСКО выбрано: Цена за день = ${kaskoPerDay}, дней = ${days}, всего за КАСКО = ${kaskoTotal}`);
+    console.log(
+      `[ALGO] КАСКО выбрано: Цена за день = ${kaskoPerDay}, дней = ${days}, всего за КАСКО = ${kaskoTotal}`
+    );
   } else {
     console.log(`[ALGO] КАСКО не выбрано (тип страховки: ${kacko})`);
   }
   // Добавляем стоимость детских кресел, если выбрано больше 0
-  console.log('[DEBUG] childSeats перед проверкой:', childSeats, typeof childSeats);
+  console.log(
+    "[DEBUG] childSeats перед проверкой:",
+    childSeats,
+    typeof childSeats
+  );
   if (childSeats && childSeats > 0) {
     const childSeatPerDay = this.PriceChildSeats || 0;
     const childSeatsTotal = childSeatPerDay * childSeats * days;
     total += childSeatsTotal;
-    console.log(`[ALGO] Детские кресла: Цена за день = ${childSeatPerDay}, количество кресел = ${childSeats}, дней = ${days}, всего за кресла = ${childSeatsTotal}`);
+    console.log(
+      `[ALGO] Детские кресла: Цена за день = ${childSeatPerDay}, количество кресел = ${childSeats}, дней = ${days}, всего за кресла = ${childSeatsTotal}`
+    );
   } else {
-    console.log(`[ALGO] Детские кресла не выбраны (childSeats = ${childSeats})`);
+    console.log(
+      `[ALGO] Детские кресла не выбраны (childSeats = ${childSeats})`
+    );
   }
   console.log(`[DEBUG] Итоговая цена после всех расчётов:`, total);
   console.log("[ALGO] Расчёт по дням:", logs);

@@ -8,8 +8,20 @@ export async function POST(request) {
   try {
     await connectToDB();
     debugBody = await request.json();
-    const { carNumber, rentalStartDate, rentalEndDate, kacko = "TPL", childSeats = 0 } = debugBody;
-    console.log('[API calcTotalPrice] Получены параметры:', { carNumber, rentalStartDate, rentalEndDate, kacko, childSeats });
+    const {
+      carNumber,
+      rentalStartDate,
+      rentalEndDate,
+      kacko = "TPL",
+      childSeats = 0,
+    } = debugBody;
+    console.log("[API calcTotalPrice] Получены параметры:", {
+      carNumber,
+      rentalStartDate,
+      rentalEndDate,
+      kacko,
+      childSeats,
+    });
     if (!carNumber || !rentalStartDate || !rentalEndDate) {
       return new Response(JSON.stringify({ message: "Missing parameters" }), {
         status: 400,
@@ -23,7 +35,7 @@ export async function POST(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    console.log('API calcTotalPrice params:', { kacko, childSeats });
+    console.log("API calcTotalPrice params:", { kacko, childSeats });
     const totalPrice = await car.calculateTotalRentalPricePerDay(
       dayjs(rentalStartDate),
       dayjs(rentalEndDate),
