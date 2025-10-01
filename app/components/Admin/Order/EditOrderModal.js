@@ -606,27 +606,9 @@ const EditOrderModal = ({
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                 <FormControl fullWidth sx={{ width: "25%" }}>
-                  <InputLabel>
-                    {t("order.insurance")}{" "}
-                    {(() => {
-                      const selectedCar = cars?.find(
-                        (c) => c._id === editedOrder.car
-                      );
-                      return selectedCar && selectedCar.PriceKacko
-                        ? selectedCar.PriceKacko
-                        : 0;
-                    })()}
-                    €/{t("perDay")}
-                  </InputLabel>
+                  <InputLabel>{t("order.insurance")}</InputLabel>
                   <Select
-                    label={`${t("order.insurance")} ${(() => {
-                      const selectedCar = cars?.find(
-                        (c) => c._id === editedOrder.car
-                      );
-                      return selectedCar && selectedCar.PriceKacko
-                        ? selectedCar.PriceKacko
-                        : 0;
-                    })()}€/${t("perDay")}`}
+                    label={t("order.insurance")}
                     value={editedOrder.insurance || ""}
                     onChange={(e) =>
                       setEditedOrder((prev) => ({

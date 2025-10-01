@@ -407,12 +407,12 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
         <InputLabel>
           {t("order.childSeats")}{" "}
-          {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("perDay")}
+          {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("order.perDay")}
         </InputLabel>
         <Select
           label={`${t("order.childSeats")} ${
             car?.PriceChildSeats ? car.PriceChildSeats : 0
-          }€/${t("perDay")}`}
+          }€/${t("order.perDay")}`}
           value={orderDetails.ChildSeats || 0}
           onChange={(e) =>
             handleFieldChange("ChildSeats", Number(e.target.value))
@@ -427,14 +427,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         </Select>
       </FormControl>
       <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>
-          {t("order.insurance")} {car?.PriceKacko ? car.PriceKacko : 0}€/
-          {t("perDay")}
-        </InputLabel>
+        <InputLabel>{t("order.insurance")}</InputLabel>
         <Select
-          label={`${t("order.insurance")} ${
-            car?.PriceKacko ? car.PriceKacko : 0
-          }€/${t("perDay")}`}
+          label={t("order.insurance")}
           value={orderDetails.insurance}
           onChange={(e) => handleFieldChange("insurance", e.target.value)}
         >
@@ -444,7 +439,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 {option.value === "CDW"
                   ? `${option.label} ${
                       car?.PriceKacko ? car.PriceKacko : 0
-                    }€/${t("perDay")}`
+                    }€/${t("order.perDay")}`
                   : option.label}
               </MenuItem>
             )

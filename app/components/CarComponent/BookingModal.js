@@ -339,6 +339,63 @@ const BookingModal = ({
                       size="small"
                     />
                   </Box>
+                  {/* <TextField
+                    label={t("order.name")}
+                    variant="outlined"
+                    fullWidth
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    error={!!errors.name}
+                    helperText={errors.name}
+                  /> */}
+                  <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+                    <FormControl sx={{ flex: 1 }}>
+                      <InputLabel>{t("order.insurance")}</InputLabel>
+                      <Select
+                        label={t("order.insurance")}
+                        value={insurance}
+                        onChange={(e) => setInsurance(e.target.value)}
+                      >
+                        {(
+                          t("order.insuranceOptions", {
+                            returnObjects: true,
+                          }) || []
+                        ).map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.value === "CDW"
+                              ? `${option.label} ${
+                                  car.PriceKacko ? car.PriceKacko : 0
+                                }€/${t("order.perDay")}`
+                              : option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl sx={{ flex: 1 }}>
+                      <InputLabel>
+                        {t("order.childSeats")}{" "}
+                        {car.PriceChildSeats ? car.PriceChildSeats : 0}€/
+                        {t("order.perDay")}
+                      </InputLabel>
+                      <Select
+                        label={`${t("order.childSeats")} ${
+                          car.PriceChildSeats ? car.PriceChildSeats : 0
+                        }€/${t("order.perDay")}`}
+                        value={childSeats}
+                        onChange={(e) => setChildSeats(Number(e.target.value))}
+                      >
+                        <MenuItem value={0}>
+                          {t("order.childSeatsNone")}
+                        </MenuItem>
+                        {[1, 2, 3, 4].map((num) => (
+                          <MenuItem key={num} value={num}>
+                            {num}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
                   <TextField
                     label={t("order.name")}
                     variant="outlined"
@@ -349,53 +406,6 @@ const BookingModal = ({
                     error={!!errors.name}
                     helperText={errors.name}
                   />
-                  <FormControl fullWidth sx={{ mt: 1 }}>
-                    <InputLabel>
-                      {t("order.childSeats")}{" "}
-                      {car.PriceChildSeats ? car.PriceChildSeats : 0}€/
-                      {t("order.perDay")}
-                    </InputLabel>
-                    <Select
-                      label={`${t("order.childSeats")} ${
-                        car.PriceChildSeats ? car.PriceChildSeats : 0
-                      }€/${t("perDay")}`}
-                      value={childSeats}
-                      onChange={(e) => setChildSeats(Number(e.target.value))}
-                    >
-                      <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
-                      {[1, 2, 3, 4].map((num) => (
-                        <MenuItem key={num} value={num}>
-                          {num}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth sx={{ mt: 1 }}>
-                    <InputLabel>
-                      {t("order.insurance")}{" "}
-                      {car.PriceKacko ? car.PriceKacko : 0}€/{t("order.perDay")}
-                    </InputLabel>
-                    <Select
-                      label={`${t("order.insurance")} ${
-                        car.PriceKacko ? car.PriceKacko : 0
-                      }€/${t("order.perDay")}`}
-                      value={insurance}
-                      onChange={(e) => setInsurance(e.target.value)}
-                    >
-                      {(
-                        t("order.insuranceOptions", { returnObjects: true }) ||
-                        []
-                      ).map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.value === "CDW"
-                            ? `${option.label} ${
-                                car.PriceKacko ? car.PriceKacko : 0
-                              }€/${t("order.perDay")}`
-                            : option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
                   {/* Сначала телефон, потом email */}
                   <TextField
                     label={t("order.phone")}
