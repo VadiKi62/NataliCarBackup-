@@ -90,12 +90,12 @@ export const PUT = async (req) => {
       placeIn,
       placeOut,
       car, // id нового автомобиля
-      ChildSeats,
+      childSeats,
       insurance,
       franchiseOrder,
     } = await req.json();
 
-    console.log("PAYLOAD FROM FRONTEND:", { ChildSeats, insurance });
+    console.log("PAYLOAD FROM FRONTEND:", { childSeats, insurance });
 
     // Найти заказ
     const order = await Order.findById(_id).populate("car");
@@ -229,7 +229,7 @@ export const PUT = async (req) => {
           );
           const totalPrice202 =
             carDoc && carDoc.calculateTotalRentalPricePerDay
-              ? await carDoc.calculateTotalRentalPricePerDay(start, end)
+              ? await carDoc.calculateTotalRentalPricePerDay(start, end, insurance, childSeats)
               : 0;
 
           order.rentalStartDate = start.toDate();
@@ -248,8 +248,8 @@ export const PUT = async (req) => {
             ]),
           ];
 
-          order.ChildSeats =
-            typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+          order.childSeats =
+            typeof childSeats !== "undefined" ? childSeats : order.childSeats;
           order.insurance =
             typeof insurance !== "undefined" ? insurance : order.insurance;
 
@@ -273,7 +273,7 @@ export const PUT = async (req) => {
     const rentalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     const totalPrice =
       carDoc && carDoc.calculateTotalRentalPricePerDay
-        ? await carDoc.calculateTotalRentalPricePerDay(start, end)
+        ? await carDoc.calculateTotalRentalPricePerDay(start, end, insurance, childSeats)
         : 0;
 
     // Update the order
@@ -286,8 +286,8 @@ export const PUT = async (req) => {
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
-    order.ChildSeats =
-      typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
+    order.childSeats =
+      typeof childSeats !== "undefined" ? childSeats : order.childSeats;
     order.insurance =
       typeof insurance !== "undefined" ? insurance : order.insurance;
     order.franchiseOrder =
@@ -302,7 +302,7 @@ export const PUT = async (req) => {
       timeOut: order.timeOut,
       placeIn: order.placeIn,
       placeOut: order.placeOut,
-      ChildSeats: order.ChildSeats,
+      childSeats: order.childSeats,
       insurance: order.insurance,
       franchiseOrder: order.franchiseOrder,
       customerName: order.customerName,

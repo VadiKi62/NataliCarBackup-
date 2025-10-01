@@ -73,6 +73,8 @@ const BookingModal = ({
           carNumber: car.carNumber,
           rentalStartDate: presetDates.startDate,
           rentalEndDate: presetDates.endDate,
+          kacko: insurance,
+          childSeats: childSeats,
         }),
       });
       if (res.ok) {
@@ -86,11 +88,18 @@ const BookingModal = ({
     } finally {
       setCalcLoading(false);
     }
-  }, [car?.carNumber, presetDates?.startDate, presetDates?.endDate]);
+  }, [
+    car?.carNumber,
+    presetDates?.startDate,
+    presetDates?.endDate,
+    insurance,
+    childSeats,
+  ]);
 
   useEffect(() => {
     fetchTotalPrice();
   }, [fetchTotalPrice]);
+
 
   useEffect(() => {
     if (presetDates && presetDates.startDate && presetDates.endDate) {
@@ -363,7 +372,7 @@ const BookingModal = ({
                       component="span"
                       sx={{ fontWeight: 400, color: "black" }}
                     >
-                      {t("order.daysNumber", { count: daysAndTotal.days })} -
+                      {t("order.daysNumber", { count: daysAndTotal.days })}
                       <Box
                         component="span"
                         sx={{
@@ -374,7 +383,7 @@ const BookingModal = ({
                       >
                         {daysAndTotal.days}
                       </Box>
-                      | {t("order.price")} -
+                      | {t("order.price")}
                       <Box
                         component="span"
                         sx={{
