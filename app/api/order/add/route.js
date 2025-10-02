@@ -39,6 +39,7 @@ export async function POST(request) {
       ChildSeats,
       insurance,
       franchiseOrder,
+      orderNumber,
     } = await request.json();
 
     // Логгирование входящих данных
@@ -59,6 +60,7 @@ export async function POST(request) {
       ChildSeats,
       insurance,
       franchiseOrder,
+      orderNumber,
     });
     console.log("API: typeof email =", typeof email, "значение:", email);
 
@@ -177,6 +179,7 @@ export async function POST(request) {
       ChildSeats,
       insurance,
       franchiseOrder,
+      orderNumber,
     });
 
     // Добавьте дополнительное логгирование для email перед созданием заказа:

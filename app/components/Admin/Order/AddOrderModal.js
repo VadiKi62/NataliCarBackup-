@@ -1,3 +1,16 @@
+// Генерация номера заказа: ГГГГММДДЧЧММСС (год, месяц, день, час, минуты, секунды)
+function generateOrderNumber() {
+  const now = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+  return (
+    now.getFullYear().toString() +
+    pad(now.getMonth() + 1) +
+    pad(now.getDate()) +
+    pad(now.getHours()) +
+    pad(now.getMinutes()) +
+    pad(now.getSeconds())
+  );
+}
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
@@ -97,20 +110,51 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     my_order: false,
     ChildSeats: 0,
     insurance: "",
+    franchiseOrder: undefined,
+    orderNumber: "",
   });
 
-  // --- ВАЖНО: автоматическое заполнение даты при открытии модального окна ---
+  // --- ВАЖНО: автоматическое заполнение даты и franchiseOrder при открытии модального окна ---
   useEffect(() => {
     if (date && open) {
       const startDate = dayjs(date).format("YYYY-MM-DD");
-      const endDate = dayjs(date).add(1, "day").format("YYYY-MM-DD"); // Добавляем 1 день к дате начала
-
+      const endDate = dayjs(date).add(1, "day").format("YYYY-MM-DD");
       setBookedDates({
         start: startDate,
         end: endDate,
       });
     }
-  }, [date, open]);
+    // Если модалка открыта и franchiseOrder не задан, подставить car.franchise
+    if (
+      open &&
+      car &&
+      (orderDetails.franchiseOrder === undefined ||
+        orderDetails.franchiseOrder === null ||
+        orderDetails.franchiseOrder === "")
+    ) {
+      setOrderDetails((prev) => ({
+        ...prev,
+        franchiseOrder: car.franchise ?? 0,
+      }));
+    }
+    // Если модалка открыта и insurance не задан, подставить TPL
+    if (
+      open &&
+      (orderDetails.insurance === undefined || orderDetails.insurance === null || orderDetails.insurance === "")
+    ) {
+      setOrderDetails((prev) => ({
+        ...prev,
+        insurance: "TPL",
+      }));
+    }
+    // Если модалка открыта и orderNumber не задан, сгенерировать его
+    if (open && (!orderDetails.orderNumber || orderDetails.orderNumber === "")) {
+      setOrderDetails((prev) => ({
+        ...prev,
+        orderNumber: generateOrderNumber(),
+      }));
+    }
+  }, [date, open, car, orderDetails.franchiseOrder, orderDetails.insurance, orderDetails.orderNumber]);
 
   // Оптимизированный обработчик изменения полей
   const handleFieldChange = useCallback((field, value) => {
@@ -250,6 +294,8 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       my_order: orderDetails.my_order,
       ChildSeats: orderDetails.ChildSeats,
       insurance: orderDetails.insurance,
+      franchiseOrder: orderDetails.franchiseOrder,
+      orderNumber: orderDetails.orderNumber,
     };
 
     console.log("=== КОНЕЦ ИСПРАВЛЕНИЯ v2 ===");
@@ -383,6 +429,86 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const renderCustomerSection = () => (
     <Box sx={{ mb: 2, mt: -1 }}>
+      <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+        <FormControl sx={{ flex: 1 }} margin="dense">
+          <InputLabel shrink htmlFor="insurance-select">
+            {t("order.insurance")}
+          </InputLabel>
+          <Select
+            label={t("order.insurance")}
+            value={orderDetails.insurance || ""}
+            onChange={(e) => handleFieldChange("insurance", e.target.value)}
+            displayEmpty
+            inputProps={{ id: "insurance-select" }}
+          >
+            {/* Удалён placeholder пункт 'Страховка' */}
+            {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
+              (option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.value === "CDW"
+                    ? `${option.label} ${
+                        car?.PriceKacko ? car.PriceKacko : 0
+                      }€/${t("order.perDay")}`
+                    : option.label}
+                </MenuItem>
+              )
+            )}
+          </Select>
+        </FormControl>
+        <TextField
+          sx={{ flex: 1 }}
+          margin="dense"
+          label={t("car.franchise")}
+          type="number"
+          value={orderDetails.franchiseOrder || ""}
+          onChange={(e) =>
+            handleFieldChange("franchiseOrder", Number(e.target.value))
+          }
+        />
+        <FormControl sx={{ flex: 1 }} margin="dense">
+          <InputLabel>
+            {t("order.childSeats")}{" "}
+            {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/
+            {t("order.perDay")}
+          </InputLabel>
+          <Select
+            label={`${t("order.childSeats")} ${
+              car?.PriceChildSeats ? car.PriceChildSeats : 0
+            }€/${t("order.perDay")}`}
+            value={orderDetails.ChildSeats || 0}
+            onChange={(e) =>
+              handleFieldChange("ChildSeats", Number(e.target.value))
+            }
+          >
+            <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
+            {[1, 2, 3, 4].map((num) => (
+              <MenuItem key={num} value={num}>
+                {num}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+      {/* <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
+        <InputLabel>{t("order.insurance")}</InputLabel>
+        <Select
+          label={t("order.insurance")}
+          value={orderDetails.insurance}
+          onChange={(e) => handleFieldChange("insurance", e.target.value)}
+        >
+          {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
+            (option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.value === "CDW"
+                  ? `${option.label} ${
+                      car?.PriceKacko ? car.PriceKacko : 0
+                    }€/${t("order.perDay")}`
+                  : option.label}
+              </MenuItem>
+            )
+          )}
+        </Select>
+      </FormControl> */}
       <TextField
         fullWidth
         margin="dense"
@@ -404,48 +530,6 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         value={orderDetails.email}
         onChange={(e) => handleFieldChange("email", e.target.value)}
       />
-      <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>
-          {t("order.childSeats")}{" "}
-          {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("order.perDay")}
-        </InputLabel>
-        <Select
-          label={`${t("order.childSeats")} ${
-            car?.PriceChildSeats ? car.PriceChildSeats : 0
-          }€/${t("order.perDay")}`}
-          value={orderDetails.ChildSeats || 0}
-          onChange={(e) =>
-            handleFieldChange("ChildSeats", Number(e.target.value))
-          }
-        >
-          <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
-          {[1, 2, 3, 4].map((num) => (
-            <MenuItem key={num} value={num}>
-              {num}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>{t("order.insurance")}</InputLabel>
-        <Select
-          label={t("order.insurance")}
-          value={orderDetails.insurance}
-          onChange={(e) => handleFieldChange("insurance", e.target.value)}
-        >
-          {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
-            (option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.value === "CDW"
-                  ? `${option.label} ${
-                      car?.PriceKacko ? car.PriceKacko : 0
-                    }€/${t("order.perDay")}`
-                  : option.label}
-              </MenuItem>
-            )
-          )}
-        </Select>
-      </FormControl>
     </Box>
   );
 

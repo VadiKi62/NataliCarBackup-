@@ -1,3 +1,16 @@
+// Генерация номера заказа: ГГГГММДДЧЧММСС (год, месяц, день, час, минуты, секунды)
+function generateOrderNumber() {
+  const now = new Date();
+  const pad = (n) => n.toString().padStart(2, '0');
+  return (
+    now.getFullYear().toString() +
+    pad(now.getMonth() + 1) +
+    pad(now.getDate()) +
+    pad(now.getHours()) +
+    pad(now.getMinutes()) +
+    pad(now.getSeconds())
+  );
+}
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Dialog,
@@ -57,6 +70,7 @@ const BookingModal = ({
   const [endTime, setEndTime] = useState(() =>
     setTimeToDatejs(presetDates?.endDate, selectedTimes?.end)
   );
+  const [orderNumber, setOrderNumber] = useState("");
 
   // Получение стоимости с сервера при изменении дат
   const fetchTotalPrice = useCallback(async () => {
@@ -157,6 +171,7 @@ const BookingModal = ({
       resetForm(); // Сбросить форму при каждом открытии модального окна
       setInsurance("TPL"); // Всегда по умолчанию внутренний код ОСАГО
       setChildSeats(0); // Всегда по умолчанию 0
+      setOrderNumber(generateOrderNumber());
     }
   }, [open]);
 
@@ -210,6 +225,7 @@ const BookingModal = ({
         my_order: true,
         ChildSeats: childSeats,
         insurance: insurance,
+        orderNumber: orderNumber,
       };
 
       // Логгирование JSON строки для отладки

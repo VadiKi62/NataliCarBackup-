@@ -106,6 +106,11 @@ const OrderSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  orderNumber: {
+    type: String,
+    required: true,
+    unique: true,
+  },
 });
 
 // Pre-save middleware to calculate the number of days and total price
