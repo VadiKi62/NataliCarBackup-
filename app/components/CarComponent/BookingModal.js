@@ -1,7 +1,7 @@
 // Генерация номера заказа: ГГГГММДДЧЧММСС (год, месяц, день, час, минуты, секунды)
 function generateOrderNumber() {
   const now = new Date();
-  const pad = (n) => n.toString().padStart(2, '0');
+  const pad = (n) => n.toString().padStart(2, "0");
   return (
     now.getFullYear().toString() +
     pad(now.getMonth() + 1) +

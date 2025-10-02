@@ -1,7 +1,7 @@
 // Генерация номера заказа: ГГГГММДДЧЧММСС (год, месяц, день, час, минуты, секунды)
 function generateOrderNumber() {
   const now = new Date();
-  const pad = (n) => n.toString().padStart(2, '0');
+  const pad = (n) => n.toString().padStart(2, "0");
   return (
     now.getFullYear().toString() +
     pad(now.getMonth() + 1) +
@@ -140,7 +140,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     // Если модалка открыта и insurance не задан, подставить TPL
     if (
       open &&
-      (orderDetails.insurance === undefined || orderDetails.insurance === null || orderDetails.insurance === "")
+      (orderDetails.insurance === undefined ||
+        orderDetails.insurance === null ||
+        orderDetails.insurance === "")
     ) {
       setOrderDetails((prev) => ({
         ...prev,
@@ -148,13 +150,23 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       }));
     }
     // Если модалка открыта и orderNumber не задан, сгенерировать его
-    if (open && (!orderDetails.orderNumber || orderDetails.orderNumber === "")) {
+    if (
+      open &&
+      (!orderDetails.orderNumber || orderDetails.orderNumber === "")
+    ) {
       setOrderDetails((prev) => ({
         ...prev,
         orderNumber: generateOrderNumber(),
       }));
     }
-  }, [date, open, car, orderDetails.franchiseOrder, orderDetails.insurance, orderDetails.orderNumber]);
+  }, [
+    date,
+    open,
+    car,
+    orderDetails.franchiseOrder,
+    orderDetails.insurance,
+    orderDetails.orderNumber,
+  ]);
 
   // Оптимизированный обработчик изменения полей
   const handleFieldChange = useCallback((field, value) => {
