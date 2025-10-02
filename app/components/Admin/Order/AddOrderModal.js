@@ -12,6 +12,47 @@ function generateOrderNumber() {
   );
 }
 import React, { useState, useEffect, useCallback } from "react";
+// Хук для получения стоимости и дней (аналогично BookingModal)
+function useDaysAndTotal(car, bookDates, insurance, childSeats) {
+  const [daysAndTotal, setDaysAndTotal] = useState({ days: 0, totalPrice: 0 });
+  const [calcLoading, setCalcLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchTotalPrice = async () => {
+      if (!car?.carNumber || !bookDates?.start || !bookDates?.end) {
+        setDaysAndTotal({ days: 0, totalPrice: 0 });
+        return;
+      }
+      setCalcLoading(true);
+      try {
+        const res = await fetch("/api/order/calcTotalPrice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            carNumber: car.carNumber,
+            rentalStartDate: bookDates.start,
+            rentalEndDate: bookDates.end,
+            kacko: insurance,
+            childSeats: childSeats,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDaysAndTotal({ days: data.days, totalPrice: data.totalPrice });
+        } else {
+          setDaysAndTotal({ days: 0, totalPrice: 0 });
+        }
+      } catch {
+        setDaysAndTotal({ days: 0, totalPrice: 0 });
+      } finally {
+        setCalcLoading(false);
+      }
+    };
+    fetchTotalPrice();
+  }, [car?.carNumber, bookDates?.start, bookDates?.end, insurance, childSeats]);
+
+  return { daysAndTotal, calcLoading };
+}
 import {
   Modal,
   Paper,
@@ -81,6 +122,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const carOrders = ordersByCarId(car?._id);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
+  // Хелпер для нормализации дат (аналогично BookingModal)
+  function normalizeDate(date) {
+    return date ? dayjs(date).format("YYYY-MM-DD") : null;
+  }
   const [pendingDatesInRange, setPendingDatesInRange] = useState([]);
   const [confirmedDatesInRange, setConfirmedDatesInRange] = useState([]);
   const [startTime, setStartTime] = useState(
@@ -117,8 +162,16 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   // --- ВАЖНО: автоматическое заполнение даты и franchiseOrder при открытии модального окна ---
   useEffect(() => {
     if (date && open) {
-      const startDate = dayjs(date).format("YYYY-MM-DD");
-      const endDate = dayjs(date).add(1, "day").format("YYYY-MM-DD");
+      // Если date — это диапазон, используем оба значения, иначе +1 день к start
+      let startDate = null;
+      let endDate = null;
+      if (Array.isArray(date) && date.length === 2) {
+        startDate = normalizeDate(date[0]);
+        endDate = normalizeDate(date[1]);
+      } else {
+        startDate = normalizeDate(date);
+        endDate = normalizeDate(dayjs(date).add(1, "day"));
+      }
       setBookedDates({
         start: startDate,
         end: endDate,
@@ -159,14 +212,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         orderNumber: generateOrderNumber(),
       }));
     }
-  }, [
-    date,
-    open,
-    car,
-    orderDetails.franchiseOrder,
-    orderDetails.insurance,
-    orderDetails.orderNumber,
-  ]);
+  }, [date, open, car]);
 
   // Оптимизированный обработчик изменения полей
   const handleFieldChange = useCallback((field, value) => {
@@ -381,7 +427,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           type="date"
           value={bookDates.start || ""}
           onChange={(e) =>
-            setBookedDates((dates) => ({ ...dates, start: e.target.value }))
+            setBookedDates((dates) => ({
+              ...dates,
+              start: normalizeDate(e.target.value),
+            }))
           }
           fullWidth
           margin="dense"
@@ -391,7 +440,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           type="date"
           value={bookDates.end || ""}
           onChange={(e) =>
-            setBookedDates((dates) => ({ ...dates, end: e.target.value }))
+            setBookedDates((dates) => ({
+              ...dates,
+              end: normalizeDate(e.target.value),
+            }))
           }
           fullWidth
           margin="dense"
@@ -524,24 +576,49 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       <TextField
         fullWidth
         margin="dense"
-        label={t("order.clientName")}
+        label={
+          <>
+            <span>{t("order.clientName")}</span>
+            <span style={{ color: "red" }}>*</span>
+          </>
+        }
         value={orderDetails.customerName}
         onChange={(e) => handleFieldChange("customerName", e.target.value)}
       />
-      <TextField
-        fullWidth
-        margin="dense"
-        label={t("order.phone")}
-        value={orderDetails.phone}
-        onChange={(e) => handleFieldChange("phone", e.target.value)}
-      />
-      <TextField
-        fullWidth
-        margin="dense"
-        label={t("order.email")}
-        value={orderDetails.email}
-        onChange={(e) => handleFieldChange("email", e.target.value)}
-      />
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <TextField
+          fullWidth
+          margin="dense"
+          label={
+            <>
+              <span>{t("order.phone")}</span>
+              <span style={{ color: "red" }}>*</span>
+            </>
+          }
+          value={orderDetails.phone}
+          onChange={(e) => handleFieldChange("phone", e.target.value)}
+        />
+        <TextField
+          fullWidth
+          margin="dense"
+          label={
+            <>
+              {t("order.email")}
+              <span
+                style={{
+                  color: "green",
+                  fontWeight: 500,
+                  marginLeft: 8,
+                }}
+              >
+                {t("basic.optional")}
+              </span>
+            </>
+          }
+          value={orderDetails.email}
+          onChange={(e) => handleFieldChange("email", e.target.value)}
+        />
+      </Box>
     </Box>
   );
 
@@ -572,7 +649,8 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin: "auto",
           bgcolor: "background.paper",
           maxWidth: 600,
-          maxHeight: "75vh",
+          maxHeight: "80vh",
+          // minHeight: 900,
           overflow: "auto",
           borderRadius: 2,
         }}
@@ -605,12 +683,95 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             </Box>
           </Box>
         )}
-        <Typography variant="h6" color="primary.main">
-          {t("order.addOrder")} {car?.model}
+        <Typography
+          variant="h6"
+          color="primary.main"
+          sx={{ letterSpacing: "-0.5px", fontSize: "1.1rem" }}
+        >
+          {t("order.addOrder")}
+          {orderDetails.orderNumber && orderDetails.orderNumber.length > 4 && (
+            <>
+              {" №"}
+              {orderDetails.orderNumber.slice(2, -2)}
+            </>
+          )}
+          {car?.model && (
+            <>
+              {" "}
+              {t("basic.for")} {car.model}
+              {car.regNumber ? ` (${car.regNumber})` : ""}
+            </>
+          )}
         </Typography>
-        <Typography variant="body2" color="primary.main">
-          {t("car.reg-numb")}: {car?.regNumber}
-        </Typography>
+
+        {/* Количество дней и общая стоимость */}
+        {(() => {
+          const { daysAndTotal, calcLoading } = useDaysAndTotal(
+            car,
+            bookDates,
+            orderDetails.insurance,
+            orderDetails.ChildSeats
+          );
+          // Корректировка дней: если даты заданы и end >= start, то days = разница + 1
+          let days = daysAndTotal.days;
+          if (bookDates.start && bookDates.end) {
+            const start = dayjs(bookDates.start);
+            const end = dayjs(bookDates.end);
+            const diff = end.diff(start, "day");
+            // Логгирование для отладки
+            console.log(
+              "[AddOrderModal] start:",
+              bookDates.start,
+              "end:",
+              bookDates.end,
+              "diff:",
+              diff
+            );
+            if (diff > 0) {
+              days = diff;
+            } else {
+              days = 1;
+            }
+          }
+          return (
+            <Box
+              sx={{
+                mb: 2,
+                mt: 1,
+                fontWeight: 400,
+                fontSize: "1.05rem",
+                color: "black",
+                display: "flex",
+                gap: 2,
+              }}
+            >
+              {calcLoading ? (
+                t("order.calculating")
+              ) : (
+                <Typography
+                  variant="body1"
+                  component="span"
+                  sx={{ fontWeight: 400, color: "black" }}
+                >
+                  {t("order.daysNumber", { count: days })}
+                  <Box
+                    component="span"
+                    sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                  >
+                    {days}
+                  </Box>
+                  | {t("order.price")}
+                  <Box
+                    component="span"
+                    sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                  >
+                    {daysAndTotal.totalPrice}€
+                  </Box>
+                </Typography>
+              )}
+            </Box>
+          );
+        })()}
 
         {renderDateTimeSection()}
         {renderCustomerSection()}

@@ -19,7 +19,8 @@
     "from": "from ",
     "to": "to ",
     "till": "till ",
-    "optional": "Optional"
+    "optional": "Optional",
+    "for": "for"
   },
   "statusMesssages": {
     "pending": "Order in progress, these dates might not be available : {{dates}} . We will get in touch with you with details. ",
@@ -61,7 +62,7 @@
     "not-confirmed": "Non-confirmed orders",
     "unavailable-dates": "Unavailable dates",
     "conflict": "Conflict orders",
-    "addOrder": "Add Order for ",
+    "addOrder": "Add Order ",
     "pickupLocation": "Pick-up location",
     "returnLocation": "Return location",
     "pickupDate": "Pick-up date",
