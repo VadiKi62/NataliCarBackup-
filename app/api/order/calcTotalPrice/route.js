@@ -36,15 +36,13 @@ export async function POST(request) {
       });
     }
     console.log("API calcTotalPrice params:", { kacko, childSeats });
-    const totalPrice = await car.calculateTotalRentalPricePerDay(
+    const { total, days } = await car.calculateTotalRentalPricePerDay(
       dayjs(rentalStartDate),
       dayjs(rentalEndDate),
       kacko,
       childSeats
     );
-    //const days = dayjs(rentalEndDate).diff(dayjs(rentalStartDate), "day") + 1;
-    const days = dayjs(rentalEndDate).diff(dayjs(rentalStartDate), "day");
-    return new Response(JSON.stringify({ totalPrice, days }), {
+    return new Response(JSON.stringify({ totalPrice: total, days }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

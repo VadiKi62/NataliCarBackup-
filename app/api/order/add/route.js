@@ -147,12 +147,10 @@ export async function POST(request) {
       }
     }
 
-    // Calculate the number of rental days using dayjs
+    // Calculate the number of rental days and total price using the new algorithm
     const startDate = dayjs(rentalStartDate);
     const endDate = dayjs(rentalEndDate);
-    const rentalDays = endDate.diff(startDate, "day"); // include only start  day
-    // Новый алгоритм расчёта итоговой цены
-    const totalPrice = await existingCar.calculateTotalRentalPricePerDay(
+    const { total, days } = await existingCar.calculateTotalRentalPricePerDay(
       startDate,
       endDate,
       insurance,
@@ -169,8 +167,8 @@ export async function POST(request) {
       rentalEndDate: endDate.toDate(),
       car: existingCar._id,
       carModel: existingCar.model,
-      numberOfDays: rentalDays,
-      totalPrice,
+      numberOfDays: days,
+      totalPrice: total,
       timeIn: timeIn ? timeIn : setTimeToDatejs(startDate, null, true),
       timeOut: timeOut ? timeOut : setTimeToDatejs(endDate, null),
       placeIn,

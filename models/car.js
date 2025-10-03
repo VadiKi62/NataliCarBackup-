@@ -300,7 +300,7 @@ CarSchema.methods.calculateTotalRentalPricePerDay = async function (
   console.log(`[DEBUG] Итоговая цена после всех расчётов:`, total);
   console.log("[ALGO] Расчёт по дням:", logs);
   console.log("[ALGO] Итоговая цена заказа (с КАСКО и креслами):", total);
-  return total;
+  return { total, days };
 };
 
 const Car = models.Car || model("Car", CarSchema);
