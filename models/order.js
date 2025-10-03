@@ -134,7 +134,9 @@ OrderSchema.pre("save", async function (next) {
     // Новый алгоритм расчёта итоговой цены
     this.totalPrice = await car.calculateTotalRentalPricePerDay(
       this.rentalStartDate,
-      this.rentalEndDate
+      this.rentalEndDate,
+      this.insurance,
+      this.ChildSeats
     );
   }
 

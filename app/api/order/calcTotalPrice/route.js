@@ -42,7 +42,8 @@ export async function POST(request) {
       kacko,
       childSeats
     );
-    const days = dayjs(rentalEndDate).diff(dayjs(rentalStartDate), "day") + 1;
+    //const days = dayjs(rentalEndDate).diff(dayjs(rentalStartDate), "day") + 1;
+    const days = dayjs(rentalEndDate).diff(dayjs(rentalStartDate), "day");
     return new Response(JSON.stringify({ totalPrice, days }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

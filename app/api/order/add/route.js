@@ -154,7 +154,9 @@ export async function POST(request) {
     // Новый алгоритм расчёта итоговой цены
     const totalPrice = await existingCar.calculateTotalRentalPricePerDay(
       startDate,
-      endDate
+      endDate,
+      insurance,
+      ChildSeats
     );
 
     // Create a new order document with calculated values

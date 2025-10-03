@@ -78,6 +78,14 @@ const BookingModal = ({
       setDaysAndTotal({ days: 0, totalPrice: 0 });
       return;
     }
+    // Логгирование входных параметров для отладки
+    console.log("fetchTotalPrice входные параметры:", {
+      carNumber: car.carNumber,
+      rentalStartDate: presetDates.startDate,
+      rentalEndDate: presetDates.endDate,
+      kacko: insurance,
+      childSeats: childSeats,
+    });
     setCalcLoading(true);
     try {
       const res = await fetch("/api/order/calcTotalPrice", {
@@ -93,6 +101,10 @@ const BookingModal = ({
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("fetchTotalPrice выходные значения:", {
+          days: data.days,
+          totalPrice: data.totalPrice,
+        });
         setDaysAndTotal({ days: data.days, totalPrice: data.totalPrice });
       } else {
         setDaysAndTotal({ days: 0, totalPrice: 0 });
@@ -449,7 +461,7 @@ const BookingModal = ({
                     error={!!errors.name}
                     helperText={errors.name}
                   /> */}
-                  <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+                  <Box sx={{ display: "flex", gap: 2, mt: 1, mb: 3 }}>
                     <FormControl sx={{ flex: 1 }}>
                       <InputLabel>{t("order.insurance")}</InputLabel>
                       <Select
@@ -496,51 +508,66 @@ const BookingModal = ({
                       </Select>
                     </FormControl>
                   </Box>
-                  <TextField
-                    label={t("order.name")}
-                    variant="outlined"
-                    fullWidth
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    error={!!errors.name}
-                    helperText={errors.name}
-                  />
-                  {/* Сначала телефон, потом email */}
-                  <TextField
-                    label={t("order.phone")}
-                    variant="outlined"
-                    fullWidth
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    error={!!errors.phone}
-                    helperText={errors.phone}
-                  />
+                  {/* Поле Name опущено ниже по вертикали с помощью mt: 2 */}
                   <TextField
                     label={
                       <>
-                        {t("order.email")}
-                        <span
-                          style={{
-                            color: "green",
-                            fontWeight: 500,
-                            marginLeft: 8,
-                          }}
-                        >
-                          {t("basic.optional")}
-                        </span>
+                        <span>{t("order.clientName")}</span>
+                        <span style={{ color: "red" }}>*</span>
                       </>
                     }
                     variant="outlined"
                     fullWidth
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors.email}
-                    // required убран, поле необязательное
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    // required
+                    error={!!errors.name}
+                    helperText={errors.name}
+                    sx={{ mt: 2 }}
                   />
+
+                  {/* Phone и Email в одной строке, как в AddOrderModal */}
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      label={
+                        <>
+                          <span>{t("order.phone")}</span>
+                          <span style={{ color: "red" }}>*</span>
+                        </>
+                      }
+                      variant="outlined"
+                      fullWidth
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      //required
+                      error={!!errors.phone}
+                      helperText={errors.phone}
+                    />
+                    <TextField
+                      label={
+                        <>
+                          {t("order.email")}
+                          <span
+                            style={{
+                              color: "green",
+                              fontWeight: 500,
+                              marginLeft: 8,
+                            }}
+                          >
+                            {t("basic.optional")}
+                          </span>
+                        </>
+                      }
+                      variant="outlined"
+                      fullWidth
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      type="email"
+                      error={!!errors.email}
+                      helperText={errors.email}
+                      // required убран, поле необязательное
+                    />
+                  </Box>
                 </Box>
                 {errors.submit && (
                   <Typography color="error" sx={{ mt: 2 }}>
