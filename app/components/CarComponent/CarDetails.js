@@ -130,6 +130,7 @@ const CarDetails = ({ car }) => {
 
   return (
     <>
+      {/*
       <CarTitle
         sx={{
           width: "60%",
@@ -140,6 +141,7 @@ const CarDetails = ({ car }) => {
       >
         {car.model}
       </CarTitle>
+      */}
       <Box
         sx={{
           display: "flex",

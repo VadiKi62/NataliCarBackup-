@@ -13,6 +13,17 @@ import {
   Collapse,
   Button,
 } from "@mui/material";
+import { styled as muiStyled } from "@mui/material/styles";
+// Стили для заголовка автомобиля (как в CarDetails)
+const CarTitle = muiStyled(Typography)(({ theme }) => ({
+  fontSize: "1.5rem",
+  textTransform: "uppercase",
+  fontWeight: 700,
+  marginBottom: theme.spacing(1.7),
+  marginTop: theme.spacing(2.5),
+  width: "60%",
+  textAlign: "center",
+}));
 import Image from "next/image";
 import Link from "next/link";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
@@ -180,7 +191,9 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
   return (
     <StyledCarItem elevation={3} ref={carItemRef}>
       <Wrapper>
-        <CarImage style={{ position: "relative", cursor: "pointer" }}>
+        {/* Название автомобиля над фото (единый стиль) */}
+        <CarTitle variant="h5">{car.model}</CarTitle>
+  <CarImage style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}>
           {imageLoading ? (
             <Box
               display="flex"
@@ -220,14 +233,14 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 size="small"
                 sx={{
                   position: "absolute",
-                  bottom: { xs: 4, sm: 8 }, // Меньший отступ на мобильных
+                  bottom: { xs: 4, sm: 8 },
                   right: { xs: 4, sm: 8 },
                   backgroundColor: "rgba(255, 255, 255, 0.9)",
                   "&:hover": {
                     backgroundColor: "rgba(255, 255, 255, 1)",
                   },
-                  fontSize: { xs: "0.65rem", sm: "0.75rem" }, // Меньший шрифт на мобильных
-                  padding: { xs: "2px 6px", sm: "4px 8px" }, // Меньший padding на мобильных
+                  fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                  padding: { xs: "2px 6px", sm: "4px 8px" },
                   zIndex: 1,
                 }}
               >
