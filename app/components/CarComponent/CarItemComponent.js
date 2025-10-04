@@ -193,7 +193,9 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
       <Wrapper>
         {/* Название автомобиля над фото (единый стиль) */}
         <CarTitle variant="h5">{car.model}</CarTitle>
-  <CarImage style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}>
+        <CarImage
+          style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}
+        >
           {imageLoading ? (
             <Box
               display="flex"
