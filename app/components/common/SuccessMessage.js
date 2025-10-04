@@ -11,7 +11,7 @@ const SuccessMessage = ({
   message = null,
 }) => {
   const { t } = useTranslation();
-  console.log("submittedOrder", submittedOrder);
+  // ...
   return (
     <Box>
       {message ? (

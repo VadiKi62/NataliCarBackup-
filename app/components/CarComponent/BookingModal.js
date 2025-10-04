@@ -26,6 +26,7 @@ import {
   MenuItem,
   CircularProgress,
 } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 import { useTranslation } from "react-i18next";
 import { addOrderNew } from "@utils/action";
 import SuccessMessage from "../common/SuccessMessage";
@@ -50,7 +51,7 @@ const BookingModal = ({
   const [daysAndTotal, setDaysAndTotal] = useState({ days: 0, totalPrice: 0 });
   const [calcLoading, setCalcLoading] = useState(false);
   const { t } = useTranslation();
-  const { company } = useMainContext();
+  const { company, companyLoading, companyError } = useMainContext();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,6 +72,10 @@ const BookingModal = ({
     setTimeToDatejs(presetDates?.endDate, selectedTimes?.end)
   );
   const [orderNumber, setOrderNumber] = useState("");
+  // Массив мест из базы (company.locations)
+  const placeOptions = company?.locations?.map((loc) => loc.name) || [];
+  const [placeIn, setPlaceIn] = useState("");
+  const [placeOut, setPlaceOut] = useState("");
 
   // Получение стоимости с сервера при изменении дат
   const fetchTotalPrice = useCallback(async () => {
@@ -78,14 +83,6 @@ const BookingModal = ({
       setDaysAndTotal({ days: 0, totalPrice: 0 });
       return;
     }
-    // Логгирование входных параметров для отладки
-    console.log("fetchTotalPrice входные параметры:", {
-      carNumber: car.carNumber,
-      rentalStartDate: presetDates.startDate,
-      rentalEndDate: presetDates.endDate,
-      kacko: insurance,
-      childSeats: childSeats,
-    });
     setCalcLoading(true);
     try {
       const res = await fetch("/api/order/calcTotalPrice", {
@@ -101,10 +98,6 @@ const BookingModal = ({
       });
       if (res.ok) {
         const data = await res.json();
-        console.log("fetchTotalPrice выходные значения:", {
-          days: data.days,
-          totalPrice: data.totalPrice,
-        });
         setDaysAndTotal({ days: data.days, totalPrice: data.totalPrice });
       } else {
         setDaysAndTotal({ days: 0, totalPrice: 0 });
@@ -184,6 +177,8 @@ const BookingModal = ({
       setInsurance("TPL"); // Всегда по умолчанию внутренний код ОСАГО
       setChildSeats(0); // Всегда по умолчанию 0
       setOrderNumber(generateOrderNumber());
+      setPlaceIn("Halkidikí"); // Значение по умолчанию
+      setPlaceOut("Halkidikí"); // Значение по умолчанию
     }
   }, [open]);
 
@@ -203,23 +198,6 @@ const BookingModal = ({
     setIsSubmitting(true);
 
     try {
-      // Логгирование данных перед отправкой
-      console.log("BookingModal: orderData для отправки:");
-      console.log({
-        carNumber: car.carNumber || "",
-        customerName: name || "",
-        phone: phone || "",
-        email: email ? email : "",
-        timeIn: startTime ? startTime.toISOString() : "",
-        timeOut: endTime ? endTime.toISOString() : "",
-        rentalStartDate: presetDates?.startDate
-          ? dayjs.utc(presetDates.startDate).toDate()
-          : "",
-        rentalEndDate: presetDates?.endDate
-          ? dayjs.utc(presetDates.endDate).toDate()
-          : "",
-        my_order: true,
-      });
 
       const orderData = {
         carNumber: car.carNumber || "",
@@ -238,13 +216,10 @@ const BookingModal = ({
         ChildSeats: childSeats,
         insurance: insurance,
         orderNumber: orderNumber,
+        placeIn: placeIn,
+        placeOut: placeOut,
       };
 
-      // Логгирование JSON строки для отладки
-      console.log(
-        "BookingModal: JSON.stringify(orderData):",
-        JSON.stringify(orderData)
-      );
 
       const response = await addOrderNew(orderData);
 
@@ -331,6 +306,8 @@ const BookingModal = ({
     setSubmittedOrder(null);
     setSuccessfullySent(false);
     setMessage(null);
+    setPlaceIn("");
+    setPlaceOut("");
   };
 
   const handleModalClose = () => {
@@ -429,7 +406,7 @@ const BookingModal = ({
                   sx={{ "& .MuiTextField-root": { my: 1 } }}
                 >
                   {/* Время в одной строке, 24-часовой формат */}
-                  <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                  <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
                     <TextField
                       label={t("order.pickupTime")}
                       type="time"
@@ -451,6 +428,45 @@ const BookingModal = ({
                       size="small"
                     />
                   </Box>
+                  {/* Места получения/возврата — сразу после времени, чуть выше */}
+                  <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 0 }}>
+                    <Autocomplete
+                      freeSolo
+                      options={placeOptions}
+                      value={placeIn}
+                      onInputChange={(event, newInputValue) =>
+                        setPlaceIn(newInputValue)
+                      }
+                      sx={{ flex: 1 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={t("order.pickupLocation") || "Место получения"}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      )}
+                    />
+                    <Autocomplete
+                      freeSolo
+                      options={placeOptions}
+                      value={placeOut}
+                      onInputChange={(event, newInputValue) =>
+                        setPlaceOut(newInputValue)
+                      }
+                      sx={{ flex: 1 }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={t("order.returnLocation") || "Место возврата"}
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      )}
+                    />
+                  </Box>
                   {/* <TextField
                     label={t("order.name")}
                     variant="outlined"
@@ -468,6 +484,8 @@ const BookingModal = ({
                         label={t("order.insurance")}
                         value={insurance}
                         onChange={(e) => setInsurance(e.target.value)}
+                        size="small"
+                        sx={{ flex: 1, minHeight: 40 }}
                       >
                         {(
                           t("order.insuranceOptions", {
@@ -486,16 +504,14 @@ const BookingModal = ({
                     </FormControl>
                     <FormControl sx={{ flex: 1 }}>
                       <InputLabel>
-                        {t("order.childSeats")}{" "}
-                        {car.PriceChildSeats ? car.PriceChildSeats : 0}€/
-                        {t("order.perDay")}
+                        {t("order.childSeats")} {car.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("order.perDay")}
                       </InputLabel>
                       <Select
-                        label={`${t("order.childSeats")} ${
-                          car.PriceChildSeats ? car.PriceChildSeats : 0
-                        }€/${t("order.perDay")}`}
+                        label={`${t("order.childSeats")} ${car.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
                         value={childSeats}
                         onChange={(e) => setChildSeats(Number(e.target.value))}
+                        size="small"
+                        sx={{ flex: 1, minHeight: 40 }}
                       >
                         <MenuItem value={0}>
                           {t("order.childSeatsNone")}

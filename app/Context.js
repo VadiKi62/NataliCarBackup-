@@ -70,6 +70,28 @@ export const MainContextProvider = ({
   }, [i18n]);
 
   const [company, setCompany] = useState(companyData);
+  const [companyLoading, setCompanyLoading] = useState(true);
+  const [companyError, setCompanyError] = useState(null);
+
+  // Глобальная загрузка компании из MongoDB
+  useEffect(() => {
+    async function loadCompany() {
+      setCompanyLoading(true);
+      setCompanyError(null);
+      try {
+        // id компании можно вынести в .env или оставить хардкод
+        const companyId = "679903bd10e6c8a8c0f027bc";
+        const { fetchCompany } = await import("@utils/action");
+        const freshCompany = await fetchCompany(companyId);
+        setCompany(freshCompany);
+      } catch (err) {
+        setCompanyError(err.message || "Ошибка загрузки компании");
+      } finally {
+        setCompanyLoading(false);
+      }
+    }
+    loadCompany();
+  }, []);
   const [scrolled, setScrolled] = useState(false);
   const [cars, setCars] = useState(carsData || []);
   const [allOrders, setAllOrders] = useState(ordersData || []);
@@ -206,6 +228,8 @@ export const MainContextProvider = ({
       setLang,
       changeLanguage, // Добавляем функцию смены языка
       company,
+      companyLoading,
+      companyError,
     }),
     [
       cars,
@@ -223,6 +247,8 @@ export const MainContextProvider = ({
       setLang,
       changeLanguage, // Добавляем в зависимости
       company,
+      companyLoading,
+      companyError,
     ]
   );
 
