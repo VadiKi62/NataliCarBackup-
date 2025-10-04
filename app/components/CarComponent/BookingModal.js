@@ -198,7 +198,6 @@ const BookingModal = ({
     setIsSubmitting(true);
 
     try {
-
       const orderData = {
         carNumber: car.carNumber || "",
         customerName: name || "",
@@ -219,7 +218,6 @@ const BookingModal = ({
         placeIn: placeIn,
         placeOut: placeOut,
       };
-
 
       const response = await addOrderNew(orderData);
 
@@ -504,10 +502,14 @@ const BookingModal = ({
                     </FormControl>
                     <FormControl sx={{ flex: 1 }}>
                       <InputLabel>
-                        {t("order.childSeats")} {car.PriceChildSeats ? car.PriceChildSeats : 0}€/{t("order.perDay")}
+                        {t("order.childSeats")}{" "}
+                        {car.PriceChildSeats ? car.PriceChildSeats : 0}€/
+                        {t("order.perDay")}
                       </InputLabel>
                       <Select
-                        label={`${t("order.childSeats")} ${car.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
+                        label={`${t("order.childSeats")} ${
+                          car.PriceChildSeats ? car.PriceChildSeats : 0
+                        }€/${t("order.perDay")}`}
                         value={childSeats}
                         onChange={(e) => setChildSeats(Number(e.target.value))}
                         size="small"
