@@ -122,6 +122,29 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const carOrders = ordersByCarId(car?._id);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
+  const [orderDetails, setOrderDetails] = useState({
+    placeIn: "",
+    placeOut: "",
+    customerName: "",
+    phone: "",
+    email: "",
+    totalPrice: 0,
+    numberOfDays: 0,
+    confirmed: false,
+    my_order: false,
+    ChildSeats: 0,
+    insurance: "",
+    franchiseOrder: undefined,
+    orderNumber: "",
+  });
+  // ...existing code...
+  // Получение количества дней и общей стоимости (React Hook должен быть после объявления bookDates и orderDetails)
+  const { daysAndTotal, calcLoading } = useDaysAndTotal(
+    car,
+    bookDates,
+    orderDetails.insurance,
+    orderDetails.ChildSeats
+  );
   // Хелпер для нормализации дат (аналогично BookingModal)
   function normalizeDate(date) {
     return date ? dayjs(date).format("YYYY-MM-DD") : null;
@@ -143,21 +166,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const { confirmed, pending } = analyzeDates(carOrders);
 
-  const [orderDetails, setOrderDetails] = useState({
-    placeIn: "",
-    placeOut: "",
-    customerName: "",
-    phone: "",
-    email: "",
-    totalPrice: 0,
-    numberOfDays: 0,
-    confirmed: false,
-    my_order: false,
-    ChildSeats: 0,
-    insurance: "",
-    franchiseOrder: undefined,
-    orderNumber: "",
-  });
+  // ...existing code...
 
   // --- ВАЖНО: автоматическое заполнение даты и franchiseOrder при открытии модального окна ---
   useEffect(() => {
@@ -705,73 +714,68 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         </Typography>
 
         {/* Количество дней и общая стоимость */}
-        {(() => {
-          const { daysAndTotal, calcLoading } = useDaysAndTotal(
-            car,
-            bookDates,
-            orderDetails.insurance,
-            orderDetails.ChildSeats
-          );
-          // Корректировка дней: если даты заданы и end >= start, то days = разница + 1
-          let days = daysAndTotal.days;
-          if (bookDates.start && bookDates.end) {
-            const start = dayjs(bookDates.start);
-            const end = dayjs(bookDates.end);
-            const diff = end.diff(start, "day");
-            // Логгирование для отладки
-            console.log(
-              "[AddOrderModal] start:",
-              bookDates.start,
-              "end:",
-              bookDates.end,
-              "diff:",
-              diff
-            );
-            if (diff > 0) {
-              days = diff;
-            } else {
-              days = 1;
-            }
-          }
-          return (
-            <Box
-              sx={{
-                mb: 2,
-                mt: 1,
-                fontWeight: 400,
-                fontSize: "1.05rem",
-                color: "black",
-                display: "flex",
-                gap: 2,
-              }}
+        <Box
+          sx={{
+            mb: 2,
+            mt: 1,
+            fontWeight: 400,
+            fontSize: "1.05rem",
+            color: "black",
+            display: "flex",
+            gap: 2,
+          }}
+        >
+          {calcLoading ? (
+            t("order.calculating")
+          ) : (
+            <Typography
+              variant="body1"
+              component="span"
+              sx={{ fontWeight: 400, color: "black" }}
             >
-              {calcLoading ? (
-                t("order.calculating")
-              ) : (
-                <Typography
-                  variant="body1"
-                  component="span"
-                  sx={{ fontWeight: 400, color: "black" }}
-                >
-                  {t("order.daysNumber", { count: days })}
-                  <Box
-                    component="span"
-                    sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
-                  >
-                    {days}
-                  </Box>
-                  | {t("order.price")}
-                  <Box
-                    component="span"
-                    sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
-                  >
-                    {daysAndTotal.totalPrice}€
-                  </Box>
-                </Typography>
-              )}
-            </Box>
-          );
-        })()}
+              {(() => {
+                let days = daysAndTotal.days;
+                if (bookDates.start && bookDates.end) {
+                  const start = dayjs(bookDates.start);
+                  const end = dayjs(bookDates.end);
+                  const diff = end.diff(start, "day");
+                  // Логгирование для отладки
+                  console.log(
+                    "[AddOrderModal] start:",
+                    bookDates.start,
+                    "end:",
+                    bookDates.end,
+                    "diff:",
+                    diff
+                  );
+                  if (diff > 0) {
+                    days = diff;
+                  } else {
+                    days = 1;
+                  }
+                }
+                return (
+                  <>
+                    {t("order.daysNumber", { count: days })}
+                    <Box
+                      component="span"
+                      sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                    >
+                      {days}
+                    </Box>
+                    | {t("order.price")}
+                    <Box
+                      component="span"
+                      sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                    >
+                      {daysAndTotal.totalPrice}€
+                    </Box>
+                  </>
+                );
+              })()}
+            </Typography>
+          )}
+        </Box>
 
         {renderDateTimeSection()}
         {renderCustomerSection()}
