@@ -759,14 +759,22 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                     {t("order.daysNumber", { count: days })}
                     <Box
                       component="span"
-                      sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                      sx={{
+                        fontWeight: "bold",
+                        color: "primary.main",
+                        mx: 0.5,
+                      }}
                     >
                       {days}
                     </Box>
                     | {t("order.price")}
                     <Box
                       component="span"
-                      sx={{ fontWeight: "bold", color: "primary.main", mx: 0.5 }}
+                      sx={{
+                        fontWeight: "bold",
+                        color: "primary.main",
+                        mx: 0.5,
+                      }}
                     >
                       {daysAndTotal.totalPrice}€
                     </Box>
