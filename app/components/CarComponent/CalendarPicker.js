@@ -501,9 +501,22 @@ const CalendarPicker = ({
     // 1. Если дата подтверждённая — просто выйти
     if (isConfirmed) return;
     // 2. Первый клик: если дата — начало подтверждённого заказа
-    if ((!start || (start && end)) && startEndDates.some(d => d.date === dateStr && d.type === "start" && d.confirmed)) return;
+    if (
+      (!start || (start && end)) &&
+      startEndDates.some(
+        (d) => d.date === dateStr && d.type === "start" && d.confirmed
+      )
+    )
+      return;
     // 3. Второй клик: если дата — конец подтверждённого заказа
-    if (start && !end && startEndDates.some(d => d.date === dateStr && d.type === "end" && d.confirmed)) return;
+    if (
+      start &&
+      !end &&
+      startEndDates.some(
+        (d) => d.date === dateStr && d.type === "end" && d.confirmed
+      )
+    )
+      return;
     // 4. Второй клик: если в диапазоне есть подтверждённые даты
     if (start && !end && date.isAfter(start, "day")) {
       // Собираем все даты между start и date (включительно)
@@ -513,11 +526,16 @@ const CalendarPicker = ({
         rangeDates.push(cur.format("YYYY-MM-DD"));
         cur = cur.add(1, "day");
       }
-      const hasConfirmedInRange = rangeDates.some(d => confirmedDates.includes(d));
+      const hasConfirmedInRange = rangeDates.some((d) =>
+        confirmedDates.includes(d)
+      );
       if (hasConfirmedInRange) {
         // Можно заменить на ваш snackbar
         if (onDateChange) {
-          onDateChange({ type: 'error', message: 'В выбранном диапазоне есть занятые даты!' });
+          onDateChange({
+            type: "error",
+            message: "В выбранном диапазоне есть занятые даты!",
+          });
         }
         // if (typeof window !== "undefined") {
         //   window.alert && window.alert("В выбранном диапазоне есть занятые даты!");
