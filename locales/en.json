@@ -106,7 +106,8 @@
     "bookReceive": "We have received your booking for the",
     "bookDays": "Number of days:",
     "bookPrice": "Total price :",
-    "bookFinalize": "We have got your order and we will contact you shortly to finalize the details."
+    "bookFinalize": "We have got your order and we will contact you shortly to finalize the details.",
+    "bookPendingDates": "Dates {{dates}} are booked but not yet confirmed by other users. We will contact you soon to clarify availability."
   },
   "carPark": {
     "carNewPhoto": "Select New Photo",
