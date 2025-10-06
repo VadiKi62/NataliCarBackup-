@@ -196,9 +196,8 @@ export async function POST(request) {
 
       return new Response(
         JSON.stringify({
-          message: `Даты ${nonConfirmedDates.join(
-            ", "
-          )} забронированы но пока не подтверждены другими пользователями. Мы свяжемся с Вами в течении 24 часов и уточним наличие дат.`,
+          messageCode: "bookMesssages.bookPendingDates",
+          dates: nonConfirmedDates,
           data: newOrder,
         }),
         {

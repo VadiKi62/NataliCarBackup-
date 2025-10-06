@@ -266,15 +266,21 @@ const BookingModal = ({
             prepareEmailData(response.data, "success")
           );
           break;
-        case "pending":
+        case "pending": {
           setSubmittedOrder(response.data);
-          setMessage(response.message);
+          // Если сервер вернул messageCode и dates, формируем переведённое сообщение
+          if (response.messageCode && response.dates) {
+            setMessage(t(response.messageCode, { dates: response.dates.join(", ") }));
+          } else {
+            setMessage(response.message);
+          }
           setIsSubmitted(true);
           fetchAndUpdateOrders();
           await sendConfirmationEmail(
             prepareEmailData(response.data, "pending")
           );
           break;
+        }
         case "conflict":
           setErrors({ submit: response.message });
           break;
