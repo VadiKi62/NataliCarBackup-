@@ -43,6 +43,7 @@ import CarDetailsModal from "./CarDetailsModal";
 
 import { CldImage } from "next-cloudinary";
 import { useTranslation } from "react-i18next";
+import { useSnackbar } from "notistack";
 
 // ДОБАВИТЬ ЭТУ СТРОКУ:
 import dayjs from "dayjs";
@@ -117,6 +118,7 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
 
 function CarItemComponent({ car, discount, discountStart, discountEnd }) {
   const { t } = useTranslation();
+  const { enqueueSnackbar } = useSnackbar();
   // --- Скидка теперь приходит из родителя ---
   const [imageLoading, setImageLoading] = useState(true);
   useEffect(() => {
@@ -187,6 +189,11 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
       });
     }
   }, [bookDates?.start, bookDates?.end]);
+
+  // Добавляем обработчик для CalendarPicker
+  const handleDateChange = ({ type, message }) => {
+    enqueueSnackbar(message, { variant: type });
+  };
 
   return (
     <StyledCarItem elevation={3} ref={carItemRef}>
@@ -266,6 +273,7 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
           discount={discount}
           discountStart={discountStart}
           discountEnd={discountEnd}
+          onDateChange={handleDateChange}
         />
         {/* Информация о дискаунте с логикой как в PricingTiers */}
         {discount &&

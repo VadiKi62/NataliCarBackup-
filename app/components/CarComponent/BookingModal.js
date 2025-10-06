@@ -35,6 +35,7 @@ import { setTimeToDatejs } from "@utils/functions";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useMainContext } from "../../Context";
+import { useSnackbar } from "notistack";
 
 // Extend dayjs with plugins
 dayjs.extend(utc);
@@ -48,6 +49,7 @@ const BookingModal = ({
   isLoading,
   selectedTimes,
 }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [daysAndTotal, setDaysAndTotal] = useState({ days: 0, totalPrice: 0 });
   const [calcLoading, setCalcLoading] = useState(false);
   const { t } = useTranslation();
@@ -270,7 +272,9 @@ const BookingModal = ({
           setSubmittedOrder(response.data);
           // Если сервер вернул messageCode и dates, формируем переведённое сообщение
           if (response.messageCode && response.dates) {
-            setMessage(t(response.messageCode, { dates: response.dates.join(", ") }));
+            setMessage(
+              t(response.messageCode, { dates: response.dates.join(", ") })
+            );
           } else {
             setMessage(response.message);
           }
