@@ -123,8 +123,8 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   const carOrders = ordersByCarId(car?._id);
   const [bookDates, setBookedDates] = useState({ start: null, end: null });
   const [orderDetails, setOrderDetails] = useState({
-    placeIn: "",
-    placeOut: "",
+    placeIn: "Nea Kalikratia",
+    placeOut: "Nea Kalikratia",
     customerName: "",
     phone: "",
     email: "",
@@ -145,6 +145,17 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     orderDetails.insurance,
     orderDetails.ChildSeats
   );
+
+  // Автоматически подставлять вычисленную стоимость в поле totalPrice, если оно не редактировалось вручную
+  useEffect(() => {
+    // Если пользователь не менял вручную или значение совпадает с вычисленным, обновляем
+    if (daysAndTotal.totalPrice !== orderDetails.totalPrice) {
+      setOrderDetails(prev => ({
+        ...prev,
+        totalPrice: daysAndTotal.totalPrice
+      }));
+    }
+  }, [daysAndTotal.totalPrice]);
   // Хелпер для нормализации дат (аналогично BookingModal)
   function normalizeDate(date) {
     return date ? dayjs(date).format("YYYY-MM-DD") : null;
@@ -363,6 +374,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       insurance: orderDetails.insurance,
       franchiseOrder: orderDetails.franchiseOrder,
       orderNumber: orderDetails.orderNumber,
+      totalPrice: orderDetails.totalPrice,
     };
 
     console.log("=== КОНЕЦ ИСПРАВЛЕНИЯ v2 ===");
@@ -502,86 +514,77 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
 
   const renderCustomerSection = () => (
     <Box sx={{ mb: 2, mt: -1 }}>
-      <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-        <FormControl sx={{ flex: 1 }} margin="dense">
-          <InputLabel shrink htmlFor="insurance-select">
-            {t("order.insurance")}
-          </InputLabel>
-          <Select
-            label={t("order.insurance")}
-            value={orderDetails.insurance || ""}
-            onChange={(e) => handleFieldChange("insurance", e.target.value)}
-            displayEmpty
-            inputProps={{ id: "insurance-select" }}
-          >
-            {/* Удалён placeholder пункт 'Страховка' */}
-            {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
-              (option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.value === "CDW"
-                    ? `${option.label} ${
-                        car?.PriceKacko ? car.PriceKacko : 0
-                      }€/${t("order.perDay")}`
-                    : option.label}
-                </MenuItem>
-              )
+      {/* Динамическая ширина для поля страховки: если выбрано ОСАГО (TPL), ширина 50%, иначе 25% */}
+      {(() => {
+        const insuranceWidth = orderDetails.insurance === "TPL" ? "50%" : "25%";
+        return (
+          <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+            <FormControl sx={{ flexBasis: insuranceWidth, flexGrow: 0, flexShrink: 0 }} margin="dense">
+              <InputLabel shrink htmlFor="insurance-select">
+                {t("order.insurance")}
+              </InputLabel>
+              <Select
+                label={t("order.insurance")}
+                value={orderDetails.insurance || ""}
+                onChange={(e) => handleFieldChange("insurance", e.target.value)}
+                displayEmpty
+                inputProps={{ id: "insurance-select" }}
+              >
+                {/* Удалён placeholder пункт 'Страховка' */}
+                {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
+                  (option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.value === "CDW"
+                        ? `${option.label} ${car?.PriceKacko ? car.PriceKacko : 0}€/${t("order.perDay")}`
+                        : option.label}
+                    </MenuItem>
+                  )
+                )}
+              </Select>
+            </FormControl>
+            {/* Франшиза показывается только если страховка не ОСАГО (TPL) */}
+            {orderDetails.insurance !== "TPL" && (
+              <TextField
+                sx={{ flexBasis: '25%', flexGrow: 0, flexShrink: 0 }}
+                margin="dense"
+                label={t("car.franchise")}
+                type="number"
+                value={orderDetails.franchiseOrder || ""}
+                onChange={(e) =>
+                  handleFieldChange("franchiseOrder", Number(e.target.value))
+                }
+              />
             )}
-          </Select>
-        </FormControl>
-        <TextField
-          sx={{ flex: 1 }}
-          margin="dense"
-          label={t("car.franchise")}
-          type="number"
-          value={orderDetails.franchiseOrder || ""}
-          onChange={(e) =>
-            handleFieldChange("franchiseOrder", Number(e.target.value))
-          }
-        />
-        <FormControl sx={{ flex: 1 }} margin="dense">
-          <InputLabel>
-            {t("order.childSeats")}{" "}
-            {car?.PriceChildSeats ? car.PriceChildSeats : 0}€/
-            {t("order.perDay")}
-          </InputLabel>
-          <Select
-            label={`${t("order.childSeats")} ${
-              car?.PriceChildSeats ? car.PriceChildSeats : 0
-            }€/${t("order.perDay")}`}
-            value={orderDetails.ChildSeats || 0}
-            onChange={(e) =>
-              handleFieldChange("ChildSeats", Number(e.target.value))
-            }
-          >
-            <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
-            {[1, 2, 3, 4].map((num) => (
-              <MenuItem key={num} value={num}>
-                {num}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-      {/* <FormControl fullWidth margin="dense" sx={{ mt: 1 }}>
-        <InputLabel>{t("order.insurance")}</InputLabel>
-        <Select
-          label={t("order.insurance")}
-          value={orderDetails.insurance}
-          onChange={(e) => handleFieldChange("insurance", e.target.value)}
-        >
-          {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
-            (option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.value === "CDW"
-                  ? `${option.label} ${
-                      car?.PriceKacko ? car.PriceKacko : 0
-                    }€/${t("order.perDay")}`
-                  : option.label}
-              </MenuItem>
-            )
-          )}
-        </Select>
-      </FormControl> */}
+            <FormControl sx={{ flex: 1 }} margin="dense">
+              <InputLabel sx={{ whiteSpace: 'normal', maxWidth: '100%' }}>
+                {`${t("order.childSeats")} ${car?.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
+              </InputLabel>
+              <Select
+                label={`${t("order.childSeats")} ${car?.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
+                value={orderDetails.ChildSeats || 0}
+                onChange={(e) =>
+                  handleFieldChange("ChildSeats", Number(e.target.value))
+                }
+                sx={{
+                  flexBasis: '50%', flexGrow: 0, flexShrink: 0,
+                  '& .MuiSelect-select': {
+                    whiteSpace: 'normal',
+                    display: 'block',
+                    maxWidth: '100%',
+                  },
+                }}
+              >
+                <MenuItem value={0}>{t("order.childSeatsNone")}</MenuItem>
+                {[1, 2, 3, 4].map((num) => (
+                  <MenuItem key={num} value={num}>
+                    {num}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        );
+      })()}
       <TextField
         fullWidth
         margin="dense"
@@ -658,9 +661,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin: "auto",
           bgcolor: "background.paper",
           maxWidth: 600,
-          maxHeight: "80vh",
+          // maxHeight: "80vh",
           // minHeight: 900,
-          overflow: "auto",
+          // overflow: "auto",
           borderRadius: 2,
         }}
       >
@@ -723,68 +726,88 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             color: "black",
             display: "flex",
             gap: 2,
+            alignItems: 'center',
           }}
         >
           {calcLoading ? (
             t("order.calculating")
           ) : (
-            <Typography
-              variant="body1"
-              component="span"
-              sx={{ fontWeight: 400, color: "black" }}
-            >
-              {(() => {
-                let days = daysAndTotal.days;
-                if (bookDates.start && bookDates.end) {
-                  const start = dayjs(bookDates.start);
-                  const end = dayjs(bookDates.end);
-                  const diff = end.diff(start, "day");
-                  // Логгирование для отладки
-                  console.log(
-                    "[AddOrderModal] start:",
-                    bookDates.start,
-                    "end:",
-                    bookDates.end,
-                    "diff:",
-                    diff
-                  );
-                  if (diff > 0) {
-                    days = diff;
-                  } else {
-                    days = 1;
+            <>
+              <Typography
+                variant="body1"
+                component="span"
+                sx={{ fontWeight: 400, color: "black" }}
+              >
+                {(() => {
+                  let days = daysAndTotal.days;
+                  if (bookDates.start && bookDates.end) {
+                    const start = dayjs(bookDates.start);
+                    const end = dayjs(bookDates.end);
+                    const diff = end.diff(start, "day");
+                    if (diff > 0) {
+                      days = diff;
+                    } else {
+                      days = 1;
+                    }
                   }
-                }
-                return (
-                  <>
-                    {t("order.daysNumber", { count: days })}
-                    <Box
-                      component="span"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "primary.main",
-                        mx: 0.5,
-                      }}
-                    >
-                      {days}
-                    </Box>
-                    | {t("order.price")}
-                    <Box
-                      component="span"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "primary.main",
-                        mx: 0.5,
-                      }}
-                    >
-                      {daysAndTotal.totalPrice}€
-                    </Box>
-                  </>
-                );
-              })()}
-            </Typography>
+                  return (
+                    <>
+                      {t("order.daysNumber", { count: days })}
+                      <Box
+                        component="span"
+                        sx={{
+                          fontWeight: "bold",
+                          color: "primary.main",
+                          mx: 0.5,
+                        }}
+                      >
+                        {days}
+                      </Box>
+                      | {t("order.price")}
+                    </>
+                  );
+                })()}
+              </Typography>
+              <TextField
+                value={orderDetails.totalPrice}
+                onChange={e => handleFieldChange('totalPrice', Number(e.target.value))}
+                type="number"
+                variant="outlined"
+                margin="dense"
+                inputProps={{
+                  style: { fontWeight: 700, fontSize: 18, textAlign: 'right', letterSpacing: 1, color: 'red', paddingRight: 0 },
+                  maxLength: 4,
+                  inputMode: 'numeric',
+                  pattern: '[0-9]*',
+                  size: 6
+                }}
+                sx={{
+                  ml: 1,
+                  mt: 0,
+                  mb: 1,
+                  width: '115px',
+                  '& .MuiInputBase-input': {
+                    padding: '8px 8px 8px 12px',
+                    width: '6ch',
+                    boxSizing: 'content-box',
+                    color: 'red',
+                    fontSize: 18,
+                  },
+                  '& .MuiInputAdornment-root': {
+                    marginLeft: 0,
+                    marginRight: 0,
+                  }
+                }}
+                placeholder="0"
+                InputProps={{
+                  endAdornment: (
+                    <span style={{ fontWeight: 700, fontSize: 18, marginLeft: 0, marginRight: '-8px', paddingLeft: 0, paddingRight: 0, letterSpacing: 0, color: 'red', display: 'inline-block' }}>€</span>
+                  )
+                }}
+              />
+            </>
           )}
         </Box>
-
         {renderDateTimeSection()}
         {renderCustomerSection()}
 

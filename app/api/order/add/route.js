@@ -40,6 +40,7 @@ export async function POST(request) {
       insurance,
       franchiseOrder,
       orderNumber,
+      totalPrice: totalPriceFromClient,
     } = await request.json();
 
     // Логгирование входящих данных
@@ -157,6 +158,12 @@ export async function POST(request) {
       ChildSeats
     );
 
+    // Используем totalPrice из клиента, если он есть, иначе считаем на бэкенде
+    const totalPriceToSave =
+      typeof totalPriceFromClient === 'number' && !isNaN(totalPriceFromClient)
+        ? totalPriceFromClient
+        : total;
+
     // Create a new order document with calculated values
     const newOrder = new Order({
       carNumber: carNumber,
@@ -168,7 +175,7 @@ export async function POST(request) {
       car: existingCar._id,
       carModel: existingCar.model,
       numberOfDays: days,
-      totalPrice: total,
+      totalPrice: totalPriceToSave,
       timeIn: timeIn ? timeIn : setTimeToDatejs(startDate, null, true),
       timeOut: timeOut ? timeOut : setTimeToDatejs(endDate, null),
       placeIn,
