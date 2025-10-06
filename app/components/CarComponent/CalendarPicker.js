@@ -501,9 +501,9 @@ const CalendarPicker = ({
     // 1. Если дата подтверждённая — просто выйти
     // 1. Если дата подтверждённая — показать снэк и выйти
     if (isConfirmed) {
-      if (onDateChange) {
-        onDateChange({ type: "error", message: t("order.unavailableDate") });
-      }
+      // if (onDateChange) {
+      //   onDateChange({ type: "error", message: t("order.unavailableDate") });
+      // }
       return;
     }
     // 2. Первый клик: если дата — начало подтверждённого заказа
@@ -517,9 +517,9 @@ const CalendarPicker = ({
         (d) => d.date === dateStr && d.type === "end" && d.confirmed
       )
     ) {
-      if (onDateChange) {
-        onDateChange({ type: "error", message: t("order.unavailableDate") });
-      }
+      // if (onDateChange) {
+      //   onDateChange({ type: "error", message: t("order.unavailableDate") });
+      // }
       return;
     }
     if (
@@ -528,9 +528,9 @@ const CalendarPicker = ({
         (d) => d.date === dateStr && d.type === "start" && d.confirmed
       )
     ) {
-      if (onDateChange) {
-        onDateChange({ type: "error", message: t("order.unavailableDate") });
-      }
+      // if (onDateChange) {
+      //   onDateChange({ type: "error", message: t("order.unavailableDate") });
+      // }
       return;
     }
     // 3. Второй клик: если дата — конец подтверждённого заказа
@@ -541,9 +541,9 @@ const CalendarPicker = ({
         (d) => d.date === dateStr && d.type === "end" && d.confirmed
       )
     ) {
-      if (onDateChange) {
-        onDateChange({ type: "error", message: t("order.unavailableDate") });
-      }
+      // if (onDateChange) {
+      //   onDateChange({ type: "error", message: t("order.unavailableDate") });
+      // }
       return;
     }
     // 4. Второй клик: если в диапазоне есть подтверждённые даты
@@ -560,9 +560,9 @@ const CalendarPicker = ({
         confirmedDates.includes(d)
       );
       if (hasConfirmedInRange) {
-        if (onDateChange) {
-          onDateChange({ type: "error", message: t("order.unavailableDates") });
-        }
+        // if (onDateChange) {
+        //   onDateChange({ type: "error", message: t("order.unavailableDates") });
+        // }
         setSelectedRange([null, null]); // сбросить выбор
         setShowBookButton(false);
         return;
@@ -620,24 +620,24 @@ const CalendarPicker = ({
       setSelectedRange([date, null]);
       setShowBookButton(false);
       // После первого клика или любого сброса диапазона показать снэк
-      if (onDateChange) {
-        onDateChange({ type: "info", message: t("order.enterEndDate") });
-      }
+      // if (onDateChange) {
+      //   onDateChange({ type: "info", message: t("order.enterEndDate") });
+      // }
     } else {
       if (date.isBefore(start)) {
         // If the second date is before the first, make it the new start
         setSelectedRange([date, null]);
         setShowBookButton(false);
-        if (onDateChange) {
-          onDateChange({ type: "info", message: t("order.enterEndDate") });
-        }
+        // if (onDateChange) {
+        //   onDateChange({ type: "info", message: t("order.enterEndDate") });
+        // }
       } else if (date.isSame(start, "day")) {
         // Prevent selecting the same date as both start and end
         setSelectedRange([start, null]);
         setShowBookButton(false);
-        if (onDateChange) {
-          onDateChange({ type: "info", message: t("order.enterEndDate") });
-        }
+        // if (onDateChange) {
+        //   onDateChange({ type: "info", message: t("order.enterEndDate") });
+        // }
       } else {
         // Regular behavior: set range with start and end dates
         const range = [start, date];
