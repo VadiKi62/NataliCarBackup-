@@ -507,6 +507,21 @@ const CalendarPicker = ({
       return;
     }
     // 2. Первый клик: если дата — начало подтверждённого заказа
+    // 1.1. Первый клик: если дата одновременно confirmed start и confirmed end
+    if (
+      (!start || (start && end)) &&
+      startEndDates.some(
+        (d) => d.date === dateStr && d.type === "start" && d.confirmed
+      ) &&
+      startEndDates.some(
+        (d) => d.date === dateStr && d.type === "end" && d.confirmed
+      )
+    ) {
+      if (onDateChange) {
+        onDateChange({ type: "error", message: t("order.unavailableDate") });
+      }
+      return;
+    }
     if (
       (!start || (start && end)) &&
       startEndDates.some(
@@ -532,6 +547,27 @@ const CalendarPicker = ({
       return;
     }
     // 4. Второй клик: если в диапазоне есть подтверждённые даты
+    // 2. Второй клик: если в выбранном диапазоне есть подтверждённые даты
+    if (start && !end && date.isAfter(start, "day")) {
+      // Собираем все даты между start и date (включительно)
+      const rangeDates = [];
+      let cur = start.clone();
+      while (cur.isSameOrBefore(date, "day")) {
+        rangeDates.push(cur.format("YYYY-MM-DD"));
+        cur = cur.add(1, "day");
+      }
+      const hasConfirmedInRange = rangeDates.some((d) =>
+        confirmedDates.includes(d)
+      );
+      if (hasConfirmedInRange) {
+        if (onDateChange) {
+          onDateChange({ type: "error", message: t("order.unavailableDates") });
+        }
+        setSelectedRange([null, null]); // сбросить выбор
+        setShowBookButton(false);
+        return;
+      }
+    }
     // if (start && !end && date.isAfter(start, "day")) {
     //   // Собираем все даты между start и date (включительно)
     //   const rangeDates = [];
@@ -583,15 +619,25 @@ const CalendarPicker = ({
       // First click or resetting the range
       setSelectedRange([date, null]);
       setShowBookButton(false);
+      // После первого клика или любого сброса диапазона показать снэк
+      if (onDateChange) {
+        onDateChange({ type: "info", message: t("order.enterEndDate") });
+      }
     } else {
       if (date.isBefore(start)) {
         // If the second date is before the first, make it the new start
         setSelectedRange([date, null]);
         setShowBookButton(false);
+        if (onDateChange) {
+          onDateChange({ type: "info", message: t("order.enterEndDate") });
+        }
       } else if (date.isSame(start, "day")) {
         // Prevent selecting the same date as both start and end
         setSelectedRange([start, null]);
         setShowBookButton(false);
+        if (onDateChange) {
+          onDateChange({ type: "info", message: t("order.enterEndDate") });
+        }
       } else {
         // Regular behavior: set range with start and end dates
         const range = [start, date];

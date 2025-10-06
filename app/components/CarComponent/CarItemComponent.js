@@ -118,7 +118,9 @@ const ExpandButton = styled(IconButton)(({ theme, expanded }) => ({
 
 function CarItemComponent({ car, discount, discountStart, discountEnd }) {
   const { t } = useTranslation();
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  // Для хранения id последнего снэка
+  const lastSnackRef = useRef(null);
   // --- Скидка теперь приходит из родителя ---
   const [imageLoading, setImageLoading] = useState(true);
   useEffect(() => {
@@ -192,7 +194,12 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
 
   // Добавляем обработчик для CalendarPicker
   const handleDateChange = ({ type, message }) => {
-    enqueueSnackbar(message, { variant: type });
+    // Закрыть предыдущий снэк, если есть
+    if (lastSnackRef.current) {
+      closeSnackbar(lastSnackRef.current);
+    }
+    // Показать новый снэк и сохранить его id
+    lastSnackRef.current = enqueueSnackbar(message, { variant: type });
   };
 
   return (
