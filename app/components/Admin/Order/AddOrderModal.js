@@ -150,9 +150,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   useEffect(() => {
     // Если пользователь не менял вручную или значение совпадает с вычисленным, обновляем
     if (daysAndTotal.totalPrice !== orderDetails.totalPrice) {
-      setOrderDetails(prev => ({
+      setOrderDetails((prev) => ({
         ...prev,
-        totalPrice: daysAndTotal.totalPrice
+        totalPrice: daysAndTotal.totalPrice,
       }));
     }
   }, [daysAndTotal.totalPrice]);
@@ -519,7 +519,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         const insuranceWidth = orderDetails.insurance === "TPL" ? "50%" : "25%";
         return (
           <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
-            <FormControl sx={{ flexBasis: insuranceWidth, flexGrow: 0, flexShrink: 0 }} margin="dense">
+            <FormControl
+              sx={{ flexBasis: insuranceWidth, flexGrow: 0, flexShrink: 0 }}
+              margin="dense"
+            >
               <InputLabel shrink htmlFor="insurance-select">
                 {t("order.insurance")}
               </InputLabel>
@@ -531,21 +534,23 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 inputProps={{ id: "insurance-select" }}
               >
                 {/* Удалён placeholder пункт 'Страховка' */}
-                {(t("order.insuranceOptions", { returnObjects: true }) || []).map(
-                  (option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.value === "CDW"
-                        ? `${option.label} ${car?.PriceKacko ? car.PriceKacko : 0}€/${t("order.perDay")}`
-                        : option.label}
-                    </MenuItem>
-                  )
-                )}
+                {(
+                  t("order.insuranceOptions", { returnObjects: true }) || []
+                ).map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.value === "CDW"
+                      ? `${option.label} ${
+                          car?.PriceKacko ? car.PriceKacko : 0
+                        }€/${t("order.perDay")}`
+                      : option.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             {/* Франшиза показывается только если страховка не ОСАГО (TPL) */}
             {orderDetails.insurance !== "TPL" && (
               <TextField
-                sx={{ flexBasis: '25%', flexGrow: 0, flexShrink: 0 }}
+                sx={{ flexBasis: "25%", flexGrow: 0, flexShrink: 0 }}
                 margin="dense"
                 label={t("car.franchise")}
                 type="number"
@@ -556,21 +561,27 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
               />
             )}
             <FormControl sx={{ flex: 1 }} margin="dense">
-              <InputLabel sx={{ whiteSpace: 'normal', maxWidth: '100%' }}>
-                {`${t("order.childSeats")} ${car?.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
+              <InputLabel sx={{ whiteSpace: "normal", maxWidth: "100%" }}>
+                {`${t("order.childSeats")} ${
+                  car?.PriceChildSeats ? car.PriceChildSeats : 0
+                }€/${t("order.perDay")}`}
               </InputLabel>
               <Select
-                label={`${t("order.childSeats")} ${car?.PriceChildSeats ? car.PriceChildSeats : 0}€/${t("order.perDay")}`}
+                label={`${t("order.childSeats")} ${
+                  car?.PriceChildSeats ? car.PriceChildSeats : 0
+                }€/${t("order.perDay")}`}
                 value={orderDetails.ChildSeats || 0}
                 onChange={(e) =>
                   handleFieldChange("ChildSeats", Number(e.target.value))
                 }
                 sx={{
-                  flexBasis: '50%', flexGrow: 0, flexShrink: 0,
-                  '& .MuiSelect-select': {
-                    whiteSpace: 'normal',
-                    display: 'block',
-                    maxWidth: '100%',
+                  flexBasis: "50%",
+                  flexGrow: 0,
+                  flexShrink: 0,
+                  "& .MuiSelect-select": {
+                    whiteSpace: "normal",
+                    display: "block",
+                    maxWidth: "100%",
                   },
                 }}
               >
@@ -726,7 +737,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             color: "black",
             display: "flex",
             gap: 2,
-            alignItems: 'center',
+            alignItems: "center",
           }}
         >
           {calcLoading ? (
@@ -770,39 +781,62 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
               </Typography>
               <TextField
                 value={orderDetails.totalPrice}
-                onChange={e => handleFieldChange('totalPrice', Number(e.target.value))}
+                onChange={(e) =>
+                  handleFieldChange("totalPrice", Number(e.target.value))
+                }
                 type="number"
                 variant="outlined"
                 margin="dense"
                 inputProps={{
-                  style: { fontWeight: 700, fontSize: 18, textAlign: 'right', letterSpacing: 1, color: 'red', paddingRight: 0 },
+                  style: {
+                    fontWeight: 700,
+                    fontSize: 18,
+                    textAlign: "right",
+                    letterSpacing: 1,
+                    color: "red",
+                    paddingRight: 0,
+                  },
                   maxLength: 4,
-                  inputMode: 'numeric',
-                  pattern: '[0-9]*',
-                  size: 6
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                  size: 6,
                 }}
                 sx={{
                   ml: 1,
                   mt: 0,
                   mb: 1,
-                  width: '115px',
-                  '& .MuiInputBase-input': {
-                    padding: '8px 8px 8px 12px',
-                    width: '6ch',
-                    boxSizing: 'content-box',
-                    color: 'red',
+                  width: "115px",
+                  "& .MuiInputBase-input": {
+                    padding: "8px 8px 8px 12px",
+                    width: "6ch",
+                    boxSizing: "content-box",
+                    color: "red",
                     fontSize: 18,
                   },
-                  '& .MuiInputAdornment-root': {
+                  "& .MuiInputAdornment-root": {
                     marginLeft: 0,
                     marginRight: 0,
-                  }
+                  },
                 }}
                 placeholder="0"
                 InputProps={{
                   endAdornment: (
-                    <span style={{ fontWeight: 700, fontSize: 18, marginLeft: 0, marginRight: '-8px', paddingLeft: 0, paddingRight: 0, letterSpacing: 0, color: 'red', display: 'inline-block' }}>€</span>
-                  )
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 18,
+                        marginLeft: 0,
+                        marginRight: "-8px",
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        letterSpacing: 0,
+                        color: "red",
+                        display: "inline-block",
+                      }}
+                    >
+                      €
+                    </span>
+                  ),
                 }}
               />
             </>

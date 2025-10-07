@@ -160,7 +160,7 @@ export async function POST(request) {
 
     // Используем totalPrice из клиента, если он есть, иначе считаем на бэкенде
     const totalPriceToSave =
-      typeof totalPriceFromClient === 'number' && !isNaN(totalPriceFromClient)
+      typeof totalPriceFromClient === "number" && !isNaN(totalPriceFromClient)
         ? totalPriceFromClient
         : total;
 
