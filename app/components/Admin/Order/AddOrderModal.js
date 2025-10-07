@@ -459,7 +459,9 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 newStart = dayjs(
                   `${parts[2]}-${parts[1]}-${parts[0]}`
                 ).isValid()
-                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format("YYYY-MM-DD")
+                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format(
+                      "YYYY-MM-DD"
+                    )
                   : "";
               } else {
                 newStart = "";
@@ -499,10 +501,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             if (isMobile) {
               const parts = e.target.value.split(".");
               if (parts.length === 3) {
-                newEnd = dayjs(
-                  `${parts[2]}-${parts[1]}-${parts[0]}`
-                ).isValid()
-                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format("YYYY-MM-DD")
+                newEnd = dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).isValid()
+                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format(
+                      "YYYY-MM-DD"
+                    )
                   : "";
               } else {
                 newEnd = "";
@@ -734,7 +736,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     </Button>
   );
 
-  const isMobile = useMediaQuery('(max-width:600px)'); // true для телефона
+  const isMobile = useMediaQuery("(max-width:600px)"); // true для телефона
 
   return (
     <Modal
