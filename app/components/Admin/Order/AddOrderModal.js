@@ -752,6 +752,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           maxWidth: 700,
           minWidth: { xs: 0, sm: 600 }, // xs — для телефонов, sm и выше — minWidth: 600
           borderRadius: 2,
+          // Вертикальный скроллинг и ограничение высоты только для xs (телефонов)
+          // Вертикальный скроллинг и ограничение высоты для всех мобильных и планшетов (md и меньше)
+          maxHeight: { xs: "90vh", sm: "90vh", md: "90vh", lg: "none" },
+          overflowY: { xs: "auto", sm: "auto", md: "auto", lg: "visible" },
         }}
       >
         {loadingState && (

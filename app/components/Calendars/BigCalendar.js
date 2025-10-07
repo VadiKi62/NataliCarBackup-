@@ -356,10 +356,15 @@ export default function BigCalendar({ cars }) {
         sx={{
           maxHeight: "calc(100vh - 80px)",
           border: "1px solid #ddd",
-          overflow: "auto",
+          overflowX: "auto", // горизонтальный скролл всегда
+          overflowY: "auto",
         }}
       >
-        <Table stickyHeader sx={{ width: "auto" }}>
+        {/* minWidth для таблицы, чтобы на телефоне был скролл */}
+        <Table
+          stickyHeader
+          sx={{ width: "auto", minWidth: { xs: 700, sm: 0 } }}
+        >
           <TableHead>
             <TableRow>
               <TableCell
