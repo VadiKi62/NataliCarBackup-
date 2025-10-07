@@ -137,7 +137,6 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     franchiseOrder: undefined,
     orderNumber: "",
   });
-  // ...existing code...
   // Получение количества дней и общей стоимости (React Hook должен быть после объявления bookDates и orderDetails)
   const { daysAndTotal, calcLoading } = useDaysAndTotal(
     car,
@@ -176,8 +175,6 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   });
 
   const { confirmed, pending } = analyzeDates(carOrders);
-
-  // ...existing code...
 
   // --- ВАЖНО: автоматическое заполнение даты и franchiseOrder при открытии модального окна ---
   useEffect(() => {
@@ -447,27 +444,53 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           label={t("order.pickupDate")}
           type="date"
           value={bookDates.start || ""}
-          onChange={(e) =>
-            setBookedDates((dates) => ({
-              ...dates,
-              start: normalizeDate(e.target.value),
-            }))
-          }
+          onChange={(e) => {
+            const newStart = normalizeDate(e.target.value);
+            setBookedDates((dates) => {
+              if (!newStart) return { ...dates, start: newStart };
+              // Если дата возврата раньше или равна дате получения — установить end на +1 день
+              if (
+                dates.end &&
+                dayjs(dates.end).isSameOrBefore(dayjs(newStart), "day")
+              ) {
+                return {
+                  start: newStart,
+                  end: dayjs(newStart).add(1, "day").format("YYYY-MM-DD"),
+                };
+              }
+              return { ...dates, start: newStart };
+            });
+          }}
           fullWidth
           margin="dense"
+          required
         />
         <TextField
           label={t("order.returnDate")}
           type="date"
           value={bookDates.end || ""}
-          onChange={(e) =>
-            setBookedDates((dates) => ({
-              ...dates,
-              end: normalizeDate(e.target.value),
-            }))
-          }
+          onChange={(e) => {
+            const newEnd = normalizeDate(e.target.value);
+            // Запретить выбор даты возврата раньше или равной дате получения
+            if (
+              bookDates.start &&
+              newEnd &&
+              dayjs(newEnd).isSameOrBefore(dayjs(bookDates.start), "day")
+            ) {
+              // Можно показать ошибку или просто не менять значение
+              return;
+            }
+            setBookedDates((dates) => ({ ...dates, end: newEnd }));
+          }}
           fullWidth
           margin="dense"
+          inputProps={{
+            min: bookDates.start
+              ? dayjs(bookDates.start).add(1, "day").format("YYYY-MM-DD")
+              : undefined,
+          }}
+          InputLabelProps={{ shrink: true }}
+          required
         />
       </Box>
       <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
@@ -681,9 +704,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin: "auto",
           bgcolor: "background.paper",
           maxWidth: 700,
-          // maxHeight: "80vh",
-          // minHeight: 900,
-          // overflow: "auto",
+          minWidth: { xs: 0, sm: 400 }, // xs — для телефонов, sm и выше — minWidth: 400
           borderRadius: 2,
         }}
       >
