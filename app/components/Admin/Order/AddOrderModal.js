@@ -470,7 +470,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin="dense"
         />
       </Box>
-      <Box sx={{ display: "flex", gap: 2 }}>
+      <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
         <TextField
           label={t("order.pickupTime")}
           type="time"
@@ -489,7 +489,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         />
       </Box>
       {/* Места получения и возврата в одну строку */}
-      <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
+      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
         <RenderSelectField
           name="placeIn"
           label={t("order.pickupLocation")}
@@ -513,10 +513,11 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   );
 
   const renderCustomerSection = () => (
-    <Box sx={{ mb: 2, mt: -1 }}>
+    <Box sx={{ mb: 2, mt: -2 }}>
       {/* Динамическая ширина для поля страховки: если выбрано ОСАГО (TPL), ширина 50%, иначе 25% */}
       {(() => {
-        const insuranceWidth = orderDetails.insurance === "TPL" ? "50%" : "25%";
+        //const insuranceWidth = orderDetails.insurance === "TPL" ? "50%" : "25%";
+        const insuranceWidth = orderDetails.insurance === "TPL" ? "48%" : "30%";
         return (
           <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
             <FormControl
@@ -550,7 +551,12 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
             {/* Франшиза показывается только если страховка не ОСАГО (TPL) */}
             {orderDetails.insurance !== "TPL" && (
               <TextField
-                sx={{ flexBasis: "25%", flexGrow: 0, flexShrink: 0 }}
+                sx={{
+                  flexBasis: "15%",
+                  flexGrow: 0,
+                  flexShrink: 0,
+                  minWidth: 0,
+                }}
                 margin="dense"
                 label={t("car.franchise")}
                 type="number"
@@ -560,7 +566,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 }
               />
             )}
-            <FormControl sx={{ flex: 1 }} margin="dense">
+            <FormControl
+              sx={{ flexBasis: "48%", flexGrow: 0, flexShrink: 0 }}
+              margin="dense"
+            >
               <InputLabel sx={{ whiteSpace: "normal", maxWidth: "100%" }}>
                 {`${t("order.childSeats")} ${
                   car?.PriceChildSeats ? car.PriceChildSeats : 0
@@ -575,7 +584,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                   handleFieldChange("ChildSeats", Number(e.target.value))
                 }
                 sx={{
-                  flexBasis: "50%",
+                  flexBasis: "48%",
                   flexGrow: 0,
                   flexShrink: 0,
                   "& .MuiSelect-select": {
@@ -671,7 +680,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           padding: 2,
           margin: "auto",
           bgcolor: "background.paper",
-          maxWidth: 600,
+          maxWidth: 700,
           // maxHeight: "80vh",
           // minHeight: 900,
           // overflow: "auto",
