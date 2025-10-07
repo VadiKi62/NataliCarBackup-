@@ -12,6 +12,7 @@ function generateOrderNumber() {
   );
 }
 import React, { useState, useEffect, useCallback } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 // Хук для получения стоимости и дней (аналогично BookingModal)
 function useDaysAndTotal(car, bookDates, insurance, childSeats) {
   const [daysAndTotal, setDaysAndTotal] = useState({ days: 0, totalPrice: 0 });
@@ -440,15 +441,34 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   const renderDateTimeSection = () => (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: "flex", gap: 2 }}>
+        {/* Для телефона отображаем дату в формате DD.MM.YYYY, для ПК — стандартный */}
         <TextField
           label={t("order.pickupDate")}
-          type="date"
-          value={bookDates.start || ""}
+          type={isMobile ? "text" : "date"}
+          value={
+            isMobile && bookDates.start
+              ? dayjs(bookDates.start).format("DD.MM.YYYY")
+              : bookDates.start || ""
+          }
           onChange={(e) => {
-            const newStart = normalizeDate(e.target.value);
+            let newStart;
+            if (isMobile) {
+              // Ожидаем ввод в формате DD.MM.YYYY
+              const parts = e.target.value.split(".");
+              if (parts.length === 3) {
+                newStart = dayjs(
+                  `${parts[2]}-${parts[1]}-${parts[0]}`
+                ).isValid()
+                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format("YYYY-MM-DD")
+                  : "";
+              } else {
+                newStart = "";
+              }
+            } else {
+              newStart = normalizeDate(e.target.value);
+            }
             setBookedDates((dates) => {
               if (!newStart) return { ...dates, start: newStart };
-              // Если дата возврата раньше или равна дате получения — установить end на +1 день
               if (
                 dates.end &&
                 dayjs(dates.end).isSameOrBefore(dayjs(newStart), "day")
@@ -464,33 +484,55 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           fullWidth
           margin="dense"
           required
+          placeholder={isMobile ? "ДД.ММ.ГГГГ" : undefined}
         />
         <TextField
           label={t("order.returnDate")}
-          type="date"
-          value={bookDates.end || ""}
+          type={isMobile ? "text" : "date"}
+          value={
+            isMobile && bookDates.end
+              ? dayjs(bookDates.end).format("DD.MM.YYYY")
+              : bookDates.end || ""
+          }
           onChange={(e) => {
-            const newEnd = normalizeDate(e.target.value);
-            // Запретить выбор даты возврата раньше или равной дате получения
+            let newEnd;
+            if (isMobile) {
+              const parts = e.target.value.split(".");
+              if (parts.length === 3) {
+                newEnd = dayjs(
+                  `${parts[2]}-${parts[1]}-${parts[0]}`
+                ).isValid()
+                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format("YYYY-MM-DD")
+                  : "";
+              } else {
+                newEnd = "";
+              }
+            } else {
+              newEnd = normalizeDate(e.target.value);
+            }
             if (
               bookDates.start &&
               newEnd &&
               dayjs(newEnd).isSameOrBefore(dayjs(bookDates.start), "day")
             ) {
-              // Можно показать ошибку или просто не менять значение
               return;
             }
             setBookedDates((dates) => ({ ...dates, end: newEnd }));
           }}
           fullWidth
           margin="dense"
-          inputProps={{
-            min: bookDates.start
-              ? dayjs(bookDates.start).add(1, "day").format("YYYY-MM-DD")
-              : undefined,
-          }}
+          inputProps={
+            !isMobile
+              ? {
+                  min: bookDates.start
+                    ? dayjs(bookDates.start).add(1, "day").format("YYYY-MM-DD")
+                    : undefined,
+                }
+              : undefined
+          }
           InputLabelProps={{ shrink: true }}
           required
+          placeholder={isMobile ? "ДД.ММ.ГГГГ" : undefined}
         />
       </Box>
       <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
@@ -692,6 +734,8 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     </Button>
   );
 
+  const isMobile = useMediaQuery('(max-width:600px)'); // true для телефона
+
   return (
     <Modal
       open={open}
@@ -704,7 +748,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           margin: "auto",
           bgcolor: "background.paper",
           maxWidth: 700,
-          minWidth: { xs: 0, sm: 400 }, // xs — для телефонов, sm и выше — minWidth: 400
+          minWidth: { xs: 0, sm: 600 }, // xs — для телефонов, sm и выше — minWidth: 600
           borderRadius: 2,
         }}
       >
