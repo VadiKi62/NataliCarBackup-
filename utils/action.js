@@ -256,7 +256,9 @@ export const changeRentalDates = async (
   insurance,
   franchiseOrder,
   numberOrder,
-  insuranceOrder
+  insuranceOrder,
+  totalPrice, // <-- добавить
+  numberOfDays // <-- добавить
 ) => {
   try {
     const response = await fetch("/api/order/update/changeDates", {
@@ -279,6 +281,9 @@ export const changeRentalDates = async (
         franchiseOrder: franchiseOrder, // <-- добавляем франшизу заказа!
         numberOrder: numberOrder,
         insuranceOrder: insuranceOrder,
+        // Новое: сохраняем стоимость и дни
+        totalPrice,
+        numberOfDays,
       }),
     });
 

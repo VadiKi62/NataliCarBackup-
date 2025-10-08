@@ -1,3 +1,53 @@
+// Хук для получения количества дней и стоимости аренды через API (как в AddOrderModal)
+function useDaysAndTotal(
+  car,
+  rentalStartDate,
+  rentalEndDate,
+  insurance,
+  childSeats
+) {
+  const [daysAndTotal, setDaysAndTotal] = React.useState({
+    days: 0,
+    totalPrice: 0,
+  });
+  const [calcLoading, setCalcLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchTotalPrice = async () => {
+      if (!car?.carNumber || !rentalStartDate || !rentalEndDate) {
+        setDaysAndTotal({ days: 0, totalPrice: 0 });
+        return;
+      }
+      setCalcLoading(true);
+      try {
+        const res = await fetch("/api/order/calcTotalPrice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            carNumber: car.carNumber,
+            rentalStartDate,
+            rentalEndDate,
+            kacko: insurance,
+            childSeats: childSeats,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDaysAndTotal({ days: data.days, totalPrice: data.totalPrice });
+        } else {
+          setDaysAndTotal({ days: 0, totalPrice: 0 });
+        }
+      } catch {
+        setDaysAndTotal({ days: 0, totalPrice: 0 });
+      } finally {
+        setCalcLoading(false);
+      }
+    };
+    fetchTotalPrice();
+  }, [car?.carNumber, rentalStartDate, rentalEndDate, insurance, childSeats]);
+
+  return { daysAndTotal, calcLoading };
+}
 import React, { useState, useEffect } from "react";
 import {
   Paper,
@@ -60,6 +110,8 @@ const EditOrderModal = ({
     ...order,
     insurance: order?.insurance || "TPL",
   });
+  // Флаг: редактирует ли админ вручную поле totalPrice
+  const [isManualTotalPrice, setIsManualTotalPrice] = useState(false);
   const [loading, setLoading] = useState(true);
   const [conflictMessage1, setConflictMessage1] = useState(null);
   const [conflictMessage2, setConflictMessage2] = useState(null);
@@ -168,16 +220,13 @@ const EditOrderModal = ({
         ...order,
         rentalStartDate: dayjs(order.rentalStartDate),
         rentalEndDate: dayjs(order.rentalEndDate),
-        // ИСПРАВЛЕНИЕ: читаем UTC время напрямую без преобразований
         timeIn: dayjs.utc(order.timeIn),
         timeOut: dayjs.utc(order.timeOut),
       };
       setEditedOrder(adjustedOrder);
-
-      // ИСПРАВЛЕНИЕ: устанавливаем время напрямую из UTC
+      setIsManualTotalPrice(false); // Сброс ручного режима при открытии
       setStartTime(dayjs.utc(order.timeIn));
       setEndTime(dayjs.utc(order.timeOut));
-
       if (order.hasConflictDates && order.hasConflictDates.length > 0) {
         const conflictingOrderIds = new Set(order.hasConflictDates);
         const conflicts = allOrders.filter((existingOrder) =>
@@ -185,10 +234,89 @@ const EditOrderModal = ({
         );
         setConflictMessage3(conflicts);
       }
-
       setLoading(false);
     }
   }, [order]);
+
+  // --- Серверный расчет количества дней и стоимости ---
+  const selectedCar = React.useMemo(() => {
+    return cars?.find((c) => c._id === editedOrder.car) || null;
+  }, [cars, editedOrder.car]);
+
+  const { daysAndTotal, calcLoading } = useDaysAndTotal(
+    selectedCar,
+    editedOrder.rentalStartDate
+      ? dayjs(editedOrder.rentalStartDate).format("YYYY-MM-DD")
+      : null,
+    editedOrder.rentalEndDate
+      ? dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD")
+      : null,
+    editedOrder.insurance,
+    editedOrder.ChildSeats
+  );
+
+  // Синхронизация numberOfDays и totalPrice с сервером (если не ручной режим)
+  useEffect(() => {
+    // daysAndTotal всегда объект вида { days: number, totalPrice: number }
+    if (!isManualTotalPrice) {
+      // daysAndTotal может случайно стать объектом вида { totalPrice, days }
+      const safeTotalPrice =
+        typeof daysAndTotal.totalPrice === "number"
+          ? daysAndTotal.totalPrice
+          : typeof daysAndTotal.totalPrice === "object" &&
+            daysAndTotal.totalPrice !== null &&
+            typeof daysAndTotal.totalPrice.totalPrice === "number"
+          ? daysAndTotal.totalPrice.totalPrice
+          : 0;
+      const safeDays =
+        typeof daysAndTotal.days === "number"
+          ? daysAndTotal.days
+          : typeof daysAndTotal.days === "object" &&
+            daysAndTotal.days !== null &&
+            typeof daysAndTotal.days.days === "number"
+          ? daysAndTotal.days.days
+          : 0;
+      if (
+        safeDays !== editedOrder.numberOfDays ||
+        safeTotalPrice !== editedOrder.totalPrice
+      ) {
+        setEditedOrder((prev) => ({
+          ...prev,
+          numberOfDays: safeDays,
+          totalPrice: safeTotalPrice,
+        }));
+      }
+    } else {
+      // Если ручной режим, только количество дней обновляем
+      const safeDays =
+        typeof daysAndTotal.days === "number"
+          ? daysAndTotal.days
+          : typeof daysAndTotal.days === "object" &&
+            daysAndTotal.days !== null &&
+            typeof daysAndTotal.days.days === "number"
+          ? daysAndTotal.days.days
+          : 0;
+      if (safeDays !== editedOrder.numberOfDays) {
+        setEditedOrder((prev) => ({
+          ...prev,
+          numberOfDays: safeDays,
+        }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [daysAndTotal.days, daysAndTotal.totalPrice]);
+
+  // Сброс ручного режима при изменении ключевых полей
+  useEffect(() => {
+    setIsManualTotalPrice(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    editedOrder.car,
+    editedOrder.rentalStartDate,
+    editedOrder.rentalEndDate,
+    editedOrder.insurance,
+    editedOrder.ChildSeats,
+  ]);
 
   const onCloseModalEdit = () => {
     onClose();
@@ -246,7 +374,6 @@ const EditOrderModal = ({
       const datesToSend = {
         rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
         rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
-        // ИСПРАВЛЕНИЕ: правильно создаем UTC время для сохранения
         timeIn: dayjs
           .utc(
             editedOrder.rentalStartDate.format("YYYY-MM-DD") +
@@ -265,9 +392,10 @@ const EditOrderModal = ({
         carNumber: selectedCar ? selectedCar.carNumber : undefined,
         placeIn: editedOrder.placeIn,
         placeOut: editedOrder.placeOut,
-        ChildSeats: editedOrder.ChildSeats, // ДОБАВИТЬ!
-        insurance: editedOrder.insurance, // ДОБАВИТЬ!
-        franchiseOrder: editedOrder.franchiseOrder, // <-- добавляем франшизу заказа
+        ChildSeats: editedOrder.ChildSeats,
+        insurance: editedOrder.insurance,
+        franchiseOrder: editedOrder.franchiseOrder,
+        totalPrice: editedOrder.totalPrice, // <-- сохраняем totalPrice
       };
 
       const response = await changeRentalDates(
@@ -282,7 +410,11 @@ const EditOrderModal = ({
         datesToSend.carNumber,
         datesToSend.ChildSeats,
         datesToSend.insurance,
-        datesToSend.franchiseOrder // <-- передаем франшизу заказа
+        datesToSend.franchiseOrder,
+        editedOrder.numberOrder,
+        editedOrder.insuranceOrder,
+        Number(editedOrder.totalPrice),
+        Number(editedOrder.numberOfDays)
       );
       showMessage(response.message);
       if (response.status == 202) {
@@ -325,6 +457,7 @@ const EditOrderModal = ({
         customerName: editedOrder.customerName,
         phone: editedOrder.phone,
         email: editedOrder.email ? editedOrder.email : "",
+        totalPrice: editedOrder.totalPrice, // <-- сохраняем totalPrice
       };
 
       console.log("EditOrderModal: updates для updateCustomerInfo:", updates);
@@ -434,6 +567,7 @@ const EditOrderModal = ({
           overflow: "auto",
           border: isConflictOrder ? "4px solid #FF0000" : "none",
           animation: isConflictOrder ? "pulse 2s infinite" : "none",
+          // Центрирование убрано, Paper теперь не центрируется явно
         }}
       >
         {loading ? (
@@ -454,25 +588,77 @@ const EditOrderModal = ({
               sx={{ mb: 1 }}
             >
               <Typography variant="body1">
-                {t("order.daysNumber")} {editedOrder?.numberOfDays} |{" "}
-                {t("order.price")}{" "}
-                {typeof calculateTotalRentalPricePerDay === "function"
-                  ? calculateTotalRentalPricePerDay(editedOrder)
-                  : editedOrder?.totalPrice}
-                €
+                {t("order.daysNumber")}{" "}
+                <span style={{ color: "red", fontWeight: 700 }}>
+                  {editedOrder?.numberOfDays}
+                </span>{" "}
+                | {t("order.price")}
               </Typography>
+              <TextField
+                value={
+                  editedOrder.totalPrice !== undefined &&
+                  editedOrder.totalPrice !== null
+                    ? editedOrder.totalPrice
+                    : ""
+                }
+                onChange={(e) => {
+                  const val = e.target.value.replace(/[^0-9]/g, "");
+                  setEditedOrder((prev) => ({
+                    ...prev,
+                    totalPrice: val ? Number(val) : 0,
+                  }));
+                  setIsManualTotalPrice(true); // Включаем ручной режим при ручном вводе
+                }}
+                variant="outlined"
+                size="small"
+                inputProps={{
+                  style: {
+                    fontWeight: 700,
+                    fontSize: 18,
+                    textAlign: "right",
+                    letterSpacing: 1,
+                    width: "5ch",
+                    paddingRight: 0,
+                    color: "red",
+                  },
+                  maxLength: 4,
+                  inputMode: "numeric",
+                  pattern: "[0-9]*",
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 18,
+                        marginLeft: 0,
+                        marginRight: "-8px",
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                        letterSpacing: 0,
+                        color: "red",
+                        display: "inline-block",
+                      }}
+                    >
+                      €
+                    </span>
+                  ),
+                }}
+                sx={{
+                  ml: 1,
+                  mt: 0,
+                  mb: 0,
+                  width: "90px",
+                  "& .MuiInputBase-input": {
+                    padding: "8px 8px 8px 12px",
+                    width: "5ch",
+                    boxSizing: "content-box",
+                    color: "red",
+                    fontSize: 18,
+                  },
+                }}
+              />
             </Box>
-            {/* <Box
-              display="flex"
-              alignContent="center"
-              alignItems="center"
-              justifyContent="right"
-            >
-              <Typography variant="body1" sx={{ alignSelf: "center" }}>
-                {t("order.price")} {editedOrder?.totalPrice}€ |{" "}
-                {t("order.daysNumber")} {editedOrder?.numberOfDays}
-              </Typography>
-            </Box> */}
 
             {/* Отладочная информация для поля my_order - ЗАКОММЕНТИРОВАНО */}
             {/*
