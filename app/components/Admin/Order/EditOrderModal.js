@@ -443,9 +443,26 @@ const EditOrderModal = ({
         ) : (
           <>
             <Typography variant="h5" gutterBottom>
-              {t("order.editOrder")} # {order?._id.slice(-4)}
+              {t("order.editOrder")} №
+              {order?.orderNumber ? order.orderNumber.slice(2, -2) : ""}
             </Typography>
+            {/* Новая строка: Количество дней и стоимость */}
             <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="left"
+              sx={{ mb: 1 }}
+            >
+              <Typography variant="body1">
+                {t("order.daysNumber")} {editedOrder?.numberOfDays} |{" "}
+                {t("order.price")}{" "}
+                {typeof calculateTotalRentalPricePerDay === "function"
+                  ? calculateTotalRentalPricePerDay(editedOrder)
+                  : editedOrder?.totalPrice}
+                €
+              </Typography>
+            </Box>
+            {/* <Box
               display="flex"
               alignContent="center"
               alignItems="center"
@@ -455,7 +472,7 @@ const EditOrderModal = ({
                 {t("order.price")} {editedOrder?.totalPrice}€ |{" "}
                 {t("order.daysNumber")} {editedOrder?.numberOfDays}
               </Typography>
-            </Box>
+            </Box> */}
 
             {/* Отладочная информация для поля my_order - ЗАКОММЕНТИРОВАНО */}
             {/*
@@ -634,7 +651,9 @@ const EditOrderModal = ({
                       return (
                         <MenuItem key={option.value} value={option.value}>
                           {option.value === "CDW"
-                            ? `${option.label} ${kaskoPrice}€/${t("perDay")}`
+                            ? `${option.label} ${kaskoPrice}€/${t(
+                                "order.perDay"
+                              )}`
                             : option.label}
                         </MenuItem>
                       );
@@ -667,7 +686,7 @@ const EditOrderModal = ({
                         ? selectedCar.PriceChildSeats
                         : 0;
                     })()}
-                    €/{t("perDay")}
+                    €/{t("order.perDay")}
                   </InputLabel>
                   <Select
                     label={`${t("order.childSeats")} ${(() => {
@@ -677,7 +696,7 @@ const EditOrderModal = ({
                       return selectedCar && selectedCar.PriceChildSeats
                         ? selectedCar.PriceChildSeats
                         : 0;
-                    })()}€/${t("perDay")}`}
+                    })()}€/${t("order.perDay")}`}
                     value={
                       typeof editedOrder.ChildSeats === "number"
                         ? editedOrder.ChildSeats
@@ -703,35 +722,73 @@ const EditOrderModal = ({
 
             <Divider sx={{ my: 2 }} />
 
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                {t("order.clientInfo")}
-              </Typography>
-              {renderField(t("order.clientName"), "customerName")}
-              {renderField(t("order.phone"), "phone")}
-              {renderField(t("order.email"), "email")}
-              {/* Добавлено поле франшизы заказа
-              <Box sx={{ mt: 2 }}>
-                <Typography
-                  variant="body2"
-                  component="span"
-                  sx={{ fontWeight: "bold", mr: 1 }}
-                >
-                  {t("order.franchiseOrder") || "Франшиза заказа"}:
-                </Typography>
+            {/* Блок данных клиента оформлен как в AddOrderModal.js */}
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <FormControl fullWidth margin="dense">
                 <TextField
-                  size="small"
-                  type="number"
-                  value={editedOrder.franchiseOrder || 0}
+                  fullWidth
+                  margin="dense"
+                  label={
+                    <>
+                      <span>{t("order.clientName")}</span>
+                      <span style={{ color: "red" }}>*</span>
+                    </>
+                  }
+                  value={editedOrder.customerName || ""}
                   onChange={(e) =>
                     setEditedOrder((prev) => ({
                       ...prev,
-                      franchiseOrder: Number(e.target.value),
+                      customerName: e.target.value,
                     }))
                   }
-                  sx={{ width: 120 }}
                 />
-              </Box> */}
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  fullWidth
+                  margin="dense"
+                  label={
+                    <>
+                      <span>{t("order.phone")}</span>
+                      <span style={{ color: "red" }}>*</span>
+                    </>
+                  }
+                  value={editedOrder.phone || ""}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }))
+                  }
+                />
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  fullWidth
+                  margin="dense"
+                  label={
+                    <>
+                      {t("order.email")}
+                      <span
+                        style={{
+                          color: "green",
+                          fontWeight: 500,
+                          marginLeft: 8,
+                        }}
+                      >
+                        {t("basic.optional")}
+                      </span>
+                    </>
+                  }
+                  value={editedOrder.email || ""}
+                  onChange={(e) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      email: e.target.value,
+                    }))
+                  }
+                />
+              </FormControl>
             </Box>
 
             <Box
