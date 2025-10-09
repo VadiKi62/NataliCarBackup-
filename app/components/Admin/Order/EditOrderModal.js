@@ -108,8 +108,9 @@ const EditOrderModal = ({
   const locations = company.locations.map((loc) => loc.name);
   const [editedOrder, setEditedOrder] = useState({
     ...order,
-    insurance: order?.insurance || "TPL",
   });
+  // Флаг: первое открытие модального окна (не запускать автосинхронизацию totalPrice)
+  const isFirstOpen = React.useRef(true);
   // Флаг: редактирует ли админ вручную поле totalPrice
   const [isManualTotalPrice, setIsManualTotalPrice] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -227,6 +228,7 @@ const EditOrderModal = ({
       setIsManualTotalPrice(false); // Сброс ручного режима при открытии
       setStartTime(dayjs.utc(order.timeIn));
       setEndTime(dayjs.utc(order.timeOut));
+      isFirstOpen.current = true; // Сбросить флаг при каждом открытии
       if (order.hasConflictDates && order.hasConflictDates.length > 0) {
         const conflictingOrderIds = new Set(order.hasConflictDates);
         const conflicts = allOrders.filter((existingOrder) =>
@@ -257,7 +259,8 @@ const EditOrderModal = ({
 
   // Синхронизация numberOfDays и totalPrice с сервером (если не ручной режим)
   useEffect(() => {
-    // daysAndTotal всегда объект вида { days: number, totalPrice: number }
+    // На первом открытии не трогаем ни numberOfDays, ни totalPrice
+    if (isFirstOpen.current) return;
     if (!isManualTotalPrice) {
       // daysAndTotal может случайно стать объектом вида { totalPrice, days }
       const safeTotalPrice =
@@ -306,9 +309,29 @@ const EditOrderModal = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daysAndTotal.days, daysAndTotal.totalPrice]);
 
-  // Сброс ручного режима при изменении ключевых полей
+  // Сброс ручного режима и isFirstOpen только при реальном изменении ключевых полей
   useEffect(() => {
-    setIsManualTotalPrice(false);
+    if (!order) return;
+    // Проверяем, изменились ли ключевые поля по сравнению с order из базы
+    const isCarChanged = editedOrder.car !== order.car;
+    const isStartChanged =
+      dayjs(editedOrder.rentalStartDate).format("YYYY-MM-DD") !==
+      dayjs(order.rentalStartDate).format("YYYY-MM-DD");
+    const isEndChanged =
+      dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD") !==
+      dayjs(order.rentalEndDate).format("YYYY-MM-DD");
+    const isInsuranceChanged = editedOrder.insurance !== order.insurance;
+    const isChildSeatsChanged = editedOrder.ChildSeats !== order.ChildSeats;
+    if (
+      isCarChanged ||
+      isStartChanged ||
+      isEndChanged ||
+      isInsuranceChanged ||
+      isChildSeatsChanged
+    ) {
+      setIsManualTotalPrice(false);
+      isFirstOpen.current = false;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     editedOrder.car,
@@ -316,6 +339,7 @@ const EditOrderModal = ({
     editedOrder.rentalEndDate,
     editedOrder.insurance,
     editedOrder.ChildSeats,
+    order,
   ]);
 
   const onCloseModalEdit = () => {
@@ -912,13 +936,13 @@ const EditOrderModal = ({
               </Box>
             </Box>
 
-            <Divider
+            {/* <Divider
               sx={{
                 my: 2,
                 borderColor: editedOrder?.my_order ? "#4caf50" : "#f44336",
                 borderWidth: 2,
               }}
-            />
+            /> */}
 
             {/* Блок данных клиента оформлен как в AddOrderModal.js */}
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
