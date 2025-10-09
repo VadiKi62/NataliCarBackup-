@@ -683,7 +683,13 @@ const EditOrderModal = ({
             </Box>
             */}
 
-            <Divider sx={{ my: 2 }} />
+            <Divider
+              sx={{
+                my: 2,
+                borderColor: editedOrder?.my_order ? "#4caf50" : "#f44336",
+                borderWidth: 2,
+              }}
+            />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}
             <FormControl fullWidth sx={{ mb: 2 }}>
@@ -906,7 +912,13 @@ const EditOrderModal = ({
               </Box>
             </Box>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider
+              sx={{
+                my: 2,
+                borderColor: editedOrder?.my_order ? "#4caf50" : "#f44336",
+                borderWidth: 2,
+              }}
+            />
 
             {/* Блок данных клиента оформлен как в AddOrderModal.js */}
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>

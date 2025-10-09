@@ -90,12 +90,13 @@ export const PUT = async (req) => {
       placeIn,
       placeOut,
       car, // id нового автомобиля
-      childSeats,
+      ChildSeats,
       insurance,
       franchiseOrder,
+      totalPrice: totalPriceFromClient,
     } = await req.json();
 
-    console.log("PAYLOAD FROM FRONTEND:", { childSeats, insurance });
+    console.log("PAYLOAD FROM FRONTEND:", { ChildSeats, insurance });
 
     // Найти заказ
     const order = await Order.findById(_id).populate("car");
@@ -227,19 +228,22 @@ export const PUT = async (req) => {
           const rentalDays202 = Math.ceil(
             (end - start) / (1000 * 60 * 60 * 24)
           );
-          const totalPrice202 =
-            carDoc && carDoc.calculateTotalRentalPricePerDay
-              ? await carDoc.calculateTotalRentalPricePerDay(
-                  start,
-                  end,
-                  insurance,
-                  childSeats
-                )
-              : 0;
+          let totalPrice202 = 0;
+          let days202 = rentalDays202;
+          if (carDoc && carDoc.calculateTotalRentalPricePerDay) {
+            const result = await carDoc.calculateTotalRentalPricePerDay(
+              start,
+              end,
+              insurance,
+              ChildSeats
+            );
+            totalPrice202 = result.total;
+            days202 = result.days;
+          }
 
           order.rentalStartDate = start.toDate();
           order.rentalEndDate = end.toDate();
-          order.numberOfDays = rentalDays202;
+          order.numberOfDays = days202;
           order.totalPrice = totalPrice202;
           order.timeIn = toParseTime(order.rentalStartDate, start);
           order.timeOut = toParseTime(order.rentalEndDate, end);
@@ -253,8 +257,8 @@ export const PUT = async (req) => {
             ]),
           ];
 
-          order.childSeats =
-            typeof childSeats !== "undefined" ? childSeats : order.childSeats;
+          order.ChildSeats =
+            typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
           order.insurance =
             typeof insurance !== "undefined" ? insurance : order.insurance;
 
@@ -276,28 +280,36 @@ export const PUT = async (req) => {
 
     // Recalculate the rental details
     const rentalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-    const totalPrice =
-      carDoc && carDoc.calculateTotalRentalPricePerDay
-        ? await carDoc.calculateTotalRentalPricePerDay(
-            start,
-            end,
-            insurance,
-            childSeats
-          )
-        : 0;
+    let totalPrice = 0;
+    let days = rentalDays;
+    if (
+      typeof totalPriceFromClient === "number" &&
+      !isNaN(totalPriceFromClient)
+    ) {
+      totalPrice = totalPriceFromClient;
+    } else if (carDoc && carDoc.calculateTotalRentalPricePerDay) {
+      const result = await carDoc.calculateTotalRentalPricePerDay(
+        start,
+        end,
+        insurance,
+        ChildSeats
+      );
+      totalPrice = result.total;
+      days = result.days;
+    }
 
     // Update the order
     order.rentalStartDate = start.toDate();
     order.rentalEndDate = end.toDate();
-    order.numberOfDays = rentalDays;
+    order.numberOfDays = days;
     order.totalPrice = totalPrice;
     order.timeIn = toParseTime(order.rentalStartDate, start);
     order.timeOut = toParseTime(order.rentalEndDate, end);
     order.placeIn = placeIn || order.placeIn;
     order.placeOut = placeOut || order.placeOut;
 
-    order.childSeats =
-      typeof childSeats !== "undefined" ? childSeats : order.childSeats;
+    order.ChildSeats =
+      typeof ChildSeats !== "undefined" ? ChildSeats : order.ChildSeats;
     order.insurance =
       typeof insurance !== "undefined" ? insurance : order.insurance;
     order.franchiseOrder =
@@ -312,7 +324,7 @@ export const PUT = async (req) => {
       timeOut: order.timeOut,
       placeIn: order.placeIn,
       placeOut: order.placeOut,
-      childSeats: order.childSeats,
+      ChildSeats: order.ChildSeats,
       insurance: order.insurance,
       franchiseOrder: order.franchiseOrder,
       customerName: order.customerName,
