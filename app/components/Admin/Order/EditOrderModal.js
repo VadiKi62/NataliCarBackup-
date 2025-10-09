@@ -587,7 +587,7 @@ const EditOrderModal = ({
           width: { xs: 500, md: 700 },
           maxWidth: "90%",
           p: { xs: 2, md: 4 },
-          maxHeight: "90vh",
+          maxHeight: "96vh",
           overflow: "auto",
           border: isConflictOrder ? "4px solid #FF0000" : "none",
           animation: isConflictOrder ? "pulse 2s infinite" : "none",
@@ -709,14 +709,14 @@ const EditOrderModal = ({
 
             <Divider
               sx={{
-                my: 2,
+                my: 1.5,
                 borderColor: editedOrder?.my_order ? "#4caf50" : "#f44336",
                 borderWidth: 2,
               }}
             />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}
-            <FormControl fullWidth sx={{ mb: 2 }}>
+            <FormControl fullWidth sx={{ mb: 1 }}>
               <InputLabel id="car-select-label">{t("order.car")}</InputLabel>
               <Select
                 labelId="car-select-label"
@@ -760,12 +760,12 @@ const EditOrderModal = ({
               </Button>
             </Box>
 
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <Box
                 sx={{
                   display: "flex",
                   gap: 2,
-                  mb: 2,
+                  mb: 1,
                   alignItems: "flex-start",
                 }}
               >
@@ -817,7 +817,7 @@ const EditOrderModal = ({
                 />
               </Box>
               {/* Место получения и возврата в одной строке */}
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
                 <RenderSelectField
                   name="placeIn"
                   label={t("order.pickupLocation")}
@@ -837,8 +837,8 @@ const EditOrderModal = ({
                   sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
                 />
               </Box>
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <FormControl fullWidth sx={{ width: "25%" }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+                <FormControl fullWidth sx={{ width: "30%" }}>
                   <InputLabel>{t("order.insurance")}</InputLabel>
                   <Select
                     label={t("order.insurance")}
@@ -876,7 +876,7 @@ const EditOrderModal = ({
                     })}
                   </Select>
                 </FormControl>
-                <Box sx={{ width: "25%" }}>
+                <Box sx={{ width: "16%" }}>
                   <RenderTextField
                     name="franchiseOrder"
                     label={t("car.franchise") || "Франшиза заказа"}
@@ -891,7 +891,7 @@ const EditOrderModal = ({
                     isLoading={loading}
                   />
                 </Box>
-                <FormControl fullWidth sx={{ width: "25%" }}>
+                <FormControl fullWidth sx={{ width: "48%" }}>
                   <InputLabel>
                     {t("order.childSeats")}{" "}
                     {(() => {
@@ -944,9 +944,9 @@ const EditOrderModal = ({
               }}
             /> */}
 
-            {/* Блок данных клиента оформлен как в AddOrderModal.js */}
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <FormControl fullWidth margin="dense">
+            {/* Блок данных клиента: имя на отдельной строке, телефон и email — ниже в одну строку */}
+            <Box sx={{ mb: 0.5 }}>
+              <FormControl fullWidth margin="dense" sx={{ mb: 0.5 }}>
                 <TextField
                   fullWidth
                   margin="dense"
@@ -965,57 +965,59 @@ const EditOrderModal = ({
                   }
                 />
               </FormControl>
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  fullWidth
-                  margin="dense"
-                  label={
-                    <>
-                      <span>{t("order.phone")}</span>
-                      <span style={{ color: "red" }}>*</span>
-                    </>
-                  }
-                  value={editedOrder.phone || ""}
-                  onChange={(e) =>
-                    setEditedOrder((prev) => ({
-                      ...prev,
-                      phone: e.target.value,
-                    }))
-                  }
-                />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  fullWidth
-                  margin="dense"
-                  label={
-                    <>
-                      {t("order.email")}
-                      <span
-                        style={{
-                          color: "green",
-                          fontWeight: 500,
-                          marginLeft: 8,
-                        }}
-                      >
-                        {t("basic.optional")}
-                      </span>
-                    </>
-                  }
-                  value={editedOrder.email || ""}
-                  onChange={(e) =>
-                    setEditedOrder((prev) => ({
-                      ...prev,
-                      email: e.target.value,
-                    }))
-                  }
-                />
-              </FormControl>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <FormControl fullWidth margin="dense" sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    margin="dense"
+                    label={
+                      <>
+                        <span>{t("order.phone")}</span>
+                        <span style={{ color: "red" }}>*</span>
+                      </>
+                    }
+                    value={editedOrder.phone || ""}
+                    onChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                  />
+                </FormControl>
+                <FormControl fullWidth margin="dense" sx={{ flex: 1 }}>
+                  <TextField
+                    fullWidth
+                    margin="dense"
+                    label={
+                      <>
+                        {t("order.email")}
+                        <span
+                          style={{
+                            color: "green",
+                            fontWeight: 500,
+                            marginLeft: 8,
+                          }}
+                        >
+                          {t("basic.optional")}
+                        </span>
+                      </>
+                    }
+                    value={editedOrder.email || ""}
+                    onChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                  />
+                </FormControl>
+              </Box>
             </Box>
 
             <Box
               sx={{
-                mt: 2,
+                mt: 1,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
