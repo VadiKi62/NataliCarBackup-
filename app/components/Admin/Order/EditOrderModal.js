@@ -63,6 +63,7 @@ import {
   MenuItem,
   Checkbox,
   FormControlLabel,
+  Autocomplete,
 } from "@mui/material";
 import { RenderTextField } from "@app/components/common/Fields";
 import dayjs from "dayjs";
@@ -601,9 +602,23 @@ const EditOrderModal = ({
           </Box>
         ) : (
           <>
-            <Typography variant="h5" gutterBottom>
+            <Typography
+              variant="h6"
+              color="primary.main"
+              sx={{ letterSpacing: "-0.5px", fontSize: "1.3rem" }}
+            >
               {t("order.editOrder")} №
               {order?.orderNumber ? order.orderNumber.slice(2, -2) : ""}
+              {(() => {
+                // Найти автомобиль по id заказа
+                const carObj = cars?.find(
+                  (c) => c._id === (order?.car || editedOrder?.car)
+                );
+                if (carObj) {
+                  return ` (${carObj.model} ${carObj.regNumber})`;
+                }
+                return "";
+              })()}
             </Typography>
             {/* Новая строка: Количество дней и стоимость */}
             <Box
@@ -717,7 +732,7 @@ const EditOrderModal = ({
             />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}
-            <FormControl fullWidth sx={{ mb: 1, minHeight: 36 }} size="small">
+            {/* <FormControl fullWidth sx={{ mb: 1, minHeight: 36 }} size="small">
               <InputLabel id="car-select-label">{t("order.car")}</InputLabel>
               <Select
                 labelId="car-select-label"
@@ -742,7 +757,7 @@ const EditOrderModal = ({
                       </MenuItem>
                     ))}
               </Select>
-            </FormControl>
+            </FormControl> */}
             {/* --- КОНЕЦ ВЫБОРА АВТОМОБИЛЯ --- */}
 
             <Box sx={{ mb: 2 }}>
@@ -819,16 +834,32 @@ const EditOrderModal = ({
                   size="small"
                 />
               </Box>
-              {/* Место получения и возврата в одной строке */}
-              <Box sx={{ display: "flex", gap: 2, mb: 0 }}>
-                <RenderSelectField
-                  name="placeIn"
-                  label={t("order.pickupLocation")}
+              {/* Место получения и возврата: Autocomplete с freeSolo */}
+              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+                <Autocomplete
+                  freeSolo
                   options={locations}
-                  updatedCar={editedOrder}
-                  handleChange={handleChangeSelectedBox}
-                  required
-                  size="small"
+                  value={editedOrder.placeIn || ""}
+                  onChange={(_, newValue) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      placeIn: newValue || "",
+                    }))
+                  }
+                  onInputChange={(_, newInputValue) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      placeIn: newInputValue,
+                    }))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t("order.pickupLocation")}
+                      size="small"
+                      required
+                    />
+                  )}
                   sx={{
                     flex: "0 1 180px",
                     minWidth: 120,
@@ -836,14 +867,30 @@ const EditOrderModal = ({
                     minHeight: 36,
                   }}
                 />
-                <RenderSelectField
-                  name="placeOut"
-                  label={t("order.returnLocation")}
-                  updatedCar={editedOrder}
+                <Autocomplete
+                  freeSolo
                   options={locations}
-                  handleChange={handleChangeSelectedBox}
-                  required
-                  size="small"
+                  value={editedOrder.placeOut || ""}
+                  onChange={(_, newValue) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      placeOut: newValue || "",
+                    }))
+                  }
+                  onInputChange={(_, newInputValue) =>
+                    setEditedOrder((prev) => ({
+                      ...prev,
+                      placeOut: newInputValue,
+                    }))
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={t("order.returnLocation")}
+                      size="small"
+                      required
+                    />
+                  )}
                   sx={{
                     flex: "0 1 180px",
                     minWidth: 120,
@@ -853,7 +900,12 @@ const EditOrderModal = ({
                 />
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 0 }}>
-                <FormControl fullWidth sx={{ width: "30%" }}>
+                <FormControl
+                  fullWidth
+                  sx={{
+                    width: editedOrder.insurance === "TPL" ? "48%" : "30%",
+                  }}
+                >
                   <InputLabel>{t("order.insurance")}</InputLabel>
                   <Select
                     label={t("order.insurance")}
@@ -891,21 +943,23 @@ const EditOrderModal = ({
                     })}
                   </Select>
                 </FormControl>
-                <Box sx={{ width: "16%" }}>
-                  <RenderTextField
-                    name="franchiseOrder"
-                    label={t("car.franchise") || "Франшиза заказа"}
-                    type="number"
-                    updatedCar={editedOrder}
-                    handleChange={(e) =>
-                      setEditedOrder((prev) => ({
-                        ...prev,
-                        franchiseOrder: Number(e.target.value),
-                      }))
-                    }
-                    isLoading={loading}
-                  />
-                </Box>
+                {editedOrder.insurance === "CDW" && (
+                  <Box sx={{ width: "16%" }}>
+                    <RenderTextField
+                      name="franchiseOrder"
+                      label={t("car.franchise") || "Франшиза заказа"}
+                      type="number"
+                      updatedCar={editedOrder}
+                      handleChange={(e) =>
+                        setEditedOrder((prev) => ({
+                          ...prev,
+                          franchiseOrder: Number(e.target.value),
+                        }))
+                      }
+                      isLoading={loading}
+                    />
+                  </Box>
+                )}
                 <FormControl fullWidth sx={{ width: "48%" }}>
                   <InputLabel>
                     {t("order.childSeats")}{" "}
