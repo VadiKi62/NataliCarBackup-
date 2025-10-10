@@ -587,7 +587,8 @@ const EditOrderModal = ({
           width: { xs: 500, md: 700 },
           maxWidth: "90%",
           p: { xs: 2, md: 4 },
-          maxHeight: "96vh",
+          pt: { xs: 1, md: 2 },
+          maxHeight: "99vh",
           overflow: "auto",
           border: isConflictOrder ? "4px solid #FF0000" : "none",
           animation: isConflictOrder ? "pulse 2s infinite" : "none",
@@ -716,19 +717,21 @@ const EditOrderModal = ({
             />
 
             {/* --- ВЫПАДАЮЩИЙ СПИСОК ДЛЯ ВЫБОРА АВТОМОБИЛЯ --- */}
-            <FormControl fullWidth sx={{ mb: 1 }}>
+            <FormControl fullWidth sx={{ mb: 1, minHeight: 36 }} size="small">
               <InputLabel id="car-select-label">{t("order.car")}</InputLabel>
               <Select
                 labelId="car-select-label"
                 value={editedOrder.car}
                 label={t("order.car")}
                 name="car"
+                size="small"
                 onChange={(e) =>
                   setEditedOrder((prev) => ({
                     ...prev,
                     car: e.target.value,
                   }))
                 }
+                sx={{ minHeight: 36 }}
               >
                 {cars &&
                   [...cars]
@@ -742,7 +745,7 @@ const EditOrderModal = ({
             </FormControl>
             {/* --- КОНЕЦ ВЫБОРА АВТОМОБИЛЯ --- */}
 
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 2 }}>
               <Button
                 variant="contained"
                 onClick={handleConfirmationToggle}
@@ -798,7 +801,7 @@ const EditOrderModal = ({
                   size="small"
                 />
               </Box>
-              <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
                 <TextField
                   label={t("order.pickupTime")}
                   type="time"
@@ -817,7 +820,7 @@ const EditOrderModal = ({
                 />
               </Box>
               {/* Место получения и возврата в одной строке */}
-              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 0 }}>
                 <RenderSelectField
                   name="placeIn"
                   label={t("order.pickupLocation")}
@@ -825,7 +828,13 @@ const EditOrderModal = ({
                   updatedCar={editedOrder}
                   handleChange={handleChangeSelectedBox}
                   required
-                  sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
+                  size="small"
+                  sx={{
+                    flex: "0 1 180px",
+                    minWidth: 120,
+                    maxWidth: 180,
+                    minHeight: 36,
+                  }}
                 />
                 <RenderSelectField
                   name="placeOut"
@@ -834,10 +843,16 @@ const EditOrderModal = ({
                   options={locations}
                   handleChange={handleChangeSelectedBox}
                   required
-                  sx={{ flex: "0 1 180px", minWidth: 120, maxWidth: 180 }}
+                  size="small"
+                  sx={{
+                    flex: "0 1 180px",
+                    minWidth: 120,
+                    maxWidth: 180,
+                    minHeight: 36,
+                  }}
                 />
               </Box>
-              <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 0 }}>
                 <FormControl fullWidth sx={{ width: "30%" }}>
                   <InputLabel>{t("order.insurance")}</InputLabel>
                   <Select
@@ -945,8 +960,8 @@ const EditOrderModal = ({
             /> */}
 
             {/* Блок данных клиента: имя на отдельной строке, телефон и email — ниже в одну строку */}
-            <Box sx={{ mb: 0.5 }}>
-              <FormControl fullWidth margin="dense" sx={{ mb: 0.5 }}>
+            <Box sx={{ mb: 0 }}>
+              <FormControl fullWidth margin="dense" sx={{ mt: 0, mb: 0 }}>
                 <TextField
                   fullWidth
                   margin="dense"
@@ -965,11 +980,16 @@ const EditOrderModal = ({
                   }
                 />
               </FormControl>
-              <Box sx={{ display: "flex", gap: 2 }}>
-                <FormControl fullWidth margin="dense" sx={{ flex: 1 }}>
+              <Box sx={{ display: "flex", gap: 2, mb: 0 }}>
+                <FormControl
+                  fullWidth
+                  margin="dense"
+                  sx={{ flex: 1, minHeight: 36 }}
+                >
                   <TextField
                     fullWidth
                     margin="dense"
+                    size="small"
                     label={
                       <>
                         <span>{t("order.phone")}</span>
@@ -985,10 +1005,15 @@ const EditOrderModal = ({
                     }
                   />
                 </FormControl>
-                <FormControl fullWidth margin="dense" sx={{ flex: 1 }}>
+                <FormControl
+                  fullWidth
+                  margin="dense"
+                  sx={{ flex: 1, minHeight: 36 }}
+                >
                   <TextField
                     fullWidth
                     margin="dense"
+                    size="small"
                     label={
                       <>
                         {t("order.email")}
