@@ -793,27 +793,61 @@ const EditOrderModal = ({
                   value={dayjs(editedOrder.rentalStartDate).format(
                     "YYYY-MM-DD"
                   )}
-                  onChange={(e) =>
-                    setEditedOrder((prev) => ({
-                      ...prev,
-                      rentalStartDate: dayjs(e.target.value),
-                    }))
-                  }
-                  sx={{ flex: 1 }}
-                  size="small"
+                  onChange={(e) => {
+                    const newStart = dayjs(e.target.value);
+                    setEditedOrder((prev) => {
+                      const currentReturn = dayjs(prev.rentalEndDate);
+                      // Если новая дата получения делает дату возврата некорректной — не менять дату получения
+                      if (
+                        currentReturn.isValid() &&
+                        newStart.isValid() &&
+                        !currentReturn.isAfter(newStart, "day")
+                      ) {
+                        return prev;
+                      }
+                      return {
+                        ...prev,
+                        rentalStartDate: newStart,
+                      };
+                    });
+                  }}
+                  sx={{ flex: 1, minHeight: 48 }}
+                  size="medium"
+                  InputProps={{ style: { minHeight: 48 } }}
                 />
                 <TextField
                   label={t("order.returnDate")}
                   type="date"
-                  value={dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD")}
-                  onChange={(e) =>
-                    setEditedOrder((prev) => ({
-                      ...prev,
-                      rentalEndDate: dayjs(e.target.value),
-                    }))
+                  value={
+                    editedOrder.rentalEndDate
+                      ? dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD")
+                      : ""
                   }
-                  sx={{ flex: 1 }}
-                  size="small"
+                  onChange={(e) => {
+                    const newReturn = dayjs(e.target.value);
+                    const minReturn = dayjs(editedOrder.rentalStartDate).add(
+                      1,
+                      "day"
+                    );
+                    // Только если новая дата возврата больше даты получения минимум на 1 день
+                    if (
+                      newReturn.isValid() &&
+                      newReturn.isAfter(minReturn.subtract(1, "day"), "day")
+                    ) {
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        rentalEndDate: newReturn,
+                      }));
+                    }
+                  }}
+                  sx={{ flex: 1, minHeight: 48 }}
+                  size="medium"
+                  InputProps={{ style: { minHeight: 48 } }}
+                  inputProps={{
+                    min: dayjs(editedOrder.rentalStartDate)
+                      .add(1, "day")
+                      .format("YYYY-MM-DD"),
+                  }}
                 />
               </Box>
               <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
@@ -856,15 +890,17 @@ const EditOrderModal = ({
                     <TextField
                       {...params}
                       label={t("order.pickupLocation")}
-                      size="small"
+                      size="medium"
                       required
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { minHeight: 48 },
+                      }}
                     />
                   )}
                   sx={{
-                    flex: "0 1 180px",
-                    minWidth: 120,
-                    maxWidth: 180,
-                    minHeight: 36,
+                    flex: 1,
+                    minHeight: 48,
                   }}
                 />
                 <Autocomplete
@@ -887,15 +923,17 @@ const EditOrderModal = ({
                     <TextField
                       {...params}
                       label={t("order.returnLocation")}
-                      size="small"
+                      size="medium"
                       required
+                      InputProps={{
+                        ...params.InputProps,
+                        style: { minHeight: 48 },
+                      }}
                     />
                   )}
                   sx={{
-                    flex: "0 1 180px",
-                    minWidth: 120,
-                    maxWidth: 180,
-                    minHeight: 36,
+                    flex: 1,
+                    minHeight: 48,
                   }}
                 />
               </Box>
@@ -903,7 +941,7 @@ const EditOrderModal = ({
                 <FormControl
                   fullWidth
                   sx={{
-                    width: editedOrder.insurance === "TPL" ? "48%" : "30%",
+                    width: editedOrder.insurance === "TPL" ? "49%" : "30%",
                   }}
                 >
                   <InputLabel>{t("order.insurance")}</InputLabel>
@@ -960,7 +998,7 @@ const EditOrderModal = ({
                     />
                   </Box>
                 )}
-                <FormControl fullWidth sx={{ width: "48%" }}>
+                <FormControl fullWidth sx={{ width: "49%" }}>
                   <InputLabel>
                     {t("order.childSeats")}{" "}
                     {(() => {
