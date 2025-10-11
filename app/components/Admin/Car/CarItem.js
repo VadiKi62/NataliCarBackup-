@@ -110,9 +110,15 @@ const ImageOverlay = styled(Box)(({ theme }) => ({
 }));
 
 function CarItem({ car, onCarDelete, setUpdateStatus }) {
+  // Диагностика: выводим объект car в консоль при каждом рендере
+  //console.log('CarItem car:', car);
+
   const { updateCarInContext, setIsLoading, resubmitCars } = useMainContext();
   const [modalOpen, setModalOpen] = useState(false);
-  const [updatedCar, setUpdatedCar] = useState({ ...car });
+  const [updatedCar, setUpdatedCar] = useState({
+    ...car,
+    deposit: car.deposit,
+  });
   const [previewImage, setPreviewImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const fileInputRef = useRef(null);

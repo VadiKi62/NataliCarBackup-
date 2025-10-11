@@ -210,6 +210,30 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
         <CarImage
           style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}
         >
+          {/* Стикер 'Без депозита' */}
+          {!imageLoading && car.deposit === 0 && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                zIndex: 2,
+                bgcolor: "#ffe066",
+                color: "#333",
+                px: 2,
+                py: 0.5,
+                borderRadius: 2,
+                fontWeight: 700,
+                fontSize: { xs: "0.85rem", sm: "1rem" },
+                boxShadow: 2,
+                border: "2px solid #ffd700",
+                textTransform: "uppercase",
+                pointerEvents: "none",
+              }}
+            >
+              {t("car.noDeposit") || "Без депозита"}
+            </Box>
+          )}
           {imageLoading ? (
             <Box
               display="flex"

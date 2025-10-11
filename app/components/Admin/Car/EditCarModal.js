@@ -48,6 +48,9 @@ const EditCarModal = ({
   setUpdatedCar,
   //updateCarInContext,
 }) => {
+  // Диагностика: выводим объект updatedCar в консоль при каждом рендере
+  // console.log('EditCarModal updatedCar:', updatedCar);
+
   const { updateCarInContext, setUpdateStatus, updateStatus } =
     useMainContext();
 
@@ -165,7 +168,11 @@ const EditCarModal = ({
                 type="number"
                 name="deposit"
                 label={t("car.deposit") || "Залог, €"}
-                defaultValue={updatedCar.deposit || 0}
+                defaultValue={
+                  typeof updatedCar.deposit !== "undefined"
+                    ? updatedCar.deposit
+                    : ""
+                }
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}
