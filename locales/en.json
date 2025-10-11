@@ -101,7 +101,8 @@
     "engine": "Engine",
     "childSeatsPrice": "Child seat price",
     "franchise": "Franchise",
-    "KackoPrice": "CDW price per day"
+    "KackoPrice": "CDW price per day",
+    "deposit": "Deposit"
   },
   "bookMesssages": {
     "bookOK": "Booking Confirmed. Thank you for booking with us!",

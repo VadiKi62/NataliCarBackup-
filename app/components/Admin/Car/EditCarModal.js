@@ -161,6 +161,15 @@ const EditCarModal = ({
                 handleChange={handleChange}
                 isLoading={isLoading}
               />
+              <RenderTextField
+                type="number"
+                name="deposit"
+                label={t("car.deposit") || "Залог, €"}
+                defaultValue={updatedCar.deposit || 0}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
             </Stack>
           </Grid>
 

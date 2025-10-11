@@ -261,6 +261,14 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
+                    <RenderTextField
+                      type="number"
+                      name="deposit"
+                      label={t("car.deposit") || "Залог, €"}
+                      defaultValue={carData.deposit || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
                   </Stack>
                 </Grid>
 

@@ -29,6 +29,10 @@ const createEnumValidator = (enumObject) => ({
 });
 
 const CarSchema = new Schema({
+  deposit: {
+    type: Number,
+    default: 0,
+  },
   carNumber: {
     type: String,
     required: true,
