@@ -199,13 +199,40 @@ const AddCarModal = ({
                     />
                     <RenderTextField
                       type="number"
+                      name="PriceKacko"
+                      label={t("car.KackoPrice") || "Цена КАСКО в день"}
+                      defaultValue={carData.PriceKacko || 5}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={carData.airConditioning || false}
+                          onChange={handleChange}
+                          name="airConditioning"
+                        />
+                      }
+                      label={t("car.air")}
+                      sx={{ my: 1 }}
+                    />
+                    {/* <RenderTextField
+                      type="number"
+                      name="franchise"
+                      label={t("car.franchise")}
+                      defaultValue={carData.franchise || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    /> */}
+                    {/* <RenderTextField
+                      type="number"
                       name="PriceChildSeats"
                       label={t("car.childSeatsPrice")}
                       //label="Цена КАСКО в день"
                       defaultValue={carData.PriceChildSeats || 3}
                       updatedCar={carData}
                       handleChange={handleChange}
-                    />{" "}
+                    />{" "} */}
                     {/* <RenderTextField
                       type="number"
                       name="PriceKacko"
@@ -253,19 +280,27 @@ const AddCarModal = ({
                       updatedCar={carData}
                       handleChange={handleChange}
                     /> */}
-                    <RenderTextField
+                    {/* <RenderTextField
                       type="number"
                       name="PriceKacko"
                       label={t("car.KackoPrice") || "Цена КАСКО в день"}
                       defaultValue={carData.PriceKacko || 5}
                       updatedCar={carData}
                       handleChange={handleChange}
-                    />
-                    <RenderTextField
+                    /> */}
+                    {/* <RenderTextField
                       type="number"
                       name="deposit"
                       label={t("car.deposit") || "Залог, €"}
                       defaultValue={carData.deposit || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    /> */}
+                    <RenderTextField
+                      type="number"
+                      name="franchise"
+                      label={t("car.franchise")}
+                      defaultValue={carData.franchise || 0}
                       updatedCar={carData}
                       handleChange={handleChange}
                     />
@@ -324,15 +359,22 @@ const AddCarModal = ({
                         />
                       )}
                     />
-
                     <RenderTextField
+                      type="number"
+                      name="deposit"
+                      label={t("car.deposit") || "Залог, €"}
+                      defaultValue={carData.deposit || 0}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
+                    {/* <RenderTextField
                       type="number"
                       name="franchise"
                       label={t("car.franchise")}
                       defaultValue={carData.franchise || 0}
                       updatedCar={carData}
                       handleChange={handleChange}
-                    />
+                    /> */}
                   </Stack>
                 </Grid>
 
@@ -355,6 +397,14 @@ const AddCarModal = ({
                       adornment="bhp"
                       required
                     />
+                    <RenderTextField
+                      type="number"
+                      name="PriceChildSeats"
+                      label={t("car.childSeatsPrice")}
+                      defaultValue={carData.PriceChildSeats || 3}
+                      updatedCar={carData}
+                      handleChange={handleChange}
+                    />
                     <CarImageUpload
                       photoUrl={carData.photoUrl}
                       handleChange={handleChange}
@@ -362,7 +412,7 @@ const AddCarModal = ({
                       imagePreview={imagePreview}
                       required
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                       control={
                         <Checkbox
                           checked={carData.airConditioning || false}
@@ -372,7 +422,7 @@ const AddCarModal = ({
                       }
                       label={t("car.air")}
                       sx={{ my: 1 }}
-                    />
+                    /> */}
                   </Stack>
                 </Grid>
 

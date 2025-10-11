@@ -145,7 +145,7 @@ const EditCarModal = ({
                 handleChange={handleChange}
                 isLoading={isLoading}
               />
-              <RenderTextField
+              {/* <RenderTextField
                 type="number"
                 name="PriceChildSeats"
                 label={t("car.childSeatsPrice") || "Цена детских кресел"}
@@ -153,7 +153,7 @@ const EditCarModal = ({
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}
-              />{" "}
+              />{" "} */}
               <RenderTextField
                 type="number"
                 name="PriceKacko"
@@ -164,7 +164,7 @@ const EditCarModal = ({
                 handleChange={handleChange}
                 isLoading={isLoading}
               />
-              <RenderTextField
+              {/* <RenderTextField
                 type="number"
                 name="deposit"
                 label={t("car.deposit") || "Залог, €"}
@@ -176,7 +176,7 @@ const EditCarModal = ({
                 updatedCar={updatedCar}
                 handleChange={handleChange}
                 isLoading={isLoading}
-              />
+              /> */}
             </Stack>
           </Grid>
 
@@ -275,6 +275,28 @@ const EditCarModal = ({
                   />
                 )}
               />
+              <RenderTextField
+                type="number"
+                name="deposit"
+                label={t("car.deposit") || "Залог, €"}
+                defaultValue={
+                  typeof updatedCar.deposit !== "undefined"
+                    ? updatedCar.deposit
+                    : ""
+                }
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              />
+              {/* <RenderTextField
+                type="number"
+                name="franchise"
+                label={t("car.franchise") || "Франшиза"}
+                defaultValue={updatedCar.franchise}
+                updatedCar={updatedCar}
+                handleChange={handleChange}
+                isLoading={isLoading}
+              /> */}
             </Stack>
           </Grid>
 
@@ -298,6 +320,15 @@ const EditCarModal = ({
               isLoading={isLoading}
               adornment="bhp"
             />
+            <RenderTextField
+              type="number"
+              name="PriceChildSeats"
+              label={t("car.childSeatsPrice") || "Цена детских кресел"}
+              defaultValue={updatedCar.PriceChildSeats}
+              updatedCar={updatedCar}
+              handleChange={handleChange}
+              isLoading={isLoading}
+            />{" "}
             <FormControlLabel
               control={
                 <Checkbox
@@ -308,7 +339,7 @@ const EditCarModal = ({
                 />
               }
               label={t("car.air")}
-              sx={{ my: 2 }}
+              sx={{ my: 0.5 }}
             />
           </Grid>
 
