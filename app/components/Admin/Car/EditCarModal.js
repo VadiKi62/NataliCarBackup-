@@ -19,6 +19,7 @@ import {
   CircularProgress,
   InputAdornment,
   Stack,
+  Autocomplete,
 } from "@mui/material";
 import Snackbar from "@app/components/common/Snackbar";
 import { styled } from "@mui/material/styles";
@@ -224,10 +225,39 @@ const EditCarModal = ({
                 isLoading={isLoading}
                 adornment="c.c."
               />
-              <ColorPicker
+              <Autocomplete
+                freeSolo
+                options={Object.values(PREDEFINED_COLORS)}
                 value={updatedCar.color || ""}
-                onChange={handleChange}
-                disabled={isLoading}
+                getOptionLabel={(option) =>
+                  typeof option === "string" && option.length > 0
+                    ? option.charAt(0).toUpperCase() + option.slice(1)
+                    : option
+                }
+                onChange={(_, newValue) => {
+                  handleChange({
+                    target: {
+                      name: "color",
+                      value: (newValue || "").toLowerCase(),
+                    },
+                  });
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t("car.color") || "Цвет"}
+                    name="color"
+                    disabled={isLoading}
+                    onChange={(e) => {
+                      handleChange({
+                        target: {
+                          name: "color",
+                          value: e.target.value.toLowerCase(),
+                        },
+                      });
+                    }}
+                  />
+                )}
               />
             </Stack>
           </Grid>
@@ -314,94 +344,3 @@ const EditCarModal = ({
 };
 
 export default EditCarModal;
-
-const ColorPicker = ({ value, onChange, disabled = false }) => {
-  const [colorMode, setColorMode] = useState(
-    Object.values(PREDEFINED_COLORS).includes(value?.toLowerCase())
-      ? "predefined"
-      : "custom"
-  );
-
-  const handleColorModeChange = (event) => {
-    setColorMode(event.target.value);
-    // Reset to first predefined color if switching to predefined mode
-    if (event.target.value === "predefined") {
-      onChange({ target: { name: "color", value: PREDEFINED_COLORS.BLACK } });
-    }
-  };
-
-  const handleColorChange = (event) => {
-    onChange({
-      target: { name: "color", value: event.target.value.toLowerCase() },
-    });
-  };
-  const { t } = useTranslation();
-  return (
-    <Box sx={{ mt: 1 }}>
-      {colorMode === "predefined" ? (
-        <FormControl fullWidth disabled={disabled}>
-          <Select
-            value={value || ""}
-            onChange={handleColorChange}
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: "4px",
-                    backgroundColor: selected,
-                    border: "1px solid rgba(0, 0, 0, 0.12)",
-                  }}
-                />
-                {selected.charAt(0).toUpperCase() + selected.slice(1)}
-              </Box>
-            )}
-          >
-            {Object.entries(PREDEFINED_COLORS).map(([key, color]) => (
-              <MenuItem key={key} value={color}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "4px",
-                      backgroundColor: color,
-                      border: "1px solid rgba(0, 0, 0, 0.12)",
-                    }}
-                  />
-                  {color.charAt(0).toUpperCase() + color.slice(1)}
-                </Box>
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      ) : (
-        <TextField
-          fullWidth
-          name="color"
-          placeholder="Введите свой цвет"
-          value={value || ""}
-          onChange={handleColorChange}
-          disabled={disabled}
-        />
-      )}
-      <RadioGroup row value={colorMode} onChange={handleColorModeChange}>
-        <FormControlLabel
-          sx={{ my: -0.5 }}
-          value="predefined"
-          control={<Radio size="small" />}
-          label={t("carPark.selList")}
-          disabled={disabled}
-        />
-        <FormControlLabel
-          sx={{ my: -1 }}
-          value="custom"
-          control={<Radio size="small" />}
-          label={t("carPark.myColor")}
-          disabled={disabled}
-        />
-      </RadioGroup>
-    </Box>
-  );
-};
