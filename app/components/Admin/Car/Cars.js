@@ -26,6 +26,8 @@ function Cars({ onCarDelete, setUpdateStatus }) {
     error,
   } = useMainContext();
 
+  // Диагностика: выводим массив cars в консоль после загрузки с сервера
+  console.log("Cars.js cars:", cars);
   const [carsData, setCars] = useState(cars);
 
   console.log("cars", cars);

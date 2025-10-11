@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import {
   Table,
   TableHead,
@@ -29,7 +35,15 @@ import { changeRentalDates } from "@utils/action";
 import EditCarModal from "@app/components/Admin/Car/EditCarModal";
 
 export default function BigCalendar({ cars }) {
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  // Состояние для хранения ключа последнего снэка
+  const snackKeyRef = useRef(0);
+  // Обёртка для enqueueSnackbar, чтобы всегда показывался только один снэк
+  const showSingleSnackbar = (message, options = {}) => {
+    snackKeyRef.current += 1;
+    enqueueSnackbar(message, { key: snackKeyRef.current, ...options });
+    if (snackKeyRef.current > 1) closeSnackbar(snackKeyRef.current - 1);
+  };
   const { ordersByCarId, fetchAndUpdateOrders, allOrders, updateCarInContext } =
     useMainContext();
 
@@ -159,7 +173,7 @@ export default function BigCalendar({ cars }) {
     setMoveMode(true);
 
     // Показываем уведомление
-    enqueueSnackbar(
+    showSingleSnackbar(
       "Выберите другой автомобиль для перемещения заказа. Доступные автомобили выделены желтым цветом",
       {
         variant: "info",
@@ -279,10 +293,10 @@ export default function BigCalendar({ cars }) {
     const oldCar = cars.find((car) => car._id === selectedMoveOrder.car);
 
     // Проверяем, что выбран другой автомобиль
-    if (selectedMoveOrder.car === selectedCar._id) {
-      enqueueSnackbar("Заказ уже на этом автомобиле", { variant: "warning" });
-      return;
-    }
+    // if (selectedMoveOrder.car === selectedCar._id) {
+    //   enqueueSnackbar("Заказ уже на этом автомобиле", { variant: "warning" });
+    //   return;
+    // }
 
     // Показываем модальное окно подтверждения с правильными данными
     setConfirmModal({
@@ -297,7 +311,7 @@ export default function BigCalendar({ cars }) {
     setMoveMode(false);
     setSelectedMoveOrder(null);
     setOrderToMove(null);
-    enqueueSnackbar("Режим перемещения отключён", { variant: "info" });
+    showSingleSnackbar("Режим перемещения отключён", { variant: "info" });
   };
 
   const updateOrder = async (orderData) => {
@@ -921,7 +935,7 @@ export default function BigCalendar({ cars }) {
               onClick={() => {
                 setConfirmModal({ open: false, newCar: null, oldCar: null });
                 exitMoveMode();
-                enqueueSnackbar("Перемещение отменено", { variant: "info" });
+                //enqueueSnackbar("Перемещение отменено", { variant: "info" });
               }}
             >
               НЕТ
@@ -930,7 +944,7 @@ export default function BigCalendar({ cars }) {
               variant="contained"
               onClick={async () => {
                 setConfirmModal({ open: false, newCar: null, oldCar: null });
-
+                let success = false;
                 try {
                   const result = await changeRentalDates(
                     selectedMoveOrder._id,
@@ -952,19 +966,20 @@ export default function BigCalendar({ cars }) {
 
                   if (result?.status === 201 || result?.status === 202) {
                     await fetchAndUpdateOrders();
-                    enqueueSnackbar(
+                    showSingleSnackbar(
                       `Заказ сдвинут на ${confirmModal.newCar.model}`,
                       {
                         variant: "success",
                       }
                     );
+                    success = true;
                   }
                 } catch (error) {
-                  enqueueSnackbar(`Ошибка перемещения: ${error.message}`, {
+                  showSingleSnackbar(`Ошибка перемещения: ${error.message}`, {
                     variant: "error",
                   });
                 } finally {
-                  exitMoveMode();
+                  if (!success) exitMoveMode();
                 }
               }}
             >
