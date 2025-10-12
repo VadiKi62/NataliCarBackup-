@@ -441,34 +441,12 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   const renderDateTimeSection = () => (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: "flex", gap: 2 }}>
-        {/* Для телефона отображаем дату в формате DD.MM.YYYY, для ПК — стандартный */}
         <TextField
           label={t("order.pickupDate")}
-          type={isMobile ? "text" : "date"}
-          value={
-            isMobile && bookDates.start
-              ? dayjs(bookDates.start).format("DD.MM.YYYY")
-              : bookDates.start || ""
-          }
+          type="date"
+          value={bookDates.start || ""}
           onChange={(e) => {
-            let newStart;
-            if (isMobile) {
-              // Ожидаем ввод в формате DD.MM.YYYY
-              const parts = e.target.value.split(".");
-              if (parts.length === 3) {
-                newStart = dayjs(
-                  `${parts[2]}-${parts[1]}-${parts[0]}`
-                ).isValid()
-                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format(
-                      "YYYY-MM-DD"
-                    )
-                  : "";
-              } else {
-                newStart = "";
-              }
-            } else {
-              newStart = normalizeDate(e.target.value);
-            }
+            const newStart = normalizeDate(e.target.value);
             setBookedDates((dates) => {
               if (!newStart) return { ...dates, start: newStart };
               if (
@@ -486,32 +464,13 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           fullWidth
           margin="dense"
           required
-          placeholder={isMobile ? "ДД.ММ.ГГГГ" : undefined}
         />
         <TextField
           label={t("order.returnDate")}
-          type={isMobile ? "text" : "date"}
-          value={
-            isMobile && bookDates.end
-              ? dayjs(bookDates.end).format("DD.MM.YYYY")
-              : bookDates.end || ""
-          }
+          type="date"
+          value={bookDates.end || ""}
           onChange={(e) => {
-            let newEnd;
-            if (isMobile) {
-              const parts = e.target.value.split(".");
-              if (parts.length === 3) {
-                newEnd = dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).isValid()
-                  ? dayjs(`${parts[2]}-${parts[1]}-${parts[0]}`).format(
-                      "YYYY-MM-DD"
-                    )
-                  : "";
-              } else {
-                newEnd = "";
-              }
-            } else {
-              newEnd = normalizeDate(e.target.value);
-            }
+            const newEnd = normalizeDate(e.target.value);
             if (
               bookDates.start &&
               newEnd &&
@@ -523,18 +482,13 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           }}
           fullWidth
           margin="dense"
-          inputProps={
-            !isMobile
-              ? {
-                  min: bookDates.start
-                    ? dayjs(bookDates.start).add(1, "day").format("YYYY-MM-DD")
-                    : undefined,
-                }
-              : undefined
-          }
+          inputProps={{
+            min: bookDates.start
+              ? dayjs(bookDates.start).add(1, "day").format("YYYY-MM-DD")
+              : undefined,
+          }}
           InputLabelProps={{ shrink: true }}
           required
-          placeholder={isMobile ? "ДД.ММ.ГГГГ" : undefined}
         />
       </Box>
       <Box sx={{ display: "flex", gap: 2, mt: 1 }}>
