@@ -189,6 +189,7 @@ export async function POST(request) {
       insurance,
       franchiseOrder,
       orderNumber,
+      flightNumber,
     });
 
     // Добавьте дополнительное логгирование для email перед созданием заказа:

@@ -517,8 +517,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           display: "flex",
           gap: 2,
           mt: 2,
+          mb: 2,
           flexWrap: "nowrap",
           alignItems: "flex-end",
+          width: "100%",
         }}
       >
         <RenderSelectField
@@ -536,6 +538,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 : "50%",
             mb: 0,
             mt: 0,
+            //marginTop: '-10px',
+            "& .MuiInputBase-root": {
+              paddingTop: "0px",
+            },
           }}
           fullWidth={false}
           size="small"
@@ -554,7 +560,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
               sx={{
                 width: "25%",
                 alignSelf: "stretch",
-                marginTop: 0,
+                marginTop: "16px",
                 "& .MuiInputBase-root": {
                   height: 56,
                   minHeight: 56,
@@ -565,7 +571,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 "& .MuiInputBase-input": {
                   height: "56px",
                   minHeight: "56px",
-                  padding: "0px 14px 30px 14px",
+                  padding: "10px 14px 10px 14px",
                   lineHeight: "16px",
                   boxSizing: "border-box",
                   display: "flex",
@@ -594,6 +600,10 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 : "50%",
             mb: 0,
             mt: 0,
+            //marginTop: '-10px',
+            "& .MuiInputBase-root": {
+              paddingTop: "0px",
+            },
           }}
           fullWidth={false}
           size="small"
@@ -603,7 +613,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
   );
 
   const renderCustomerSection = () => (
-    <Box sx={{ mb: 2, mt: -2 }}>
+    <Box sx={{ mb: 2, mt: 0 }}>
       {/* Динамическая ширина для поля страховки: если выбрано ОСАГО (TPL), ширина 50%, иначе 25% */}
       {(() => {
         //const insuranceWidth = orderDetails.insurance === "TPL" ? "50%" : "25%";
