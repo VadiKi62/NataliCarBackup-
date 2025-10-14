@@ -80,7 +80,8 @@
     "deleteOrder": "Удалить заказ",
     "sureDelOrder": "Вы уверены, что хотите удалить этот заказ?",
     "changeDates": "Все отлично ! Даты изменены",
-    "discount": "Скидка"
+    "discount": "Скидка",
+    "flightNumber": "№ рейса"
   },
   "car": {
     "viewDetails": "Подробнее",

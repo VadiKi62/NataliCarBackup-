@@ -111,6 +111,10 @@ const OrderSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  flightNumber: {
+    type: String,
+    default: "",
+  },
 });
 
 // Pre-save middleware to calculate the number of days and total price

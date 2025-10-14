@@ -34,6 +34,7 @@ export async function POST(request) {
       timeOut,
       placeIn,
       placeOut,
+      flightNumber,
       confirmed,
       my_order = false,
       ChildSeats,
@@ -62,6 +63,7 @@ export async function POST(request) {
       insurance,
       franchiseOrder,
       orderNumber,
+      flightNumber,
     });
     console.log("API: typeof email =", typeof email, "значение:", email);
 

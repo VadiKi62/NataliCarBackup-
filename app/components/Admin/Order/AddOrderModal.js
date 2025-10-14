@@ -137,6 +137,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
     insurance: "",
     franchiseOrder: undefined,
     orderNumber: "",
+    flightNumber: "",
   });
   // Получение количества дней и общей стоимости (React Hook должен быть после объявления bookDates и orderDetails)
   const { daysAndTotal, calcLoading } = useDaysAndTotal(
@@ -373,6 +374,7 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
       franchiseOrder: orderDetails.franchiseOrder,
       orderNumber: orderDetails.orderNumber,
       totalPrice: orderDetails.totalPrice,
+      flightNumber: orderDetails.flightNumber,
     };
 
     console.log("=== КОНЕЦ ИСПРАВЛЕНИЯ v2 ===");
@@ -510,7 +512,15 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
         />
       </Box>
       {/* Места получения и возврата в одну строку */}
-      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          mt: 2,
+          flexWrap: "nowrap",
+          alignItems: "flex-end",
+        }}
+      >
         <RenderSelectField
           name="placeIn"
           label={t("order.pickupLocation")}
@@ -518,8 +528,57 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           updatedCar={orderDetails}
           handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
           required
-          sx={{ flex: 1 }}
+          sx={{
+            width:
+              orderDetails.placeIn &&
+              orderDetails.placeIn.toLowerCase() === "airport"
+                ? "25%"
+                : "50%",
+            mb: 0,
+            mt: 0,
+          }}
+          fullWidth={false}
+          size="small"
         />
+        {orderDetails.placeIn &&
+          orderDetails.placeIn.toLowerCase() === "airport" && (
+            <TextField
+              name="flightNumber"
+              label={t("order.flightNumber") || "Номер рейса"}
+              value={orderDetails.flightNumber || ""}
+              onChange={(e) =>
+                handleFieldChange("flightNumber", e.target.value)
+              }
+              margin="dense"
+              size="small"
+              sx={{
+                width: "25%",
+                alignSelf: "stretch",
+                marginTop: 0,
+                "& .MuiInputBase-root": {
+                  height: 56,
+                  minHeight: 56,
+                  borderRadius: "4px",
+                  boxSizing: "border-box",
+                  paddingRight: 0,
+                },
+                "& .MuiInputBase-input": {
+                  height: "56px",
+                  minHeight: "56px",
+                  padding: "0px 14px 30px 14px",
+                  lineHeight: "16px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                },
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderRadius: "4px",
+                },
+              }}
+              inputProps={{ maxLength: 20 }}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
         <RenderSelectField
           name="placeOut"
           label={t("order.returnLocation")}
@@ -527,7 +586,17 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           options={locations}
           handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
           required
-          sx={{ flex: 1 }}
+          sx={{
+            width:
+              orderDetails.placeIn &&
+              orderDetails.placeIn.toLowerCase() === "airport"
+                ? "50%"
+                : "50%",
+            mb: 0,
+            mt: 0,
+          }}
+          fullWidth={false}
+          size="small"
         />
       </Box>
     </Box>
