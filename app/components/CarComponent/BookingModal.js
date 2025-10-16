@@ -78,6 +78,7 @@ const BookingModal = ({
   const placeOptions = company?.locations?.map((loc) => loc.name) || [];
   const [placeIn, setPlaceIn] = useState("");
   const [placeOut, setPlaceOut] = useState("");
+  const [flightNumber, setFlightNumber] = useState("");
 
   // Получение стоимости с сервера при изменении дат
   const fetchTotalPrice = useCallback(async () => {
@@ -219,6 +220,7 @@ const BookingModal = ({
         orderNumber: orderNumber,
         placeIn: placeIn,
         placeOut: placeOut,
+        flightNumber: flightNumber,
       };
 
       const response = await addOrderNew(orderData);
@@ -437,7 +439,7 @@ const BookingModal = ({
                     />
                   </Box>
                   {/* Места получения/возврата — сразу после времени, чуть выше */}
-                  <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 0 }}>
+                  <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 0, width: '100%' }}>
                     <Autocomplete
                       freeSolo
                       options={placeOptions}
@@ -445,17 +447,28 @@ const BookingModal = ({
                       onInputChange={(event, newInputValue) =>
                         setPlaceIn(newInputValue)
                       }
-                      sx={{ flex: 1 }}
+                      sx={{ width: placeIn && placeIn.toLowerCase() === 'airport' ? '25%' : '50%' }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label={t("order.pickupLocation") || "Место получения"}
                           variant="outlined"
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                           fullWidth
                         />
                       )}
                     />
+                    {placeIn && placeIn.toLowerCase() === 'airport' && (
+                      <TextField
+                        label={t("order.flightNumber") || "Номер рейса"}
+                        value={flightNumber}
+                        onChange={(e) => setFlightNumber(e.target.value)}
+                        size="small"
+                        sx={{ width: '25%', alignSelf: 'stretch' }}
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
                     <Autocomplete
                       freeSolo
                       options={placeOptions}
@@ -463,13 +476,14 @@ const BookingModal = ({
                       onInputChange={(event, newInputValue) =>
                         setPlaceOut(newInputValue)
                       }
-                      sx={{ flex: 1 }}
+                      sx={{ width: placeIn && placeIn.toLowerCase() === 'airport' ? '50%' : '50%' }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label={t("order.returnLocation") || "Место возврата"}
                           variant="outlined"
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                           fullWidth
                         />
                       )}

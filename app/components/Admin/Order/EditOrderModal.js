@@ -483,6 +483,7 @@ const EditOrderModal = ({
         phone: editedOrder.phone,
         email: editedOrder.email ? editedOrder.email : "",
         totalPrice: editedOrder.totalPrice, // <-- сохраняем totalPrice
+        flightNumber: editedOrder.flightNumber || "",
       };
 
       console.log("EditOrderModal: updates для updateCustomerInfo:", updates);
@@ -903,6 +904,21 @@ const EditOrderModal = ({
                     minHeight: 48,
                   }}
                 />
+                {editedOrder.placeIn && editedOrder.placeIn.toLowerCase() === "airport" && (
+                  <TextField
+                    label={t("order.flightNumber") || "Номер рейса"}
+                    value={editedOrder.flightNumber || ""}
+                    onChange={(e) =>
+                      setEditedOrder((prev) => ({
+                        ...prev,
+                        flightNumber: e.target.value,
+                      }))
+                    }
+                    size="medium"
+                    sx={{ width: "25%", alignSelf: "stretch" }}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                )}
                 <Autocomplete
                   freeSolo
                   options={locations}
