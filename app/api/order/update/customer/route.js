@@ -5,13 +5,24 @@ export const PUT = async (req) => {
   try {
     await connectToDB();
 
-    const { _id, phone, email, customerName } = await req.json(); // Destructure only the allowed fields
+    const { _id, phone, email, customerName, flightNumber } = await req.json(); // Destructure only the allowed fields
+
+    // Debug log to verify incoming payload (including flightNumber)
+    console.log("API:update/customer - incoming payload:", {
+      _id,
+      phone,
+      email,
+      customerName,
+      flightNumber,
+    });
 
     // Filter the update to only include allowed fields
     const updateFields = {};
     if (phone) updateFields.phone = phone;
     updateFields.email = email; // Обновляем email даже если он пустой
     if (customerName) updateFields.customerName = customerName;
+    // Allow updating flightNumber (accept empty string as valid)
+    if (flightNumber !== undefined) updateFields.flightNumber = flightNumber;
 
     // Update the order with only the allowed fields
     const updatedOrder = await Order.findByIdAndUpdate(_id, updateFields, {

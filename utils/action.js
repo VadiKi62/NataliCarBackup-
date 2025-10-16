@@ -376,6 +376,7 @@ export const updateCustomerInfo = async (orderId, updateData) => {
       phone: updateData.phone,
       email: updateData.email,
       customerName: updateData.customerName,
+      flightNumber: updateData.flightNumber,
     }),
   });
 
