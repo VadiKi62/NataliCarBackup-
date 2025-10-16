@@ -904,21 +904,22 @@ const EditOrderModal = ({
                     minHeight: 48,
                   }}
                 />
-                {editedOrder.placeIn && editedOrder.placeIn.toLowerCase() === "airport" && (
-                  <TextField
-                    label={t("order.flightNumber") || "Номер рейса"}
-                    value={editedOrder.flightNumber || ""}
-                    onChange={(e) =>
-                      setEditedOrder((prev) => ({
-                        ...prev,
-                        flightNumber: e.target.value,
-                      }))
-                    }
-                    size="medium"
-                    sx={{ width: "25%", alignSelf: "stretch" }}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                )}
+                {editedOrder.placeIn &&
+                  editedOrder.placeIn.toLowerCase() === "airport" && (
+                    <TextField
+                      label={t("order.flightNumber") || "Номер рейса"}
+                      value={editedOrder.flightNumber || ""}
+                      onChange={(e) =>
+                        setEditedOrder((prev) => ({
+                          ...prev,
+                          flightNumber: e.target.value,
+                        }))
+                      }
+                      size="medium"
+                      sx={{ width: "25%", alignSelf: "stretch" }}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  )}
                 <Autocomplete
                   freeSolo
                   options={locations}

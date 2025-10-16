@@ -439,7 +439,15 @@ const BookingModal = ({
                     />
                   </Box>
                   {/* Места получения/возврата — сразу после времени, чуть выше */}
-                  <Box sx={{ display: "flex", gap: 2, mb: 2, mt: 0, width: '100%' }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      mb: 2,
+                      mt: 0,
+                      width: "100%",
+                    }}
+                  >
                     <Autocomplete
                       freeSolo
                       options={placeOptions}
@@ -447,7 +455,12 @@ const BookingModal = ({
                       onInputChange={(event, newInputValue) =>
                         setPlaceIn(newInputValue)
                       }
-                      sx={{ width: placeIn && placeIn.toLowerCase() === 'airport' ? '25%' : '50%' }}
+                      sx={{
+                        width:
+                          placeIn && placeIn.toLowerCase() === "airport"
+                            ? "25%"
+                            : "50%",
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -459,13 +472,13 @@ const BookingModal = ({
                         />
                       )}
                     />
-                    {placeIn && placeIn.toLowerCase() === 'airport' && (
+                    {placeIn && placeIn.toLowerCase() === "airport" && (
                       <TextField
                         label={t("order.flightNumber") || "Номер рейса"}
                         value={flightNumber}
                         onChange={(e) => setFlightNumber(e.target.value)}
                         size="small"
-                        sx={{ width: '25%', alignSelf: 'stretch' }}
+                        sx={{ width: "25%", alignSelf: "stretch" }}
                         InputLabelProps={{ shrink: true }}
                       />
                     )}
@@ -476,7 +489,12 @@ const BookingModal = ({
                       onInputChange={(event, newInputValue) =>
                         setPlaceOut(newInputValue)
                       }
-                      sx={{ width: placeIn && placeIn.toLowerCase() === 'airport' ? '50%' : '50%' }}
+                      sx={{
+                        width:
+                          placeIn && placeIn.toLowerCase() === "airport"
+                            ? "50%"
+                            : "50%",
+                      }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
