@@ -69,6 +69,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -519,17 +520,29 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           mt: 2,
           mb: 2,
           flexWrap: "nowrap",
-          alignItems: "flex-end",
+          alignItems: "stretch",
           width: "100%",
         }}
       >
-        <RenderSelectField
-          name="placeIn"
-          label={t("order.pickupLocation")}
+        <Autocomplete
+          freeSolo
           options={locations}
-          updatedCar={orderDetails}
-          handleChange={(e) => handleFieldChange("placeIn", e.target.value)}
-          required
+          value={orderDetails.placeIn || ""}
+          onChange={(e, newValue) =>
+            handleFieldChange("placeIn", newValue || "")
+          }
+          onInputChange={(e, newInput) =>
+            handleFieldChange("placeIn", newInput || "")
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={t("order.pickupLocation")}
+              size="medium"
+              required
+              InputProps={{ ...params.InputProps, style: { minHeight: 48 } }}
+            />
+          )}
           sx={{
             width:
               orderDetails.placeIn &&
@@ -538,14 +551,12 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
                 : "50%",
             mb: 0,
             mt: 0,
-            //marginTop: '-10px',
-            "& .MuiInputBase-root": {
-              paddingTop: "0px",
-            },
+            minHeight: 48,
+            alignSelf: "stretch",
           }}
           fullWidth={false}
-          size="small"
         />
+
         {orderDetails.placeIn &&
           orderDetails.placeIn.toLowerCase() === "airport" && (
             <TextField
@@ -555,58 +566,40 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
               onChange={(e) =>
                 handleFieldChange("flightNumber", e.target.value)
               }
-              margin="dense"
-              size="small"
-              sx={{
-                width: "25%",
-                alignSelf: "stretch",
-                marginTop: "16px",
-                "& .MuiInputBase-root": {
-                  height: 56,
-                  minHeight: 56,
-                  borderRadius: "4px",
-                  boxSizing: "border-box",
-                  paddingRight: 0,
-                },
-                "& .MuiInputBase-input": {
-                  height: "56px",
-                  minHeight: "56px",
-                  padding: "10px 14px 10px 14px",
-                  lineHeight: "16px",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  alignItems: "center",
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderRadius: "4px",
-                },
-              }}
+              size="medium"
+              sx={{ width: "23%", alignSelf: "stretch" }}
               inputProps={{ maxLength: 20 }}
               InputLabelProps={{ shrink: true }}
             />
           )}
-        <RenderSelectField
-          name="placeOut"
-          label={t("order.returnLocation")}
-          updatedCar={orderDetails}
+
+        <Autocomplete
+          freeSolo
           options={locations}
-          handleChange={(e) => handleFieldChange("placeOut", e.target.value)}
-          required
+          value={orderDetails.placeOut || ""}
+          onChange={(e, newValue) =>
+            handleFieldChange("placeOut", newValue || "")
+          }
+          onInputChange={(e, newInput) =>
+            handleFieldChange("placeOut", newInput || "")
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label={t("order.returnLocation")}
+              size="medium"
+              required
+              InputProps={{ ...params.InputProps, style: { minHeight: 48 } }}
+            />
+          )}
           sx={{
-            width:
-              orderDetails.placeIn &&
-              orderDetails.placeIn.toLowerCase() === "airport"
-                ? "50%"
-                : "50%",
+            width: "50%",
             mb: 0,
             mt: 0,
-            //marginTop: '-10px',
-            "& .MuiInputBase-root": {
-              paddingTop: "0px",
-            },
+            minHeight: 48,
+            alignSelf: "stretch",
           }}
           fullWidth={false}
-          size="small"
         />
       </Box>
     </Box>

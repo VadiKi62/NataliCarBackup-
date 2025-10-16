@@ -478,7 +478,7 @@ const BookingModal = ({
                         value={flightNumber}
                         onChange={(e) => setFlightNumber(e.target.value)}
                         size="small"
-                        sx={{ width: "25%", alignSelf: "stretch" }}
+                        sx={{ width: "23%", alignSelf: "stretch" }}
                         InputLabelProps={{ shrink: true }}
                       />
                     )}
