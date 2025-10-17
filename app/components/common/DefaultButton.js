@@ -44,6 +44,8 @@ export default function DefaultButton({
             blinking: " false",
           },
           ...(blinking && {
+            bgcolor: "#00ff00",
+            color: "white",
             animation: isMobile
               ? "blinkMobile 1.5s ease-in-out infinite" // 1.5 секунды мигания на мобильных
               : "blinkDesktop 1s linear infinite", // Обычное мигание на десктопе
@@ -54,9 +56,9 @@ export default function DefaultButton({
             "100%": { transform: "scale(1)", backgroundColor: "#00ff00" }, // Ярко-зеленый фон, убрали opacity
           },
           "@keyframes blinkDesktop": {
-            "0%": { opacity: 1 },
-            "50%": { opacity: 0.5 },
-            "100%": { opacity: 1 },
+            "0%": { backgroundColor: "#00ff00", transform: "scale(1)" },
+            "50%": { backgroundColor: "#4cff4c", transform: "scale(1.03)" },
+            "100%": { backgroundColor: "#00ff00", transform: "scale(1)" },
           },
         }}
         onClick={onClick}

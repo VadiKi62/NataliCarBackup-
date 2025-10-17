@@ -171,6 +171,9 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
 
   // Добавляем ref для контейнера CarItemComponent
   const carItemRef = useRef(null);
+  // ref для контейнера изображения — будем измерять ширину для расчёта шрифта стикера
+  const carImageRef = useRef(null);
+  const [stickerFont, setStickerFont] = useState(null);
 
   // Скроллим CarItemComponent чуть выше центра экрана, когда появляется кнопка BOOK
   useEffect(() => {
@@ -192,6 +195,38 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
     }
   }, [bookDates?.start, bookDates?.end]);
 
+  // Рассчитываем размер шрифта для стикера в зависимости от ширины контейнера изображения
+  useEffect(() => {
+    const node = carImageRef.current;
+    if (!node) return;
+
+    const computeFont = () => {
+      const width = node.clientWidth || 0;
+      // Фактор 0.038 — немного уменьшенный для лучшей гарантии размещения в одну строку
+      // Ограничиваем размер шрифта в пикселях между 8 и 15
+      const px = Math.round(Math.max(8, Math.min(15, width * 0.038)));
+      setStickerFont(px + "px");
+    };
+
+    // Initial
+    computeFont();
+
+    // ResizeObserver — обновляем при изменении ширины
+    let ro;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => computeFont());
+      ro.observe(node);
+    } else {
+      // Фоллбек на window.resize
+      window.addEventListener("resize", computeFont);
+    }
+
+    return () => {
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", computeFont);
+    };
+  }, [carImageRef.current]);
+
   // Добавляем обработчик для CalendarPicker
   const handleDateChange = ({ type, message }) => {
     // Закрыть предыдущий снэк, если есть
@@ -208,6 +243,7 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
         {/* Название автомобиля над фото (единый стиль) */}
         <CarTitle variant="h5">{car.model}</CarTitle>
         <CarImage
+          ref={carImageRef}
           style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}
         >
           {/* Стикер 'Без депозита' */}
@@ -220,15 +256,26 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 zIndex: 2,
                 bgcolor: "#ffe066",
                 color: "#333",
-                px: 2,
-                py: 0.5,
+                width: "28%", // 28% от ширины контейнера с изображением
+                px: "3%", // отступы в процентах от ширины контейнера
+                py: "1%",
                 borderRadius: 2,
                 fontWeight: 700,
-                fontSize: { xs: "0.85rem", sm: "1rem" },
+                // responsive font: computed from image width (stickerFont) or fallback clamp
+                fontSize: stickerFont || "clamp(0.6rem, 2vw, 1rem)",
                 boxShadow: 2,
                 border: "2px solid #ffd700",
                 textTransform: "uppercase",
                 pointerEvents: "none",
+                lineHeight: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                // force single-line to keep text in one line
+                overflow: "hidden",
+                whiteSpace: "nowrap",
+                textOverflow: "ellipsis",
               }}
             >
               {t("car.noDeposit") || "Без депозита"}
