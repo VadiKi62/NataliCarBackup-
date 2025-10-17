@@ -438,48 +438,94 @@ const BookingModal = ({
                       size="small"
                     />
                   </Box>
-                  {/* Места получения/возврата — сразу после времени, чуть выше */}
+                  {/* Места получения/возврата — на мобильных экранах столбцом, на больших в строке */}
                   <Box
                     sx={{
                       display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
                       gap: 2,
                       mb: 2,
                       mt: 0,
                       width: "100%",
+                      alignItems: "stretch",
                     }}
                   >
-                    <Autocomplete
-                      freeSolo
-                      options={placeOptions}
-                      value={placeIn}
-                      onInputChange={(event, newInputValue) =>
-                        setPlaceIn(newInputValue)
-                      }
-                      sx={{
-                        width:
-                          placeIn && placeIn.toLowerCase() === "airport"
-                            ? "25%"
-                            : "50%",
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label={t("order.pickupLocation") || "Место получения"}
-                          variant="outlined"
-                          size="small"
-                          InputLabelProps={{ shrink: true }}
-                          fullWidth
+                    {/* Если выбран Airport и экран xs — показываем placeIn и flight в одной строке (60/40) */}
+                    {placeIn && placeIn.toLowerCase() === "airport" ? (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          width: { xs: "100%", sm: "50%" },
+                          gap: 2,
+                          alignItems: "stretch",
+                        }}
+                      >
+                        <Autocomplete
+                          freeSolo
+                          options={placeOptions}
+                          value={placeIn}
+                          onInputChange={(event, newInputValue) =>
+                            setPlaceIn(newInputValue)
+                          }
+                          sx={{
+                            width: { xs: "60%", sm: "50%" },
+                            minWidth: 0,
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label={
+                                t("order.pickupLocation") || "Место получения"
+                              }
+                              variant="outlined"
+                              size="small"
+                              InputLabelProps={{ shrink: true }}
+                              fullWidth
+                            />
+                          )}
                         />
-                      )}
-                    />
-                    {placeIn && placeIn.toLowerCase() === "airport" && (
-                      <TextField
-                        label={t("order.flightNumber") || "Номер рейса"}
-                        value={flightNumber}
-                        onChange={(e) => setFlightNumber(e.target.value)}
-                        size="small"
-                        sx={{ width: "23%", alignSelf: "stretch" }}
-                        InputLabelProps={{ shrink: true }}
+                        <TextField
+                          label={t("order.flightNumber") || "Номер рейса"}
+                          value={flightNumber}
+                          onChange={(e) => setFlightNumber(e.target.value)}
+                          size="small"
+                          sx={{
+                            width: { xs: "40%", sm: "50%" },
+                            alignSelf: "stretch",
+                          }}
+                          InputLabelProps={{ shrink: true }}
+                        />
+                      </Box>
+                    ) : (
+                      <Autocomplete
+                        freeSolo
+                        options={placeOptions}
+                        value={placeIn}
+                        onInputChange={(event, newInputValue) =>
+                          setPlaceIn(newInputValue)
+                        }
+                        sx={{
+                          width: {
+                            xs: "100%",
+                            sm:
+                              placeIn && placeIn.toLowerCase() === "airport"
+                                ? "25%"
+                                : "50%",
+                          },
+                          minWidth: 0,
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label={
+                              t("order.pickupLocation") || "Место получения"
+                            }
+                            variant="outlined"
+                            size="small"
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                          />
+                        )}
                       />
                     )}
                     <Autocomplete
@@ -489,12 +535,7 @@ const BookingModal = ({
                       onInputChange={(event, newInputValue) =>
                         setPlaceOut(newInputValue)
                       }
-                      sx={{
-                        width:
-                          placeIn && placeIn.toLowerCase() === "airport"
-                            ? "50%"
-                            : "50%",
-                      }}
+                      sx={{ width: { xs: "100%", sm: "50%" }, minWidth: 0 }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
