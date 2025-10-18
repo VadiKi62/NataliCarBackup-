@@ -189,6 +189,51 @@ export default function BigCalendar({ cars }) {
     setStartEndDates(startEnd);
   }, [allOrders]);
 
+  // Toggle a body class when on small screens in landscape to hide Navbar/legend
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mql = window.matchMedia(
+      "(max-width: 900px) and (orientation: landscape)"
+    );
+
+    const handleChange = () => {
+      try {
+        if (mql.matches) {
+          document.body.classList.add("hide-navbar-on-landscape-sm");
+        } else {
+          document.body.classList.remove("hide-navbar-on-landscape-sm");
+        }
+      } catch (e) {
+        // ignore in SSR or restricted environments
+      }
+    };
+
+    // initial check
+    handleChange();
+
+    // add listener (support older browsers that use addListener)
+    if (mql.addEventListener) {
+      mql.addEventListener("change", handleChange);
+    } else if (mql.addListener) {
+      mql.addListener(handleChange);
+    }
+
+    return () => {
+      try {
+        if (mql.removeEventListener) {
+          mql.removeEventListener("change", handleChange);
+        } else if (mql.removeListener) {
+          mql.removeListener(handleChange);
+        }
+      } catch (e) {}
+      // ensure cleanup class removed on unmount
+      try {
+        document.body.classList.remove("hide-navbar-on-landscape-sm");
+      } catch (e) {}
+    };
+  }, []);
+
   const handleSaveOrder = async (updatedOrder) => {
     setSelectedOrders((prevSelectedOrders) =>
       prevSelectedOrders.map((order) =>
@@ -350,6 +395,7 @@ export default function BigCalendar({ cars }) {
 
   return (
     <Box
+      className="bigcalendar-root"
       sx={{
         overflowX: "auto",
         overflowY: "hidden",
@@ -393,6 +439,7 @@ export default function BigCalendar({ cars }) {
                 }}
               >
                 <Select
+                  className="bigcalendar-month-select"
                   value={month}
                   onChange={handleSelectMonth}
                   size="small"
@@ -405,6 +452,7 @@ export default function BigCalendar({ cars }) {
                   ))}
                 </Select>
                 <Select
+                  className="bigcalendar-year-select"
                   value={year}
                   onChange={handleSelectYear}
                   size="small"

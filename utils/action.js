@@ -9,10 +9,15 @@ dayjs.extend(utc);
 // dayjs.extend(timezone);
 // dayjs.tz.setDefault("Europe/Athens");
 
-export const API_URL =
+// Normalize API base URL from env. Trim whitespace and remove trailing slash.
+const RAW_API_URL =
   process.env.NODE_ENV === "development"
     ? process.env.NEXT_LOCAL_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
+
+export const API_URL = RAW_API_URL
+  ? String(RAW_API_URL).trim().replace(/\/$/, "")
+  : "";
 
 // Fetch a single car by ID using fetch
 export const fetchCar = async (id) => {
@@ -40,7 +45,7 @@ export const fetchCar = async (id) => {
 // Fetch all cars using fetch
 export const fetchAll = async () => {
   try {
-    const apiUrl = `${API_URL}/api/car/all`;
+    const apiUrl = API_URL ? `${API_URL}/api/car/all` : `/api/car/all`;
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
@@ -48,7 +53,14 @@ export const fetchAll = async () => {
       },
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch cars");
+      const body = await response.text().catch(() => "<no body>");
+      console.error("Fetch /api/car/all failed", {
+        apiUrl,
+        status: response.status,
+        body,
+      });
+      // Return empty array instead of throwing to avoid unhandled runtime errors in the UI
+      return [];
     }
     const carsData = await response.json();
     return carsData;
@@ -61,16 +73,22 @@ export const fetchAll = async () => {
 // Fetch all cars using fetch
 export const fetchAllCars = async () => {
   try {
-    const apiUrl = `${API_URL}/api/car/all`;
+    const apiUrl = API_URL ? `${API_URL}/api/car/all` : `/api/car/all`;
     const response = await fetch(apiUrl, {
-      //method: "POST",
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
     if (!response.ok) {
-      throw new Error("Failed to fetch cars");
+      const body = await response.text().catch(() => "<no body>");
+      console.error("Fetch /api/car/all failed", {
+        apiUrl,
+        status: response.status,
+        body,
+      });
+      // Return empty array instead of throwing to avoid unhandled runtime errors in the UI
+      return [];
     }
     const carsData = await response.json();
     return carsData;

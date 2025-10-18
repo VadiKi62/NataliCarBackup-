@@ -6,6 +6,7 @@ function LegendCalendarAdmin({ client }) {
   const { t } = useTranslation();
   return (
     <Stack
+      className="legend-calendar-admin"
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
       direction={"row"} // Stack items vertically on small screens, horizontally on larger screens
       justifyContent="center"

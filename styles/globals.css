@@ -428,3 +428,175 @@ button:hover {
     margin: 0 !important;
   }
 }
+
+/* When BigCalendar is shown on a horizontal phone, hide the Navbar and legend by setting zero height */
+body.hide-navbar-on-landscape-sm .MuiAppBar-root,
+body.hide-navbar-on-landscape-sm .MuiAppBar-root * {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Target the custom legend component (LegendCalendarAdmin) - hide on small landscape when class present */
+body.hide-navbar-on-landscape-sm .legend-calendar-admin,
+body.hide-navbar-on-landscape-sm .legend-calendar-admin * {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Remove top padding and push calendar table to the very top on small landscape */
+body.hide-navbar-on-landscape-sm .bigcalendar-root {
+  padding-top: 0 !important;
+  height: 100vh !important;
+}
+
+body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableContainer-root {
+  max-height: 100vh !important;
+  border-top: 0 !important;
+}
+
+/* Hide year select in calendar header on horizontal phones */
+body.hide-navbar-on-landscape-sm .bigcalendar-year-select,
+body.hide-navbar-on-landscape-sm .bigcalendar-year-select * {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide admin logout button on horizontal phones */
+body.hide-navbar-on-landscape-sm .admin-logout-box,
+body.hide-navbar-on-landscape-sm .admin-logout-box * {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Fix: ensure the sticky table header has solid white background and no shadow
+   to avoid a thin dark stripe appearing at the top on small landscape screens */
+body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-stickyHeader,
+body.hide-navbar-on-landscape-sm .bigcalendar-root thead .MuiTableCell-root {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  border-top: 0 !important;
+  z-index: 50 !important; /* ensure header sits above other elements */
+}
+
+/* also ensure the sticky header inner top offset is zero */
+body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-stickyHeader {
+  top: 0 !important;
+}
+
+/* Clear any residual styling from the admin topbar/legend that could create a thin dark line */
+body.hide-navbar-on-landscape-sm .admin-topbar,
+body.hide-navbar-on-landscape-sm .admin-topbar * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+/* Also ensure the immediate container that may hold legend has no border */
+body.hide-navbar-on-landscape-sm .bigcalendar-root > .MuiBox-root,
+body.hide-navbar-on-landscape-sm .bigcalendar-root > div {
+  border-top: 0 !important;
+  background: transparent !important;
+}
+
+/* Reduce font sizes for calendar header (date + weekday) and first column (car name)
+   on horizontal phones to improve fit */
+/* Match header font-size to vertical/desktop (~16px) for better readability */
+body.hide-navbar-on-landscape-sm .bigcalendar-root thead .MuiTableCell-root {
+  /* keep padding but do not override font-size so component inline style (16px) applies */
+  padding: 4px 6px !important;
+}
+
+/* Reduce font for weekday/date smaller devices */
+/* no inner div font-size override — respect component's font-size */
+
+/* First column (car name) smaller font */
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  tbody
+  .MuiTableCell-root:first-child {
+  font-size: 12px !important;
+  padding: 6px 8px !important;
+}
+
+/* Further reduce for very small widths */
+@media (max-width: 420px) and (orientation: landscape) {
+  /* do not override header font-size for small landscape; component controls it */
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    tbody
+    .MuiTableCell-root:first-child {
+    font-size: 10px !important;
+  }
+}
+
+/* Keep month select and first column fixed above horizontal scroll on small landscape screens */
+body.hide-navbar-on-landscape-sm .bigcalendar-root .bigcalendar-month-select {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 60 !important;
+  background: #ffffff !important;
+  top: 0 !important;
+}
+
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  .MuiTableCell-root:first-child,
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  .MuiTableCell-root:first-child
+  * {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Ensure first column is wide enough to keep car name on one line; tweak min-width as needed */
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  .MuiTableCell-root:first-child {
+  min-width: 160px !important;
+  max-width: 240px !important;
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+}
+
+/* Also keep the first column sticky (left) so it stays visible while scrolling horizontally */
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  .MuiTableCell-root:first-child {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 55 !important;
+  background: #0b0b0b !important;
+  color: #ffffff !important;
+}
+
+/* Ensure header cell of first column is also dark so the column appears consistent */
+/* Ensure header cell of first column has white background so the month select sits on white */
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  thead
+  .MuiTableCell-root:first-child {
+  background: #ffffff !important;
+  color: #000000 !important;
+  z-index: 56 !important;
+}

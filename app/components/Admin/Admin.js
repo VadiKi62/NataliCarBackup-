@@ -127,6 +127,7 @@ function Admin({ children, ...props }) {
           borderRadius: 1,
           boxShadow: 2,
         }}
+        className="admin-logout-box"
       >
         <Button
           variant="contained"
@@ -144,7 +145,11 @@ function Admin({ children, ...props }) {
         isCarInfo={isCarInfo}
         setIsCarInfo={setIsCarInfo}
       /> */}
-      <StyledBox scrolled={scrolled} isCarInfo={isCars}>
+      <StyledBox
+        scrolled={scrolled}
+        isCarInfo={isCars}
+        className="admin-topbar"
+      >
         <Box
           display="flex"
           alignItems="center"
