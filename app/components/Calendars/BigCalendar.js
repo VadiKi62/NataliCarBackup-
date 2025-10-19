@@ -470,6 +470,7 @@ export default function BigCalendar({ cars }) {
                   key={day.dayjs}
                   align="center"
                   title="Нажмите для просмотра всех начинающихся и заканчивающихся заказов на эту дату"
+                  className={idx === todayIndex ? "today-column-bg" : undefined}
                   sx={{
                     position: "sticky",
                     top: 0,

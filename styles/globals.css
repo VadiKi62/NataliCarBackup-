@@ -55,6 +55,47 @@
     overflow: hidden !important;
   }
 
+  /* --- Reduce column width & horizontal gaps in header (except first column) --- */
+  /* Slightly narrower day columns and reduced side padding */
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    thead
+    .MuiTableCell-root:not(:first-child) {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    min-width: 32px !important; /* was ~40 */
+    max-width: 48px !important; /* soft cap to avoid overflow */
+  }
+
+  /* Reduce inner spacing inside header cells (date and weekday) */
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    thead
+    .MuiTableCell-root:not(:first-child)
+    > div {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+
+  /* Reduce gap between the two stacked divs (date and weekday) and slightly smaller weekday font */
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    thead
+    .MuiTableCell-root:not(:first-child)
+    > div
+    + div {
+    margin-top: 0 !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+  }
+
+  /* Ensure today's header cell stays highlighted in landscape phones */
+  body.hide-navbar-on-landscape-sm .bigcalendar-root .today-column-bg {
+    background-color: #ffe082 !important;
+    color: #000 !important;
+  }
+
   /* First column needs a bit more horizontal padding but same compact height */
   body.hide-navbar-on-landscape-sm
     .bigcalendar-root
@@ -65,8 +106,8 @@
     .MuiTableCell-root:first-child {
     padding-left: 6px !important;
     padding-right: 6px !important;
-    height: 20px !important;
-    min-height: 20px !important;
+    height: 30px !important;
+    min-height: 30px !important;
   }
 
   /* Remove row gaps explicitly */
@@ -75,7 +116,7 @@
     border-bottom: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-    height: 20px !important;
+    height: 30px !important;
   }
 
   /* Slightly larger on very narrow landscape phones (scale up from previous super-compact) */
@@ -85,9 +126,9 @@
       .bigcalendar-cell-wrapper,
     body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-root > div,
     body.hide-navbar-on-landscape-sm .bigcalendar-root td > div {
-      height: 22px !important;
-      min-height: 22px !important;
-      max-height: 22px !important;
+      height: 26px !important;
+      min-height: 26px !important;
+      max-height: 26px !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
     }
@@ -574,6 +615,19 @@ body.hide-navbar-on-landscape-sm .bigcalendar-root thead .MuiTableCell-root {
   box-shadow: none !important;
   border-top: 0 !important;
   z-index: 50 !important; /* ensure header sits above other elements */
+}
+
+/* Ensure today's header highlight overrides the white header rule on landscape phones */
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  .MuiTableCell-stickyHeader.today-column-bg,
+body.hide-navbar-on-landscape-sm
+  .bigcalendar-root
+  thead
+  .MuiTableCell-root.today-column-bg {
+  background-color: #ffe082 !important;
+  background: #ffe082 !important;
+  color: #000 !important;
 }
 
 /* also ensure the sticky header inner top offset is zero */
