@@ -1,3 +1,4 @@
+/* cleaned malformed duplicate CSS (kept the correct scoped block later in this file) */
 /* @tailwind base;
 @tailwind components;
 @tailwind utilities; */
@@ -13,6 +14,92 @@
   --background-start-rgb: 153, 204, 204;
   --background-end-rgb: 153, 204, 204;
   --foreground-rgb-bright: 255, 102, 51;
+}
+
+/* Strictly-scoped compact rows: only on small landscape phones when BigCalendar toggles the body class.
+   This overrides inline heights with !important but is limited by media query so desktop/portrait are safe. */
+@media (max-width: 900px) and (orientation: landscape) {
+  body.hide-navbar-on-landscape-sm .bigcalendar-root table,
+  body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTable-root {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    table-layout: fixed !important;
+  }
+
+  /* Explicit wrapper we added in Row.js — primary target for controlling height */
+  body.hide-navbar-on-landscape-sm .bigcalendar-root .bigcalendar-cell-wrapper {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  /* Target the direct inner wrapper (Box) that sits inside each TableCell and override its height */
+  body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-root > div,
+  body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-root > span,
+  body.hide-navbar-on-landscape-sm .bigcalendar-root td > div,
+  body.hide-navbar-on-landscape-sm .bigcalendar-root th > div {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  /* First column needs a bit more horizontal padding but same compact height */
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    .MuiTableCell-root:first-child
+    > div,
+  body.hide-navbar-on-landscape-sm
+    .bigcalendar-root
+    .MuiTableCell-root:first-child {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+  }
+
+  /* Remove row gaps explicitly */
+  body.hide-navbar-on-landscape-sm .bigcalendar-root tbody tr,
+  body.hide-navbar-on-landscape-sm .bigcalendar-root thead tr {
+    border-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 20px !important;
+  }
+
+  /* Slightly larger on very narrow landscape phones (scale up from previous super-compact) */
+  @media (max-width: 420px) {
+    body.hide-navbar-on-landscape-sm
+      .bigcalendar-root
+      .bigcalendar-cell-wrapper,
+    body.hide-navbar-on-landscape-sm .bigcalendar-root .MuiTableCell-root > div,
+    body.hide-navbar-on-landscape-sm .bigcalendar-root td > div {
+      height: 22px !important;
+      min-height: 22px !important;
+      max-height: 22px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    body.hide-navbar-on-landscape-sm
+      .bigcalendar-root
+      .MuiTableCell-root:first-child
+      > div {
+      padding-left: 4px !important;
+      padding-right: 4px !important;
+      height: 22px !important;
+    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
