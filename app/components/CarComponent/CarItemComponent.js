@@ -256,8 +256,9 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
                 zIndex: 2,
                 bgcolor: "#ffe066",
                 color: "#333",
-                width: "28%", // 28% от ширины контейнера с изображением
-                px: "3%", // отступы в процентах от ширины контейнера
+                width: "32%", // увеличили ширину, чтобы поместилась надпись
+                minWidth: 110,
+                px: "3%", // увеличили горизонтальные отступы
                 py: "1%",
                 borderRadius: 2,
                 fontWeight: 700,
