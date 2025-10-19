@@ -175,11 +175,53 @@ const AddCarModal = ({
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={3}>
                   <Stack spacing={3}>
-                    <RenderTextField
-                      name="model"
-                      label={t("car.model")}
-                      updatedCar={carData}
-                      handleChange={handleChange}
+                    <Autocomplete
+                      freeSolo
+                      options={[
+                        "Audi",
+                        "BMW",
+                        "Chevrolet",
+                        "Citroën",
+                        "Dacia",
+                        "Dodge",
+                        "Fiat",
+                        "Ford",
+                        "Honda",
+                        "Hyundai",
+                        "Isuzu",
+                        "Kia",
+                        "Mazda",
+                        "Mercedes-Benz",
+                        "MG",
+                        "Mini",
+                        "Mitsubishi",
+                        "Nissan",
+                        "Opel",
+                        "Peugeot",
+                        "Renault",
+                        "Seat",
+                        "Škoda",
+                        "Smart",
+                        "Suzuki",
+                      ]}
+                      value={carData.model || ""}
+                      onChange={(_, newValue) =>
+                        handleChange({
+                          target: { name: "model", value: newValue || "" },
+                        })
+                      }
+                      onInputChange={(_, inputValue) =>
+                        handleChange({
+                          target: { name: "model", value: inputValue },
+                        })
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={t("car.model")}
+                          name="model"
+                        />
+                      )}
                     />
                     <RenderSelectField
                       name="transmission"
