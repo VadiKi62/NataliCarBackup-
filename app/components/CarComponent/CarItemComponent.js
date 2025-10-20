@@ -23,6 +23,11 @@ const CarTitle = muiStyled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(2.5),
   width: "60%",
   textAlign: "center",
+  // уменьшенный отступ сверху для горизонтальных телефонов
+  ["@media (max-width:900px) and (orientation: landscape)"]: {
+    marginTop: theme.spacing(0.5),
+    fontSize: "1.35rem",
+  },
 }));
 import Image from "next/image";
 import Link from "next/link";
@@ -100,6 +105,30 @@ const CarImage = styled(Box)(({ theme }) => ({
   [theme.breakpoints.up("md")]: {
     width: 450,
     height: 300,
+  },
+}));
+
+// Row that places image/params (left) and calendar/pricing (right)
+const MediaRow = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  gap: theme.spacing(2),
+  [theme.breakpoints.up("sm")]: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  // For small landscape phones split 40/60
+  "@media (max-width:900px) and (orientation: landscape)": {
+    flexDirection: "row",
+    "& .car-image-wrapper": {
+      flex: "0 0 40%",
+      maxWidth: "40%",
+    },
+    "& .calendar-wrapper": {
+      flex: "0 0 60%",
+      maxWidth: "60%",
+    },
   },
 }));
 
@@ -242,189 +271,197 @@ function CarItemComponent({ car, discount, discountStart, discountEnd }) {
       <Wrapper>
         {/* Название автомобиля над фото (единый стиль) */}
         <CarTitle variant="h5">{car.model}</CarTitle>
-        <CarImage
-          ref={carImageRef}
-          style={{ position: "relative", cursor: "pointer", marginBottom: 24 }}
-        >
-          {/* Стикер 'Без депозита' */}
-          {!imageLoading && car.deposit === 0 && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 12,
-                left: 12,
-                zIndex: 2,
-                bgcolor: "#ffe066",
-                color: "#333",
-                width: "32%", // увеличили ширину, чтобы поместилась надпись
-                minWidth: 110,
-                px: "3%", // увеличили горизонтальные отступы
-                py: "1%",
-                borderRadius: 2,
-                fontWeight: 700,
-                // responsive font: computed from image width (stickerFont) or fallback clamp
-                fontSize: stickerFont || "clamp(0.6rem, 2vw, 1rem)",
-                boxShadow: 2,
-                border: "2px solid #ffd700",
-                textTransform: "uppercase",
-                pointerEvents: "none",
-                lineHeight: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                // force single-line to keep text in one line
-                overflow: "hidden",
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
+        <MediaRow>
+          <Box className="car-image-wrapper">
+            <CarImage
+              ref={carImageRef}
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                marginBottom: 24,
               }}
             >
-              {t("car.noDeposit") || "Без депозита"}
-            </Box>
-          )}
-          {imageLoading ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="100%"
-            >
-              <CircularProgress />
-              <CircularProgress sx={{ color: "primary.green" }} />
-              <CircularProgress sx={{ color: "primary.red" }} />
-            </Box>
-          ) : (
-            <>
-              <CldImage
-                onClick={() => setDetailsModalOpen(true)}
-                src={car?.photoUrl || "NO_PHOTO_h2klff"}
-                alt={`Natali-Cars-${car.model}`}
-                width="450"
-                height="300"
-                crop="fill"
-                priority
-                sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{
-                  objectFit: "contain",
-                  width: "100%",
-                  height: "auto",
-                  cursor: "pointer",
-                }}
-                onLoad={() => setImageLoading(false)}
-              />
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDetailsModalOpen(true);
-                }}
-                variant="outlined"
-                size="small"
-                sx={{
-                  position: "absolute",
-                  bottom: { xs: 4, sm: 8 },
-                  right: { xs: 4, sm: 8 },
-                  backgroundColor: "rgba(255, 255, 255, 0.9)",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 1)",
-                  },
-                  fontSize: { xs: "0.65rem", sm: "0.75rem" },
-                  padding: { xs: "2px 6px", sm: "4px 8px" },
-                  zIndex: 1,
-                }}
-              >
-                {t("car.viewDetails")}
-              </Button>
-            </>
-          )}
-        </CarImage>
-        <CarDetails car={car} />
-      </Wrapper>
-      <Stack>
-        <CalendarPicker
-          carId={car._id}
-          isLoading={isLoading}
-          orders={carOrders}
-          setBookedDates={setBookedDates}
-          onBookingComplete={handleBookingComplete}
-          setSelectedTimes={setSelectedTimes}
-          selectedTimes={selectedTimes}
-          onCurrentDateChange={handleCurrentDateChange}
-          discount={discount}
-          discountStart={discountStart}
-          discountEnd={discountEnd}
-          onDateChange={handleDateChange}
-        />
-        {/* Информация о дискаунте с логикой как в PricingTiers */}
-        {discount &&
-          discountStart &&
-          discountEnd &&
-          (() => {
-            const monthStart = currentCalendarDate.startOf("month");
-            const monthEnd = currentCalendarDate.endOf("month");
-            let discountType = "none"; // 'full', 'partial', 'none'
-
-            if (
-              typeof discount === "number" &&
-              discount > 0 &&
-              discountStart &&
-              discountEnd
-            ) {
-              // Скидка покрывает весь месяц
-              if (
-                monthStart.isSameOrAfter(discountStart, "day") &&
-                monthEnd.isSameOrBefore(discountEnd, "day")
-              ) {
-                discountType = "full";
-              } else if (
-                monthEnd.isSameOrAfter(discountStart, "day") &&
-                monthStart.isSameOrBefore(discountEnd, "day")
-              ) {
-                // Скидка покрывает часть месяца
-                discountType = "partial";
-              }
-            }
-
-            // Отображаем информацию о скидке только если она действует хотя бы частично
-            if (discountType !== "none") {
-              let discountText = "";
-              if (discountType === "full") {
-                discountText = `${t("order.discount")} ${discount}%`;
-              } else if (discountType === "partial") {
-                discountText = `${t("order.discount")} ${discount}% ${t(
-                  "basic.from"
-                )} ${dayjs(discountStart).format("DD.MM")} ${t(
-                  "basic.till"
-                )} ${dayjs(discountEnd).format("DD.MM")}`;
-              }
-
-              return (
-                <Typography
-                  variant="body2"
+              {/* Стикер 'Без депозита' */}
+              {!imageLoading && car.deposit === 0 && (
+                <Box
                   sx={{
-                    mt: { xs: 0.5, sm: 0.5 }, // Уменьшили верхний отступ
-                    mb: { xs: 0.5, sm: 0.5 }, // Уменьшили нижний отступ
-                    color: "#d32f2f",
-                    fontWeight: 600,
-                    fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                    position: "absolute",
+                    top: 12,
+                    left: 12,
+                    zIndex: 2,
+                    bgcolor: "#ffe066",
+                    color: "#333",
+                    width: "32%", // увеличили ширину, чтобы поместилась надпись
+                    minWidth: 110,
+                    px: "3%", // увеличили горизонтальные отступы
+                    py: "1%",
+                    borderRadius: 2,
+                    fontWeight: 700,
+                    // responsive font: computed from image width (stickerFont) or fallback clamp
+                    fontSize: stickerFont || "clamp(0.6rem, 2vw, 1rem)",
+                    boxShadow: 2,
+                    border: "2px solid #ffd700",
+                    textTransform: "uppercase",
+                    pointerEvents: "none",
+                    lineHeight: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     textAlign: "center",
+                    // force single-line to keep text in one line
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  {discountText}
-                </Typography>
-              );
-            }
-            return null;
-          })()}
-        {car?.pricingTiers && (
-          <PricingTiers
-            prices={car?.pricingTiers}
-            selectedDate={currentCalendarDate}
-            discount={discount}
-            discountStart={discountStart}
-            discountEnd={discountEnd}
-          />
-        )}
-      </Stack>
+                  {t("car.noDeposit") || "Без депозита"}
+                </Box>
+              )}
+              {imageLoading ? (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height="100%"
+                >
+                  <CircularProgress />
+                  <CircularProgress sx={{ color: "primary.green" }} />
+                  <CircularProgress sx={{ color: "primary.red" }} />
+                </Box>
+              ) : (
+                <>
+                  <CldImage
+                    onClick={() => setDetailsModalOpen(true)}
+                    src={car?.photoUrl || "NO_PHOTO_h2klff"}
+                    alt={`Natali-Cars-${car.model}`}
+                    width="450"
+                    height="300"
+                    crop="fill"
+                    priority
+                    sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{
+                      objectFit: "contain",
+                      width: "100%",
+                      height: "auto",
+                      cursor: "pointer",
+                    }}
+                    onLoad={() => setImageLoading(false)}
+                  />
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDetailsModalOpen(true);
+                    }}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      bottom: { xs: 4, sm: 8 },
+                      right: { xs: 4, sm: 8 },
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 1)",
+                      },
+                      fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                      padding: { xs: "2px 6px", sm: "4px 8px" },
+                      zIndex: 1,
+                    }}
+                  >
+                    {t("car.viewDetails")}
+                  </Button>
+                </>
+              )}
+            </CarImage>
+            <CarDetails car={car} />
+          </Box>
+          <Box className="calendar-wrapper">
+            <CalendarPicker
+              carId={car._id}
+              isLoading={isLoading}
+              orders={carOrders}
+              setBookedDates={setBookedDates}
+              onBookingComplete={handleBookingComplete}
+              setSelectedTimes={setSelectedTimes}
+              selectedTimes={selectedTimes}
+              onCurrentDateChange={handleCurrentDateChange}
+              discount={discount}
+              discountStart={discountStart}
+              discountEnd={discountEnd}
+              onDateChange={handleDateChange}
+            />
+            {/* Информация о дискаунте с логикой как в PricingTiers */}
+            {discount &&
+              discountStart &&
+              discountEnd &&
+              (() => {
+                const monthStart = currentCalendarDate.startOf("month");
+                const monthEnd = currentCalendarDate.endOf("month");
+                let discountType = "none"; // 'full', 'partial', 'none'
+
+                if (
+                  typeof discount === "number" &&
+                  discount > 0 &&
+                  discountStart &&
+                  discountEnd
+                ) {
+                  // Скидка покрывает весь месяц
+                  if (
+                    monthStart.isSameOrAfter(discountStart, "day") &&
+                    monthEnd.isSameOrBefore(discountEnd, "day")
+                  ) {
+                    discountType = "full";
+                  } else if (
+                    monthEnd.isSameOrAfter(discountStart, "day") &&
+                    monthStart.isSameOrBefore(discountEnd, "day")
+                  ) {
+                    // Скидка покрывает часть месяца
+                    discountType = "partial";
+                  }
+                }
+
+                // Отображаем информацию о скидке только если она действует хотя бы частично
+                if (discountType !== "none") {
+                  let discountText = "";
+                  if (discountType === "full") {
+                    discountText = `${t("order.discount")} ${discount}%`;
+                  } else if (discountType === "partial") {
+                    discountText = `${t("order.discount")} ${discount}% ${t(
+                      "basic.from"
+                    )} ${dayjs(discountStart).format("DD.MM")} ${t(
+                      "basic.till"
+                    )} ${dayjs(discountEnd).format("DD.MM")}`;
+                  }
+
+                  return (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mt: { xs: 0.5, sm: 0.5 }, // Уменьшили верхний отступ
+                        mb: { xs: 0.5, sm: 0.5 }, // Уменьшили нижний отступ
+                        color: "#d32f2f",
+                        fontWeight: 600,
+                        fontSize: { xs: "0.85rem", sm: "0.9rem" },
+                        textAlign: "center",
+                      }}
+                    >
+                      {discountText}
+                    </Typography>
+                  );
+                }
+                return null;
+              })()}
+            {car?.pricingTiers && (
+              <PricingTiers
+                prices={car?.pricingTiers}
+                selectedDate={currentCalendarDate}
+                discount={discount}
+                discountStart={discountStart}
+                discountEnd={discountEnd}
+              />
+            )}
+          </Box>
+        </MediaRow>
+      </Wrapper>
       <BookingModal
         fetchAndUpdateOrders={fetchAndUpdateOrders}
         open={modalOpen}

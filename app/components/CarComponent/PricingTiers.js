@@ -131,6 +131,9 @@ const PricingDisplay = ({
         elevation={0}
         sx={{
           padding: { xs: 1.2, sm: 2 }, // Уменьшили отступы для более компактного вида
+          '@media (max-width:900px) and (orientation: landscape)': {
+            padding: 0.6,
+          },
           display: "flex",
           justifyContent: "space-evenly",
           alignItems: "center",
@@ -183,6 +186,10 @@ const PricingDisplay = ({
                     sx={{
                       lineHeight: { xs: "0.9rem", sm: "0.9rem" },
                       fontSize: { xs: "0.8rem", sm: "0.9rem" },
+                      '@media (max-width:900px) and (orientation: landscape)': {
+                        fontSize: '0.7rem',
+                        lineHeight: '0.8rem',
+                      },
                       mb: 1,
                     }}
                   >
@@ -192,6 +199,10 @@ const PricingDisplay = ({
                     sx={{
                       lineHeight: { xs: "1rem", sm: "1.2rem" },
                       fontSize: { xs: "1rem", sm: "1.2rem" },
+                      '@media (max-width:900px) and (orientation: landscape)': {
+                        fontSize: '0.95rem',
+                        lineHeight: '1rem',
+                      },
                     }}
                     color="primary"
                   >

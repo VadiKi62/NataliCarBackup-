@@ -49,6 +49,10 @@ const CalendarPicker = ({
   discountEnd,
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isSmallLandscape = useMediaQuery(
+    "(max-width:900px) and (orientation: landscape)"
+  );
   //console.log(t("order.chooseDates"));
   const [selectedRange, setSelectedRange] = useState([null, null]);
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -775,6 +779,22 @@ const CalendarPicker = ({
       t("basic.to") +
       `${dayjs(discountEnd).format("DD.MM")} `;
   }
+  // compute header spacing depending on device
+  const headerSx = {
+    lineHeight: "1.3rem",
+    letterSpacing: "0.1rem",
+    textTransform: "uppercase",
+    marginBottom: showDiscountInfo
+      ? isSmallLandscape
+        ? "6px"
+        : "8px"
+      : isSmallLandscape
+      ? "12px"
+      : "20px",
+    marginTop: isSmallLandscape ? "4px" : undefined,
+    color: "primary.main",
+  };
+
   return (
     <Box
       sx={{
@@ -784,16 +804,7 @@ const CalendarPicker = ({
     >
       {" "}
       {/* Уменьшили верхний padding */}
-      <Typography
-        variant="h6"
-        sx={{
-          lineHeight: "1.3rem",
-          letterSpacing: "0.1rem",
-          textTransform: "uppercase",
-          marginBottom: showDiscountInfo ? "8px" : "20px",
-          color: "primary.main",
-        }}
-      >
+      <Typography variant="h6" sx={headerSx}>
         {t("order.chooseDates")}
       </Typography>
       {/* {showDiscountInfo && (
