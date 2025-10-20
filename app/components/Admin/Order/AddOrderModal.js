@@ -534,6 +534,15 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           onInputChange={(e, newInput) =>
             handleFieldChange("placeIn", newInput || "")
           }
+          PaperProps={{
+            sx: {
+              border: "2px solid black !important",
+              borderRadius: 1,
+              boxShadow: "0 6px 18px rgba(0,0,0,0.12) !important",
+              backgroundColor: "background.paper",
+            },
+          }}
+          PopperProps={{ style: { zIndex: 1400 } }}
           renderInput={(params) => (
             <TextField
               {...params}
@@ -583,6 +592,15 @@ const AddOrder = ({ open, onClose, car, date, setUpdateStatus }) => {
           onInputChange={(e, newInput) =>
             handleFieldChange("placeOut", newInput || "")
           }
+          PaperProps={{
+            sx: {
+              border: "2px solid black !important",
+              borderRadius: 1,
+              boxShadow: "0 6px 18px rgba(0,0,0,0.12) !important",
+              backgroundColor: "background.paper",
+            },
+          }}
+          PopperProps={{ style: { zIndex: 1400 } }}
           renderInput={(params) => (
             <TextField
               {...params}

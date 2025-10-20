@@ -887,6 +887,15 @@ const EditOrderModal = ({
                       placeIn: newInputValue,
                     }))
                   }
+                  PaperProps={{
+                    sx: {
+                      border: "2px solid black !important",
+                      borderRadius: 1,
+                      boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+                      backgroundColor: "background.paper",
+                    },
+                  }}
+                  PopperProps={{ style: { zIndex: 1400 } }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -936,6 +945,15 @@ const EditOrderModal = ({
                       placeOut: newInputValue,
                     }))
                   }
+                  PaperProps={{
+                    sx: {
+                      border: "2px solid black !important",
+                      borderRadius: 1,
+                      boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+                      backgroundColor: "background.paper",
+                    },
+                  }}
+                  PopperProps={{ style: { zIndex: 1400 } }}
                   renderInput={(params) => (
                     <TextField
                       {...params}

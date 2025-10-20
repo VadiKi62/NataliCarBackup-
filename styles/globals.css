@@ -741,3 +741,29 @@ body.hide-navbar-on-landscape-sm
   color: #000000 !important;
   z-index: 56 !important;
 }
+
+/* Force visible black border for Autocomplete popups (Popper -> Paper -> list).
+   High specificity + !important to override inline MUI styles and theme shadows.
+   Scoped to Autocomplete poppers to avoid affecting other Paper components. */
+.MuiAutocomplete-popper .MuiPaper-root,
+.MuiPopper-root .MuiPaper-root,
+body .MuiAutocomplete-popper .MuiPaper-root {
+  border: 2px solid #000 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  background-color: #fff !important;
+  z-index: 2000 !important;
+}
+
+.MuiAutocomplete-popper .MuiAutocomplete-listbox,
+.MuiPopper-root .MuiAutocomplete-listbox {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Extra defensive target: the inner paper elevation class used by MUI */
+.MuiAutocomplete-popper .MuiPaper-elevation {
+  border: 2px solid #000 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
