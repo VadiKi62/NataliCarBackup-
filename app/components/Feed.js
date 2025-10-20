@@ -6,6 +6,7 @@ import { unstable_noStore } from "next/cache";
 
 import theme from "@theme";
 import Loading from "@app/loading";
+import { Box } from "@mui/material";
 
 import i from "@locales/i18n";
 import { MainContextProvider } from "../Context";
@@ -32,7 +33,10 @@ function Feed({ children, ...props }) {
             companyData={props.company}
           >
             <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
-            <main>{children}</main>
+            {/* main paddingTop keeps content below fixed Navbar + filters; responsive values */}
+            <Box component="main" sx={{ pt: { xs: "110px", md: "90px" } }}>
+              {children}
+            </Box>
             {shouldShowFooter && <Footer />}{" "}
             {/* Footer не отобразится, если isAdmin === true */}
             <ScrollButton />

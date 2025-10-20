@@ -56,7 +56,7 @@ function CarGrid() {
   }, [selectedClass, selectedTransmission, cars]); // Добавляем selectedTransmission в зависимости
 
   return (
-    <Container sx={{ paddingTop: { xs: 28, md: 20 } }}>
+    <Container>
       <Section>
         <Grid
           container
