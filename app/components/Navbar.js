@@ -79,6 +79,17 @@ const Logo = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.h1?.fontWeight || 400,
   fontFamily: theme.typography.h1.fontFamily,
   color: theme.palette.text.red,
+  display: "inline-block",
+  // Prevent logo from pushing navbar items on small landscape touch devices only
+  // add (hover: none) and (pointer: coarse) so desktop browsers don't match when window is narrowed
+  "@media (max-width:900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)":
+    {
+      // allow a bit more room for the company name on horizontal phones
+      maxWidth: 220,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    },
 }));
 
 const LanguageSwitcher = styled(IconButton)(({ theme }) => ({
@@ -422,9 +433,23 @@ export default function NavBar({
               alignItems="center"
               justifyContent="center"
               pb={1}
+              sx={{
+                width: "100%",
+                "& > *": { minWidth: 0 },
+                // apply only for small landscape touch devices (phones/tablets)
+                "@media (max-width:900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)":
+                  {
+                    gap: 1,
+                    px: 1,
+                  },
+              }}
             >
-              <LegendCalendarAdmin client={isMain} />
-              {/* Контейнер для фильтров - на мобильных в строку */}
+              {/* Legend: occupy only intrinsic space */}
+              <Box sx={{ flex: "0 0 auto", mr: 1, minWidth: 0 }}>
+                <LegendCalendarAdmin client={isMain} />
+              </Box>
+
+              {/* Контейнер для фильтров - занимает оставшееся пространство и может сжиматься */}
               <Stack
                 direction={{ xs: "row", sm: "row" }}
                 spacing={{ xs: 1, sm: 3 }}
@@ -432,17 +457,20 @@ export default function NavBar({
                 justifyContent="center"
                 sx={{
                   width: "100%",
+                  flex: "1 1 auto",
+                  minWidth: 0,
                   flexWrap: { xs: "nowrap", sm: "nowrap" },
                 }}
               >
                 <Box
                   sx={{
-                    // only override widths for small landscape phones; let SelectedFieldClass control desktop sizes
+                    // only override widths for small landscape touch devices; let SelectedFieldClass control desktop sizes
                     "& .MuiFormControl-root": {
-                      "@media (max-width:900px) and (orientation: landscape)": {
-                        minWidth: 190,
-                        maxWidth: 210,
-                      },
+                      "@media (max-width:900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)":
+                        {
+                          minWidth: 190,
+                          maxWidth: 210,
+                        },
                     },
                   }}
                 >
@@ -458,10 +486,11 @@ export default function NavBar({
                 <Box
                   sx={{
                     "& .MuiFormControl-root": {
-                      "@media (max-width:900px) and (orientation: landscape)": {
-                        minWidth: 190,
-                        maxWidth: 210,
-                      },
+                      "@media (max-width:900px) and (orientation: landscape) and (hover: none) and (pointer: coarse)":
+                        {
+                          minWidth: 190,
+                          maxWidth: 210,
+                        },
                     },
                   }}
                 >
