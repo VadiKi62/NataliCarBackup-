@@ -3,6 +3,7 @@ import { createTheme } from "@mui/material/styles";
 
 export default createTheme({
   palette: {
+    mode: "light",
     primary: {
       main: "#990606",
       // green: "#e7cb75",
@@ -10,6 +11,9 @@ export default createTheme({
       fiolet: "#bfa70d",
       red: "#8A0707",
       main1: "#346698",
+    },
+    background: {
+      default: "#ffffff",
     },
     secondary: {
       main: "#151515",

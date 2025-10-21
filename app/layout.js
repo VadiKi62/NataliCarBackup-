@@ -30,6 +30,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" translate="no">
+      <head>
+        {/* Force light theme on supporting browsers and set status bar color */}
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="msapplication-navbutton-color" content="#ffffff" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="color-scheme" content="light" />
+      </head>
       <body
         style={{ position: "relative", minHeight: "100vh", minWidth: "100%" }}
       >

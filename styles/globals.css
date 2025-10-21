@@ -767,3 +767,36 @@ body .MuiAutocomplete-popper .MuiPaper-root {
   border: 2px solid #000 !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
+
+/* Force light color scheme and white background on all devices/browsers
+   This helps prevent OS/browser-level dark mode (including Samsung/Android forced dark)
+   from inverting or changing site colors. */
+html {
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+  background-color: #ffffff !important;
+}
+
+/* Force body background and text to light theme regardless of prefers-color-scheme */
+body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Defensive: if browser reports prefers-color-scheme: dark, still force light visuals */
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+  :root {
+    /* reset any dark-mode variable overrides */
+    --foreground-rgb: 153, 204, 204;
+    --background-start-rgb: 153, 204, 204;
+    --background-end-rgb: 153, 204, 204;
+  }
+}
