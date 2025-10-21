@@ -228,7 +228,11 @@ export default function NavBar({
             direction="row-reverse"
             alignItems="center"
             justifyContent="space-between"
-            sx={{ width: "100%" }}
+            sx={{
+              width: "100%",
+              boxSizing: "border-box",
+              "& > *": { minWidth: 0 },
+            }}
           >
             <Stack alignItems="center" direction="row-reverse" spacing={2}>
               <IconButton
@@ -256,7 +260,11 @@ export default function NavBar({
                 direction="row"
                 spacing={2}
                 alignItems="center"
-                sx={{ display: { xs: "none", md: "flex" } }}
+                sx={{
+                  display: { xs: "none", md: "flex" },
+                  minWidth: 0,
+                  "& > *": { minWidth: 0 },
+                }}
               >
                 {!isAdmin && (
                   <>
@@ -427,20 +435,44 @@ export default function NavBar({
                   flexWrap: { xs: "nowrap", sm: "nowrap" },
                 }}
               >
-                <SelectedFieldClass
-                  name="class"
-                  label={t("header.carClass")}
-                  options={Object.values(arrayOfAvailableClasses)}
-                  value={selectedClass}
-                  handleChange={handleCarClassChange}
-                />
-                <SelectedFieldClass
-                  name="transmission"
-                  label={t("header.transmission")}
-                  options={Object.values(arrayOfAvailableTransmissions)}
-                  value={selectedTransmission}
-                  handleChange={handleTransmissionChange}
-                />
+                <Box
+                  sx={{
+                    // only override widths for small landscape phones; let SelectedFieldClass control desktop sizes
+                    "& .MuiFormControl-root": {
+                      "@media (max-width:900px) and (orientation: landscape)": {
+                        minWidth: 190,
+                        maxWidth: 210,
+                      },
+                    },
+                  }}
+                >
+                  <SelectedFieldClass
+                    name="class"
+                    label={t("header.carClass")}
+                    options={Object.values(arrayOfAvailableClasses)}
+                    value={selectedClass}
+                    handleChange={handleCarClassChange}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    "& .MuiFormControl-root": {
+                      "@media (max-width:900px) and (orientation: landscape)": {
+                        minWidth: 190,
+                        maxWidth: 210,
+                      },
+                    },
+                  }}
+                >
+                  <SelectedFieldClass
+                    name="transmission"
+                    label={t("header.transmission")}
+                    options={Object.values(arrayOfAvailableTransmissions)}
+                    value={selectedTransmission}
+                    handleChange={handleTransmissionChange}
+                  />
+                </Box>
               </Stack>
             </Stack>
           </StyledBox>
