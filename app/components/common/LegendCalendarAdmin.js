@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { useTranslation } from "@node_modules/react-i18next";
+import { useTranslation } from "react-i18next";
 
 function LegendCalendarAdmin({ client }) {
   const { t } = useTranslation();
@@ -13,6 +13,7 @@ function LegendCalendarAdmin({ client }) {
       alignItems="center"
       display={{ xs: "none", sm: "flex" }}
       width={"100%"}
+      sx={{ color: "text.light" }}
     >
       <Box
         sx={{
@@ -39,6 +40,7 @@ function LegendCalendarAdmin({ client }) {
           variant="body2"
           sx={{
             fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+            color: "text.light",
           }}
         >
           {/* На главной странице (client=true) показываем "Недоступные даты", в админке - "Подтвержденные заказы" */}
@@ -71,6 +73,7 @@ function LegendCalendarAdmin({ client }) {
             variant="body2"
             sx={{
               fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+              color: "text.light",
             }}
           >
             {t("order.not-confirmed")}
@@ -110,6 +113,7 @@ function LegendCalendarAdmin({ client }) {
               variant="body2"
               sx={{
                 fontSize: "clamp(7px, calc(0.8rem + 1vw), 16px)",
+                color: "text.light",
               }}
             >
               {t("order.conflict")}
