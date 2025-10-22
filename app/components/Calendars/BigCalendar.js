@@ -137,6 +137,63 @@ export default function BigCalendar({ cars }) {
   const today = dayjs();
   const todayIndex = days.findIndex((d) => d.dayjs.isSame(today, "day"));
 
+  // On phones, when the calendar mounts, scroll horizontally so today's
+  // column is the first visible day column (accounting for the sticky first column).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    // treat phones as max-width 600px
+    const isPhone = window.matchMedia("(max-width: 600px)").matches;
+    if (!isPhone) return;
+
+    const container =
+      document.querySelector(".bigcalendar-root .MuiTableContainer-root") ||
+      document.querySelector(".bigcalendar-root");
+    if (!container) return;
+
+    const scrollToToday = () => {
+      try {
+        const table =
+          container.querySelector(".MuiTable-root") ||
+          container.querySelector("table");
+        if (!table) return;
+        const headerCells = table.querySelectorAll("thead .MuiTableCell-root");
+        if (!headerCells || headerCells.length === 0) return;
+        // headerCells[0] is the fixed first column (car), days start at index 1
+        const targetIndex = 1 + todayIndex;
+        if (targetIndex < 1 || targetIndex >= headerCells.length) return;
+        const targetCell = headerCells[targetIndex];
+        const firstCell = headerCells[0];
+
+        const tableRect = table.getBoundingClientRect();
+        const cellRect = targetCell.getBoundingClientRect();
+        const firstRect = firstCell
+          ? firstCell.getBoundingClientRect()
+          : { width: 0 };
+
+        // offset of the target cell relative to the table left
+        const offset = cellRect.left - tableRect.left;
+        // aim to place the target cell right after the sticky first column
+        const scrollLeft = Math.max(0, offset - firstRect.width - 4); // small gap
+        container.scrollLeft = scrollLeft;
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    // run shortly after mount so layout is ready
+    const t = setTimeout(scrollToToday, 50);
+
+    const onResize = () => setTimeout(scrollToToday, 50);
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, [todayIndex, days]);
+
   const handleEditCar = (car) => {
     setSelectedCarForEdit(car);
     setIsEditCarOpen(true);

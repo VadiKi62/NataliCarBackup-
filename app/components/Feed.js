@@ -23,6 +23,12 @@ function Feed({ children, ...props }) {
 
   const shouldShowFooter = !props.isAdmin; // Скрываем Footer, если isAdmin === true
 
+  // Quick fix: reduce main top padding for admin pages so content sits directly
+  // under the fixed AppBar / admin topbar. Use a safe default (64px).
+  const mainPt = props.isAdmin
+    ? { xs: "0px", md: "0px" }
+    : { xs: "110px", md: "90px" };
+
   return (
     <Suspense fallback={<Loading />}>
       <ThemeProvider theme={theme}>
@@ -34,7 +40,7 @@ function Feed({ children, ...props }) {
           >
             <Navbar isMain={props.isMain} isAdmin={props.isAdmin} />
             {/* main paddingTop keeps content below fixed Navbar + filters; responsive values */}
-            <Box component="main" sx={{ pt: { xs: "110px", md: "90px" } }}>
+            <Box component="main" sx={{ pt: mainPt }}>
               {children}
             </Box>
             {shouldShowFooter && <Footer />}{" "}
