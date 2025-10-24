@@ -28,7 +28,7 @@ const SelectedFieldClass = ({
       fullWidth={false} // Отключаем fullWidth для лучшего контроля ширины
       required={required}
       sx={{
-        mb: 2,
+        mt: 1,
         minWidth: { xs: 160, sm: 280 }, // Минимальная ширина для адаптивности
         maxWidth: { xs: 180, sm: 300 }, // Максимальная ширина
         "& .MuiInputBase-root": {

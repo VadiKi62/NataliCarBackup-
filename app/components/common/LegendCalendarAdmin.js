@@ -4,16 +4,17 @@ import { useTranslation } from "react-i18next";
 
 function LegendCalendarAdmin({ client }) {
   const { t } = useTranslation();
+  console.log("LegendCalendarAdmin rendered, client:", client);
   return (
     <Stack
-      className="legend-calendar-admin"
+      //className="legend-calendar-admin"
       spacing={{ xs: 1, sm: 2 }} // Adjust spacing between items based on screen size
       direction={"row"} // Stack items vertically on small screens, horizontally on larger screens
       justifyContent="center"
       alignItems="center"
       display={{ xs: "none", sm: "flex" }}
       width={"100%"}
-      sx={{ color: "text.light" }}
+      sx={{ color: "text.main", mb: client ? 0 : 10 }}
     >
       <Box
         sx={{
@@ -21,8 +22,8 @@ function LegendCalendarAdmin({ client }) {
           alignItems: "center",
           justifyContent: "center",
           mb: { xs: 11, sm: 0 }, // Adjust bottom margin on small screens
-          padding: 1,
-          margin: 2,
+          paddingLeft: 5,
+          paddingBottom: client ? 0 : 1,
         }}
       >
         <Box
@@ -56,6 +57,7 @@ function LegendCalendarAdmin({ client }) {
             alignItems: "center",
             justifyContent: "center",
             mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
+            paddingBottom: 1,
           }}
         >
           <Box
@@ -87,6 +89,7 @@ function LegendCalendarAdmin({ client }) {
           alignItems: "center",
           justifyContent: "center",
           mb: { xs: 1, sm: 0 }, // Adjust bottom margin on small screens
+          paddingBottom: client ? 0 : 1,
         }}
       >
         {!client && (

@@ -17,7 +17,7 @@ export default async function Home() {
   const company = companyData;
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense>
       {/* <CarGrid carsData={carsData} ordersData={ordersData} /> */}
       <Feed cars={carsData} orders={ordersData} isMain={true} company={company}>
         <CarGrid />

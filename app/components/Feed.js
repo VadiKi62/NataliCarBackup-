@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef, Suspense } from "react";
-import { ThemeProvider } from "@mui/material/styles";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import darkTheme from "@theme";
 import { I18nextProvider } from "react-i18next";
 import { unstable_noStore } from "next/cache";
 
-import theme from "@theme";
 import Loading from "@app/loading";
 import { Box } from "@mui/material";
 
@@ -29,9 +29,17 @@ function Feed({ children, ...props }) {
     ? { xs: "0px", md: "0px" }
     : { xs: "110px", md: "90px" };
 
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      setIsDarkMode(false);
+    }
+  }, []);
+
   return (
     <Suspense fallback={<Loading />}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={darkTheme}>
         <I18nextProvider i18n={i}>
           <MainContextProvider
             carsData={props.cars}

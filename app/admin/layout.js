@@ -3,50 +3,28 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { CircularProgress, Box } from "@mui/material";
+import Loading from "../loading";
+import "@styles/globals.css";
+import "antd/dist/reset.css";
 
 function AdminContent({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  // выполняем редиректы только после загрузки
   useEffect(() => {
-    if (status === "loading") return; // Still loading
-
-    if (!session) {
-      router.push("/login");
-      return;
-    }
-
-    if (!session.user?.isAdmin) {
-      router.push("/");
-      return;
+    if (status !== "loading") {
+      if (!session) {
+        router.replace("/login");
+      } else if (!session.user?.isAdmin) {
+        router.replace("/");
+      }
     }
   }, [session, status, router]);
 
-  if (status === "loading") {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!session || !session.user?.isAdmin) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
+  // показываем лоадер пока идёт загрузка или редирект
+  if (status === "loading" || !session || !session.user?.isAdmin) {
+    return <Loading />;
   }
 
   return children;

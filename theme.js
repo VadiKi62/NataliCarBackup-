@@ -17,7 +17,7 @@ export default createTheme({
     },
     secondary: {
       main: "#151515",
-      // light: "rgba(231,203,117, 0.70)",
+      dark: "#fff",
       light: "#c2d1e0",
       beige: "#fceee9",
       background: "rgba(191,167,93,1)",

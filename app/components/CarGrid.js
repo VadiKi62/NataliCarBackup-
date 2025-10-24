@@ -56,7 +56,7 @@ function CarGrid() {
   }, [selectedClass, selectedTransmission, cars]); // Добавляем selectedTransmission в зависимости
 
   return (
-    <Container>
+    <Container sx={{ mt: 5 }}>
       <Section>
         <Grid
           container

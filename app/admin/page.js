@@ -1,23 +1,23 @@
 import React, { Suspense } from "react";
 import { unstable_noStore } from "next/cache";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { ThemeProvider } from "@mui/material/styles";
-import theme from "@theme";
-import AdminLayout from "./layout";
 import Loading from "@app/loading";
+import Feed from "@app/components/Feed";
 import Admin from "../components/Admin/Admin";
 import { fetchAllCars, reFetchAllOrders, fetchCompany } from "@utils/action";
-import { MainContextProvider } from "@app/Context";
-import Navbar from "@app/components/Navbar";
 
-import Feed from "@app/components/Feed";
-export default async function PageOrdersCalendar({ children }) {
+export default async function PageOrdersCalendar() {
   unstable_noStore();
-  const carsData = await fetchAllCars();
-  const ordersData = await reFetchAllOrders();
+
+  // загружаем данные
+  const [carsData, ordersData] = await Promise.all([
+    fetchAllCars(),
+    reFetchAllOrders(),
+  ]);
+
   const companyId = "679903bd10e6c8a8c0f027bc";
   const company = await fetchCompany(companyId);
+
+  // ⚡ Suspense должен оборачивать клиентскую часть, не async-загрузку
   return (
     <Suspense fallback={<Loading />}>
       <Feed
@@ -27,7 +27,7 @@ export default async function PageOrdersCalendar({ children }) {
         isMain={false}
         isAdmin={true}
       >
-        <Admin isCars={true} />
+        <Admin isCars />
       </Feed>
     </Suspense>
   );
