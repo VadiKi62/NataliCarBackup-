@@ -34,6 +34,7 @@ const StyledCarCard = styled(Paper)(({ theme }) => ({
   paddingBottom: 10,
   borderRadius: "12px",
   boxShadow: theme.shadows[5],
+
   overflow: "hidden",
   transition: "transform 0.3s, box-shadow 0.3s",
   "&:hover": {

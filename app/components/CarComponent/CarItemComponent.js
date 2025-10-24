@@ -60,7 +60,7 @@ const StyledCarItem = styled(Paper)(({ theme }) => ({
   zIndex: 22,
   display: "flex",
   justifyContent: "center",
-  bgColor: "black",
+  backgroundColor: "#fff",
   alignItems: "center",
   alignContent: "center",
   flexDirection: "column",

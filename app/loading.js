@@ -1,35 +1,10 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+//"use client";
 
-function loading() {
-  return (
-    <div className="loading-container">
-      {" "}
-      <Image
-        src="/favicon.png"
-        alt="bb qr code ki"
-        className="spinning-icon loop-spinning"
-        width={100}
-        height={100}
-        priority
-      />
-      {/* <Image
-        src="/logos/5.png"
-        alt="bb qr code ki"
-        className="spinning-icon loop-spinning"
-        width={70}
-        height={70}
-      />
-      <Image
-        src="/logos/5.png"
-        alt="bb qr code ki"
-        className="spinning-icon loop-spinning"
-        width={70}
-        height={70}
-      /> */}
-    </div>
-  );
+// import { useEffect, useState } from "react";
+// import { usePathname } from "next/navigation";
+// import Image from "next/image";
+import Preloader from "./components/Loader/Preloader";
+
+export default function Loading() {
+  return <Preloader loading={true} />;
 }
-
-export default loading;

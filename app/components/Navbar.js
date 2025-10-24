@@ -451,7 +451,7 @@ export default function NavBar({
 
               {/* Контейнер для фильтров - занимает оставшееся пространство и может сжиматься */}
               <Stack
-                direction={{ xs: "row", sm: "row" }}
+                direction="row"
                 spacing={{ xs: 1, sm: 3 }}
                 alignItems="center"
                 justifyContent="center"
