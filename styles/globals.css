@@ -718,7 +718,8 @@ body.hide-navbar-on-landscape-sm
   .MuiTableCell-root:first-child {
   min-width: 160px !important;
   max-width: 240px !important;
-  background: #0b0b0b !important;
+  /* match Navbar background (theme.palette.primary.main1 -> #346698) */
+  background: #346698 !important;
   color: #ffffff !important;
 }
 
@@ -729,7 +730,7 @@ body.hide-navbar-on-landscape-sm
   position: sticky !important;
   left: 0 !important;
   z-index: 55 !important;
-  background: #0b0b0b !important;
+  background: #346698 !important;
   color: #ffffff !important;
 }
 
@@ -829,4 +830,23 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Force white text for the first column car names across all devices and themes.
+   Scoped to the BigCalendar tbody so header month/year selects are not affected. */
+.bigcalendar-root tbody .MuiTableCell-root:first-child,
+.bigcalendar-root tbody .MuiTableCell-root:first-child *,
+.bigcalendar-root .bigcalendar-first-column,
+.bigcalendar-root .bigcalendar-first-column * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important; /* Android / Samsung forced-dark defensive */
+}
+
+/* Ensure month/year selects in the header keep dark text (do not inherit white) */
+.bigcalendar-root .bigcalendar-month-select,
+.bigcalendar-root .bigcalendar-year-select,
+.bigcalendar-root .bigcalendar-month-select *,
+.bigcalendar-root .bigcalendar-year-select * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }
