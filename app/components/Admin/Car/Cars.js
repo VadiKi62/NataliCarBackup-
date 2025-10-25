@@ -27,11 +27,11 @@ function Cars({ onCarDelete, setUpdateStatus }) {
   } = useMainContext();
 
   // Диагностика: выводим массив cars в консоль после загрузки с сервера
-  console.log("Cars.js cars:", cars);
+  // console.log("Cars.js cars:", cars);
   const [carsData, setCars] = useState(cars);
 
-  console.log("cars", cars);
-  console.log("carsData", carsData);
+  // console.log("cars", cars);
+  // console.log("carsData", carsData);
 
   const sortedCars = useMemo(() => {
     return carsData.sort((a, b) => a.model.localeCompare(b.model));

@@ -13,7 +13,7 @@ const styles = ({ theme, isError }) => ({
   [`& .${snackbarContentClasses.root}`]: {
     backgroundColor: isError
       ? theme.palette.primary.red
-      : theme.palette.text.green,
+      : theme.palette.primary.green,
     color: isError ? "white" : theme.palette.text.dark,
     flexWrap: "inherit",
     [theme.breakpoints.up("md")]: {
