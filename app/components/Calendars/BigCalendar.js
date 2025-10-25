@@ -141,14 +141,8 @@ export default function BigCalendar({ cars }) {
   // column is the first visible day column (accounting for the sticky first column).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // treat phones as portrait phones OR small landscape phones
-    const isPhonePortrait = window.matchMedia(
-      "(max-width: 600px) and (orientation: portrait)"
-    ).matches;
-    const isSmallLandscape = window.matchMedia(
-      "(max-width: 900px) and (orientation: landscape)"
-    ).matches;
-    const isPhone = isPhonePortrait || isSmallLandscape;
+    // treat phones as max-width 600px
+    const isPhone = window.matchMedia("(max-width: 600px)").matches;
     if (!isPhone) return;
 
     const container =
@@ -180,16 +174,7 @@ export default function BigCalendar({ cars }) {
         const offset = cellRect.left - tableRect.left;
         // aim to place the target cell right after the sticky first column
         const scrollLeft = Math.max(0, offset - firstRect.width - 4); // small gap
-        // prefer smooth scroll when available, fallback to direct assignment
-        if (typeof container.scrollTo === "function") {
-          try {
-            container.scrollTo({ left: scrollLeft, behavior: "smooth" });
-          } catch (e) {
-            container.scrollLeft = scrollLeft;
-          }
-        } else {
-          container.scrollLeft = scrollLeft;
-        }
+        container.scrollLeft = scrollLeft;
       } catch (e) {
         // ignore
       }
@@ -471,8 +456,7 @@ export default function BigCalendar({ cars }) {
       sx={{
         overflowX: "auto",
         overflowY: "hidden",
-        // on small (portrait) phones give a small top gap so the table header doesn't touch the navbar
-        pt: { xs: "26px", sm: 10 },
+        pt: 10,
         maxWidth: "100vw",
         zIndex: 100,
         height: "calc(100vh - 10px)",
@@ -491,8 +475,6 @@ export default function BigCalendar({ cars }) {
           border: "1px solid #ddd",
           overflowX: "auto", // горизонтальный скролл всегда
           overflowY: "auto",
-          // enable smooth scrolling where supported
-          scrollBehavior: "smooth",
         }}
       >
         {/* minWidth для таблицы, чтобы на телефоне был скролл */}

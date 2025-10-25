@@ -7,16 +7,16 @@ export default async function DataLoader({ viewType }) {
   const companyId = "679903bd10e6c8a8c0f027bc";
 
   // Запускаем загрузку параллельно
-  const companyPromise = fetchCompany(companyId);
-  const carsPromise = fetchAllCars();
-  const ordersPromise = reFetchAllOrders();
+  const companyPromise = await fetchCompany(companyId);
+  const carsPromise = await fetchAllCars();
+  const ordersPromise = await reFetchAllOrders();
 
   return (
     <Suspense fallback={<Loading />}>
       <AdminView
-        company={await companyPromise}
-        cars={await carsPromise}
-        orders={await ordersPromise}
+        company={companyPromise}
+        cars={carsPromise}
+        orders={ordersPromise}
         viewType={viewType}
       />
     </Suspense>
