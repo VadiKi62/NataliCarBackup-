@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#ffffff" />
         <meta name="msapplication-navbutton-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        {/* <meta name="color-scheme" content="light" /> */}
+        {/* <meta  name="color-scheme"  content="light" /> */}
         <meta name="color-scheme" content="only light" />
       </head>
       <body>
