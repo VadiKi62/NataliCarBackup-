@@ -12,6 +12,14 @@ function checkConflictsFixed(allOrders, newStart, newEnd) {
   const conflictingOrders = [];
   const conflictDates = { start: null, end: null };
 
+  // DEBUG: что проверяем
+  try {
+    console.log("[API changeDates] Checking conflicts for:", {
+      newStartISO: dayjs(newStart).toISOString(),
+      newEndISO: dayjs(newEnd).toISOString(),
+    });
+  } catch {}
+
   for (const existingOrder of allOrders) {
     const existingStart = dayjs(existingOrder.timeIn);
     const existingEnd = dayjs(existingOrder.timeOut);
@@ -22,6 +30,17 @@ function checkConflictsFixed(allOrders, newStart, newEnd) {
 
     // Если заказы касаются - это НЕ конфликт
     if (newEndsWhenExistingStarts || newStartsWhenExistingEnds) {
+      try {
+        console.debug(
+          "[API changeDates] touch-only, no conflict with order",
+          existingOrder._id?.toString(),
+          {
+            existingStartISO: existingStart.toISOString(),
+            existingEndISO: existingEnd.toISOString(),
+            confirmed: !!existingOrder.confirmed,
+          }
+        );
+      } catch {}
       continue;
     }
 
@@ -39,6 +58,18 @@ function checkConflictsFixed(allOrders, newStart, newEnd) {
       if (newEnd.isAfter(existingStart) && newEnd.isBefore(existingEnd)) {
         conflictDates.end = existingEnd.toISOString();
       }
+
+      try {
+        console.warn(
+          "[API changeDates] overlap with order",
+          existingOrder._id?.toString(),
+          {
+            existingStartISO: existingStart.toISOString(),
+            existingEndISO: existingEnd.toISOString(),
+            confirmed: !!existingOrder.confirmed,
+          }
+        );
+      } catch {}
     }
   }
 

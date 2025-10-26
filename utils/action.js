@@ -279,6 +279,38 @@ export const changeRentalDates = async (
   numberOfDays // <-- добавить
 ) => {
   try {
+    // Debug: логируем полезную нагрузку для проверки конфликтов времени
+    try {
+      const dj = (v) => (v ? dayjs(v) : null);
+      const fmt = (x) =>
+        x
+          ? { local: x.format("YYYY-MM-DD HH:mm"), iso: x.toISOString() }
+          : null;
+      // В браузере выведем компактную группу; на сервере (если будет вызываться) просто обычные логи
+      if (
+        typeof window !== "undefined" &&
+        window.console &&
+        console.groupCollapsed
+      ) {
+        console.groupCollapsed("action.changeRentalDates ▶ payload");
+        console.log("orderId:", orderId);
+        console.log("car:", car, "carNumber:", carNumber);
+        console.log("placeIn/Out:", placeIn, "/", placeOut);
+        console.log("rentalStartDate:", fmt(dj(newStartDate)));
+        console.log("rentalEndDate:", fmt(dj(newEndDate)));
+        console.log("timeIn:", fmt(dj(timeIn)));
+        console.log("timeOut:", fmt(dj(timeOut)));
+        console.groupEnd();
+      } else {
+        console.log("action.changeRentalDates ▶ orderId:", orderId);
+        console.log("  rentalStartDate:", fmt(dj(newStartDate)));
+        console.log("  rentalEndDate:", fmt(dj(newEndDate)));
+        console.log("  timeIn:", fmt(dj(timeIn)));
+        console.log("  timeOut:", fmt(dj(timeOut)));
+      }
+    } catch (e) {
+      // без падений, если dayjs недоступен
+    }
     const response = await fetch("/api/order/update/changeDates", {
       method: "PUT",
       headers: {

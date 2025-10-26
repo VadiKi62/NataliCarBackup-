@@ -397,8 +397,13 @@ const EditOrderModal = ({
       const selectedCar = cars.find((c) => c._id === editedOrder.car);
 
       const datesToSend = {
-        rentalStartDate: dayjs(editedOrder.rentalStartDate).toDate(),
-        rentalEndDate: dayjs(editedOrder.rentalEndDate).toDate(),
+        // Отправляем даты в UTC, чтобы окружение (локально/хостинг) трактовало их одинаково
+        rentalStartDate: dayjs
+          .utc(editedOrder.rentalStartDate.format("YYYY-MM-DD"))
+          .toDate(),
+        rentalEndDate: dayjs
+          .utc(editedOrder.rentalEndDate.format("YYYY-MM-DD"))
+          .toDate(),
         timeIn: dayjs
           .utc(
             editedOrder.rentalStartDate.format("YYYY-MM-DD") +
@@ -422,6 +427,60 @@ const EditOrderModal = ({
         franchiseOrder: editedOrder.franchiseOrder,
         totalPrice: editedOrder.totalPrice, // <-- сохраняем totalPrice
       };
+
+      // Debug: логируем даты, которые пойдут в проверку конфликтов
+      try {
+        // Используем groupCollapsed, чтобы не засорять консоль
+        console.groupCollapsed(
+          "EditOrderModal ▶ conflict-check payload (before save)"
+        );
+        console.log("Order ID:", editedOrder?._id);
+        console.log(
+          "Car ID:",
+          datesToSend.car,
+          "CarNumber:",
+          datesToSend.carNumber
+        );
+        console.log(
+          "PlaceIn/Out:",
+          datesToSend.placeIn,
+          "/",
+          datesToSend.placeOut
+        );
+        const d = (x) => (x ? dayjs(x) : null);
+        const fmt = (dj) =>
+          dj
+            ? {
+                local: dj.format("YYYY-MM-DD HH:mm"),
+                iso: dj.toISOString(),
+              }
+            : null;
+        console.log("rentalStartDate:", fmt(d(datesToSend.rentalStartDate)));
+        console.log("rentalEndDate:", fmt(d(datesToSend.rentalEndDate)));
+        console.log(
+          "timeIn (UTC composed):",
+          fmt(
+            dayjs.utc(
+              dayjs(editedOrder.rentalStartDate).format("YYYY-MM-DD") +
+                " " +
+                dayjs(startTime).format("HH:mm")
+            )
+          )
+        );
+        console.log(
+          "timeOut (UTC composed):",
+          fmt(
+            dayjs.utc(
+              dayjs(editedOrder.rentalEndDate).format("YYYY-MM-DD") +
+                " " +
+                dayjs(endTime).format("HH:mm")
+            )
+          )
+        );
+        console.groupEnd();
+      } catch (e) {
+        // no-op — логирование не должно ломать сохранение
+      }
 
       const response = await changeRentalDates(
         editedOrder._id,
@@ -795,7 +854,17 @@ const EditOrderModal = ({
                     "YYYY-MM-DD"
                   )}
                   onChange={(e) => {
-                    const newStart = dayjs(e.target.value);
+                    const defaultStartHour = companyData.defaultStart.slice(
+                      0,
+                      2
+                    );
+                    const defaultStartMinute =
+                      companyData.defaultStart.slice(-2);
+                    let newStart = dayjs(e.target.value);
+                    // Устанавливаем дефолтное время получения (например, 17:00)
+                    newStart = newStart
+                      .hour(Number(defaultStartHour))
+                      .minute(Number(defaultStartMinute));
                     setEditedOrder((prev) => {
                       const currentReturn = dayjs(prev.rentalEndDate);
                       // Если новая дата получения делает дату возврата некорректной — не менять дату получения
@@ -825,7 +894,13 @@ const EditOrderModal = ({
                       : ""
                   }
                   onChange={(e) => {
-                    const newReturn = dayjs(e.target.value);
+                    const defaultEndHour = companyData.defaultEnd.slice(0, 2);
+                    const defaultEndMinute = companyData.defaultEnd.slice(-2);
+                    let newReturn = dayjs(e.target.value);
+                    // Устанавливаем дефолтное время возврата (например, 12:00)
+                    newReturn = newReturn
+                      .hour(Number(defaultEndHour))
+                      .minute(Number(defaultEndMinute));
                     const minReturn = dayjs(editedOrder.rentalStartDate).add(
                       1,
                       "day"
