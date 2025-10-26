@@ -500,6 +500,23 @@ const EditOrderModal = ({
         Number(editedOrder.totalPrice),
         Number(editedOrder.numberOfDays)
       );
+      // Доп. логирование: сервер прислал набор заказов, которые проверялись
+      try {
+        if (response && response.debug) {
+          const dbg = response.debug;
+          console.groupCollapsed(
+            "EditOrderModal ▶ conflict-check server-debug (echo)"
+          );
+          console.log("TZ:", dbg.tz);
+          console.log("New period:", dbg.newPeriod);
+          if (console.table && Array.isArray(dbg.existingOrders)) {
+            console.table(dbg.existingOrders);
+          } else {
+            console.log("Existing orders:", dbg.existingOrders);
+          }
+          console.groupEnd();
+        }
+      } catch {}
       showMessage(response.message);
       if (response.status == 202) {
         setConflictMessage1(response.conflicts);

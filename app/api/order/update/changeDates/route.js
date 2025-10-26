@@ -6,6 +6,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // ИСПРАВЛЕННАЯ функция проверки конфликтов
 function checkConflictsFixed(allOrders, newStart, newEnd) {
@@ -225,8 +226,32 @@ export const PUT = async (req) => {
       }))
     );
 
+    // Build debug info to return to client (for browser console visibility)
+    const tz = "Europe/Athens";
+    const debugInfo = {
+      tz,
+      newPeriod: {
+        startISO: dayjs(start).toISOString(),
+        endISO: dayjs(end).toISOString(),
+        startLocal: dayjs(start).tz(tz).format("YYYY-MM-DD HH:mm"),
+        endLocal: dayjs(end).tz(tz).format("YYYY-MM-DD HH:mm"),
+        startOffsetMin: dayjs(start).tz(tz).utcOffset(),
+        endOffsetMin: dayjs(end).tz(tz).utcOffset(),
+      },
+      existingOrders: allOrders.map((o) => ({
+        id: o._id.toString(),
+        confirmed: !!o.confirmed,
+        timeInISO: dayjs(o.timeIn).toISOString(),
+        timeOutISO: dayjs(o.timeOut).toISOString(),
+        timeInLocal: dayjs(o.timeIn).tz(tz).format("YYYY-MM-DD HH:mm"),
+        timeOutLocal: dayjs(o.timeOut).tz(tz).format("YYYY-MM-DD HH:mm"),
+        inOffsetMin: dayjs(o.timeIn).tz(tz).utcOffset(),
+        outOffsetMin: dayjs(o.timeOut).tz(tz).utcOffset(),
+      })),
+    };
+
     // ИСПОЛЬЗУЕМ ИСПРАВЛЕННУЮ функцию проверки конфликтов
-    const { status, data } = checkConflictsFixed(allOrders, start, end);
+  const { status, data } = checkConflictsFixed(allOrders, start, end);
 
     console.log("Conflict check result:", { status, data });
 
@@ -237,6 +262,7 @@ export const PUT = async (req) => {
             JSON.stringify({
               message: data?.conflictMessage,
               conflictDates: data?.conflictDates,
+              debug: debugInfo,
             }),
             {
               status: 409,
@@ -248,6 +274,7 @@ export const PUT = async (req) => {
             JSON.stringify({
               message: data.conflictMessage,
               conflictDates: data.conflictDates,
+              debug: debugInfo,
             }),
             {
               status: 408,
@@ -300,6 +327,7 @@ export const PUT = async (req) => {
               message: data.conflictMessage,
               conflicts: data.conflictDates,
               updatedOrder: updatedOrder,
+              debug: debugInfo,
             }),
             {
               status: 202,
@@ -379,6 +407,7 @@ export const PUT = async (req) => {
       JSON.stringify({
         message: `ВСЕ ОТЛИЧНО! Даты изменены.`,
         data: order,
+        debug: debugInfo,
       }),
       {
         status: 201,

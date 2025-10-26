@@ -34,6 +34,23 @@ export const fetchCar = async (id) => {
     }
 
     const data = await response.json();
+
+    // Client-side debug: print server's conflict-check dataset if provided
+    try {
+      if (data && data.debug) {
+        const dbg = data.debug;
+        const title = "action.changeRentalDates ▶ conflict-check server-debug";
+        if (console.groupCollapsed) console.groupCollapsed(title);
+        console.log("TZ:", dbg.tz);
+        console.log("New period:", dbg.newPeriod);
+        if (console.table && Array.isArray(dbg.existingOrders)) {
+          console.table(dbg.existingOrders);
+        } else {
+          console.log("Existing orders:", dbg.existingOrders);
+        }
+        if (console.groupEnd) console.groupEnd();
+      }
+    } catch {}
     console.log("Fetched Car:", data);
     return data;
   } catch (error) {
@@ -346,6 +363,7 @@ export const changeRentalDates = async (
         status: 201,
         message: data.message,
         updatedOrder: data.data,
+        debug: data.debug,
       };
     } else if (response.status === 202) {
       // Handle non-confirmed conflict dates (partial update)
@@ -353,8 +371,9 @@ export const changeRentalDates = async (
       return {
         status: 202,
         message: data.message,
-        conflicts: data.data.nonConfirmedOrders,
-        updatedOrder: data.data.updatedOrder,
+        conflicts: data.data?.nonConfirmedOrders ?? data.conflicts,
+        updatedOrder: data.data?.updatedOrder ?? undefined,
+        debug: data.debug,
       };
     } else if (response.status === 408) {
       // Handle non-confirmed conflict dates (partial update)
@@ -363,6 +382,7 @@ export const changeRentalDates = async (
         status: 408,
         message: data.message,
         conflicts: data.conflictDates,
+        debug: data.debug,
       };
     } else if (response.status === 409) {
       // Handle confirmed conflict dates (no update)
@@ -371,6 +391,7 @@ export const changeRentalDates = async (
         status: 409,
         message: data.message,
         conflicts: data.confirmedOrders,
+        debug: data.debug,
       };
     } else {
       // Handle unexpected responses
@@ -379,6 +400,7 @@ export const changeRentalDates = async (
         status: response.status,
         message: data.message || "Unexpected response",
         data: data,
+        debug: data.debug,
       };
     }
   } catch (error) {
